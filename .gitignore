@@ -1,0 +1,37 @@
+# ============================================================
+# .gitignore — As Águas de Apsu (apsu-game)
+# ============================================================
+
+# Artefatos de Compilação Java / Maven
+target/
+build/
+out/
+*.class
+*.jar
+*.war
+*.ear
+
+# Logs de Execução e Testes
+*.log
+logs/
+
+# Backups Automáticos do Blender
+*.blend1
+*.blend2
+
+# Cache de Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Arquivos de IDEs e Editores
+.idea/
+*.iml
+.vscode/
+*.swp
+*~
+.DS_Store
+
+# Binários Temporários MPI
+mpi/map_gen
+mpi/*.o

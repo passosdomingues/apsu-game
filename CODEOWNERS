@@ -1,0 +1,28 @@
+# CODEOWNERS — As Águas de Apsu (`apsu-game`)
+# Define os responsáveis por revisão de código de cada módulo do projeto.
+# Substitua os placeholders abaixo pelos usernames reais do GitHub.
+
+# DEV 1 — Núcleo do Jogo (Core Engine, Eventos, Estado)
+/src/main/java/br/apsu/core/**       @SUBSTITUIR-dev1-core
+/src/main/java/br/apsu/audio/**      @SUBSTITUIR-dev1-core
+/src/main/java/br/apsu/Launcher.java  @SUBSTITUIR-dev1-core
+/src/main/java/br/apsu/ApsuGameMain.java @SUBSTITUIR-dev1-core
+
+# DEV 2 — Gráficos (RenderEngine, Sprites, Câmera, Shaders, HUD)
+/src/main/java/br/apsu/graphics/**   @SUBSTITUIR-dev2-graphics
+
+# DEV 3 — Gameplay (Heroi, Inimigos, Boss, Guardiões, Projéteis, Físicas)
+/src/main/java/br/apsu/model/**      @SUBSTITUIR-dev3-gameplay
+
+# DEV 4 — Pipeline de Assets 3D (Blender, Scripts bpy, Spritesheets)
+/personagens/**                       @SUBSTITUIR-dev4-assets
+/assets/**                            @SUBSTITUIR-dev4-assets
+
+# DEV 5 — Plataforma, Build e Sistemas (MPI, Tools, CI/CD, Makefile)
+/mpi/**                               @SUBSTITUIR-dev5-platform
+/tools/**                             @SUBSTITUIR-dev5-platform
+/.github/**                           @SUBSTITUIR-dev5-platform
+/Makefile                             @SUBSTITUIR-dev5-platform
+/pom.xml                              @SUBSTITUIR-dev5-platform @SUBSTITUIR-dev1-core
+/docker-compose.yml                   @SUBSTITUIR-dev5-platform
+/docs/**                              @SUBSTITUIR-dev1-core @SUBSTITUIR-dev5-platform

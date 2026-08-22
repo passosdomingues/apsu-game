@@ -1,0 +1,190 @@
+// ============================================================
+// DIAGRAMA DE ARQUITETURA DE CLASSES — AS ÁGUAS DE APSU
+// Formato: Graphviz DOT (Estilo Preto no Branco / Monocromático)
+// ============================================================
+
+digraph ClassArchitecture {
+    // Configurações Globais do Grafo (Estilo Alto Contraste "Preto no Branco")
+    graph [
+        rankdir=TB,
+        splines=true,
+        nodesep=0.6,
+        ranksep=0.8,
+        bgcolor="white",
+        fontname="Courier-Bold",
+        fontsize=14,
+        label="AS ÁGUAS DE APSU — ARQUITETURA COMPLETA DE CLASSES (DE PONTA A PONTA)\n ",
+        labelloc="t"
+    ];
+
+    node [
+        shape=rect,
+        style="filled,bold",
+        fillcolor="#FFFFFF",
+        color="#000000",
+        fontcolor="#000000",
+        fontname="Courier",
+        fontsize=10,
+        margin="0.2,0.1"
+    ];
+
+    edge [
+        color="#000000",
+        fontcolor="#000000",
+        fontname="Courier",
+        fontsize=8,
+        arrowsize=0.8,
+        penwidth=1.2
+    ];
+
+    // ============================================================
+    // SUBGRAFO: ENTRY POINTS (Pontos de Entrada da Aplicação)
+    // ============================================================
+    subgraph cluster_entry {
+        label = "ENTRY POINTS (br.apsu.*)";
+        style = "dashed,bold";
+        color = "#000000";
+        fillcolor = "#FAFAFA";
+
+        Launcher [label="Launcher\n[main() Fat JAR Wrapper]"];
+        ApsuGameMain [label="ApsuGameMain\n[JavaFX Application / Lifecycle]"];
+        ApsuGame [label="ApsuGame\n[Legacy Canvas Driver]", style="dotted"];
+        ApsuFXGLGame [label="ApsuFXGLGame\n[FXGL 21.1 Migration Lab]", style="dotted"];
+    }
+
+    // ============================================================
+    // SUBGRAFO: CORE ENGINE (Motor Principal e Gerenciamento de Estado)
+    // ============================================================
+    subgraph cluster_core {
+        label = "CORE ENGINE (br.apsu.core.*)";
+        style = "bold";
+        color = "#000000";
+        fillcolor = "#F5F5F5";
+
+        GameLoop [label="GameLoop\n[AnimationTimer / 60 FPS Loop]"];
+        GameContext [label="GameContext\n[Central State & Physics World]"];
+        InputManager [label="InputManager\n[Keyboard State Tracking]"];
+        Camera [label="Camera\n[2.5D Viewport / Parallax Scroll]"];
+        Viewport [label="Viewport\n[Responsive Resolution Scaler]"];
+        FrameMetrics [label="FrameMetrics\n[FPS / Delta Time Tracker]"];
+        AdaptiveDifficulty [label="AdaptiveDifficulty\n[Dynamic Pressure Scaler]"];
+        SaveManager [label="SaveManager\n[JSON Progress Persistence]"];
+        QuadTree [label="QuadTree\n[Spatial Index / AABB Collisions]"];
+        MPIMapLoader [label="MPIMapLoader\n[MPI C Layout JSON Parser]"];
+    }
+
+    // ============================================================
+    // SUBGRAFO: EVENT SYSTEM (Barramento de Eventos Desacoplado)
+    // ============================================================
+    subgraph cluster_events {
+        label = "EVENT SYSTEM (br.apsu.core.events.*)";
+        style = "bold";
+        color = "#000000";
+        fillcolor = "#F0F0F0";
+
+        EventBus [label="EventBus\n[Pub/Sub Event Dispatcher]"];
+        GameEvent [label="GameEvent\n[Event Payload / Type Enum]"];
+    }
+
+    // ============================================================
+    // SUBGRAFO: GRAPHICS ENGINE (Subsistema de Renderização)
+    // ============================================================
+    subgraph cluster_graphics {
+        label = "GRAPHICS ENGINE (br.apsu.graphics.*)";
+        style = "bold";
+        color = "#000000";
+        fillcolor = "#EBEBEB";
+
+        RenderEngine [label="RenderEngine\n[Imperative Canvas Painter]"];
+        UIRenderer [label="UIRenderer\n[HUD / Dialogs / Radar / Menu]"];
+        SpriteManager [label="SpriteManager\n[Baked 2.5D PNG Cache]"];
+        LightingEngine [label="LightingEngine\n[Fresnel Rim Light / SSS Shader]"];
+    }
+
+    // ============================================================
+    // SUBGRAFO: AUDIO SYSTEM (Subsistema de Som e Música)
+    // ============================================================
+    subgraph cluster_audio {
+        label = "AUDIO SYSTEM (br.apsu.audio.*)";
+        style = "bold";
+        color = "#000000";
+        fillcolor = "#E8E8E8";
+
+        AudioManager [label="AudioManager\n[WAV Music & FX Mixer]"];
+        AudioEventSubscriber [label="AudioEventSubscriber\n[EventBus -> Audio Bridge]"];
+    }
+
+    // ============================================================
+    // SUBGRAFO: DOMAIN MODEL (Entidades e Elementos do Jogo)
+    // ============================================================
+    subgraph cluster_model {
+        label = "DOMAIN MODEL (br.apsu.model.*)";
+        style = "bold";
+        color = "#000000";
+        fillcolor = "#E0E0E0";
+
+        HeroEntity [label="HeroEntity\n[Adapa Physics & Swimming]"];
+        HeroType [label="HeroType\n[Skins: Standard, Abyssal, Golden, Reef]"];
+        EnemyEntity [label="EnemyEntity\n[Eel, Manta, Leviathan, Crab, Fish]"];
+        EnemyType [label="EnemyType\n[Enemy AI Specs & Stats]"];
+        BossEntity [label="BossEntity\n[Kullullu 3-Stage Boss]"];
+        GuardianEntity [label="GuardianEntity\n[Zone Guardians & Oracles]"];
+        SceneryElement [label="SceneryElement\n[Chests, Ships, Ruins, Obstacles]"];
+        Projectile [label="Projectile\n[Bioluminescent Bubble Shots]"];
+        Difficulty [label="Difficulty\n[Easy, Normal, Hard Enums]"];
+        ParticleSystem [label="ParticleSystem\n[Bubble & Spark Particles]"];
+    }
+
+    // ============================================================
+    // RELAÇÕES E FLUXO DE COMUNICAÇÃO DE PONTA A PONTA
+    // ============================================================
+
+    // Inicialização e Entry Points
+    Launcher -> ApsuGameMain [label="calls main()"];
+    ApsuGameMain -> Viewport [label="computes scale"];
+    ApsuGameMain -> EventBus [label="instantiates"];
+    ApsuGameMain -> AudioManager [label="starts music"];
+    ApsuGameMain -> AudioEventSubscriber [label="binds to bus"];
+    ApsuGameMain -> SaveManager [label="passes to context"];
+    ApsuGameMain -> GameContext [label="creates context"];
+    ApsuGameMain -> RenderEngine [label="creates renderer"];
+    ApsuGameMain -> GameLoop [label="instantiates & starts"];
+
+    // Fluxo do Loop Principal (60 FPS)
+    GameLoop -> FrameMetrics [label="tracks delta/FPS"];
+    GameLoop -> GameContext [label="1. update(delta)"];
+    GameLoop -> RenderEngine [label="2. render(gc, context)"];
+
+    // Orquestração no GameContext
+    GameContext -> InputManager [label="reads keys"];
+    GameContext -> Camera [label="updates scroll"];
+    GameContext -> QuadTree [label="rebuilds spatial index"];
+    GameContext -> AdaptiveDifficulty [label="evaluates pressure"];
+    GameContext -> SaveManager [label="saves/loads JSON"];
+    GameContext -> MPIMapLoader [label="loads MPI layouts"];
+    GameContext -> EventBus [label="publishes events"];
+
+    // Gerenciamento de Entidades no GameContext
+    GameContext -> HeroEntity [label="owns hero"];
+    GameContext -> EnemyEntity [label="owns active list"];
+    GameContext -> BossEntity [label="owns Kullullu"];
+    GameContext -> GuardianEntity [label="owns guardians"];
+    GameContext -> SceneryElement [label="owns scenery"];
+    GameContext -> Projectile [label="owns bubbles"];
+    GameContext -> ParticleSystem [label="owns particles"];
+
+    // Relações do Modelo de Domínio
+    HeroEntity -> HeroType [label="configured by"];
+    HeroEntity -> Difficulty [label="attributes scaled by"];
+    EnemyEntity -> EnemyType [label="configured by"];
+
+    // Pipeline de Renderização (RenderEngine)
+    RenderEngine -> Camera [label="converts World -> Screen"];
+    RenderEngine -> SpriteManager [label="gets baked 2.5D frames"];
+    RenderEngine -> LightingEngine [label="applies Rim Light & SSS"];
+    RenderEngine -> UIRenderer [label="delegates HUD & Menus"];
+
+    // Barramento de Eventos -> Áudio
+    AudioEventSubscriber -> EventBus [label="subscribes to events"];
+    AudioEventSubscriber -> AudioManager [label="plays sound FX"];
+}

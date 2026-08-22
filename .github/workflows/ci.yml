@@ -1,0 +1,31 @@
+name: CI Build & Test Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Compile Java Code
+        run: mvn compile --batch-mode
+
+      - name: Run JUnit 5 Automated Tests
+        run: mvn test --batch-mode
+
+      - name: Validate Packaging (Fat JAR)
+        run: mvn package --batch-mode -DskipTests

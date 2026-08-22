@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  apsu-game:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: apsu-game:0.2.0-SNAPSHOT
+    container_name: apsu-game-app
+    environment:
+      - DISPLAY=${DISPLAY:-:0}
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    devices:
+      - /dev/dri:/dev/dri
+    network_mode: host
