@@ -27,5 +27,13 @@ jobs:
       - name: Run JUnit 5 Automated Tests
         run: mvn test --batch-mode
 
-      - name: Validate Packaging (Fat JAR)
+      - name: Build Executable Fat JAR
         run: mvn package --batch-mode -DskipTests
+
+      - name: Upload Playable Game Artifact (Fat JAR)
+        uses: actions/upload-artifact@v4
+        with:
+          name: apsu-game-v1.0.0-playable
+          path: target/*-jar-with-dependencies.jar
+          if-no-files-found: warn
+          retention-days: 30
