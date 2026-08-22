@@ -1,10 +1,10 @@
 # Walkthrough: Fase 3D de Atlantis ("As Águas de Apsu")
 
-O cenário 3D completo da fase submersa de Atlantis foi construído procedurally em Python (`bpy`) e salvo no Blender 4.5, integrando todos os modelos, personagens, animações, shaders procedurais e iluminação aquática.
+O cenário 3D completo da fase submersa de Atlantis foi construído proceduralmente em Python (`bpy`) e salvo no Blender 4.5, integrando todos os modelos, personagens, animações, shaders procedurais e iluminação aquática.
 
 ---
 
-## 🏛️ Estrutura do Cenário 3D & Seções da Fase
+## Estrutura do Cenário 3D & Seções da Fase
 
 O cenário possui 64 unidades de extensão e é dividido em 4 zonas interconectadas:
 
@@ -25,7 +25,7 @@ O cenário possui 64 unidades de extensão e é dividido em 4 zonas interconecta
 
 ---
 
-## 🏊‍♂️ Animações e Dinâmica de Jogo
+## Animações e Dinâmica de Jogo
 
 - **Herói Adapa**:
   - Ciclo contínuo de nado horizontal com ondulação senoidal da cauda segmentada e nadadeiras dorsais/caudais.
@@ -42,35 +42,19 @@ O cenário possui 64 unidades de extensão e é dividido em 4 zonas interconecta
 
 ---
 
-## 🖼️ Galeria de Renders da Fase
-
-````carousel
-![Panorâmica Geral da Cidade de Atlantis](C:/Users/incub/.gemini/antigravity/brain/5d9a5c5a-0173-489f-b645-ddb82bab4e1a/01_panoramica_geral_fase.png)
-<!-- slide -->
-![Adapa nadando pelos Recifes próximo a Enki e ao Naufrágio](C:/Users/incub/.gemini/antigravity/brain/5d9a5c5a-0173-489f-b645-ddb82bab4e1a/02_adapa_nadando_recife_enki.png)
-<!-- slide -->
-![Adapa atravessando a Colunata Monumental e os Guardiões de Atlantis](C:/Users/incub/.gemini/antigravity/brain/5d9a5c5a-0173-489f-b645-ddb82bab4e1a/03_adapa_cidade_colunata_guardiao.png)
-<!-- slide -->
-![Desfiladeiro de Perigos, Gêiseres de Bolhas e Minas de Espinhos](C:/Users/incub/.gemini/antigravity/brain/5d9a5c5a-0173-489f-b645-ddb82bab4e1a/04_adapa_desfiladeiro_perigos.png)
-<!-- slide -->
-![Confronto Final com o Boss Kullullû no Portal de Apsu](C:/Users/incub/.gemini/antigravity/brain/5d9a5c5a-0173-489f-b645-ddb82bab4e1a/05_boss_kullullu_confronto.png)
-````
-
----
-
-## 📂 Arquivos Criados
+## Arquivos Relacionados
 
 | Arquivo | Localização | Descrição |
 |---|---|---|
-| **Script Procedural da Fase** | [`fase_atlantis_apsu_3d.py`](file:///C:/Users/incub/Downloads/102B_ptrmn154526/code/personagens/scripts/fase_atlantis_apsu_3d.py) | Código Python que gera a fase completa, shaders, iluminação e animações. |
-| **Cena Blender 3D** | [`fase_atlantis_apsu_3d.blend`](file:///C:/Users/incub/Downloads/102B_ptrmn154526/code/personagens/blends/fase_atlantis_apsu/fase_atlantis_apsu_3d.blend) | Arquivo 3D completo do Blender 4.5 organizado em 11 coleções no Outliner. |
-| **Imagens Renderizadas** | [Pasta de Renders](file:///C:/Users/incub/Downloads/102B_ptrmn154526/code/personagens/renders/fase_atlantis_apsu) | 5 imagens em alta resolução capturando todos os setores da fase. |
+| **Script Procedural da Fase** | `personagens/scripts/fase_atlantis_apsu_3d.py` | Código Python que gera a fase completa, shaders, iluminação e animações. |
+| **Cena Blender 3D** | `personagens/blends/fase_atlantis_apsu_3d.blend` | Arquivo 3D completo do Blender 4.5 organizado em coleções no Outliner. |
+| **Imagens Renderizadas** | `personagens/renders/` | Imagens em alta resolução capturando os setores da fase. |
 
 ---
 
-## 🎮 Como Visualizar e Reproduzir a Animação no Blender
+## Como Visualizar e Reproduzir a Animação no Blender
 
-1. Abra o Blender 4.5 e carregue o arquivo [`fase_atlantis_apsu_3d.blend`](file:///C:/Users/incub/Downloads/102B_ptrmn154526/code/personagens/blends/fase_atlantis_apsu/fase_atlantis_apsu_3d.blend).
+1. Abra o Blender 4.5 e execute o script `personagens/scripts/fase_atlantis_apsu_3d.py`.
 2. Pressione **Espaço** (Spacebar) para dar **Play** na timeline:
    - Você verá o **Adapa** nadando suavemente ondulando a cauda, disparando bolhas e avançando por toda a fase de Atlantis.
    - O orbe de **Enki** gira, os peixes e medusas patrulham e os gêiseres soltam bolhas.
