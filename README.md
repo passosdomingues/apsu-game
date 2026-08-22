@@ -233,6 +233,12 @@ O `Makefile` adota um visual retro de fliperama no terminal e gerencia o ambient
 > - **Linux:** `export JAVA_HOME=$HOME/java/current`
 > - **Windows:** `$env:JAVA_HOME="C:\Program Files\Eclipse Adoptium\jdk-21.0.4.7-hotspot"`
 
+> [!TIP]
+> **Permissão de Execução do JAR Baixado no Linux ("Blocked for Security Reasons")**
+> Se o navegador ou gerenciador de arquivos bloquear o `.jar` baixado por segurança:
+> - **Via Terminal:** `chmod +x ~/Downloads/apsu-game-1.0.0.jar && java -jar ~/Downloads/apsu-game-1.0.0.jar`
+> - **Via Interface Gráfica:** Clique com o botão direito no `.jar` -> *Propriedades* -> *Permissões* -> Marque *"Permitir execução do arquivo como programa"*.
+
 > [!NOTE]
 > **Renderização via Software (Hardware Sem GPU)**
 > Se estiver rodando em máquina sem aceleração gráfica nativa ou em máquina virtual, execute com fallback por software:
