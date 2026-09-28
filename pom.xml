@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
 
     <name>As Águas de Apsu</name>
-    <description>Jogo 2D de mitologia mesopotâmica — A Lenda dos Apkallu</description>
+    <description>Jogo de ação com cenário 2.5D e personagens 3D em tempo real — A Lenda dos Apkallu</description>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -176,7 +176,9 @@
                         </manifest>
                     </archive>
                     <finalName>apsu-game-${project.version}</finalName>
-                    <appendAssemblyId>false</appendAssemblyId>
+                    <!-- Keep the regular app JAR distinct; appendAssemblyId=false
+                         overwrote it with an empty self-including assembly. -->
+                    <appendAssemblyId>true</appendAssemblyId>
                 </configuration>
                 <executions>
                     <execution>

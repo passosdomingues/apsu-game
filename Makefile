@@ -69,17 +69,27 @@ CLR_DIM    := \033[2;37m
 CLR_RED    := \033[1;31m
 CLR_RESET  := \033[0m
 
-.PHONY: all setup copy-blends clean-blender-backups test build run stop generate-characters generate-variant-attacks render-sprites render-variant-attacks assets assets-variant-attacks package docker-build docker-run mpi-demo mpi-generate clean help
+.PHONY: all setup setup-assets setup-mpi copy-blends clean-blender-backups test build run stop generate-characters generate-geyser-model export-runtime-models generate-variant-attacks render-sprites render-variant-attacks assets assets-variant-attacks package docker-build docker-run mpi-demo mpi-generate clean help
 
 # Target padrão
-all: setup copy-blends run
+all: setup run
 
 ## Verifica e instala dependências de forma 100% idempotente
 setup:
 	@echo "$(CLR_HEADER)+-----------------------------------------------------------------------+$(CLR_RESET)"
 	@echo "$(CLR_HEADER)| [SETUP] SYSTEM VERIFICATION & DEPENDENCY ORCHESTRATION               |$(CLR_RESET)"
 	@echo "$(CLR_HEADER)+-----------------------------------------------------------------------+$(CLR_RESET)"
-	@$(SHELL_SETUP)
+	@$(if $(filter 1,$(IS_WINDOWS)),$(SHELL_SETUP) -RuntimeOnly,APSU_RUNTIME_ONLY=1 $(SHELL_SETUP))
+
+## Instala também Blender/OpenMPI, necessários só para geração de assets e mapas
+setup-assets:
+	@echo "$(CLR_CYAN)[SETUP] Checking asset-generation dependencies...$(CLR_RESET)"
+	@$(if $(filter 1,$(IS_WINDOWS)),$(SHELL_SETUP),APSU_SKIP_MPI=1 $(SHELL_SETUP))
+
+## Instala OpenMPI sob demanda, sem baixar Blender
+setup-mpi:
+	@echo "$(CLR_CYAN)[SETUP] Checking OpenMPI dependencies...$(CLR_RESET)"
+	@$(if $(filter 1,$(IS_WINDOWS)),$(SHELL_SETUP),APSU_SKIP_BLENDER=1 $(SHELL_SETUP))
 
 ## Organiza e copia os modelos 3D .blend para assets/
 copy-blends:
@@ -125,42 +135,53 @@ run: setup
 	@$(MVN_CMD) javafx:run
 
 ## Regenera TODOS os modelos .blend via Python/bpy
-generate-characters: setup
+generate-characters: setup-assets
 	@echo "$(CLR_CYAN)[BAKE ] Re-generating 3D models (.blend) via Blender Python API...$(CLR_RESET)"
 	@BLENDER_BIN="$(BLENDER_BIN)" $(PYTHON_CMD) personagens/scripts/gerador_mestre_apsu.py
+	@$(MAKE) --no-print-directory export-runtime-models
 	@echo "$(CLR_GREEN)[OK] All .blend models re-generated successfully.$(CLR_RESET)"
 
-## Renderiza sequências 2.5D no Blender
-render-sprites: setup
-	@echo "$(CLR_CYAN)[BAKE ] Baking 2.5D PNG sprite sequences using Blender...$(CLR_RESET)"
+## Exporta personagens do Blender como malhas OBJ/MTL carregadas no jogo
+export-runtime-models: setup-assets generate-geyser-model
+	@echo "$(CLR_CYAN)[3D   ] Exporting runtime character meshes from Blender...$(CLR_RESET)"
+	@$(BLENDER_BIN) --background --python tools/assets/export_runtime_3d_models.py -- "$(CURDIR)"
+	@echo "$(CLR_GREEN)[OK] Runtime 3D character models exported.$(CLR_RESET)"
+
+## Gera o modelo low-poly 3D do gêiser para o pipeline de runtime
+generate-geyser-model: setup-assets
+	@$(BLENDER_BIN) --background --python tools/assets/generate_geyser_3d.py -- "$(CURDIR)"
+
+## Renderiza PNGs 2.5D do cenário (personagens são modelos 3D de runtime)
+render-sprites: setup-assets
+	@echo "$(CLR_CYAN)[BAKE ] Baking 2.5D scenery PNGs using Blender...$(CLR_RESET)"
 	@$(BLENDER_BIN) --background --python tools/assets/render_all_2d5_sprites.py
-	@echo "$(CLR_GREEN)[OK] 2.5D PNG rendering complete.$(CLR_RESET)"
+	@echo "$(CLR_GREEN)[OK] 2.5D scenery rendering complete.$(CLR_RESET)"
 
 ## Gera poses de ataque das variantes
-generate-variant-attacks: setup
+generate-variant-attacks: setup-assets
 	@echo "$(CLR_CYAN)[BAKE ] Generating variant attack poses (.blend)...$(CLR_RESET)"
 	@$(BLENDER_BIN) --background --python personagens/scripts/01_adapa_variacoes_ataque.py
 	@echo "$(CLR_GREEN)[OK] Variant attack poses generated.$(CLR_RESET)"
 
-## Renderiza sprites de ataque das variantes
+## Gera renders PNG de preview das poses de ataque (não usados no jogo)
 render-variant-attacks: setup
 	@echo "$(CLR_CYAN)[BAKE ] Baking variant attack sprites...$(CLR_RESET)"
 	@$(BLENDER_BIN) --background --python tools/assets/render_all_2d5_sprites.py -- --only 01_adapa_var_abissal_ataque_thrust,01_adapa_var_abissal_ataque_slash,01_adapa_var_abissal_ataque_spin,01_adapa_var_abissal_ataque_charge,01_adapa_var_deus_dourado_ataque_thrust,01_adapa_var_deus_dourado_ataque_slash,01_adapa_var_deus_dourado_ataque_spin,01_adapa_var_deus_dourado_ataque_charge,01_adapa_var_recife_ataque_thrust,01_adapa_var_recife_ataque_slash,01_adapa_var_recife_ataque_spin,01_adapa_var_recife_ataque_charge
-	@echo "$(CLR_GREEN)[OK] Variant attack sprites baked successfully.$(CLR_RESET)"
+	@echo "$(CLR_GREEN)[OK] Variant attack preview renders baked.$(CLR_RESET)"
 
-## Pipeline completo de assets 3D -> 2.5D
+## Pipeline completo: modelos de personagens 3D runtime + cenários/PNGs 2.5D
 assets: generate-characters render-sprites copy-blends clean-blender-backups
-	@echo "$(CLR_GREEN)[OK] Full 3D->2.5D Asset Pipeline Completed!$(CLR_RESET)"
+	@echo "$(CLR_GREEN)[OK] Full 3D character + 2.5D scenery asset pipeline completed.$(CLR_RESET)"
 
 ## Pipeline rápido de variantes
-assets-variant-attacks: generate-variant-attacks render-variant-attacks copy-blends
-	@echo "$(CLR_GREEN)[OK] Fast Variant Attack Pipeline Completed!$(CLR_RESET)"
+assets-variant-attacks: generate-variant-attacks export-runtime-models copy-blends
+	@echo "$(CLR_GREEN)[OK] Fast 3D variant attack models exported for runtime.$(CLR_RESET)"
 
 ## Gera Fat JAR executável
 package: build
 	@echo "$(CLR_CYAN)[PACK ] Building Fat JAR package in target/...$(CLR_RESET)"
 	@$(MVN_CMD) package -q -DskipTests
-	@echo "$(CLR_GREEN)[OK] Executable JAR created: target/$(APP_NAME)-$(VERSION).jar$(CLR_RESET)"
+	@echo "$(CLR_GREEN)[OK] Executable JAR created: target/apsu-game-1.0.0-jar-with-dependencies.jar$(CLR_RESET)"
 
 ## Constrói a imagem Docker
 docker-build:
@@ -170,9 +191,10 @@ docker-build:
 ## Executa container Docker com X11 forwarding
 docker-run: docker-build
 	@echo "$(CLR_CYAN)[DOCK ] Running game in Docker container with X11 forwarding...$(CLR_RESET)"
-	@xhost +local:docker > /dev/null 2>&1 || xhost + > /dev/null 2>&1 || true
+	@command -v xhost >/dev/null 2>&1 && xhost +local:docker > /dev/null 2>&1 || true
 	@DRI_FLAGS=$$( [ -d /dev/dri ] && echo "--device /dev/dri:/dev/dri" || echo "" ); \
-	docker run --rm --name $(APP_NAME) -e DISPLAY=$${DISPLAY:-:0} -v /tmp/.X11-unix:/tmp/.X11-unix:rw $$DRI_FLAGS $(APP_NAME):$(VERSION)
+	docker run --rm --name $(APP_NAME) -e DISPLAY=$${DISPLAY:-:0} -e LIBGL_ALWAYS_SOFTWARE=$${LIBGL_ALWAYS_SOFTWARE:-1} \
+	-v $${X11_SOCKET_DIR:-/tmp/.X11-unix}:/tmp/.X11-unix:rw $$DRI_FLAGS $(APP_NAME):$(VERSION)
 
 ## Encerra containers Docker
 stop:
@@ -182,19 +204,26 @@ stop:
 	@echo "$(CLR_GREEN)[OK] Docker containers stopped.$(CLR_RESET)"
 
 ## Executa a demonstração MPI paralela em C
-mpi-demo: setup
+mpi-demo: setup-mpi
 	@echo "$(CLR_CYAN)[MPI  ] Compiling and running parallel C map generator...$(CLR_RESET)"
 	@mkdir -p $(MPI_DIR)
-	@mpicc -O2 -o $(MPI_DIR)/map_gen $(MPI_DIR)/src/MapGenerator.c 2>/dev/null || echo "[INFO] OpenMPI is optimized for Linux/WSL environments."
-	@mpirun --oversubscribe -np $(MPI_PROCESSES) $(MPI_DIR)/map_gen --phase 1 2>/dev/null || true
+	@command -v mpicc >/dev/null || { echo "[ERROR] mpicc (OpenMPI) is required for mpi-demo."; exit 1; }
+	@command -v mpirun >/dev/null || { echo "[ERROR] mpirun (OpenMPI) is required for mpi-demo."; exit 1; }
+	@mpicc -O2 -Wall -Wextra -o $(MPI_DIR)/map_gen $(MPI_DIR)/src/MapGenerator.c
+	@mpirun --oversubscribe -np $(MPI_PROCESSES) $(MPI_DIR)/map_gen --phase 1
 
 ## Gera os 5 layouts JSON via MPI
-mpi-generate: setup
+mpi-generate: setup-mpi
 	@echo "$(CLR_CYAN)[MPI  ] Generating 5 phase layouts via MPI...$(CLR_RESET)"
 	@mkdir -p $(MPI_DIR)/generated
-	@mpicc -O2 -Wall -o $(MPI_DIR)/map_gen $(MPI_DIR)/src/MapGenerator.c 2>/dev/null || echo "[INFO] OpenMPI is optimized for Linux/WSL environments."
-	@for phase in 1 2 3 4 5; do \
-		mpirun --oversubscribe -np $(MPI_PROCESSES) $(MPI_DIR)/map_gen --phase $$phase --output $(MPI_DIR)/generated/phase-$$phase.json > /dev/null 2>&1 || true; \
+	@command -v mpicc >/dev/null || { echo "[ERROR] mpicc (OpenMPI) is required for mpi-generate."; exit 1; }
+	@command -v mpirun >/dev/null || { echo "[ERROR] mpirun (OpenMPI) is required for mpi-generate."; exit 1; }
+	@mpicc -O2 -Wall -Wextra -o $(MPI_DIR)/map_gen $(MPI_DIR)/src/MapGenerator.c
+	@set -eu; for phase in 1 2 3 4 5; do \
+		tmp=$(MPI_DIR)/generated/phase-$$phase.json.tmp; \
+		mpirun --oversubscribe -np $(MPI_PROCESSES) $(MPI_DIR)/map_gen --phase $$phase --output $$tmp; \
+		test -s $$tmp; \
+		mv $$tmp $(MPI_DIR)/generated/phase-$$phase.json; \
 	done
 	@echo "$(CLR_GREEN)[OK] MPI JSON phase layouts generated in $(MPI_DIR)/generated/$(CLR_RESET)"
 
@@ -218,10 +247,10 @@ help:
 	@echo "  $(CLR_GREEN)make setup$(CLR_RESET)                   Check & install dependencies (idempotent)"
 	@echo "  $(CLR_GREEN)make build$(CLR_RESET)                   Compile Java 21 classes"
 	@echo "  $(CLR_GREEN)make test$(CLR_RESET)                    Execute JUnit 5 test suite (45 tests)"
-	@echo "  $(CLR_CYAN)make assets$(CLR_RESET)                  Full 3D pipeline: Python -> .blend -> PNG"
-	@echo "  $(CLR_CYAN)make assets-variant-attacks$(CLR_RESET)  Fast pipeline: skin attack pose sprites"
-	@echo "  $(CLR_CYAN)make generate-characters$(CLR_RESET)   Re-generate .blend files via Blender"
-	@echo "  $(CLR_CYAN)make render-sprites$(CLR_RESET)        Render 2.5D PNG sprites from .blend"
+	@echo "  $(CLR_CYAN)make assets$(CLR_RESET)                  Full 3D character + 2.5D scenery pipeline"
+	@echo "  $(CLR_CYAN)make assets-variant-attacks$(CLR_RESET)  Export 3D attack poses for runtime"
+	@echo "  $(CLR_CYAN)make generate-characters$(CLR_RESET)   Re-generate .blend and runtime models"
+	@echo "  $(CLR_CYAN)make render-sprites$(CLR_RESET)        Render 2.5D scenery PNGs from .blend"
 	@echo "  $(CLR_CYAN)make copy-blends$(CLR_RESET)           Organize .blend 3D models into assets/"
 	@echo "  $(CLR_CYAN)make package$(CLR_RESET)               Build executable Fat JAR in target/"
 	@echo "  $(CLR_YELLOW)make docker-run$(CLR_RESET)           Run inside Docker container (Linux)"

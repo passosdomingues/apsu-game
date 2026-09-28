@@ -18,8 +18,8 @@ Este documento detalha os princípios de design, componentes de software e subsi
 |                                    |                          |                 |
 |                                    v                          v                 |
 |                          +------------------+   +---------------------------+   |
-|                          |  AnimationTimer  |   |       SpriteManager       |   |
-|                          |  (60 FPS Loop)   |   |  (Sequências 2.5D Baked)  |   |
+|                          |  AnimationTimer  |   |   JavaFX 3D + SpriteManager |   |
+|                          |  (60 FPS Loop)   |   | (personagens OBJ + cenário) |   |
 |                          +------------------+   +---------------------------+   |
 +---------------------------------------------------------------------------------+
 ```
@@ -52,11 +52,13 @@ Este documento detalha os princípios de design, componentes de software e subsi
 
 ---
 
-## 4. Pipeline Gráfico 2.5D e Renderização (`RenderEngine` / `SpriteManager`)
+## 4. Pipeline Gráfico 2.5D e Renderização (`RenderEngine` / `Runtime3DLayer`)
 
 - **Renderização Imperativa Canvas:** Renderiza via `GraphicsContext` JavaFX, eliminando o overhead de retenimento de nós do Scene Graph.
 - **Transformação de Coordenadas:** A `Camera` converte Coordenadas de Mundo em Coordenadas de Tela (`screenX = worldX - camX`).
-- **Cache de Sprites 2.5D:** O `SpriteManager` carrega e mantém em cache os spritesheets PNG transparentes gerados no Blender.
+- **Cenário 2.5D:** Planos de fundo, paralaxe, partículas e HUD continuam no Canvas JavaFX.
+- **Malhas 3D em tempo real:** `Runtime3DLayer` carrega personagens e elementos de fase (naufrágio, baú, recifes/cardumes, ruínas, correntes, portal e obstáculos) como OBJ/MTL exportados do Blender, numa `SubScene` transparente sincronizada com a câmera.
+- **Nado leve:** A pose base 3D recebe balanço, squash e inclinação limitada a 20°; as poses de ataque seguem os quadros OBJ exportados.
 - **Shaders de Iluminação:** O `LightingEngine` aplica iluminação emissiva de contorno (Fresnel Rim Light) e dispersão sob a superfície (SSS).
 
 ---

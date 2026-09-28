@@ -137,7 +137,7 @@ public class UIRenderer {
     }
 
     public void drawDialogueOverlay(GraphicsContext gc, double canvasW, double canvasH, double timeSeconds,
-                                  String name, Image portrait, String[] lines, int lineIdx, int charsShown) {
+                                  String name, String[] lines, int lineIdx, int charsShown) {
         double boxW = canvasW * 0.84, boxH = 165;
         double boxX = (canvasW - boxW) / 2, boxY = canvasH - boxH - 25;
 
@@ -146,17 +146,7 @@ public class UIRenderer {
         gc.setStroke(Color.web("#ffd700")); gc.setLineWidth(2.2);
         gc.strokeRoundRect(boxX, boxY, boxW, boxH, 18, 18);
 
-        double portraitW = 95, portraitH = 125;
-        double portraitX = boxX + 18, portraitY = boxY + (boxH - portraitH) / 2;
-        if (portrait != null) {
-            double bob = Math.sin(timeSeconds * 2.5) * 3;
-            gc.drawImage(portrait, portraitX, portraitY + bob, portraitW, portraitH);
-            gc.setStroke(Color.web("#ffd700").deriveColor(0, 1, 1, 0.45 + Math.sin(timeSeconds * 4) * 0.15));
-            gc.setLineWidth(2);
-            gc.strokeRoundRect(portraitX - 4, portraitY + bob - 4, portraitW + 8, portraitH + 8, 8, 8);
-        }
-
-        double textX = portraitX + portraitW + 24;
+        double textX = boxX + 30;
         gc.setTextAlign(TextAlignment.LEFT);
         gc.setFont(Font.font("Serif", FontWeight.BOLD, 20));
         gc.setFill(Color.web("#ffd700"));
@@ -167,7 +157,7 @@ public class UIRenderer {
             String shown = fullText.substring(0, Math.min(charsShown, fullText.length()));
             gc.setFont(Font.font("Serif", 19));
             gc.setFill(Color.WHITE);
-            wrapText(gc, shown, textX, boxY + 64, boxW - portraitW - 65, 30);
+            wrapText(gc, shown, textX, boxY + 64, boxW - 60, 30);
         }
 
         gc.setTextAlign(TextAlignment.CENTER);

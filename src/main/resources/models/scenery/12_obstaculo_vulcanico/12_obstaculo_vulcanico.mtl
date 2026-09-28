@@ -1,0 +1,52 @@
+# Blender 4.5.5 LTS MTL File: '12_obstaculo_vulcanico.blend'
+# www.blender.org
+
+newmtl M_MagmaBrilho.001
+Ns 422.499969
+Ka 0.200000 0.200000 0.200000
+Ks 0.500000 0.500000 0.500000
+Ke 8.000000 2.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/001_00.png
+
+newmtl M_MagmaBrilho.002
+Ns 422.499969
+Ka 0.200000 0.200000 0.200000
+Ks 0.500000 0.500000 0.500000
+Ke 8.000000 2.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/002_00.png
+
+newmtl M_MagmaBrilho.003
+Ns 422.499969
+Ka 0.200000 0.200000 0.200000
+Ks 0.500000 0.500000 0.500000
+Ke 8.000000 2.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/003_00.png
+
+newmtl M_MagmaBrilho.004
+Ns 422.499969
+Ka 0.200000 0.200000 0.200000
+Ks 0.500000 0.500000 0.500000
+Ke 8.000000 2.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/004_00.png
+
+newmtl M_RochaBasalto.001
+Ns 39.999996
+Ka 0.100000 0.100000 0.100000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/000_00.png

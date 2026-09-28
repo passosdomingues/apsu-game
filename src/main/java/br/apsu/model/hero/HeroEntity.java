@@ -293,6 +293,9 @@ public class HeroEntity {
     public boolean hasBubblePower() { return hasBubblePower; }
     public void setHasBubblePower(boolean has) { this.hasBubblePower = has; }
     public boolean isShooting() { return shooting; }
+    public double getAttackElapsedSeconds(long currentNanoTime) {
+        return shooting ? Math.max(0, currentNanoTime - shootingTime) / 1_000_000_000.0 : 0;
+    }
     public double getAttackOffsetX() { return attackOffsetX; }
     public double getAttackOffsetY() { return attackOffsetY; }
     public double getTailPhase() { return tailPhase; }

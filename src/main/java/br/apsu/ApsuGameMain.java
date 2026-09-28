@@ -14,6 +14,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.StackPane;
 import javafx.geometry.Pos;
 import javafx.scene.paint.Color;
+import javafx.scene.SceneAntialiasing;
 import javafx.stage.Stage;
 
 /**
@@ -27,14 +28,17 @@ public class ApsuGameMain extends Application {
     public void start(Stage stage) {
         Canvas canvas = new Canvas(W, H);
         GraphicsContext gc = canvas.getGraphicsContext2D();
-        StackPane root = new StackPane(canvas);
+        RenderEngine renderer = new RenderEngine();
+        StackPane root = new StackPane(canvas, renderer.get3DView());
         root.setAlignment(Pos.CENTER);
         root.setStyle("-fx-background-color: black;");
-        Scene scene = new Scene(root, W, H, Color.BLACK);
+        Scene scene = new Scene(root, W, H, true, SceneAntialiasing.BALANCED);
+        scene.setFill(Color.BLACK);
         Runnable fitCanvas = () -> {
             Viewport viewport = Viewport.fit(root.getWidth(), root.getHeight(), W, H);
             canvas.setScaleX(viewport.scale());
             canvas.setScaleY(viewport.scale());
+            renderer.setViewportScale(viewport.scale());
         };
         root.widthProperty().addListener((obs, oldValue, newValue) -> fitCanvas.run());
         root.heightProperty().addListener((obs, oldValue, newValue) -> fitCanvas.run());
@@ -42,7 +46,6 @@ public class ApsuGameMain extends Application {
         EventBus eventBus = new EventBus();
         AudioEventSubscriber.bind(eventBus, AudioManager.getInstance());
         GameContext context = new GameContext(new br.apsu.core.SaveManager(), eventBus);
-        RenderEngine renderer = new RenderEngine();
         GameLoop loop = new GameLoop(context, renderer, gc, W, H);
 
         scene.setOnKeyPressed(e -> {

@@ -32,7 +32,7 @@ public class ParticleSystem {
     }
 
     private final List<Particle> particles = new ArrayList<>();
-    private boolean reducedEffects;
+    private boolean reducedEffects = true;
 
     private int particleBudget() {
         return reducedEffects ? MAX_PARTICLES_REDUCED : MAX_PARTICLES_HIGH;

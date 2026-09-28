@@ -1,0 +1,212 @@
+# Blender 4.5.5 LTS MTL File: '02_kullullu_var_glacial.blend'
+# www.blender.org
+
+newmtl Mat_02_kullullu_var_glacial_Acento_10.001
+Ns 422.499969
+Ka 0.200000 0.200000 0.200000
+Ks 0.500000 0.500000 0.500000
+Ke 4.800000 7.600000 8.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/001_00.png
+
+newmtl Mat_02_kullullu_var_glacial_Acento_10.002
+Ns 422.499969
+Ka 0.200000 0.200000 0.200000
+Ks 0.500000 0.500000 0.500000
+Ke 4.800000 7.600000 8.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/005_00.png
+
+newmtl Mat_02_kullullu_var_glacial_Acento_10.003
+Ns 422.499969
+Ka 0.200000 0.200000 0.200000
+Ks 0.500000 0.500000 0.500000
+Ke 4.800000 7.600000 8.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/006_00.png
+
+newmtl Mat_02_kullullu_var_glacial_Acento_10.004
+Ns 422.499969
+Ka 0.200000 0.200000 0.200000
+Ks 0.500000 0.500000 0.500000
+Ke 4.800000 7.600000 8.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/020_00.png
+
+newmtl Mat_02_kullullu_var_glacial_Corpo_60.001
+Ns 518.400024
+Ka 0.500000 0.500000 0.500000
+Ks 0.500000 0.500000 0.500000
+Ke 7.000000 7.000000 7.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/000_00.png
+
+newmtl Mat_02_kullullu_var_glacial_Corpo_60.002
+Ns 518.400024
+Ka 0.500000 0.500000 0.500000
+Ks 0.500000 0.500000 0.500000
+Ke 7.000000 7.000000 7.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/002_00.png
+
+newmtl Mat_02_kullullu_var_glacial_Corpo_60.003
+Ns 518.400024
+Ka 0.500000 0.500000 0.500000
+Ks 0.500000 0.500000 0.500000
+Ke 7.000000 7.000000 7.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/012_00.png
+
+newmtl Mat_02_kullullu_var_glacial_Corpo_60.004
+Ns 518.400024
+Ka 0.500000 0.500000 0.500000
+Ks 0.500000 0.500000 0.500000
+Ke 7.000000 7.000000 7.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/013_00.png
+
+newmtl Mat_02_kullullu_var_glacial_Corpo_60.005
+Ns 518.400024
+Ka 0.500000 0.500000 0.500000
+Ks 0.500000 0.500000 0.500000
+Ke 7.000000 7.000000 7.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/014_00.png
+
+newmtl Mat_02_kullullu_var_glacial_Corpo_60.006
+Ns 518.400024
+Ka 0.500000 0.500000 0.500000
+Ks 0.500000 0.500000 0.500000
+Ke 7.000000 7.000000 7.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/015_00.png
+
+newmtl Mat_02_kullullu_var_glacial_Corpo_60.007
+Ns 518.400024
+Ka 0.500000 0.500000 0.500000
+Ks 0.500000 0.500000 0.500000
+Ke 7.000000 7.000000 7.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/016_00.png
+
+newmtl Mat_02_kullullu_var_glacial_Corpo_60.008
+Ns 518.400024
+Ka 0.500000 0.500000 0.500000
+Ks 0.500000 0.500000 0.500000
+Ke 7.000000 7.000000 7.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/017_00.png
+
+newmtl Mat_02_kullullu_var_glacial_Corpo_60.009
+Ns 518.400024
+Ka 0.500000 0.500000 0.500000
+Ks 0.500000 0.500000 0.500000
+Ke 7.000000 7.000000 7.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/019_00.png
+
+newmtl Mat_02_kullullu_var_glacial_Espinho_30.001
+Ns 490.000000
+Ka 0.500000 0.500000 0.500000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/003_00.png
+
+newmtl Mat_02_kullullu_var_glacial_Espinho_30.002
+Ns 490.000000
+Ka 0.500000 0.500000 0.500000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/004_00.png
+
+newmtl Mat_02_kullullu_var_glacial_Espinho_30.003
+Ns 490.000000
+Ka 0.500000 0.500000 0.500000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/007_00.png
+
+newmtl Mat_02_kullullu_var_glacial_Espinho_30.004
+Ns 490.000000
+Ka 0.500000 0.500000 0.500000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/008_00.png
+
+newmtl Mat_02_kullullu_var_glacial_Espinho_30.005
+Ns 490.000000
+Ka 0.500000 0.500000 0.500000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/009_00.png
+
+newmtl Mat_02_kullullu_var_glacial_Espinho_30.006
+Ns 490.000000
+Ka 0.500000 0.500000 0.500000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/010_00.png
+
+newmtl Mat_02_kullullu_var_glacial_Espinho_30.007
+Ns 490.000000
+Ka 0.500000 0.500000 0.500000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/011_00.png
+
+newmtl Mat_02_kullullu_var_glacial_Espinho_30.008
+Ns 490.000000
+Ka 0.500000 0.500000 0.500000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/018_00.png

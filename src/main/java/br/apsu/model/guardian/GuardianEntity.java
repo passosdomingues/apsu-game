@@ -46,6 +46,20 @@ public class GuardianEntity {
           "Use tudo que aprendeu. Bolhas, correntes, o próprio oceano é sua arma. Vá!" }
     };
 
+    /** Falas de Enki nas vinhetas entre menu/fases; guardiões falam ao encontrá-los na fase. */
+    public static final String[][] ENKI_INTRO_DIALOGUES = {
+        {"Adapa, atravesse as Águas Claras e encontre o Guardião Atlante. Ele guarda a primeira tabuleta.",
+         "Confie no seu instinto e siga para as ruínas."},
+        {"Os corais de Apsu estão enfraquecendo. Procure o Guardião do Coral e recupere a tabuleta.",
+         "As cavernas mudam de forma; observe os caminhos abertos."},
+        {"As correntes abissais escondem o caminho. Lamassu conhece essas águas e pode orientá-lo.",
+         "Use as correntes a seu favor."},
+        {"O calor do abismo corrompeu seus habitantes. Encontre o Oráculo e atravesse as rochas vulcânicas.",
+         "Suas bolhas podem abrir uma passagem segura."},
+        {"Você chegou ao Templo de Apsu. Kullullû espera no coração das ruínas.",
+         "Quando estiver pronto, enfrentaremos juntos o último desafio."}
+    };
+
     public static final String[] SPRITE_PATHS = {
         "sprites/guardioes/05_guardiao_atlante_npc.png",
         "sprites/guardioes/05_guardiao_coral_vivo.png",

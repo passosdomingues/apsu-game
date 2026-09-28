@@ -154,7 +154,8 @@ public class GameContext {
                     return;
                 }
                 if (k == KeyCode.SPACE || k == KeyCode.ENTER || k == KeyCode.E || k == KeyCode.F) {
-                    String[] currentDlg = GuardianEntity.DIALOGUES[Math.min(dlgPhase, GuardianEntity.DIALOGUES.length - 1)];
+                    String[] currentDlg = GuardianEntity.ENKI_INTRO_DIALOGUES[
+                        Math.min(dlgPhase, GuardianEntity.ENKI_INTRO_DIALOGUES.length - 1)];
                     if (++dlgIdx >= currentDlg.length) {
                         advancePhaseFromDialogue();
                     }
@@ -221,6 +222,7 @@ public class GameContext {
         phaseHits = 0;
         overlayActive = false;
         currentPhase = 0;
+        boss = null;
         inCurrent = false;
         inPressureZone = false;
     }

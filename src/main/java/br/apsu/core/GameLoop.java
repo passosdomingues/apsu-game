@@ -17,7 +17,6 @@ public class GameLoop extends AnimationTimer {
     private static final long STEP_NANOS = 1_000_000_000L / 60L;
     private static final int MAX_STEPS_PER_FRAME = 4;
     private static final double REDUCE_EFFECTS_BELOW_FPS = 50.0;
-    private static final double RESTORE_EFFECTS_AT_FPS = 57.0;
     private long previousNow = -1;
     private long simulationNow = -1;
     private long accumulatedNanos;
@@ -38,10 +37,6 @@ public class GameLoop extends AnimationTimer {
                 renderer.setReducedEffects(true);
                 context.getParticleSystem().setReducedEffects(true);
                 System.err.printf("[WARN] FPS %.1f: efeitos reduzidos temporariamente para priorizar controle.%n", fps);
-            } else if (fps >= RESTORE_EFFECTS_AT_FPS && renderer.isReducedEffects()) {
-                renderer.setReducedEffects(false);
-                context.getParticleSystem().setReducedEffects(false);
-                System.out.printf("[INFO] FPS %.1f: efeitos visuais restaurados.%n", fps);
             }
         }
         if (previousNow < 0) {

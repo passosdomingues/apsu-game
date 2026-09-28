@@ -89,6 +89,9 @@ else
     fi
 fi
 
+# Blender/OpenMPI are only needed when generating assets/maps. The checked-in
+# runtime OBJ/MTL resources let a normal `make` run without these large tools.
+if [ "${APSU_RUNTIME_ONLY:-0}" != "1" ] && [ "${APSU_SKIP_BLENDER:-0}" != "1" ]; then
 # 3. Verificar Blender 4.5 LTS
 echo -e "${CLR_CYAN}>> [3/5] Checking Blender 4.5 LTS...${CLR_RESET}"
 BLENDER_FOUND=0
@@ -125,7 +128,10 @@ if [ $BLENDER_FOUND -eq 0 ]; then
     fi
 fi
 
+fi # Blender generation tools
+
 # 4. Verificar OpenMPI & Ferramentas
+if [ "${APSU_RUNTIME_ONLY:-0}" != "1" ] && [ "${APSU_SKIP_MPI:-0}" != "1" ]; then
 echo -e "${CLR_CYAN}>> [4/5] Checking OpenMPI & Build Tools...${CLR_RESET}"
 if has_cmd mpicc && has_cmd mpirun; then
     echo -e "${CLR_GREEN}[OK] OpenMPI found at: $(command -v mpirun)${CLR_RESET}"
@@ -136,6 +142,7 @@ else
         echo -e "${CLR_GREEN}[OK] OpenMPI installed.${CLR_RESET}"
     fi
 fi
+fi # OpenMPI tools
 
 # 5. Hardware Diagnostics
 echo -e "${CLR_CYAN}>> [5/5] Hardware Diagnostics...${CLR_RESET}"

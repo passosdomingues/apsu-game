@@ -1,11 +1,4 @@
-target/
-.git/
-.mvn/
-logs/
-personagens/blends/
-personagens/renders/
-personagens/scripts/__pycache__/
-*.log
-*.blend
-*.blend1
-*.jar
+**
+!pom.xml
+!src/
+!src/**

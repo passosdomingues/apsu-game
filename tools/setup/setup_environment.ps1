@@ -5,7 +5,7 @@
 # ============================================================
 
 [CmdletBinding()]
-param()
+param([switch]$RuntimeOnly)
 
 Write-Host "+-----------------------------------------------------------------------+" -ForegroundColor Magenta
 Write-Host "| [SYSTEM SETUP] WINDOWS DEPENDENCY ORCHESTRATOR                      |" -ForegroundColor Magenta
@@ -98,7 +98,8 @@ if (Test-CommandExists "mvn") {
     }
 }
 
-# 3. Verificar Blender 4.5 LTS
+# 3. Blender só é necessário ao regenerar assets; os modelos de runtime já estão no repositório.
+if (-not $RuntimeOnly) {
 Write-Host "`n>> [3/4] Checking Blender 4.5 LTS..." -ForegroundColor Cyan
 $blenderFound = $false
 $blenderPath = ""
@@ -134,6 +135,7 @@ if ($blenderFound) {
     } else {
         Write-Host "[WARN] Install Blender 4.5 LTS in C:\Program Files\Blender Foundation\Blender 4.5\ or set PATH." -ForegroundColor Yellow
     }
+}
 }
 
 # 4. Detecção de Hardware Local

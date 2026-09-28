@@ -7,6 +7,8 @@
 
 # Arquivos Binários / Mídia / 3D (Candidatos a Git LFS se ativado no repositório)
 *.blend binary
+*.obj text eol=lf
+*.mtl text eol=lf
 *.png binary
 *.jpg binary
 *.wav binary

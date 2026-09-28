@@ -40,6 +40,13 @@ for blend_path in blend_files:
     elif "inimigo" in basename or "peixe" in basename or "arraiao" in basename or "leviata" in basename: category = "inimigos"
     elif "guardiao" in basename: category = "guardioes"
 
+    # No fluxo completo, personagens são malhas 3D de runtime (OBJ/MTL),
+    # nunca PNGs usados como representação no jogo. `--only` segue disponível
+    # para renders de preview/ataque solicitados explicitamente.
+    if only_names is None and category != "scenery":
+        print(f"Ignorando preview 2D de personagem: {basename} (o jogo usa o modelo 3D)")
+        continue
+
     out_folder = os.path.join(output_res_dir, category, basename)
     os.makedirs(out_folder, exist_ok=True)
 

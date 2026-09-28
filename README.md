@@ -25,7 +25,7 @@
 [Quick Start](#-quick-start--inicio-rapido) |
 [Diagrama DOT de Classes](#-diagrama-de-arquitetura-de-classes-preto-no-branco) |
 [Arquitetura Ponta a Ponta](#-comunicacao-entre-componentes-de-ponta-a-ponta) |
-[Pipeline 3D -> 2.5D](#-pipeline-grafico-blender-3d---bake-25d) |
+[Personagens 3D + cenário 2.5D](#pipeline-gráfico-personagens-3d-em-tempo-real--cenário-25d) |
 [Conceitos de CG](#-mapeamento-de-conceitos-de-computacao-grafica) |
 [Comandos Makefile](#-menu-de-comandos-arcade-makefile) |
 [Troubleshooting](#-solucao-de-problemas-troubleshooting)
@@ -62,14 +62,14 @@
 
 ## QUICK START / INÍCIO RÁPIDO
 
-O repositório orquestra e instala **automaticamente todas as dependências** (Java 21 LTS, JavaFX 21 LTS, Blender 4.5 LTS, Maven e OpenMPI) de forma **idempotente** (sem duplicar instalações existentes).
+O comando `make` verifica e instala apenas o necessário para executar o jogo (**Java 21 LTS e Maven**). Blender e OpenMPI são opcionais e só são verificados pelos alvos de geração de assets/mapas; os modelos 3D de runtime já acompanham o repositório.
 
 ### Option 1: Linux (Debian / Ubuntu / Linux Mint)
 Abra o terminal na pasta do projeto e digite:
 ```bash
 make
 ```
-*O Makefile detecta seu sistema, executa `tools/setup/setup_environment.sh`, configura o que faltar e inicia o jogo automaticamente!*
+*O Makefile detecta seu sistema, configura o runtime e inicia o jogo. Para executar em container Linux com X11, use `make docker-run`.*
 
 ---
 
@@ -82,7 +82,7 @@ make
 
 #### Via PowerShell Direto:
 ```powershell
-# 1. Executa a verificação/instalação automática de dependências (Java 21, Maven, Blender 4.5)
+# 1. Executa a verificação/instalação das dependências de runtime (Java 21 e Maven)
 powershell -ExecutionPolicy Bypass -File tools/setup/setup_environment.ps1
 
 # 2. Executa o jogo
@@ -142,7 +142,7 @@ A cada quadro do relógio monotônico:
    - Se ocorrer um evento relevante, o `GameContext` dispara um `GameEvent` no `EventBus`.
 2. `RenderEngine.render(gc, context)`:
    - A `Camera` calcula a projeção World -> Screen.
-   - O `SpriteManager` entrega a textura baked 2.5D adequada.
+   - O `Runtime3DLayer` exibe personagens OBJ em 3D; o `SpriteManager` mantém os PNGs de cenário e interface.
    - O `LightingEngine` aplica iluminação emissiva de contorno (Fresnel Rim Light) e dispersão sob a superfície (SSS).
    - O `UIRenderer` desenha o HUD, radar e diálogos.
 
@@ -152,9 +152,9 @@ A cada quadro do relógio monotônico:
 
 ---
 
-## PIPELINE GRÁFICO: BLENDER 3D -> BAKE 2.5D
+## PIPELINE GRÁFICO: PERSONAGENS 3D EM TEMPO REAL + CENÁRIO 2.5D
 
-Os modelos de personagens e cenários são gerados proceduralmente via Python (`bpy`) no Blender 4.5 LTS e sintetizados em spritesheets PNG 2.5D transparentes.
+Personagens e elementos de fase são exportados como malhas OBJ/MTL pelo Blender 4.5 LTS e renderizados em uma camada JavaFX 3D. Planos de fundo, paralaxe, partículas e HUD continuam no Canvas 2.5D.
 
 ```text
   [ Scripting Python (bpy) em personagens/scripts/ ]
@@ -167,13 +167,17 @@ Os modelos de personagens e cenários são gerados proceduralmente via Python (`
   [ Blender 4.5 LTS Engine (Cycles / EEVEE) ]
    |-- Geração de Malhas Poligonais & Modificadores
    |-- Iluminação Três Pontos + Fresnel Rim Light
-   `-- Renderização de Quadros de Nado & Poses de Ataque
+   `-- Exportação de malhas base e variantes de ataque
+             |
+             +--> [ OBJ/MTL em src/main/resources/models/characters/ e scenery/ ]
+             |       v  (ObjModelLoader / Runtime3DLayer)
+             |   [ Personagens e elementos de fase 3D na SubScene JavaFX ]
              |
              v  (tools/assets/render_all_2d5_sprites.py)
-  [ Spritesheets PNG Transparentes em src/main/resources/sprites/ ]
+  [ PNGs 2.5D em src/main/resources/sprites/ para cenário/UI ]
              |
-             v  (SpriteManager.java)
-  [ Render Engine JavaFX Canvas (60 FPS Game Loop) ]
+             v
+  [ RenderEngine: planos 2.5D + malhas 3D de personagens e fase ]
 ```
 
 ---
@@ -191,7 +195,7 @@ Os modelos de personagens e cenários são gerados proceduralmente via Python (`
 | **VII. Curvas e Superfícies** | Curvas de Bézier, Continuidade | Função `smooth_angle_chain` para ondulação da cauda sem quebras de junta. | [`_apsu_shared_lib.py`](personagens/scripts/_apsu_shared_lib.py) |
 | **VIII. Cor e Espaços de Cor** | RGB, HSV, Fresnel Rim Light | Leitura e quantização da paleta 60-30-10; iluminação Fresnel Rim Light. | [`LightingEngine.java`](src/main/java/br/apsu/graphics/LightingEngine.java) |
 | **IX. Ray Tracing vs Rasterização**| Path Tracing, Global Illumination | Síntese offline com Cycles (Path Tracing) versus rasterização 2D a 60 FPS. | [`render_all_2d5_sprites.py`](tools/assets/render_all_2d5_sprites.py) |
-| **X. Otimização & Bake** | Texture Atlas, Frame Baking | Baking de animações 3D em sequências PNG transparentes otimizadas. | [`SpriteManager.java`](src/main/java/br/apsu/graphics/SpriteManager.java) |
+| **X. Otimização & Bake** | Meshes, Frame Baking | Modelos 3D OBJ/MTL em runtime e bake PNG para elementos 2.5D. | [`Runtime3DLayer.java`](src/main/java/br/apsu/graphics/Runtime3DLayer.java), [`SpriteManager.java`](src/main/java/br/apsu/graphics/SpriteManager.java) |
 
 ---
 
@@ -208,20 +212,24 @@ O `Makefile` adota um visual retro de fliperama no terminal e gerencia o ambient
   make / make all              Run setup, organize assets & start game
   make run                     Start JavaFX 21 main game application
   make setup                   Check & install dependencies (idempotent)
+  make setup-assets            Check Blender before regenerating 3D assets
+  make setup-mpi               Check/install OpenMPI for offline map generation
   make build                   Compile Java 21 classes
   make test                    Execute JUnit 5 test suite (45 tests)
-  make assets                  Full 3D pipeline: Python -> .blend -> PNG
-  make assets-variant-attacks  Fast pipeline: skin attack pose sprites
-  make generate-characters     Re-generate .blend files via Blender
-  make render-sprites          Render 2.5D PNG sprites from .blend
+  make assets                  Full 3D character + 2.5D scenery pipeline
+  make assets-variant-attacks  Export 3D attack poses for runtime
+  make generate-characters     Re-generate .blend and runtime OBJ/MTL models
+  make render-sprites          Render 2.5D scenery PNGs from .blend
   make copy-blends             Organize .blend 3D models into assets/
   make package                 Build executable Fat JAR in target/
-  make docker-run              Run inside Docker container (Linux)
+  make docker-run              Build and run in Docker with Linux X11
   make mpi-demo                Run parallel MPI map generator
   make mpi-generate            Generate 5 JSON phase layouts via MPI
   make clean                   Clean build artifacts and release RAM
 +-----------------------------------------------------------------------+
 ```
+
+MPI is an offline map-generation utility, not part of the JavaFX frame loop. It does not synchronize character animation or rendering; those stay on the fixed-step game clock so they remain stable without MPI.
 
 ---
 

@@ -2,8 +2,9 @@
 
 Cole cada script na área de **Scripting** do Blender e rode (▶), ou use
 `gerador_mestre_apsu.py` (roda todos via `blender --background --python`; use
-`make generate-characters` ou `make assets`). `make render-sprites` apenas
-renderiza os `.blend` já existentes. Cada script de personagem/prop
+`make generate-characters` ou `make assets`). `make render-sprites` renderiza
+PNGs apenas para o cenário; os personagens são exportados como malhas OBJ/MTL
+e desenhados em 3D durante o jogo. Cada script de personagem/prop
 é independente — os principais (01-05) limpam a cena ao rodar; os
 props de cenário **não** limpam, pra você poder compor junto com um
 personagem.
@@ -94,8 +95,9 @@ Cada script tem comentário no topo explicando a paleta específica daquele pers
      função `construir_*`.
 
 ## ✅ Checklist de verificação (rodar no Blender de verdade)
-Nada abaixo foi visualmente confirmado — só analisado por código,
-porque este pacote foi gerado num ambiente sem Blender/GPU. Ao rodar:
+Os modelos runtime OBJ/MTL e as poses de nado já são exportados pelo pipeline.
+Confira visualmente no jogo a escala, orientação e leitura das malhas depois de
+regenerar os assets. Ao revisar:
 1. **Rim light aparece?** Gire a câmera (ou olhe o render final) e
    confira se dá pra ver uma linha de brilho colorida na borda da
    silhueta, mais forte nos cantos "de perfil" da malha.
@@ -109,6 +111,5 @@ porque este pacote foi gerado num ambiente sem Blender/GPU. Ao rodar:
    `01_adapa_ataque_variacoes.py` e confira os 4 renders — o braço
    deve se mover de forma legível e voltar pra pose de repouso no
    último frame.
-4. Depois de aprovar visualmente, rode
-   `make render-sprites` (ou `gerador_mestre_apsu.py` completo) pra
-   regerar TODOS os sprites com o pipeline novo (8 frames em vez de 6).
+4. Rode `make assets` para regenerar as malhas OBJ/MTL dos personagens e os
+   PNGs de cenário; a exportação dos personagens é feita automaticamente.

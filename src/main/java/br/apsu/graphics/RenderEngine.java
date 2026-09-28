@@ -24,9 +24,10 @@ import javafx.scene.text.TextAlignment;
 public class RenderEngine {
 
     private final SpriteManager spriteManager = SpriteManager.getInstance();
+    private final Runtime3DLayer runtime3DLayer = new Runtime3DLayer();
     private final LightingEngine lightingEngine = new LightingEngine();
     private final UIRenderer uiRenderer = new UIRenderer();
-    private boolean reducedEffects;
+    private boolean reducedEffects = true;
 
     // Gradients e Cores estáticos para evitar alocações a cada frame (GC zero)
     private static final LinearGradient LAVA_FOOTER_GRADIENT = new LinearGradient(0, 0, 0, 1, true, CycleMethod.NO_CYCLE,
@@ -53,13 +54,8 @@ public class RenderEngine {
         Color.rgb(200, 50, 0, 0.25)
     };
 
-    private static final String[] GUARDIAN_ANIM_DIRS;
-    static {
-        GUARDIAN_ANIM_DIRS = new String[GuardianEntity.SPRITE_PATHS.length];
-        for (int i = 0; i < GuardianEntity.SPRITE_PATHS.length; i++) {
-            String path = GuardianEntity.SPRITE_PATHS[i];
-            GUARDIAN_ANIM_DIRS[i] = path.substring(0, path.lastIndexOf('.'));
-        }
+    public RenderEngine() {
+        lightingEngine.setReducedEffects(true);
     }
 
     /** Qualidade dinâmica: o Canvas continua no thread JavaFX, mas os efeitos
@@ -70,17 +66,20 @@ public class RenderEngine {
     }
 
     public boolean isReducedEffects() { return reducedEffects; }
-
-    private static final String[] ATTACK_STYLE_NAMES = {"thrust", "slash", "spin", "charge"};
+    public javafx.scene.Node get3DView() { return runtime3DLayer.view(); }
+    public void setViewportScale(double scale) { runtime3DLayer.setViewportScale(scale); }
 
     public void render(GraphicsContext gc, GameContext ctx, double width, double height) {
         gc.clearRect(0, 0, width, height);
         double t = ctx.getNanoTime() / 1_000_000_000.0;
+        double shakeX = ctx.getCamera().getShakeX(ctx.getNanoTime());
+        double shakeY = ctx.getCamera().getShakeY(ctx.getNanoTime());
+        runtime3DLayer.update(ctx, t, shakeX, shakeY);
 
         // Shake é só uma transformação visual: coordenadas de mundo, colisões
         // e HUD continuam calculados normalmente pelo GameContext.
         gc.save();
-        gc.translate(ctx.getCamera().getShakeX(ctx.getNanoTime()), ctx.getCamera().getShakeY(ctx.getNanoTime()));
+        gc.translate(shakeX, shakeY);
         switch (ctx.getState()) {
             case MENU     -> drawMenu(gc, ctx, width, height, t);
             case DIALOGUE -> drawDialogue(gc, ctx, width, height, t);
@@ -95,10 +94,8 @@ public class RenderEngine {
         gc.restore();
 
         if (ctx.isOverlayActive()) {
-            int gt = Math.min(ctx.getOverlayGuardianType(), GuardianEntity.SPRITE_PATHS.length - 1);
-            Image portrait = spriteManager.getImage(GuardianEntity.SPRITE_PATHS[gt]);
             uiRenderer.drawDialogueOverlay(gc, width, height, t, ctx.getOverlayName(),
-                portrait, ctx.getOverlayLines(), ctx.getOverlayIdx(), ctx.getOverlayCharsShown());
+                ctx.getOverlayLines(), ctx.getOverlayIdx(), ctx.getOverlayCharsShown());
         }
     }
 
@@ -129,26 +126,14 @@ public class RenderEngine {
 
         // B1-FIX: aspecto calculado da imagem ESTÁTICA (não do frame animado)
         HeroType hero = ctx.getHeroType();
-        Image imgStatic = spriteManager.getImage(hero.getStaticSpritePath());
-
-        // Calcula aspecto UMA VEZ a partir da imagem estática — nunca muda entre frames
         final double ph = 210;
-        double aspect = (imgStatic != null && imgStatic.getHeight() > 0)
-            ? imgStatic.getWidth() / imgStatic.getHeight()
-            : 0.5;  // fallback seguro
+        double aspect = 0.5;
         final double pw = ph * aspect; // LARGURA ESTÁVEL — não depende do frame animado
 
         double px = width * 0.82 - pw / 2.0, py = 150;
 
         drawShadow(gc, px + pw / 2, py + ph - 5, pw * 0.8, 14);
-        // Uma textura fixa no menu: o ciclo Blender tinha pivôs inconsistentes
-        // e causava tremulação perceptível antes mesmo de iniciar a partida.
-        if (imgStatic != null) {
-            gc.drawImage(imgStatic, px, py, pw, ph);
-        } else {
-            gc.setFill(hero.getAura());
-            gc.fillRoundRect(px, py, pw, ph, 16, 16);
-        }
+        // O herói do menu também é uma malha 3D, desenhada pela Runtime3DLayer.
         lightingEngine.drawBioluminescentHalo(gc, px + pw/2, py + ph/2, pw, hero.getAura());
 
         // Card Glassmorphic de Atributos
@@ -209,19 +194,6 @@ public class RenderEngine {
     private void drawDialogue(GraphicsContext gc, GameContext ctx, double width, double height, double timeSeconds) {
         drawGradientBackground(gc, width, height, "#030a14", "#081226", "#0a1e3c");
 
-        Image enkiImg = switch (ctx.getDlgPhase()) {
-            case 1 -> spriteManager.getImage("sprites/enki/03_enki_var_eremita.png");
-            case 2 -> spriteManager.getImage("sprites/enki/03_enki_var_celestial.png");
-            case 4 -> spriteManager.getImage("sprites/enki/03_enki_npc.png"); // Enki em pessoa na F5
-            default -> spriteManager.getImage("sprites/enki/03_enki_npc.png");
-        };
-
-        if (enkiImg != null) {
-            double eh2 = 320, ew2 = eh2 * 0.49;
-            double bob = Math.sin(timeSeconds * 2.5) * 6;
-            gc.drawImage(enkiImg, 35, height / 2.0 - eh2 / 2 - 30 + bob, ew2, eh2);
-        }
-
         gc.setFill(Color.rgb(4, 10, 28, 0.94));
         gc.fillRoundRect(240, height / 2.0 - 150, width - 310, 295, 22, 22);
         gc.setStroke(Color.web("#0e3888")); gc.setLineWidth(2);
@@ -231,7 +203,8 @@ public class RenderEngine {
         gc.setFill(Color.web("#60a0e0"));
         gc.fillText("Enki — Senhor das Águas Primordiais:", 265, height / 2.0 - 118);
         gc.setFill(Color.WHITE); gc.setFont(Font.font("Serif", 20));
-        String[] currentDlg = GuardianEntity.DIALOGUES[Math.min(ctx.getDlgPhase(), GuardianEntity.DIALOGUES.length - 1)];
+        String[] currentDlg = GuardianEntity.ENKI_INTRO_DIALOGUES[
+            Math.min(ctx.getDlgPhase(), GuardianEntity.ENKI_INTRO_DIALOGUES.length - 1)];
         if (ctx.getDlgIdx() < currentDlg.length) uiRenderer.wrapText(gc, currentDlg[ctx.getDlgIdx()], 265, height / 2.0 - 76, width - 440, 34);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setFill(Color.web("#ffd700")); gc.setFont(Font.font("Serif", 15));
@@ -270,15 +243,6 @@ public class RenderEngine {
         gc.fillRect(0, height - 38, width, 38);
 
         // Cenário
-        for (SceneryElement elem : ctx.getSceneryElements()) {
-            double cx = ctx.getCamera().toScreenX(elem.getWorldX());
-            if (cx < -150 || cx > width + 150) continue;
-            if (elem.getType() == SceneryElement.Type.GEYSER) {
-                lightingEngine.drawGeyserHeatGlow(gc, cx, elem.getWorldY(), elem.getWidth(), elem.getHeight());
-                drawGeyser(gc, cx + elem.getWidth()/2, elem.getWorldY(), elem.getWidth(), timeSeconds, Color.AQUA);
-            }
-        }
-
         for (GuardianEntity g : ctx.getGuardians()) {
             double gx = ctx.getCamera().toScreenX(g.getWorldX());
             drawGuardian(gc, gx, g.getWorldY(), g.getType(), !g.isContacted(), timeSeconds);
@@ -354,26 +318,7 @@ public class RenderEngine {
         // Galeão e Baú
         double csx = ctx.getCamera().toScreenX(ctx.getChestWX());
         if (csx > -300 && csx < width + 300) {
-            Image galeao3D = spriteManager.getImage("sprites/scenery/07_navio_naufragado_elemento-cenario.png");
-            if (galeao3D != null) {
-                gc.drawImage(galeao3D, csx - 180, ctx.getChestWY() - 140, 450, 260);
-            } else {
-                // fallback: casco afundado estilizado
-                gc.setFill(Color.rgb(8, 22, 44, 0.88));
-                gc.fillPolygon(new double[]{csx - 140, csx - 40, csx + 180, csx + 130},
-                               new double[]{ctx.getChestWY() + 80, ctx.getChestWY() - 60, ctx.getChestWY() - 60, ctx.getChestWY() + 80}, 4);
-                gc.setStroke(Color.rgb(0, 100, 160, 0.5)); gc.setLineWidth(2);
-                gc.strokeLine(csx - 40, ctx.getChestWY() - 60, csx - 40, ctx.getChestWY() - 120);
-            }
-
             boolean open = ctx.isChestOpen();
-            Image bau3D = spriteManager.getImage("sprites/scenery/06_bau_tesouro_elemento-cenario.png");
-            if (bau3D != null) {
-                gc.drawImage(bau3D, csx - 40, ctx.getChestWY() - 35, 100, 75);
-            } else {
-                gc.setFill(open ? Color.web("#ffd700") : Color.web("#8b5a2b"));
-                gc.fillRoundRect(csx - 30, ctx.getChestWY() - 25, 60, 45, 10, 10);
-            }
 
             if (open) {
                 lightingEngine.drawBioluminescentHalo(gc, csx + 10, ctx.getChestWY(), 95, Color.GOLD);
@@ -387,31 +332,13 @@ public class RenderEngine {
         }
 
         // === CORAIS ORGÂNICOS E BIOLUMINESCENTES ===
-        // Cores de bioluminescência rotacionando por coluna
-        Color[] coralGlows = {
-            Color.web("#00ffee"), Color.web("#aa44ff"), Color.web("#00ff88"),
-            Color.web("#44aaff"), Color.web("#ff44aa"), Color.web("#88ffff")
-        };
-
-        int coralIdx = 0;
         for (SceneryElement elem : ctx.getSceneryElements()) {
             double cx = ctx.getCamera().toScreenX(elem.getWorldX());
             if (cx < -140 || cx > width + 140) continue;
 
             if (elem.getType() == SceneryElement.Type.CORAL) {
-                boolean isTop = (elem.getWorldY() == 0);
-                Color glow = coralGlows[coralIdx % coralGlows.length];
-                coralIdx++;
+                // A malha 3D de recife/cardume é desenhada pela Runtime3DLayer.
 
-                drawOrganicCoral(gc, cx, elem.getWorldY(), elem.getWidth(), elem.getHeight(), isTop, glow, timeSeconds);
-
-                // Halo bioluminescente na ponta do coral
-                double glowY = isTop ? elem.getHeight() - 18 : elem.getWorldY() + 18;
-                lightingEngine.drawBioluminescentHalo(gc, cx + elem.getWidth() / 2, glowY, 28, glow);
-
-            } else if (elem.getType() == SceneryElement.Type.GEYSER) {
-                lightingEngine.drawGeyserHeatGlow(gc, cx, elem.getWorldY(), elem.getWidth(), elem.getHeight());
-                drawGeyser(gc, cx + elem.getWidth()/2, elem.getWorldY(), elem.getWidth(), timeSeconds, Color.AQUA);
             }
         }
 
@@ -471,19 +398,10 @@ public class RenderEngine {
                 case PRESSURE_ZONE -> drawPressureZone(gc, cx, elem.getWorldY(), elem.getWidth(), elem.getHeight(),
                                                         elem.getBuoyancyMult(), timeSeconds);
                 case MOVING_OBSTACLE -> {
-                    Image frame = spriteManager.getImage("sprites/scenery/13_obstaculo_abissal.png");
-                    if (frame != null) {
-                        gc.drawImage(frame, cx, elem.getWorldY(), elem.getWidth(), elem.getHeight());
-                    } else {
-                        gc.setFill(Color.rgb(25, 10, 55, 0.90));
-                        gc.fillRoundRect(cx, elem.getWorldY(), elem.getWidth(), elem.getHeight(), 14, 14);
-                    }
-                    lightingEngine.drawBioluminescentHalo(gc, cx + elem.getWidth()/2, elem.getWorldY() + elem.getHeight()/2,
-                        elem.getWidth() * 0.35, Color.web("#6020cc"));
+                    // O obstáculo abissal é uma malha 3D da Runtime3DLayer.
                 }
                 case GEYSER -> {
-                    lightingEngine.drawGeyserHeatGlow(gc, cx, elem.getWorldY(), elem.getWidth(), elem.getHeight());
-                    drawGeyser(gc, cx + elem.getWidth()/2, elem.getWorldY(), elem.getWidth(), timeSeconds, Color.CYAN);
+                    // O gêiser é uma malha OBJ/MTL renderizada na Runtime3DLayer.
                 }
                 default -> {}
             }
@@ -581,34 +499,16 @@ public class RenderEngine {
                     drawLavaSteam(gc, cx + elem.getWidth() / 2, elem.getWorldY(), elem.getWidth(), timeSeconds);
                 }
                 case VOLCANIC_ROCK -> {
-                    Image frame = spriteManager.getImage("sprites/scenery/12_obstaculo_vulcanico.png");
-                    if (frame != null) {
-                        gc.drawImage(frame, cx, elem.getWorldY(), elem.getWidth(), elem.getHeight());
-                    } else {
-                        gc.setFill(Color.rgb(28, 12, 6, 0.96));
-                        gc.fillRoundRect(cx, elem.getWorldY(), elem.getWidth(), elem.getHeight(), 10, 10);
-                    }
                     drawEmbers(gc, cx + elem.getWidth() / 2,
                         (elem.getWorldY() == 0 ? elem.getHeight() : elem.getWorldY()),
                         elem.getWidth(), timeSeconds, elem.getWorldX());
                 }
                 case MOVING_OBSTACLE -> {
-                    Image frame = spriteManager.getImage("sprites/scenery/12_obstaculo_vulcanico.png");
-                    if (frame != null) {
-                        gc.drawImage(frame, cx, elem.getWorldY(), elem.getWidth(), elem.getHeight());
-                    } else {
-                        gc.setFill(Color.rgb(35, 14, 4, 0.95));
-                        gc.fillRoundRect(cx, elem.getWorldY(), elem.getWidth(), elem.getHeight(), 12, 12);
-                    }
-                    lightingEngine.drawBioluminescentHalo(gc,
-                        cx + elem.getWidth()/2, elem.getWorldY() + elem.getHeight()/2,
-                        elem.getWidth() * 0.30, Color.web("#ff5500"));
                     drawEmbers(gc, cx + elem.getWidth() / 2, elem.getWorldY() + elem.getHeight() / 2,
                         elem.getWidth(), timeSeconds, elem.getWorldX() * 1.3);
                 }
                 case GEYSER -> {
-                    lightingEngine.drawGeyserHeatGlow(gc, cx, elem.getWorldY(), elem.getWidth(), elem.getHeight());
-                    drawGeyser(gc, cx + elem.getWidth()/2, elem.getWorldY(), elem.getWidth(), timeSeconds, Color.ORANGERED);
+                    // O gêiser é uma malha OBJ/MTL renderizada na Runtime3DLayer.
                 }
                 case CURRENT -> {
                     drawCurrentZone(gc, cx, elem.getWorldY(), elem.getWidth(), elem.getHeight(),
@@ -651,15 +551,6 @@ public class RenderEngine {
         }
 
         // Colunas de Atlantis
-        Image ruinas = spriteManager.getImage("sprites/scenery/09_ruinas_e_colunas_atlantis.png");
-        if (ruinas != null) {
-            gc.setGlobalAlpha(0.55);
-            gc.drawImage(ruinas, 20, 50, 220, 500);
-            gc.setGlobalAlpha(0.40);
-            gc.drawImage(ruinas, width - 240, 50, 220, 500);
-            gc.setGlobalAlpha(1.0);
-        }
-
         // Correntes e zonas na arena
         for (SceneryElement elem : ctx.getSceneryElements()) {
             if (elem.getType() == SceneryElement.Type.CURRENT) {
@@ -695,75 +586,13 @@ public class RenderEngine {
     /** Corrente 3D estática; a orientação comunica a força sem blocos translúcidos. */
     private void drawCurrentZone(GraphicsContext gc, double x, double y, double w, double h,
                                   double vx, double vy, double t) {
-        Image current = spriteManager.getImage("sprites/scenery/16_corrente_abissal_3d.png");
-        if (current == null) return;
-
-        boolean horizontal = Math.abs(vx) > Math.abs(vy);
-        double drawW = horizontal ? Math.max(w, h) : Math.min(w, h);
-        double drawH = horizontal ? Math.min(w, h) : Math.max(w, h);
-        double centerX = x + w / 2;
-        double centerY = y + h / 2;
-        double angle = horizontal ? (vx < 0 ? -90 : 90) : (vy > 0 ? 180 : 0);
-
-        lightingEngine.drawBioluminescentHalo(gc, centerX, centerY, Math.min(w, h) * 0.72,
-            Color.web("#28cfff"));
-        gc.save();
-        gc.translate(centerX, centerY);
-        gc.rotate(angle);
-        gc.drawImage(current, -drawW / 2, -drawH / 2, drawW, drawH);
-        gc.restore();
+        // A geometria da corrente é uma malha 3D da Runtime3DLayer.
     }
 
     /** Vórtice 3D para pressão/empuxo, sem placas, textos ou retângulos. */
     private void drawPressureZone(GraphicsContext gc, double x, double y, double w, double h,
                                    double buoyMult, double t) {
-        Image vortex = spriteManager.getImage("sprites/scenery/16_corrente_abissal_3d.png");
-        if (vortex == null) return;
-        double cx = x + w / 2;
-        double cy = y + h / 2;
-        Color aura = buoyMult > 1.0 ? Color.web("#42f5c5") : Color.web("#7c65ff");
-        lightingEngine.drawBioluminescentHalo(gc, cx, cy, Math.min(w, h) * 0.65, aura);
-        gc.save();
-        gc.setGlobalAlpha(0.72);
-        gc.translate(cx, cy);
-        gc.rotate(buoyMult > 1.0 ? 0 : 180);
-        gc.drawImage(vortex, -w / 2, -h / 2, w, h);
-        gc.restore();
-    }
-
-    /**
-     * Gêiser com coluna sólida translúcida + partículas ascendendo.
-     * Substitui o antigo drawGeyserParticles.
-     */
-    private void drawGeyser(GraphicsContext gc, double cx, double baseY, double colW, double t, Color color) {
-        double columnH = 180;
-        // Coluna sólida
-        gc.setFill(new LinearGradient(cx - colW * 0.25, baseY - columnH, cx + colW * 0.25, baseY, false,
-            CycleMethod.NO_CYCLE,
-            new Stop(0, color.deriveColor(0, 1, 1, 0.0)),
-            new Stop(0.6, color.deriveColor(0, 1, 1, 0.22)),
-            new Stop(1.0, color.deriveColor(0, 1, 1, 0.45))));
-        gc.fillRoundRect(cx - colW * 0.25, baseY - columnH, colW * 0.5, columnH, colW * 0.25, colW * 0.25);
-        // Base (cápsula de origem)
-        gc.setFill(color.deriveColor(0, 1, 0.8, 0.55));
-        gc.fillOval(cx - colW * 0.38, baseY - 10, colW * 0.76, 20);
-        // Partículas de topo — 5 (era 8) é indistinguível visualmente
-        int gParticles = reducedEffects ? 3 : 5;
-        for (int i = 0; i < gParticles; i++) {
-            double progress = ((t * 1.4 + i * 0.135) % 1.0);
-            double px = cx + Math.sin(t * 2.8 + i * 1.3) * 20;
-            double py = baseY - columnH - progress * 80;
-            double alpha = (1.0 - progress) * 0.65;
-            double r = (1.0 - progress) * 7 + 2;
-            gc.setFill(color.deriveColor(0, 1, 1, alpha));
-            gc.fillOval(px - r, py - r, r * 2, r * 2);
-        }
-    }
-
-    /** @deprecated Mantém assinatura antiga para compatibilidade interna. */
-    @Deprecated
-    private void drawGeyserParticles(GraphicsContext gc, double cx, double baseY, double t, Color color) {
-        drawGeyser(gc, cx, baseY, 70, t, color);
+        // Zonas de pressão usam a mesma malha 3D; a física permanece em GameContext.
     }
 
     /**
@@ -845,33 +674,8 @@ public class RenderEngine {
         }
 
         boolean shooting = hero.isShooting();
-        Image fallback = spriteManager.getImage(hero.getType().getStaticSpritePath());
-        Image frame = fallback;
-        SpriteManager.FrameBlend swimBlend = null;
-        boolean hasDedicatedAttackFrame = false;
-        if (shooting) {
-            String style = ATTACK_STYLE_NAMES[hero.getAttackStyleIndex() % ATTACK_STYLE_NAMES.length];
-            // A troca de oito PNGs independentes a 8 FPS era a causa do
-            // flicker: os renders não compartilham a mesma silhueta/pivô.
-            // Uma pose 3D fixa por ataque mantém o impacto visual, mas cada
-            // frame do Canvas desenha a mesma textura estável.
-            Image attackFrame = spriteManager.getImage(hero.getType().getAttackDir(style) + ".png");
-            if (attackFrame != null) {
-                frame = attackFrame;
-                hasDedicatedAttackFrame = true;
-            }
-        } else {
-            // Mantém o charme da cauda/nado, mas mistura os dois frames
-            // vizinhos para não haver "salto" de textura entre renders 3D.
-            swimBlend = spriteManager.loadSequence(hero.getType().getSwimDir(), 8.0, fallback).blend(timeSeconds);
-            frame = swimBlend.current() != null ? swimBlend.current() : fallback;
-        }
-
-        // O tamanho é sempre derivado da pose-base, nunca de um frame de animação.
         final double targetH = HeroEntity.HH;
-        double aspect = (fallback != null && fallback.getHeight() > 0)
-            ? fallback.getWidth() / fallback.getHeight() : 0.5;
-        double targetW = Math.min(210.0, Math.max(60.0, targetH * aspect));
+        double targetW = 120;
 
         double attackX = shooting ? hero.getAttackOffsetX() : 0;
         double attackY = shooting ? hero.getAttackOffsetY() : 0;
@@ -879,33 +683,11 @@ public class RenderEngine {
         y += attackY;
         drawShadow(gc, x + HeroEntity.HW / 2, y + HeroEntity.HH - 3, targetW * 0.55, 12);
 
-        gc.save();
-        gc.translate(x + HeroEntity.HW / 2, y + HeroEntity.HH / 2);
-        gc.rotate(hero.getPitchAngle());
-        if (!hero.isFacingRight()) gc.scale(-1, 1);
-        // Escala fixa: o deslocamento/rotação já comunica nado e elimina
-        // qualquer variação brusca de contorno sobre cenários detalhados.
-        gc.scale(1.0, 1.0);
-
-        if (frame != null) {
-            if (swimBlend != null && swimBlend.next() != null && !hero.isInvulnerable()) {
-                gc.setGlobalAlpha(1.0 - swimBlend.nextAlpha());
-                gc.drawImage(swimBlend.current(), -targetW / 2, -targetH / 2, targetW, targetH);
-                gc.setGlobalAlpha(swimBlend.nextAlpha());
-                gc.drawImage(swimBlend.next(), -targetW / 2, -targetH / 2, targetW, targetH);
-                gc.setGlobalAlpha(1.0);
-            } else {
-                gc.drawImage(frame, -targetW / 2, -targetH / 2, targetW, targetH);
-            }
-        } else {
-            gc.setFill(hero.getType().getAura());
-            gc.fillRoundRect(-HeroEntity.HW / 2, -HeroEntity.HH / 2, HeroEntity.HW, HeroEntity.HH, 8, 8);
-        }
-        gc.restore();
+        // A pose 3D é renderizada pela Runtime3DLayer.
 
         lightingEngine.drawBioluminescentHalo(gc, x + HeroEntity.HW/2, y + HeroEntity.HH/2,
             targetW * 0.32, hero.getType().getAura());
-        if (shooting && !hasDedicatedAttackFrame) {
+        if (shooting) {
             drawVariantAttackCue(gc, x, y, hero, timeSeconds);
         }
         if (hero.isInvulnerable()) {
@@ -933,63 +715,19 @@ public class RenderEngine {
     // =========================================================
     private void drawEnemy(GraphicsContext gc, double x, double y, int typeId, double timeSeconds) {
         br.apsu.model.enemy.EnemyType eType = br.apsu.model.enemy.EnemyType.fromId(typeId);
-        Image frame = spriteManager.getImage(eType.getStaticSprite());
-
         double ew = eType.getWidth();
         double eh = eType.getHeight();
 
         drawShadow(gc, x + ew / 2, y + eh - 2, ew * 0.65, 9);
-        if (frame != null) {
-            gc.save();
-            gc.translate(x + ew / 2, y + eh / 2);
-            // Enguia (1) e Caranguejo (3) foram renderizados virados para a direita no Blender
-            if (typeId == 1 || typeId == 3) {
-                gc.scale(-1, 1);
-            }
-            gc.drawImage(frame, -ew / 2, -eh / 2, ew, eh);
-            gc.restore();
-        } else {
-            // Fallback geométrico por tipo
-            Color fallbackColor = switch (typeId) {
-                case 1 -> Color.web("#0060ff");  // Enguia — azul elétrico
-                case 2 -> Color.web("#aa00ff");  // Medusa — roxo
-                case 3 -> Color.web("#cc3300");  // Caranguejo — vermelho
-                case 4 -> Color.web("#004488");  // Arraia — azul escuro
-                case 5 -> Color.web("#660099");  // Leviatã — roxo profundo
-                default -> Color.web("#006600"); // Peixe — verde
-            };
-            gc.setFill(fallbackColor);
-            if (typeId == 1) {
-                // Enguia — forma horizontal
-                gc.fillRoundRect(x, y + eh/4, ew, eh/2, 8, 8);
-            } else if (typeId == 4) {
-                // Arraia — forma diamante/losango
-                gc.fillPolygon(new double[]{x + ew/2, x + ew, x + ew/2, x},
-                               new double[]{y, y + eh/2, y + eh, y + eh/2}, 4);
-            } else {
-                gc.fillOval(x, y, ew, eh);
-            }
-        }
+        // Inimigos 3D são mantidos fora da camada Canvas.
     }
 
     // =========================================================
     // BOSS
     // =========================================================
     private void drawBoss(GraphicsContext gc, BossEntity boss, double timeSeconds) {
-        String bossStatic = switch (boss.getVariant()) {
-            case 1 -> "sprites/kullullu/02_kullullu_var_glacial.png";
-            case 2 -> "sprites/kullullu/02_kullullu_var_toxico.png";
-            default -> "sprites/kullullu/02_kullullu_boss.png";
-        };
-        Image frame = spriteManager.getImage(bossStatic);
-
         drawShadow(gc, boss.getX() + BossEntity.BW / 2, boss.getY() + BossEntity.BH - 5, BossEntity.BW * 0.7, 22);
-        if (frame != null) {
-            gc.save();
-            gc.translate(boss.getX() + BossEntity.BW / 2, boss.getY() + BossEntity.BH / 2);
-            gc.drawImage(frame, -BossEntity.BW / 2, -BossEntity.BH / 2, BossEntity.BW, BossEntity.BH);
-            gc.restore();
-        }
+        // O modelo 3D do boss é desenhado pela Runtime3DLayer.
 
         // Telegrafo antes da troca de estágio: contraste alto e duração curta,
         // para ser lido sem encobrir o sprite ou o HUD.
@@ -1018,17 +756,9 @@ public class RenderEngine {
     }
 
     private void drawGuardian(GraphicsContext gc, double x, double y, int type, boolean prompt, double timeSeconds) {
-        int safeType = Math.min(type, GuardianEntity.SPRITE_PATHS.length - 1);
-        String gStatic = GuardianEntity.SPRITE_PATHS[safeType];
-        Image frame = spriteManager.getImage(gStatic);
-
         lightingEngine.drawBioluminescentHalo(gc, x + GuardianEntity.GW / 2, y + GuardianEntity.GH / 2,
             GuardianEntity.GW * 0.9, Color.web("#40e0ff"));
         drawShadow(gc, x + GuardianEntity.GW / 2, y + GuardianEntity.GH - 4, GuardianEntity.GW * 0.7, 16);
-
-        if (frame != null) {
-            gc.drawImage(frame, x, y, GuardianEntity.GW, GuardianEntity.GH);
-        }
 
         if (prompt) {
             gc.setFill(Color.rgb(0, 8, 24, 0.90));
@@ -1043,17 +773,10 @@ public class RenderEngine {
     private void drawPortal(GraphicsContext gc, double px, boolean unlocked, double height, double timeSeconds) {
         double centerX = px + 8;
         double centerY = height / 2.0 - 16;
-        Image portal = spriteManager.getImage("sprites/scenery/15_portal_atlantica_3d.png");
-
-        if (portal != null) {
-            double pulse = 0.88 + Math.sin(timeSeconds * 2.4) * 0.12;
-            lightingEngine.drawBioluminescentHalo(gc, centerX, centerY, 104 * pulse,
-                unlocked ? Color.web("#28d9ff") : Color.web("#d94a5e"));
-            gc.save();
-            if (!unlocked) gc.setGlobalAlpha(0.48);
-            gc.drawImage(portal, centerX - 70, centerY - 70, 140, 140);
-            gc.restore();
-        }
+        // A geometria do portal vem da malha 3D da Runtime3DLayer.
+        double pulse = 0.88 + Math.sin(timeSeconds * 2.4) * 0.12;
+        lightingEngine.drawBioluminescentHalo(gc, centerX, centerY, 104 * pulse,
+            unlocked ? Color.web("#28d9ff") : Color.web("#d94a5e"));
 
         // Indicador de estado compacto; a geometria do portal vem do sprite 3D.
         gc.setFont(Font.font("Serif", FontWeight.BOLD, 11));

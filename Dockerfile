@@ -42,7 +42,7 @@ RUN apt-get update -qq && \
 WORKDIR /app
 
 # Copiar o fat JAR gerado no stage de build (que já inclui todas as libs JavaFX)
-COPY --from=builder /app/target/apsu-game-*.jar ./apsu-game.jar
+COPY --from=builder /app/target/apsu-game-*-jar-with-dependencies.jar ./apsu-game.jar
 
 ENV DISPLAY=:0
 

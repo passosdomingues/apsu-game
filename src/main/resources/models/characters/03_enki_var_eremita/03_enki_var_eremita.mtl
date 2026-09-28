@@ -1,0 +1,182 @@
+# Blender 4.5.5 LTS MTL File: '03_enki_var_eremita.blend'
+# www.blender.org
+
+newmtl Mat_03_enki_var_eremita_Barba_30.001
+Ns 250.000000
+Ka 0.200000 0.200000 0.200000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/001_00.png
+
+newmtl Mat_03_enki_var_eremita_Barba_30.002
+Ns 250.000000
+Ka 0.200000 0.200000 0.200000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/010_00.png
+
+newmtl Mat_03_enki_var_eremita_Barba_30.003
+Ns 250.000000
+Ka 0.200000 0.200000 0.200000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/011_00.png
+
+newmtl Mat_03_enki_var_eremita_Barba_30.004
+Ns 250.000000
+Ka 0.200000 0.200000 0.200000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/012_00.png
+
+newmtl Mat_03_enki_var_eremita_Barba_30.005
+Ns 250.000000
+Ka 0.200000 0.200000 0.200000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/013_00.png
+
+newmtl Mat_03_enki_var_eremita_Barba_30.006
+Ns 250.000000
+Ka 0.200000 0.200000 0.200000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/014_00.png
+
+newmtl Mat_03_enki_var_eremita_Barba_30.007
+Ns 250.000000
+Ka 0.200000 0.200000 0.200000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/015_00.png
+
+newmtl Mat_03_enki_var_eremita_Manto_60.001
+Ns 422.499969
+Ka 0.350000 0.350000 0.350000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/000_00.png
+
+newmtl Mat_03_enki_var_eremita_Ouro_10.001
+Ns 672.400024
+Ka 0.920000 0.920000 0.920000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/005_00.png
+
+newmtl Mat_03_enki_var_eremita_Ouro_10.002
+Ns 672.400024
+Ka 0.920000 0.920000 0.920000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/006_00.png
+
+newmtl Mat_03_enki_var_eremita_Ouro_10.003
+Ns 672.400024
+Ka 0.920000 0.920000 0.920000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/007_00.png
+
+newmtl Mat_03_enki_var_eremita_Ouro_10.004
+Ns 672.400024
+Ka 0.920000 0.920000 0.920000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/008_00.png
+
+newmtl Mat_03_enki_var_eremita_Ouro_10.005
+Ns 672.400024
+Ka 0.920000 0.920000 0.920000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/009_00.png
+
+newmtl Mat_03_enki_var_eremita_Ouro_10.006
+Ns 672.400024
+Ka 0.920000 0.920000 0.920000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/016_00.png
+
+newmtl Mat_03_enki_var_eremita_Pele.001
+Ns 202.500000
+Ka 0.050000 0.050000 0.050000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/002_00.png
+
+newmtl Mat_03_enki_var_eremita_Runa_10.001
+Ns 490.000000
+Ka 0.100000 0.100000 0.100000
+Ks 0.500000 0.500000 0.500000
+Ke 1.200000 6.000000 4.800000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/003_00.png
+
+newmtl Mat_03_enki_var_eremita_Runa_10.002
+Ns 490.000000
+Ka 0.100000 0.100000 0.100000
+Ks 0.500000 0.500000 0.500000
+Ke 1.200000 6.000000 4.800000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/004_00.png
+
+newmtl Mat_03_enki_var_eremita_Runa_10.003
+Ns 490.000000
+Ka 0.100000 0.100000 0.100000
+Ks 0.500000 0.500000 0.500000
+Ke 1.200000 6.000000 4.800000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/017_00.png

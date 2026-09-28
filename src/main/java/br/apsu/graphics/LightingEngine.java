@@ -13,8 +13,6 @@ import java.util.Map;
 public class LightingEngine {
     private boolean reducedEffects;
     private static final Color CAUSTIC_BLUE = Color.rgb(140, 210, 255, 0.04);
-    private static final Color GEYSER_HEAT_TOP = Color.rgb(200, 210, 255, 0.12);
-    private static final Color GEYSER_HEAT_BOT = Color.rgb(255, 160, 60, 0.28);
 
     private final Map<Color, Color> outerAlphaCache = new HashMap<>();
     private final Map<Color, Color> innerAlphaCache = new HashMap<>();
@@ -53,10 +51,4 @@ public class LightingEngine {
         gc.fillOval(cx - inR, cy - inR, inR * 2, inR * 2);
     }
 
-    public void drawGeyserHeatGlow(GraphicsContext gc, double gx, double gy, double gw, double gh) {
-        gc.setFill(GEYSER_HEAT_TOP);
-        gc.fillOval(gx + 5, gy, gw - 10, gh * 0.85);
-        gc.setFill(GEYSER_HEAT_BOT);
-        gc.fillOval(gx, gy + gh - 30, gw, 30);
-    }
 }

@@ -16,13 +16,19 @@ cd apsu-game
 
 ### 2. Preparação Automática de Ambiente (Setup Idempotente)
 
-O projeto inclui scripts que detectam e configuram automaticamente as dependências de sistema necessárias (**Java 21 LTS**, **Apache Maven**, **Blender 4.5 LTS** e **OpenMPI**):
+O alvo padrão `make` verifica somente as dependências de runtime (**Java 21 LTS** e **Apache Maven**). Os OBJ/MTL dos personagens e as imagens do cenário já estão em `src/main/resources`; Blender e OpenMPI só são necessários para regenerar assets ou layouts.
 
 #### No Linux (Debian / Ubuntu / Linux Mint):
 ```bash
 make setup
 # ou diretamente via script:
-bash tools/setup/setup_environment.sh
+APSU_RUNTIME_ONLY=1 bash tools/setup/setup_environment.sh
+```
+
+Para gerar assets ou mapas, instale as ferramentas específicas sob demanda:
+```bash
+make setup-assets   # Blender
+make setup-mpi      # OpenMPI
 ```
 
 #### No Windows (PowerShell 5.1+):
@@ -67,17 +73,29 @@ mvn javafx:run
 
 ---
 
-### 6. Pipeline de Assets 3D -> 2.5D (Blender 4.5 LTS)
+### 6. Personagens 3D em tempo real e cenário 2.5D (Blender 4.5 LTS)
 
 Caso modifique algum script Python em `personagens/scripts/`:
 
 ```bash
-# Regenerar arquivos .blend e renderizar spritesheets PNG transparentes
+# Regenerar modelos Blender, exportar malhas OBJ/MTL para o jogo e renderizar o cenário
 make assets
 
-# Pipeline rápido (apenas as poses de ataque das variantes)
+# Exportar novamente apenas os modelos 3D de runtime a partir dos .blend existentes
+make export-runtime-models
+
+# Gera as poses 3D animadas de ataque das variantes
 make assets-variant-attacks
 ```
+
+Personagens e elementos de fase (recifes/cardumes, naufrágio, baú, ruínas,
+correntes, portal e obstáculos) são malhas OBJ/MTL renderizadas em
+`Runtime3DLayer`. Planos de fundo, HUD e efeitos permanecem em 2.5D no Canvas.
+Os modelos ficam em `src/main/resources/models/characters/` e
+`src/main/resources/models/scenery/`. O nado usa inclinação/balanço leves na
+malha base para evitar carregamento de poses OBJ durante a partida; ataques
+selecionam um modelo OBJ de estilo pronto com efeito de impacto leve. MPI não
+participa do desenho de quadros.
 
 ---
 
@@ -90,3 +108,7 @@ make mpi-demo
 # Gerar os layouts JSON das 5 fases em mpi/generated/
 make mpi-generate
 ```
+
+Os mapas MPI são pré-processados e reproduzíveis, mas não são distribuídos pelo
+loop gráfico. `make mpi-generate` falha se um worker não terminar ou se algum
+arquivo de saída estiver vazio; não mascara erros da execução.

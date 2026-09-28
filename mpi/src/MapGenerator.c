@@ -26,7 +26,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 #include <math.h>
 
 /* ── Configuração do Mapa ── */
@@ -123,8 +122,9 @@ int main(int argc, char *argv[]) {
             /* Cada execução produz uma fase inteira, não trechos misturados. */
             all_strips[i].phase = requested_phase;
 
-            /* Semente única por processo para variedade */
-            all_strips[i].seed = (int)(time(NULL)) ^ (i * 0x9e3779b9 + 0x6c62272e);
+            /* Semente estável por fase e faixa para reproduzir layouts entre máquinas. */
+            all_strips[i].seed = (requested_phase * 0x45d9f3b) ^
+                                 (i * 0x9e3779b9 + 0x6c62272e);
         }
     }
 
@@ -142,7 +142,11 @@ int main(int argc, char *argv[]) {
     );
 
     /* ── Cada processo gera sua faixa ── */
-    char *my_tiles = (char *)malloc(strip_tiles * sizeof(char));
+    char *my_tiles = (char *)malloc((size_t)strip_tiles * sizeof(char));
+    if (my_tiles == NULL) {
+        fprintf(stderr, "[ERRO] Processo MPI %d sem memória para tiles.\n", rank);
+        MPI_Abort(MPI_COMM_WORLD, 1);
+    }
     generate_strip(my_strip, my_tiles);
 
     printf("[Core %d / PID %-6d] ⚙  Gerou faixa colunas %2d–%2d  "
@@ -170,7 +174,11 @@ int main(int argc, char *argv[]) {
      */
     char *gathered = NULL;
     if (rank == 0) {
-        gathered = (char *)malloc(MAP_WIDTH * MAP_HEIGHT * sizeof(char));
+        gathered = (char *)malloc((size_t)MAP_WIDTH * MAP_HEIGHT * sizeof(char));
+        if (all_strips == NULL || full_map == NULL || gathered == NULL) {
+            fprintf(stderr, "[ERRO] Memória insuficiente para consolidar o mapa.\n");
+            MPI_Abort(MPI_COMM_WORLD, 1);
+        }
     }
 
     MPI_Gather(
@@ -208,6 +216,7 @@ int main(int argc, char *argv[]) {
 
         if (output_path != NULL && !write_json(output_path, full_map, requested_phase)) {
             fprintf(stderr, "[ERRO] Não foi possível gravar %s\n", output_path);
+            MPI_Abort(MPI_COMM_WORLD, 1);
         }
 
         /* Legenda */
