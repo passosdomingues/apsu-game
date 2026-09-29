@@ -40,6 +40,60 @@ Direção acordada: cenário 2.5D lateral; personagens e props criados a partir 
 
 Nomenclatura de produção: fase + função + estado. Eventos de áudio devem ser semânticos e não conhecer nome/caminho de WAV, formato ou middleware.
 
+## Experiência de gameplay — capturas por fase
+
+Esta sequência registra uma sessão jogada em 28–29/09/2026, do menu ao trecho final. A jornada acompanha Adapa e Enki das águas costeiras até as regiões mais profundas: primeiro se aprende a nadar e encontra-se o Guardião Atlante; depois vêm recifes, naufrágio e baú; as correntes e a pressão ganham destaque na zona abissal; o Abismo Vulcânico traz lava e criaturas maiores; por fim, o Templo de Apsu reúne Enki, perigos abissais e o confronto final. As profundidades crescem conforme a progressão já descrita nas fases abaixo.
+
+As imagens são evidências do build capturado, não renders promocionais nem prova de aceite. Servem para visualizar fluxo, diálogos, enquadramento, HUD, escala e problemas a revisar. Algumas capturas mostram pausas de diálogo e elementos provisórios; comparar com as seções de estado e QA antes de tratar qualquer detalhe como versão final.
+
+<table>
+  <thead>
+    <tr><th>Trecho</th><th>Capturas da sessão</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Menu e prólogo</strong><br>Seleção inicial e chamado de Enki para a primeira região.</td>
+      <td>
+        <img src="gameplay/Screenshot%20from%202026-09-28%2023-57-38.png" alt="Menu inicial de As Águas de Apsu" width="420">
+        <img src="gameplay/Screenshot%20from%202026-09-28%2023-57-56.png" alt="Diálogo introdutório de Enki" width="420">
+      </td>
+    </tr>
+    <tr>
+      <td><strong>P1 — Águas Claras</strong><br>Primeiro encontro com o Guardião Atlante e apresentação da tabuleta e da próxima rota.</td>
+      <td>
+        <img src="gameplay/Screenshot%20from%202026-09-28%2023-58-14.png" alt="Adapa encontra o Guardião Atlante nas Águas Claras" width="300">
+        <img src="gameplay/Screenshot%20from%202026-09-28%2023-58-33.png" alt="Diálogo com o Guardião Atlante" width="300">
+        <img src="gameplay/Screenshot%20from%202026-09-28%2023-58-56.png" alt="O guardião aponta o naufrágio da fase seguinte" width="300">
+      </td>
+    </tr>
+    <tr>
+      <td><strong>P2 — Cavernas de Coral</strong><br>Recife, cardume, naufrágio e aviso do Guardião do Coral Vivo sobre as correntes à frente.</td>
+      <td>
+        <img src="gameplay/Screenshot%20from%202026-09-28%2023-59-30.png" alt="Diálogo do Guardião do Coral Vivo junto ao naufrágio" width="420">
+        <img src="gameplay/Screenshot%20from%202026-09-28%2023-59-54.png" alt="Exploração das Cavernas de Coral" width="420">
+      </td>
+    </tr>
+    <tr>
+      <td><strong>P3 — Correntes Abissais</strong><br>Enki orienta Adapa a usar as correntes; a captura de gameplay mostra colunas e perigos da região profunda.</td>
+      <td>
+        <img src="gameplay/Screenshot%20from%202026-09-29%2000-00-14.png" alt="Enki apresenta a mecânica das correntes" width="420">
+        <img src="gameplay/Screenshot%20from%202026-09-29%2000-00-38.png" alt="Travessia das Correntes Abissais" width="420">
+      </td>
+    </tr>
+    <tr>
+      <td><strong>P4 — Abismo Vulcânico</strong><br>Encontro com o Oráculo e travessia entre lava, rochas, gêiseres e criaturas abissais.</td>
+      <td>
+        <img src="gameplay/Screenshot%20from%202026-09-29%2000-01-04.png" alt="Diálogo com o Oráculo das Chamas Abissais" width="420">
+        <img src="gameplay/Screenshot%20from%202026-09-29%2000-01-31.png" alt="Travessia do Abismo Vulcânico" width="420">
+      </td>
+    </tr>
+    <tr>
+      <td><strong>P5 — Templo de Apsu</strong><br>Chegada ao templo, diálogo com Enki e presença de criaturas e ameaças do confronto final.</td>
+      <td><img src="gameplay/Screenshot%20from%202026-09-29%2000-01-52.png" alt="Enki recebe Adapa no Templo de Apsu, com ameaças da fase final ao fundo" width="640"></td>
+    </tr>
+  </tbody>
+</table>
+
 ## Fases: estado e produção
 
 Descrições de runtime conferidas em `GameContext.startP1`–`startP5` e métodos de update. O walkthrough visual maior está em [LevelsWalkthrough.md](personagens/fases/LevelsWalkthrough.md); é **REFERÊNCIA** para produção Blender, não comprova integração runtime.
