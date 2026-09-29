@@ -96,27 +96,24 @@ public final class Runtime3DLayer {
         if (state.ordinal() < GameContext.State.P1.ordinal() || state.ordinal() > GameContext.State.P5.ordinal()) return;
 
         HeroEntity hero = context.getHero();
-        String heroName;
-        if (hero.isShooting()) {
-            String[] styles = {"thrust", "slash", "spin", "charge"};
-            heroName = modelName(hero.getType()
-                .getAttackDir(styles[hero.getAttackStyleIndex() % styles.length]) + ".obj");
-        } else {
-            // A malha-base evita reler oito OBJs grandes durante o jogo. O nado
-            // é sugerido por inclinação e movimento sutis, sem saltos de pose.
-            heroName = modelName(hero.getType().getStaticSpritePath());
-        }
+        // Uma malha estática por skin evita carregar OBJ de 1–2 MB no primeiro
+        // quadro de cada ataque. O impulso usa offsets e inclinação da mesma
+        // malha; a bolha e o arco continuam sendo feedbacks leves no Canvas.
+        String heroName = modelName(hero.getType().getStaticSpritePath());
         Actor heroActor = actor("hero", heroName, HeroEntity.RENDER_W, HeroEntity.RENDER_H);
         if (heroActor != null) {
             double x = context.getCamera().toScreenX(hero.getX()) + HeroEntity.HW / 2.0
                 + (hero.isShooting() ? hero.getAttackOffsetX() : 0);
             double y = hero.getY() + HeroEntity.HH / 2.0
                 + (hero.isShooting() ? hero.getAttackOffsetY() : 0);
+            double attackProgress = Math.min(1.0, hero.getAttackElapsedSeconds(context.getNanoTime()) / 0.45);
+            double attackLean = hero.isShooting() ? Math.sin(attackProgress * Math.PI) * 4.0 : 0;
             place(heroActor, x, y, context.getCamera().toScreenX(hero.getX()) / VIEW_W, timeSeconds,
-                hero.isFacingRight() ? 18 : -18,
+                (hero.isFacingRight() ? 18 : -18) + attackLean,
                 Math.max(-20.0, Math.min(20.0,
                     hero.getPitchAngle() * 0.65
-                    + Math.sin(timeSeconds * (2.1 + hero.getCurrentSpeedRatio() * 1.2)) * 2.5)));
+                    + Math.sin(timeSeconds * (2.1 + hero.getCurrentSpeedRatio() * 1.2)) * 2.5
+                    - attackLean * (hero.isFacingRight() ? 1 : -1))));
             if (hero.isInvulnerable()) heroActor.node.setOpacity(0.45 + 0.3 * Math.sin(timeSeconds * 24.0));
             else heroActor.node.setOpacity(1.0);
         }
@@ -221,10 +218,13 @@ public final class Runtime3DLayer {
 
     private Actor actor(String id, String modelName, double targetWidth, double targetHeight) {
         if (failedModels.contains(modelName)) return null;
-        String cacheId = id + ":" + modelName + ":" + targetWidth + "x" + targetHeight;
-        Actor current = actorsById.get(cacheId);
+        Actor current = actorsById.get(id);
         if (current != null && current.modelName.equals(modelName)
             && current.targetWidth == targetWidth && current.targetHeight == targetHeight) return current;
+        if (current != null) {
+            current.node.setVisible(false);
+            (current.modelName.startsWith("scenery/") ? scenery : actors).getChildren().remove(current.node);
+        }
         try {
             ObjModelLoader.Model template = modelTemplates.get(modelName);
             if (template == null) {
@@ -234,13 +234,13 @@ public final class Runtime3DLayer {
             ObjModelLoader.Model model = ObjModelLoader.instance(template, targetWidth, targetHeight);
             Actor loaded = new Actor(modelName, model.node(), targetWidth, targetHeight);
             loaded.node.setVisible(false);
-            actorsById.put(cacheId, loaded);
+            actorsById.put(id, loaded);
             (modelName.startsWith("scenery/") ? scenery : actors).getChildren().add(loaded.node);
             return loaded;
         } catch (IOException | RuntimeException error) {
             System.err.println("[3D] Não foi possível carregar " + modelName + ": " + error.getMessage());
             failedModels.add(modelName);
-            actorsById.remove(cacheId);
+            actorsById.remove(id);
             return null;
         }
     }

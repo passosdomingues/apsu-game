@@ -913,12 +913,19 @@ public class GameContext {
     // =========================================================
     private void updateEnemies() {
         double t = nanoTime / 1_000_000_000.0;
-        enemyQuadTree.clear();
+        boolean indexNeeded = false;
+        for (Projectile projectile : projectiles) {
+            if (projectile.getType() == Projectile.Type.HERO_BUBBLE) {
+                indexNeeded = true;
+                break;
+            }
+        }
+        if (indexNeeded) enemyQuadTree.clear();
 
         for (EnemyEntity e : enemies) {
             if (!e.isAlive()) continue;
             e.update(t, getThreatMultiplier());
-            enemyQuadTree.insert(e);
+            if (indexNeeded) enemyQuadTree.insert(e);
 
             if (difficulty.canEnemiesShoot()) {
                 if (e.getLastShotTime() == 0) {

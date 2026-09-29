@@ -16,6 +16,8 @@ import javafx.scene.paint.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Renderizador mestre desacoplado.
@@ -29,14 +31,15 @@ public class RenderEngine implements GameRenderer {
     private final LightingEngine lightingEngine = new LightingEngine();
     private final UIRenderer uiRenderer = new UIRenderer();
     private boolean reducedEffects = true;
+    private final Map<String, LinearGradient> backgroundGradients = new HashMap<>();
+    private static final Map<String, Color> COLOR_CACHE = new java.util.concurrent.ConcurrentHashMap<>();
 
-    // Gradients e Cores estáticos para evitar alocações a cada frame (GC zero)
-    private static final Color[] EMBER_COLORS = {
-        Color.rgb(255, 200, 0, 0.85),
-        Color.rgb(255, 150, 0, 0.65),
-        Color.rgb(255, 100, 0, 0.45),
-        Color.rgb(200, 50, 0, 0.25)
-    };
+    private static final Color MENU_BUBBLE_COLOR = Color.rgb(80, 180, 255);
+    private static final Color ABYSS_BUBBLE_COLOR = Color.rgb(80, 160, 255);
+    private static final Color SHADOW_COLOR = Color.rgb(2, 8, 14, 0.40);
+    private static final LinearGradient SEAFLOOR_GRADIENT = new LinearGradient(0, 730, 0, 768,
+        false, CycleMethod.NO_CYCLE,
+        new Stop(0, Color.rgb(10, 45, 22, 0)), new Stop(1, Color.rgb(10, 45, 22, 0.95)));
 
     public RenderEngine() {
         lightingEngine.setReducedEffects(true);
@@ -93,19 +96,21 @@ public class RenderEngine implements GameRenderer {
         for (int i = 0; i < 22; i++) {
             double bx = (i * 87 + Math.sin(timeSeconds * 0.5 + i) * 38 + width * 6) % width;
             double by = (height - (timeSeconds * (16 + i % 7) + i * 68) % (height + 90));
-            gc.setFill(Color.rgb(80, 180, 255, 0.09 + Math.sin(timeSeconds + i) * 0.03));
+            gc.setGlobalAlpha(0.09 + Math.sin(timeSeconds + i) * 0.03);
+            gc.setFill(MENU_BUBBLE_COLOR);
             gc.fillOval(bx, by, 6 + (i % 5) * 10, 6 + (i % 5) * 10);
         }
+        gc.setGlobalAlpha(1.0);
 
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setTextBaseline(VPos.CENTER);
 
         gc.setFont(Font.font("Serif", FontWeight.BOLD, 64));
         gc.setFill(Color.rgb(0, 60, 160, 0.28)); gc.fillText("AS AGUAS DE APSU", width / 2.0 + 3, 105);
-        gc.setFill(Color.web("#ffd700")); gc.fillText("AS AGUAS DE APSU", width / 2.0, 102);
+        gc.setFill(color("#ffd700")); gc.fillText("AS AGUAS DE APSU", width / 2.0, 102);
 
         gc.setFont(Font.font("Serif", FontWeight.BOLD, 22));
-        gc.setFill(Color.web("#70b8d8"));
+        gc.setFill(color("#70b8d8"));
         gc.fillText("A Lenda dos Apkallu", width / 2.0, 150);
 
         // B1-FIX: aspecto calculado da imagem ESTÁTICA (não do frame animado)
@@ -123,18 +128,18 @@ public class RenderEngine implements GameRenderer {
         // Card Glassmorphic de Atributos
         gc.setFill(Color.rgb(4, 16, 36, 0.88));
         gc.fillRoundRect(px - 35, py + ph + 15, pw + 70, 145, 12, 12);
-        gc.setStroke(Color.web(hero.getAuraHex()).deriveColor(0, 1, 1, 0.6)); gc.setLineWidth(1.5);
+        gc.setStroke(color(hero.getAuraHex()).deriveColor(0, 1, 1, 0.6)); gc.setLineWidth(1.5);
         gc.strokeRoundRect(px - 35, py + ph + 15, pw + 70, 145, 12, 12);
 
         gc.setTextAlign(TextAlignment.LEFT);
         gc.setFont(Font.font("Serif", FontWeight.BOLD, 14));
-        gc.setFill(Color.web("#ffd700"));
+        gc.setFill(color("#ffd700"));
         gc.fillText(hero.getName(), px - 25, py + ph + 35);
 
-        drawStatBar(gc, "Velocidade",  hero.getMaxSpeed() / 16.5, px - 25, py + ph + 48,  pw + 50, Color.web("#4db8ff"));
-        drawStatBar(gc, "Agilidade",   hero.getAccel()    / 3.2,  px - 25, py + ph + 72,  pw + 50, Color.web("#44cc88"));
-        drawStatBar(gc, "Resistência", (hero.getDrag() - 0.85) / 0.12, px - 25, py + ph + 96, pw + 50, Color.web("#ffaa44"));
-        drawStatBar(gc, "Poder Bolha", hero.getPwr()      / 1.6,  px - 25, py + ph + 120, pw + 50, Color.web("#e060ff"));
+        drawStatBar(gc, "Velocidade",  hero.getMaxSpeed() / 16.5, px - 25, py + ph + 48,  pw + 50, color("#4db8ff"));
+        drawStatBar(gc, "Agilidade",   hero.getAccel()    / 3.2,  px - 25, py + ph + 72,  pw + 50, color("#44cc88"));
+        drawStatBar(gc, "Resistência", (hero.getDrag() - 0.85) / 0.12, px - 25, py + ph + 96, pw + 50, color("#ffaa44"));
+        drawStatBar(gc, "Poder Bolha", hero.getPwr()      / 1.6,  px - 25, py + ph + 120, pw + 50, color("#e060ff"));
 
         // Menu 3 Opções
         gc.setTextAlign(TextAlignment.CENTER);
@@ -149,22 +154,22 @@ public class RenderEngine implements GameRenderer {
             if (sel) {
                 gc.setFill(Color.rgb(0, 100, 220, 0.28));
                 gc.fillRoundRect(width / 2.0 - 340, ys[i] - 32, 680, 62, 16, 16);
-                gc.setStroke(Color.web("#ffd700")); gc.setLineWidth(2);
+                gc.setStroke(color("#ffd700")); gc.setLineWidth(2);
                 gc.strokeRoundRect(width / 2.0 - 340, ys[i] - 32, 680, 62, 16, 16);
             }
             gc.setFont(Font.font("Serif", sel ? FontWeight.BOLD : FontWeight.NORMAL, sel ? 28 : 22));
-            gc.setFill(sel ? Color.web("#ffd700") : Color.web("#78b4cc"));
+            gc.setFill(sel ? color("#ffd700") : color("#78b4cc"));
             gc.fillText(opts[i], width / 2.0, ys[i]);
         }
 
         gc.setFont(Font.font("Serif", 15));
-        gc.setFill(Color.web("#ffd700"));
+        gc.setFill(color("#ffd700"));
         gc.fillText(ctx.getDifficulty().getDescription(), width / 2.0, 625);
     }
 
     private void drawStatBar(GraphicsContext gc, String label, double ratio, double x, double y, double width, Color color) {
         gc.setFont(Font.font("Serif", 11));
-        gc.setFill(Color.web("#a0c0e0"));
+        gc.setFill(color("#a0c0e0"));
         gc.fillText(label, x, y + 10);
         double barX = x + 70, barW = width - 70, barH = 10;
         gc.setFill(Color.rgb(8, 24, 48, 0.9));
@@ -180,18 +185,18 @@ public class RenderEngine implements GameRenderer {
 
         gc.setFill(Color.rgb(4, 10, 28, 0.94));
         gc.fillRoundRect(240, height / 2.0 - 150, width - 310, 295, 22, 22);
-        gc.setStroke(Color.web("#0e3888")); gc.setLineWidth(2);
+        gc.setStroke(color("#0e3888")); gc.setLineWidth(2);
         gc.strokeRoundRect(240, height / 2.0 - 150, width - 310, 295, 22, 22);
         gc.setTextAlign(TextAlignment.LEFT);
         gc.setFont(Font.font("Serif", FontWeight.BOLD, 20));
-        gc.setFill(Color.web("#60a0e0"));
+        gc.setFill(color("#60a0e0"));
         gc.fillText("Enki — Senhor das Águas Primordiais:", 265, height / 2.0 - 118);
         gc.setFill(Color.WHITE); gc.setFont(Font.font("Serif", 20));
         String[] currentDlg = GuardianEntity.ENKI_INTRO_DIALOGUES[
             Math.min(ctx.getDlgPhase(), GuardianEntity.ENKI_INTRO_DIALOGUES.length - 1)];
         if (ctx.getDlgIdx() < currentDlg.length) uiRenderer.wrapText(gc, currentDlg[ctx.getDlgIdx()], 265, height / 2.0 - 76, width - 440, 34);
         gc.setTextAlign(TextAlignment.CENTER);
-        gc.setFill(Color.web("#ffd700")); gc.setFont(Font.font("Serif", 15));
+        gc.setFill(color("#ffd700")); gc.setFont(Font.font("Serif", 15));
         gc.fillText("[ ESPAÇO / E: Avançar  •  ESC: Pular Diálogo ]", width / 2.0 + 80, height / 2.0 + 136);
     }
 
@@ -221,9 +226,7 @@ public class RenderEngine implements GameRenderer {
         lightingEngine.drawSunCaustics(gc, width, height, timeSeconds);
 
         // Faixa de areia/algas no rodapé
-        gc.setFill(new LinearGradient(0, height - 38, 0, height, false, CycleMethod.NO_CYCLE,
-            new Stop(0, Color.rgb(10, 45, 22, 0)),
-            new Stop(1, Color.rgb(10, 45, 22, 0.95))));
+        gc.setFill(SEAFLOOR_GRADIENT);
         gc.fillRect(0, height - 38, width, 38);
 
         // Cenário
@@ -235,8 +238,7 @@ public class RenderEngine implements GameRenderer {
         drawPortal(gc, ctx.getCamera().toScreenX(4000 - 100), ctx.getTabletsCollected() >= 1, height, timeSeconds);
 
         for (EnemyEntity e : ctx.getEnemies()) {
-            if (!e.isAlive()) continue;
-            drawEnemy(gc, ctx.getCamera().toScreenX(e.getWorldX()), e.getCurrentY(), e.getType().getId(), timeSeconds);
+            drawVisibleEnemy(gc, ctx, e, width, timeSeconds);
         }
 
         drawProjectiles(gc, ctx);
@@ -271,7 +273,7 @@ public class RenderEngine implements GameRenderer {
             } else {
                 gc.setFill(Color.rgb(0, 12, 28, 0.88));
                 gc.fillRoundRect(csx - 70, ctx.getChestWY() - 62, 140, 24, 8, 8);
-                gc.setFill(Color.web("#ffd700")); gc.setFont(Font.font("Serif", FontWeight.BOLD, 12));
+                gc.setFill(color("#ffd700")); gc.setFont(Font.font("Serif", FontWeight.BOLD, 12));
                 gc.setTextAlign(TextAlignment.CENTER);
                 gc.fillText("[ E / ESPAÇO: BAÚ ]", csx, ctx.getChestWY() - 46);
             }
@@ -285,8 +287,7 @@ public class RenderEngine implements GameRenderer {
         drawPortal(gc, ctx.getCamera().toScreenX(4000 - 100), ctx.getTabletsCollected() >= 2, height, timeSeconds);
 
         for (EnemyEntity e : ctx.getEnemies()) {
-            if (!e.isAlive()) continue;
-            drawEnemy(gc, ctx.getCamera().toScreenX(e.getWorldX()), e.getCurrentY(), e.getType().getId(), timeSeconds);
+            drawVisibleEnemy(gc, ctx, e, width, timeSeconds);
         }
 
         drawProjectiles(gc, ctx);
@@ -318,10 +319,12 @@ public class RenderEngine implements GameRenderer {
             double by = height - bProgress * (height + 60);
             double br = 2.5 + (bi % 4) * 2.2;
             double alpha = Math.min(bProgress * 3, 1.0) * (1.0 - bProgress) * 0.25;
-            gc.setFill(Color.rgb(80, 160, 255, alpha));
+            gc.setGlobalAlpha(alpha);
+            gc.setFill(ABYSS_BUBBLE_COLOR);
             gc.fillOval(bx - br, by - br, br * 2, br * 2);
             // strokeOval removido — impacto visual negligível, custo alto
         }
+        gc.setGlobalAlpha(1.0);
 
         for (GuardianEntity g : ctx.getGuardians()) {
             double gx = ctx.getCamera().toScreenX(g.getWorldX());
@@ -331,8 +334,7 @@ public class RenderEngine implements GameRenderer {
         drawPortal(gc, ctx.getCamera().toScreenX(4000 - 100), ctx.getTabletsCollected() >= 3, height, timeSeconds);
 
         for (EnemyEntity e : ctx.getEnemies()) {
-            if (!e.isAlive()) continue;
-            drawEnemy(gc, ctx.getCamera().toScreenX(e.getWorldX()), e.getCurrentY(), e.getType().getId(), timeSeconds);
+            drawVisibleEnemy(gc, ctx, e, width, timeSeconds);
         }
 
         drawProjectiles(gc, ctx);
@@ -364,8 +366,7 @@ public class RenderEngine implements GameRenderer {
         drawPortal(gc, ctx.getCamera().toScreenX(4000 - 100), ctx.getTabletsCollected() >= 4, height, timeSeconds);
 
         for (EnemyEntity e : ctx.getEnemies()) {
-            if (!e.isAlive()) continue;
-            drawEnemy(gc, ctx.getCamera().toScreenX(e.getWorldX()), e.getCurrentY(), e.getType().getId(), timeSeconds);
+            drawVisibleEnemy(gc, ctx, e, width, timeSeconds);
         }
 
         drawProjectiles(gc, ctx);
@@ -410,40 +411,6 @@ public class RenderEngine implements GameRenderer {
     // =========================================================
     // ELEMENTOS VISUAIS AMBIENTAIS
     // =========================================================
-
-    /** Embers/faíscas subindo de rochas vulcânicas (zero alocação). */
-    private void drawEmbers(GraphicsContext gc, double cx, double baseY, double w, double t, double seed) {
-        int count = reducedEffects ? 2 : 4;
-        for (int i = 0; i < count; i++) {
-            double progress = ((t * 0.8 + i * 0.18 + seed * 0.001) % 1.0);
-            double ex = cx + Math.sin(t * 2.5 + i * 1.6 + seed) * (w * 0.45);
-            double ey = baseY - progress * 120;
-            double r = (1.0 - progress) * 3.5 + 1.0;
-            gc.setFill(EMBER_COLORS[i % EMBER_COLORS.length]);
-            gc.fillOval(ex - r, ey - r, r * 2, r * 2);
-        }
-    }
-
-    /** Seta de corrente sobre o herói quando está em corrente ativa. */
-    private void drawCurrentArrowOnHero(GraphicsContext gc, GameContext ctx, double t) {
-        double hx, hy;
-        boolean isP5 = (ctx.getState() == GameContext.State.P5);
-        hx = isP5 ? ctx.getHero().getX() : ctx.getCamera().toScreenX(ctx.getHero().getX());
-        hy = ctx.getHero().getY();
-
-        double fx = ctx.getCurrentFx(), fy = ctx.getCurrentFy();
-        double angle = Math.atan2(fy, fx);
-        double pulse = 0.8 + Math.sin(t * 5) * 0.2;
-        double arrowX = hx + HeroEntity.HW/2 + Math.cos(angle) * 40;
-        double arrowY = hy + HeroEntity.HH/2 + Math.sin(angle) * 40;
-
-        gc.setFill(Color.rgb(0, 220, 255, pulse * 0.85));
-        gc.fillOval(arrowX - 10, arrowY - 10, 20, 20);
-        gc.setFont(Font.font("Serif", FontWeight.BOLD, 13));
-        gc.setFill(Color.rgb(0, 255, 255, pulse));
-        gc.setTextAlign(TextAlignment.CENTER);
-        gc.fillText("⟹", arrowX, arrowY + 4);
-    }
 
     // =========================================================
     // HERÓI
@@ -493,8 +460,13 @@ public class RenderEngine implements GameRenderer {
     // =========================================================
     // INIMIGOS
     // =========================================================
-    private void drawEnemy(GraphicsContext gc, double x, double y, int typeId, double timeSeconds) {
-        br.apsu.model.enemy.EnemyType eType = br.apsu.model.enemy.EnemyType.fromId(typeId);
+    private void drawVisibleEnemy(GraphicsContext gc, GameContext ctx, EnemyEntity enemy,
+                                  double width, double timeSeconds) {
+        if (!enemy.isAlive()) return;
+        double x = ctx.getCamera().toScreenX(enemy.getWorldX());
+        var eType = enemy.getType();
+        if (x + eType.getWidth() < -120 || x > width + 120) return;
+        double y = enemy.getCurrentY();
         double ew = eType.getWidth();
         double eh = eType.getHeight();
 
@@ -525,27 +497,27 @@ public class RenderEngine implements GameRenderer {
         double barY = boss.getY() - 18;
         gc.setFill(Color.rgb(20, 0, 0, 0.8));
         gc.fillRoundRect(barX, barY, barW, 10, 4, 4);
-        gc.setFill(hpRatio > 0.5 ? Color.web("#ff4444") : Color.web("#ff8800"));
+        gc.setFill(hpRatio > 0.5 ? color("#ff4444") : color("#ff8800"));
         gc.fillRoundRect(barX, barY, barW * hpRatio, 10, 4, 4);
         gc.setStroke(Color.rgb(255, 60, 60, 0.7)); gc.setLineWidth(1.5);
         gc.strokeRoundRect(barX, barY, barW, 10, 4, 4);
         gc.setFont(Font.font("Serif", FontWeight.BOLD, 11));
-        gc.setFill(Color.web("#ffd27a"));
+        gc.setFill(color("#ffd27a"));
         gc.setTextAlign(TextAlignment.CENTER);
         gc.fillText(boss.getCombatPhase().getLabel(), boss.getX() + BossEntity.BW / 2, barY - 5);
     }
 
     private void drawGuardian(GraphicsContext gc, double x, double y, int type, boolean prompt, double timeSeconds) {
         lightingEngine.drawBioluminescentHalo(gc, x + GuardianEntity.GW / 2, y + GuardianEntity.GH / 2,
-            GuardianEntity.GW * 0.9, Color.web("#40e0ff"));
+            GuardianEntity.GW * 0.9, color("#40e0ff"));
         drawShadow(gc, x + GuardianEntity.GW / 2, y + GuardianEntity.GH - 4, GuardianEntity.GW * 0.7, 16);
 
         if (prompt) {
             gc.setFill(Color.rgb(0, 8, 24, 0.90));
             gc.fillRoundRect(x + GuardianEntity.GW / 2 - 85, y - 32, 170, 26, 8, 8);
-            gc.setStroke(Color.web("#ffd700")); gc.setLineWidth(1.5);
+            gc.setStroke(color("#ffd700")); gc.setLineWidth(1.5);
             gc.strokeRoundRect(x + GuardianEntity.GW / 2 - 85, y - 32, 170, 26, 8, 8);
-            gc.setFill(Color.web("#ffd700")); gc.setFont(Font.font("Serif", FontWeight.BOLD, 13));
+            gc.setFill(color("#ffd700")); gc.setFont(Font.font("Serif", FontWeight.BOLD, 13));
             gc.setTextAlign(TextAlignment.CENTER); gc.fillText("[ E / ESPAÇO: CONVERSAR ]", x + GuardianEntity.GW / 2, y - 15);
         }
     }
@@ -556,12 +528,12 @@ public class RenderEngine implements GameRenderer {
         // A geometria do portal vem da malha 3D da Runtime3DLayer.
         double pulse = 0.88 + Math.sin(timeSeconds * 2.4) * 0.12;
         lightingEngine.drawBioluminescentHalo(gc, centerX, centerY, 104 * pulse,
-            unlocked ? Color.web("#28d9ff") : Color.web("#d94a5e"));
+            unlocked ? color("#28d9ff") : color("#d94a5e"));
 
         // Indicador de estado compacto; a geometria do portal vem do sprite 3D.
         gc.setFont(Font.font("Serif", FontWeight.BOLD, 11));
         gc.setTextAlign(TextAlignment.CENTER);
-        gc.setFill(unlocked ? Color.web("#75ecff") : Color.web("#ff8290"));
+        gc.setFill(unlocked ? color("#75ecff") : color("#ff8290"));
         gc.fillText(unlocked ? "PORTAL ABERTO" : "PORTAL SELADO", centerX, centerY + 84);
     }
 
@@ -582,7 +554,7 @@ public class RenderEngine implements GameRenderer {
                 gc.setFill(Color.rgb(255, 255, 255, 0.5));
                 gc.fillOval(screenX - 5, screenY - 5, 5, 5); // highlight
             } else {
-                gc.setFill(Color.web("#ff2a4b"));
+                gc.setFill(color("#ff2a4b"));
                 gc.fillOval(screenX - 6, screenY - 6, 12, 12);
                 gc.setFill(Color.rgb(255, 80, 80, 0.4));
                 gc.fillOval(screenX - 10, screenY - 10, 20, 20); // halo
@@ -597,7 +569,7 @@ public class RenderEngine implements GameRenderer {
         double alpha = Math.min(1.0, (3_800_000_000L - el) / 700_000_000.0);
         gc.setFill(Color.rgb(0, 6, 20, alpha * 0.92));
         gc.fillRoundRect(width / 2.0 - 410, height - 98, 820, 66, 14, 14);
-        gc.setStroke(Color.web("#ffd700")); gc.setLineWidth(1.5);
+        gc.setStroke(color("#ffd700")); gc.setLineWidth(1.5);
         gc.strokeRoundRect(width / 2.0 - 410, height - 98, 820, 66, 14, 14);
         gc.setFill(Color.rgb(255, 215, 0, alpha));
         gc.setFont(Font.font("Serif", FontWeight.BOLD, 18));
@@ -611,28 +583,35 @@ public class RenderEngine implements GameRenderer {
         ctx.getParticleSystem().render(gc);
         gc.setTextAlign(TextAlignment.CENTER); gc.setTextBaseline(VPos.CENTER);
         gc.setFont(Font.font("Serif", FontWeight.BOLD, 80));
-        gc.setFill(win ? Color.web("#ffd700") : Color.web("#ff2828"));
+        gc.setFill(win ? color("#ffd700") : color("#ff2828"));
         gc.fillText(win ? "VITORIA" : "GAME OVER", width / 2.0, 210);
         gc.setFont(Font.font("Serif", 26));
-        gc.setFill(win ? Color.web("#88ffaa") : Color.web("#ff9090"));
+        gc.setFill(win ? color("#88ffaa") : color("#ff9090"));
         gc.fillText(win ? "Adapa purificou o oceano Apsu!" : "Adapa caiu nas profundezas...", width / 2.0, 320);
         gc.setFont(Font.font("Serif", FontWeight.BOLD, 22));
-        gc.setFill(Color.web("#ffd700"));
+        gc.setFill(color("#ffd700"));
         gc.fillText("Tabuletas: " + ctx.getTabletsCollected() + " / " + ctx.getTotalTablets(), width / 2.0, 390);
-        gc.setFill(Color.web("#80b8d0")); gc.setFont(Font.font("Serif", 16));
+        gc.setFill(color("#80b8d0")); gc.setFont(Font.font("Serif", 16));
         gc.fillText("Herói: " + ctx.getHeroType().getName() + "  |  Dificuldade: " + ctx.getDifficulty().getLabel(), width / 2.0, 430);
-        gc.setFill(Color.web("#ffd700")); gc.setFont(Font.font("Serif", FontWeight.BOLD, 22));
+        gc.setFill(color("#ffd700")); gc.setFont(Font.font("Serif", FontWeight.BOLD, 22));
         gc.fillText("[ ESPAÇO / R / ENTER — Menu Principal ]", width / 2.0, height - 80);
     }
 
     private void drawGradientBackground(GraphicsContext gc, double width, double height, String top, String mid, String bot) {
-        gc.setFill(new LinearGradient(0, 0, 0, 1, true, CycleMethod.NO_CYCLE,
-            new Stop(0, Color.web(top)), new Stop(0.5, Color.web(mid)), new Stop(1, Color.web(bot))));
+        String key = top + '|' + mid + '|' + bot;
+        LinearGradient gradient = backgroundGradients.computeIfAbsent(key, ignored ->
+            new LinearGradient(0, 0, 0, 1, true, CycleMethod.NO_CYCLE,
+                new Stop(0, color(top)), new Stop(0.5, color(mid)), new Stop(1, color(bot))));
+        gc.setFill(gradient);
         gc.fillRect(0, 0, width, height);
     }
 
+    private static Color color(String web) {
+        return COLOR_CACHE.computeIfAbsent(web, Color::web);
+    }
+
     private void drawShadow(GraphicsContext gc, double cx, double cy, double rw, double rh) {
-        gc.setFill(Color.rgb(2, 8, 14, 0.40));
+        gc.setFill(SHADOW_COLOR);
         gc.fillOval(cx - rw / 2, cy - rh / 2, rw, rh);
     }
 }

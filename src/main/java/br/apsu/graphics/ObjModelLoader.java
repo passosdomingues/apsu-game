@@ -109,12 +109,11 @@ final class ObjModelLoader {
             int out = 0;
             int faceIndex = 0;
             for (Face face : entry.getValue().faces) {
-                int[] vertexIds = {face.a(), face.b(), face.c()};
-                int[] normalIds = {face.na(), face.nb(), face.nc()};
-                int[] uvIds = {face.ta(), face.tb(), face.tc()};
                 double[] faceNormal = transformedFaceNormal(vertices.get(face.a()), vertices.get(face.b()), vertices.get(face.c()));
-                for (int i = 0; i < vertexIds.length; i++) {
-                    int index = vertexIds[i];
+                for (int i = 0; i < 3; i++) {
+                    int index = i == 0 ? face.a() : i == 1 ? face.b() : face.c();
+                    int sourceNormalId = i == 0 ? face.na() : i == 1 ? face.nb() : face.nc();
+                    int uvId = i == 0 ? face.ta() : i == 1 ? face.tb() : face.tc();
                     Integer pointIndex = pointIndices.get(index);
                     if (pointIndex == null) {
                         double[] v = vertices.get(index);
@@ -126,10 +125,10 @@ final class ObjModelLoader {
                         pointIndices.put(index, pointIndex);
                     }
                     int vertexOut = pointIndex;
-                    int sourceNormal = normalIds[i] >= 0 ? normalIds[i] : -faceIndex - 1;
+                    int sourceNormal = sourceNormalId >= 0 ? sourceNormalId : -faceIndex - 1;
                     Integer mappedNormal = normalIndices.get(sourceNormal);
                     if (mappedNormal == null) {
-                        double[] n = normalIds[i] >= 0 ? transformNormal(normals.get(normalIds[i])) : faceNormal;
+                        double[] n = sourceNormalId >= 0 ? transformNormal(normals.get(sourceNormalId)) : faceNormal;
                         mesh.getNormals().addAll((float) n[0], (float) n[1], (float) n[2]);
                         mappedNormal = mesh.getNormals().size() / 3 - 1;
                         normalIndices.put(sourceNormal, mappedNormal);
@@ -137,7 +136,7 @@ final class ObjModelLoader {
                     int normalOut = mappedNormal;
                     triangles[out++] = vertexOut;
                     triangles[out++] = normalOut;
-                    triangles[out++] = uvIds[i] >= 0 ? uvIds[i] : 0;
+                    triangles[out++] = uvId >= 0 ? uvId : 0;
                 }
                 faceIndex++;
             }
