@@ -23,12 +23,17 @@ import java.util.Map;
 /** Personagens 3D em tempo real sobre o cenário 2.5D renderizado no Canvas. */
 public final class Runtime3DLayer {
     private static final double VIEW_W = 1366, VIEW_H = 768;
+    private static final boolean PERF_LOG = Boolean.getBoolean("apsu.perf");
+    private static final String[] ENEMY_IDS = createIds("enemy-", 32);
+    private static final String[] GUARDIAN_IDS = createIds("guardian-", 16);
+    private static final String[] SCENERY_IDS = createIds("scenery-", 64);
     private final Group world = new Group();
     private final Group scenery = new Group();
     private final Group actors = new Group();
     private final SubScene view;
     private final Map<String, Actor> actorsById = new HashMap<>();
     private final Map<String, ObjModelLoader.Model> modelTemplates = new HashMap<>();
+    private final Map<String, String> modelNames = new HashMap<>();
     private final java.util.List<Actor> visibleActors = new java.util.ArrayList<>();
     private final java.util.Set<String> failedModels = new java.util.HashSet<>();
     private double shakeX, shakeY;
@@ -125,7 +130,8 @@ public final class Runtime3DLayer {
             EnemyType type = enemy.getType();
             double screenX = context.getCamera().toScreenX(enemy.getWorldX()) + type.getWidth() / 2.0;
             if (!insideViewport(screenX, type.getWidth())) continue;
-            Actor enemyActor = actor("enemy-" + id, modelName(type.getStaticSprite()), type.getWidth(), type.getHeight());
+            Actor enemyActor = actor(id < ENEMY_IDS.length ? ENEMY_IDS[id] : "enemy-" + id,
+                modelName(type.getStaticSprite()), type.getWidth(), type.getHeight());
             if (enemyActor != null) place(enemyActor,
                 screenX,
                 enemy.getCurrentY() + type.getHeight() / 2.0,
@@ -137,7 +143,9 @@ public final class Runtime3DLayer {
             double screenX = context.getCamera().toScreenX(guardian.getWorldX()) + GuardianEntity.GW / 2.0;
             if (!insideViewport(screenX, GuardianEntity.GW)) { guardianIndex++; continue; }
             String model = modelName(guardian.getSpritePath());
-            Actor npc = actor("guardian-" + guardianIndex++, model, GuardianEntity.GW, GuardianEntity.GH);
+            int id = guardianIndex++;
+            Actor npc = actor(id < GUARDIAN_IDS.length ? GUARDIAN_IDS[id] : "guardian-" + id,
+                model, GuardianEntity.GW, GuardianEntity.GH);
             if (npc != null) place(npc,
                 screenX,
                 guardian.getWorldY() + GuardianEntity.GH / 2.0,
@@ -178,29 +186,38 @@ public final class Runtime3DLayer {
                 propWidth = 72;
                 propHeight = 190;
             }
-            Actor prop = actor("scenery-" + elementIndex, "scenery/" + model,
+            String id = elementIndex < SCENERY_IDS.length ? SCENERY_IDS[elementIndex] : "scenery-" + elementIndex;
+            Actor prop = actor(id, "scenery/" + model,
                 Math.max(48, propWidth), Math.max(48, propHeight));
             if (prop != null) place(prop, screenX + element.getWidth() / 2,
                 element.getWorldY() + element.getHeight() / 2,
                 element.getWorldX() / 4000.0, timeSeconds, 0);
         }
         if (context.getCurrentPhase() == 2) {
-            Actor reef = actor("reef-school", "scenery/08_recifes_e_cardume_elemento-cenario", 760, 360);
-            if (reef != null) place(reef, context.getCamera().toScreenX(1900), VIEW_H / 2,
-                .12, timeSeconds, 0);
-            Actor wreck = actor("shipwreck", "scenery/07_navio_naufragado_elemento-cenario", 230, 140);
-            if (wreck != null) place(wreck, context.getCamera().toScreenX(context.getChestWX()) + 35,
-                context.getChestWY() - 10, .25, timeSeconds, 0);
-            Actor chest = actor("chest", "scenery/06_bau_tesouro_elemento-cenario", 54, 42);
-            if (chest != null) place(chest, context.getCamera().toScreenX(context.getChestWX()) + 10,
-                context.getChestWY(), .26, timeSeconds, 0);
+            double reefX = context.getCamera().toScreenX(1900);
+            if (insideViewport(reefX, 760)) {
+                Actor reef = actor("reef-school", "scenery/08_recifes_e_cardume_elemento-cenario", 760, 360);
+                if (reef != null) place(reef, reefX, VIEW_H / 2, .12, timeSeconds, 0);
+            }
+            double wreckX = context.getCamera().toScreenX(context.getChestWX()) + 35;
+            if (insideViewport(wreckX, 230)) {
+                Actor wreck = actor("shipwreck", "scenery/07_navio_naufragado_elemento-cenario", 230, 140);
+                if (wreck != null) place(wreck, wreckX, context.getChestWY() - 10, .25, timeSeconds, 0);
+            }
+            double chestX = context.getCamera().toScreenX(context.getChestWX()) + 10;
+            if (insideViewport(chestX, 54)) {
+                Actor chest = actor("chest", "scenery/06_bau_tesouro_elemento-cenario", 54, 42);
+                if (chest != null) place(chest, chestX, context.getChestWY(), .26, timeSeconds, 0);
+            }
         }
         // A arena final já tem ruínas e portal no panorama 2.5D; repetir aqui
         // uma ruína de 450x420 cobria a área de combate e escondia o boss.
         if (context.getCurrentPhase() >= 1 && context.getCurrentPhase() <= 4) {
-            Actor portal = actor("portal", "scenery/15_portal_atlantica_3d", 140, 140);
-            if (portal != null) place(portal, context.getCamera().toScreenX(3900), VIEW_H / 2 - 16,
-                .8, timeSeconds, 0);
+            double portalX = context.getCamera().toScreenX(3900);
+            if (insideViewport(portalX, 140)) {
+                Actor portal = actor("portal", "scenery/15_portal_atlantica_3d", 140, 140);
+                if (portal != null) place(portal, portalX, VIEW_H / 2 - 16, .8, timeSeconds, 0);
+            }
         }
     }
 
@@ -228,8 +245,13 @@ public final class Runtime3DLayer {
         try {
             ObjModelLoader.Model template = modelTemplates.get(modelName);
             if (template == null) {
+                long loadStart = PERF_LOG ? System.nanoTime() : 0;
                 template = ObjModelLoader.load(modelName, 1, 1);
                 modelTemplates.put(modelName, template);
+                if (PERF_LOG) {
+                    System.out.printf(java.util.Locale.ROOT, "[PERF] OBJ %s: %.1f ms%n",
+                        modelName, (System.nanoTime() - loadStart) / 1_000_000.0);
+                }
             }
             ObjModelLoader.Model model = ObjModelLoader.instance(template, targetWidth, targetHeight);
             Actor loaded = new Actor(modelName, model.node(), targetWidth, targetHeight);
@@ -262,10 +284,20 @@ public final class Runtime3DLayer {
         actor.node.setVisible(true);
     }
 
-    private static String modelName(String spritePath) {
+    private String modelName(String spritePath) {
+        return modelNames.computeIfAbsent(spritePath, Runtime3DLayer::toModelName);
+    }
+
+    private static String toModelName(String spritePath) {
         String name = spritePath.substring(spritePath.lastIndexOf('/') + 1);
         int extension = name.lastIndexOf('.');
         return extension < 0 ? name : name.substring(0, extension);
+    }
+
+    private static String[] createIds(String prefix, int count) {
+        String[] ids = new String[count];
+        for (int i = 0; i < count; i++) ids[i] = prefix + i;
+        return ids;
     }
 
     private static boolean insideViewport(double centerX, double width) {
