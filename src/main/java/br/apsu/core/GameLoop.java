@@ -1,6 +1,5 @@
 package br.apsu.core;
 
-import br.apsu.graphics.RenderEngine;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.GraphicsContext;
 
@@ -10,7 +9,7 @@ import javafx.scene.canvas.GraphicsContext;
 public class GameLoop extends AnimationTimer {
 
     private final GameContext context;
-    private final RenderEngine renderer;
+    private final GameRenderer renderer;
     private final GraphicsContext gc;
     private final double width, height;
     private final FrameMetrics frameMetrics = new FrameMetrics();
@@ -21,7 +20,7 @@ public class GameLoop extends AnimationTimer {
     private long simulationNow = -1;
     private long accumulatedNanos;
 
-    public GameLoop(GameContext context, RenderEngine renderer, GraphicsContext gc, double width, double height) {
+    public GameLoop(GameContext context, GameRenderer renderer, GraphicsContext gc, double width, double height) {
         this.context = context;
         this.renderer = renderer;
         this.gc = gc;
@@ -48,13 +47,14 @@ public class GameLoop extends AnimationTimer {
             previousNow = now;
             accumulatedNanos += Math.max(0, elapsed);
             int steps = 0;
-            while (accumulatedNanos >= STEP_NANOS && steps++ < MAX_STEPS_PER_FRAME) {
+            while (accumulatedNanos >= STEP_NANOS && steps < MAX_STEPS_PER_FRAME) {
                 simulationNow += STEP_NANOS;
                 context.update(simulationNow);
                 accumulatedNanos -= STEP_NANOS;
+                steps++;
             }
             // Nunca deixa um frame lento acumular atraso de controle indefinidamente.
-            if (steps == MAX_STEPS_PER_FRAME) accumulatedNanos = 0;
+            if (steps == MAX_STEPS_PER_FRAME && accumulatedNanos >= STEP_NANOS) accumulatedNanos = 0;
         }
         renderer.render(gc, context, width, height);
     }

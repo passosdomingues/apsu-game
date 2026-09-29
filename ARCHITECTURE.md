@@ -66,8 +66,13 @@ Este documento detalha os princípios de design, componentes de software e subsi
 ## 5. Barramento de Eventos e Áudio (`EventBus` / `AudioManager`)
 
 - O `EventBus` implementa o padrão Publish/Subscribe desacoplado.
-- Entidades disparam `GameEvent` quando ocorrem ações (disparo, dano, coleta, morte, transição de fase).
-- O `AudioEventSubscriber` escuta o barramento e solicita a reprodução de efeitos sonoros WAV ao `AudioManager` em threads de áudio dedicadas.
+- `GameContext` publica pedidos com identificadores semânticos (`AudioCue`) em transições de mecânica: disparo, dano, coleta, diálogo e combate.
+- `AudioEventSubscriber` conecta `GameEvent` a `AudioPort`; `AudioManager` aplica política de profundidade e estado do boss. Nenhum dos dois precisa conhecer arquivo, caminho ou formato de áudio.
+- `JavaFxAudioOutput` é o adaptador que resolve cada cue para WAV e ganho por perfil; efeitos curtos usam `AudioClip` e faixas longas usam `MediaPlayer` em loop. A música inicia após o player ficar pronto, usa volume-base de 55% ajustado pela profundidade e tenta a faixa original se a versão gerada faltar/falhar. Substituir composição/arquivo exige atualizar o adaptador ou os recursos, sem alterar produtores de gameplay.
+- Os eventos de profundidade, modo de música do boss e fase do boss são consumidos pelo áudio. Um tipo declarado em `GameEvent.Type` sem publicação e consumidor não representa uma integração concluída.
+- O pipeline compõe um pad ambiente CC0 e rumble submarino CC0 sobre a trilha existente; a proporção pad/rumble muda em cada perfil. Ao entrar na arena final, um evento troca para a composição CC0 de suspense do boss, também moldada pela profundidade.
+- O jogo não executa filtros nem chama FFmpeg no loop. `tools/audio/render_audio_assets.py` cria renders offline, normalizados e substituídos atomicamente após sucesso.
+- FFmpeg aplica filtro passa-baixa crescente e reflexões mais tardias conforme a profundidade. A trilha troca para o render da nova fase; execução normal continua usando os assets empacotados e não requer FFmpeg.
 
 ---
 

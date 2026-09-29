@@ -1,5 +1,7 @@
 package br.apsu.core.events;
 
+import br.apsu.audio.AudioCue;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -18,9 +20,9 @@ class EventBusTest {
         AutoCloseable subscription = eventBus.subscribe(GameEvent.Type.SOUND_REQUESTED,
             event -> delivered.incrementAndGet());
 
-        eventBus.publish(GameEvent.sound("shoot"));
+        eventBus.publish(new GameEvent(GameEvent.Type.SOUND_REQUESTED, AudioCue.ATTACK, 0, 0));
         subscription.close();
-        eventBus.publish(GameEvent.sound("victory"));
+        eventBus.publish(new GameEvent(GameEvent.Type.SOUND_REQUESTED, AudioCue.VICTORY, 0, 0));
 
         assertEquals(1, delivered.get());
     }

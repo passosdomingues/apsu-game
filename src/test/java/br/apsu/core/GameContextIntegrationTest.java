@@ -1,10 +1,14 @@
 package br.apsu.core;
 
 import br.apsu.model.boss.BossEntity;
+import br.apsu.audio.AudioCue;
+import br.apsu.core.events.EventBus;
+import br.apsu.core.events.GameEvent;
 import br.apsu.model.enemy.EnemyEntity;
 import br.apsu.model.enemy.EnemyType;
 import br.apsu.model.environment.Difficulty;
 import br.apsu.model.environment.Projectile;
+import br.apsu.model.environment.OceanDepthProfile;
 import br.apsu.model.environment.SceneryElement;
 import br.apsu.model.hero.HeroType;
 import javafx.scene.input.KeyCode;
@@ -14,6 +18,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,13 +27,15 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GameContextIntegrationTest {
 
     private GameContext context;
+    private EventBus eventBus;
 
     @TempDir
     Path tempDir;
 
     @BeforeEach
     void setUp() {
-        context = new GameContext(new SaveManager(tempDir.resolve("savegame.json")));
+        eventBus = new EventBus();
+        context = new GameContext(new SaveManager(tempDir.resolve("savegame.json")), eventBus);
         context.reset();
     }
 
@@ -65,6 +73,9 @@ public class GameContextIntegrationTest {
     @Test
     @DisplayName("Integração de Colisão: Disparo de bolhas do Herói DESTRÓI inimigos comuns")
     void testHeroBubblesDestroyCommonEnemies() {
+        List<AudioCue> cues = new ArrayList<>();
+        eventBus.subscribe(GameEvent.Type.SOUND_REQUESTED,
+            event -> cues.add((AudioCue) event.payload()));
         context.startP1();
         context.getHero().setHasBubblePower(true);
 
@@ -79,6 +90,7 @@ public class GameContextIntegrationTest {
         context.update(1_000_000_000L);
 
         assertFalse(targetEnemy.isAlive(), "Bolhas do herói devem DESTRUIR inimigos comuns ao colidir");
+        assertTrue(cues.contains(AudioCue.ENEMY_DEFEATED));
     }
 
     @Test
@@ -88,19 +100,81 @@ public class GameContextIntegrationTest {
         BossEntity boss = context.getBoss();
         assertNotNull(boss, "Boss deve ser instanciado na Fase 5");
 
-        int initialHp = boss.getHp();
-        for (int i = 0; i < initialHp - 1; i++) {
-            boss.takeDamage(1);
-        }
-        assertFalse(boss.isDead());
+        boss.takeDamage(boss.getHp() - 1); // reduz o setup; o golpe final usa a colisão real
+        List<AudioCue> cues = new ArrayList<>();
+        List<Boolean> bossMusic = new ArrayList<>();
+        eventBus.subscribe(GameEvent.Type.SOUND_REQUESTED,
+            event -> cues.add((AudioCue) event.payload()));
+        eventBus.subscribe(GameEvent.Type.BOSS_MUSIC_CHANGED,
+            event -> bossMusic.add((Boolean) event.payload()));
 
-        // Golpear boss
-        boss.takeDamage(1);
-        assertTrue(boss.isDead(), "O Boss deve ter 0 de vida após o golpe final");
+        context.getProjectiles().add(new Projectile(Projectile.Type.HERO_BUBBLE,
+            boss.getX() + 10, boss.getY() + 10, 0, 0, 1, true));
+        context.update(0);
 
-        context.update(5_000_000_000L);
-        context.setState(GameContext.State.WIN);
-        assertEquals(GameContext.State.WIN, context.getState(), "O estado do jogo deve mudar para WIN após a derrota do Boss");
+        assertTrue(boss.isDead(), "O projétil deve zerar a vida do boss por colisão");
+        assertEquals(GameContext.State.WIN, context.getState());
+        assertTrue(cues.contains(AudioCue.BOSS_DAMAGED));
+        assertTrue(cues.contains(AudioCue.VICTORY));
+        assertEquals(List.of(false), bossMusic, "A trilha de boss deve encerrar na vitória");
+    }
+
+    @Test
+    @DisplayName("Eventos de áudio acompanham profundidade e entrada na arena do boss")
+    void phaseChangesPublishDepthAndBossMusicState() {
+        List<OceanDepthProfile> depths = new ArrayList<>();
+        List<Boolean> bossMusic = new ArrayList<>();
+        eventBus.subscribe(GameEvent.Type.OCEAN_DEPTH_CHANGED,
+            event -> depths.add((OceanDepthProfile) event.payload()));
+        eventBus.subscribe(GameEvent.Type.BOSS_MUSIC_CHANGED,
+            event -> bossMusic.add((Boolean) event.payload()));
+
+        context.startP1();
+        context.startP2();
+        context.startP3();
+        context.startP4();
+        context.startP5();
+
+        assertEquals(List.of(OceanDepthProfile.COASTAL, OceanDepthProfile.DEEP_REEF,
+            OceanDepthProfile.ABYSSAL_PLAIN, OceanDepthProfile.HYDROTHERMAL_VENT,
+            OceanDepthProfile.HADAL_TRENCH), depths);
+        assertEquals(List.of(false, false, false, false, true), bossMusic);
+    }
+
+    @Test
+    @DisplayName("Corrente e zona de pressão aplicam fatores do ambiente da fase")
+    void phaseThreeEnvironmentalZonesExposeTheirActiveForces() {
+        context.startP3();
+        context.getHero().setX(950);
+        context.getHero().setY(200);
+        context.update(1_000_000_000L);
+        assertTrue(context.isInCurrent());
+        assertEquals(-2.2, context.getCurrentFx());
+
+        context.startP3();
+        context.getHero().setX(1_550);
+        context.getHero().setY(600);
+        context.update(2_000_000_000L);
+        assertTrue(context.isInPressureZone());
+        assertEquals(0.90, context.getPressureBuoyMult(), 0.001);
+    }
+
+    @Test
+    @DisplayName("Interação com guardião abre diálogo e concede exatamente uma tabuleta ao concluir")
+    void guardianDialogueAwardsTabletOnlyAfterCompletion() {
+        context.startP1();
+        var guardian = context.getGuardians().get(0);
+        context.getHero().setX(guardian.getWorldX());
+        context.getHero().setY(guardian.getWorldY());
+        context.getInputManager().registerKeyPress(KeyCode.E);
+        context.update(1_000_000_000L);
+
+        assertTrue(context.isOverlayActive());
+        assertEquals(0, context.getTabletsCollected());
+        for (int i = 0; i < 64 && context.isOverlayActive(); i++) context.advanceOverlay();
+
+        assertFalse(context.isOverlayActive());
+        assertEquals(1, context.getTabletsCollected());
     }
 
     @Test

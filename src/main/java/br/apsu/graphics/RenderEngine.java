@@ -1,6 +1,7 @@
 package br.apsu.graphics;
 
 import br.apsu.core.GameContext;
+import br.apsu.core.GameRenderer;
 import br.apsu.model.boss.BossEntity;
 import br.apsu.model.enemy.EnemyEntity;
 import br.apsu.model.environment.Projectile;
@@ -22,7 +23,7 @@ import javafx.scene.text.TextAlignment;
  * Sprint 5: Bug B1 corrigido (aspecto estável no menu), novas fases P3-P5,
  * visualização de correntes, zonas de pressão, obstáculos vulcânicos.
  */
-public class RenderEngine {
+public class RenderEngine implements GameRenderer {
 
     private final SpriteManager spriteManager = SpriteManager.getInstance();
     private final Runtime3DLayer runtime3DLayer = new Runtime3DLayer();

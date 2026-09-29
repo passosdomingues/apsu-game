@@ -1,72 +1,53 @@
 package br.apsu.audio;
 
-import javafx.scene.media.AudioClip;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
+import br.apsu.model.environment.OceanDepthProfile;
 
-/**
- * Gerenciador desacoplado de efeitos sonoros e áudio.
- */
-public class AudioManager {
-    private static final AudioManager INSTANCE = new AudioManager();
-    private final Map<String, AudioClip> sounds = new HashMap<>();
-    private final boolean enabled = Boolean.parseBoolean(System.getProperty("apsu.audio.enabled", "true"));
-    private AudioClip music;
+/** Política da trilha e dos efeitos; não depende da implementação JavaFX. */
+public final class AudioManager implements AudioPort {
+    private static final boolean AUDIO_ENABLED = Boolean.parseBoolean(
+        System.getProperty("apsu.audio.enabled", "true"));
+    private static final AudioManager INSTANCE = new AudioManager(
+        new JavaFxAudioOutput(AUDIO_ENABLED), AUDIO_ENABLED);
 
-    private AudioManager() {
-        if (enabled) loadSounds();
+    private final AudioOutput output;
+    private final boolean enabled;
+    private OceanDepthProfile depth = OceanDepthProfile.COASTAL;
+    private boolean bossMode;
+    private boolean musicPlaying;
+
+    AudioManager(AudioOutput output, boolean enabled) {
+        this.output = output;
+        this.enabled = enabled;
     }
 
-    public static AudioManager getInstance() {
-        return INSTANCE;
+    public static AudioManager getInstance() { return INSTANCE; }
+
+    @Override public synchronized void playSound(AudioCue cue) {
+        if (!enabled || cue == null) return;
+        output.playEffect(cue, depth);
     }
 
-    private void loadSounds() {
-        for (String soundName : new String[]{"shoot", "collect", "hurt", "boss-hit", "victory"}) {
-            try {
-                URL resource = getClass().getResource("/audio/" + soundName + ".wav");
-                if (resource != null) {
-                    sounds.put(soundName, new AudioClip(resource.toExternalForm()));
-                }
-            } catch (Exception ignored) {}
-        }
-        try {
-            URL musicResource = getClass().getResource("/audio/apsu-theme.wav");
-            if (musicResource != null) {
-                music = new AudioClip(musicResource.toExternalForm());
-                music.setCycleCount(AudioClip.INDEFINITE);
-                music.setVolume(0.18);
-            }
-        } catch (Exception ignored) {}
+    @Override public synchronized void setDepth(OceanDepthProfile next) {
+        if (!enabled || next == null || next == depth) return;
+        depth = next;
+        if (musicPlaying) output.changeMusic(depth, bossMode, true);
     }
 
-    public void playSound(String soundName) {
+    @Override public synchronized void setBossMode(boolean active) {
+        if (!enabled || bossMode == active) return;
+        bossMode = active;
+        if (musicPlaying) output.changeMusic(depth, bossMode, true);
+    }
+
+    public synchronized void playMusic() {
         if (!enabled) return;
-        AudioClip clip = sounds.get(soundName);
-        if (clip != null) {
-            try {
-                clip.setVolume("hurt".equals(soundName) ? 0.4 : 0.26);
-                clip.play();
-            } catch (Throwable ignored) {}
-        }
+        musicPlaying = true;
+        output.playMusic(depth, bossMode);
     }
 
-    public void playMusic() {
-        if (!enabled) return;
-        if (music != null) {
-            try {
-                music.play();
-            } catch (Throwable ignored) {}
-        }
-    }
-
-    public void stopMusic() {
-        if (!enabled) return;
-        if (music != null) {
-            try {
-                music.stop();
-            } catch (Throwable ignored) {}
-        }
+    public synchronized void stopMusic() {
+        if (!enabled || !musicPlaying) return;
+        musicPlaying = false;
+        output.stopMusic();
     }
 }

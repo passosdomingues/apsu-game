@@ -84,5 +84,7 @@ public class ParticleSystem {
         this.reducedEffects = reducedEffects;
     }
 
+    public boolean isReducedEffects() { return reducedEffects; }
+
     public int size() { return particles.size(); }
 }

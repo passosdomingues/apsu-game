@@ -2,6 +2,7 @@ package br.apsu.core;
 
 import br.apsu.core.events.EventBus;
 import br.apsu.core.events.GameEvent;
+import br.apsu.audio.AudioCue;
 import br.apsu.core.map.MPIMapLoader;
 import br.apsu.core.spatial.QuadTree;
 import br.apsu.model.boss.BossEntity;
@@ -162,11 +163,14 @@ public class GameContext {
                     if (++dlgIdx >= currentDlg.length) {
                         advancePhaseFromDialogue();
                     }
-                    playSound("collect");
+                    playSound(AudioCue.DIALOGUE_ADVANCE);
                 }
             }
             case P1, P2, P3, P4, P5 -> {
-                if (k == KeyCode.ESCAPE) state = State.MENU;
+                if (k == KeyCode.ESCAPE) {
+                    if (state == State.P5) publishBossMusic(false);
+                    state = State.MENU;
+                }
             }
             case WIN, OVER -> {
                 if (k == KeyCode.SPACE || k == KeyCode.ENTER || k == KeyCode.R) {
@@ -204,7 +208,7 @@ public class GameContext {
                 case 1 -> cycleHero(+1);
                 case 2 -> { reset(); transitionToPhase(1); }
             }
-            playSound("collect");
+            playSound(AudioCue.MENU_CONFIRM);
         }
     }
 
@@ -258,6 +262,7 @@ public class GameContext {
         sceneryElements.add(new SceneryElement(SceneryElement.Type.GEYSER, 2400, 768 - 200, 70, 200));
 
         currentPhase = 1;
+        publishAudioDepth();
         state = State.P1; phaseStartTime = nanoTime; phaseHits = 0; adaptiveDifficulty.beginPhase();
         if (difficulty == Difficulty.DIFICIL) {
             showAlert("Fase 1 (DIFÍCIL) — O portal final estará selado até você resgatar a Tabuleta!");
@@ -311,6 +316,7 @@ public class GameContext {
 
         chestWX = 1800; chestWY = 768 - 170; // baú na sala aberta entre corais 2 e 3
         currentPhase = 2;
+        publishAudioDepth();
         state = State.P2; phaseStartTime = nanoTime; phaseHits = 0; adaptiveDifficulty.beginPhase();
         showAlert("Fase 2 — Cavernas de Coral | Desperte o Poder das Bolhas no Galeão Naufragado!");
     }
@@ -352,6 +358,7 @@ public class GameContext {
         sceneryElements.add(new SceneryElement(SceneryElement.Type.GEYSER, 3600, 768 - 200, 80, 200));
 
         currentPhase = 3;
+        publishAudioDepth();
         state = State.P3; phaseStartTime = nanoTime; phaseHits = 0; adaptiveDifficulty.beginPhase();
         showAlert("Fase 3 — Correntes Abissais | As águas vivem — lute contra a maré!");
     }
@@ -403,6 +410,7 @@ public class GameContext {
         sceneryElements.add(new SceneryElement(SceneryElement.Type.GEYSER, 3500, 768 - 200, 80, 200));
 
         currentPhase = 4;
+        publishAudioDepth();
         state = State.P4; phaseStartTime = nanoTime; phaseHits = 0; adaptiveDifficulty.beginPhase();
         showAlert("Fase 4 — Abismo Vulcânico | A lava devora tudo — mantenha altitude!");
     }
@@ -437,6 +445,7 @@ public class GameContext {
         enemies.add(new EnemyEntity(EnemyType.LULA_VAMPIRA, 710, 768 * .30, .78, 48));
 
         currentPhase = 5;
+        publishAudioDepth();
         state = State.P5; phaseStartTime = nanoTime; phaseHits = 0; adaptiveDifficulty.beginPhase();
         showAlert("Fase 5 — Templo de Apsu | Derrote " + boss.getName() + "! Use tudo que aprendeu!");
     }
@@ -572,8 +581,8 @@ public class GameContext {
             double csx = camera.toScreenX(chestWX);
             particleSystem.addBurst(csx + 60, chestWY + 40, Color.GOLD);
             particleSystem.addBurst(csx + 60, chestWY + 40, Color.CYAN);
-            playSound("collect");
-            playSound("victory");
+            playSound(AudioCue.PICKUP);
+            playSound(AudioCue.VICTORY);
             showAlert("PODER DAS BOLHAS DESPERTADO! Pressione ESPAÇO para disparar! ");
         }
 
@@ -837,7 +846,10 @@ public class GameContext {
                         if (!hero.isInvulnerable()) {
                             double direction = hero.getX() + HeroEntity.HW / 2 < elem.getWorldX() + elem.getWidth() / 2 ? -1 : 1;
                             hurtHero(difficulty.getCollisionDamage() * 0.65, direction * 5.5, -2.5, Color.ORANGERED, 6);
-                            if (hero.getHp() <= 0) state = State.OVER;
+                            if (hero.getHp() <= 0) {
+                                if (state == State.P5) publishBossMusic(false);
+                                state = State.OVER;
+                            }
                         }
                     }
                 }
@@ -846,7 +858,10 @@ public class GameContext {
                         hero.applyGeyserImpulse(-5.0);
                         if (!hero.isInvulnerable()) {
                             hurtHero(difficulty.getCollisionDamage() * 0.45, 0, -5.0, Color.web("#ff4400"), 7);
-                            if (hero.getHp() <= 0) state = State.OVER;
+                            if (hero.getHp() <= 0) {
+                                if (state == State.P5) publishBossMusic(false);
+                                state = State.OVER;
+                            }
                         }
                     }
                 }
@@ -882,7 +897,7 @@ public class GameContext {
                     hero.heal(2.0);
                     particleSystem.addBurst(finalGx + GuardianEntity.GW/2, g.getWorldY() + GuardianEntity.GH/2, Color.GOLD);
                     particleSystem.addBurst(finalGx + GuardianEntity.GW/2, g.getWorldY() + GuardianEntity.GH/2, Color.LIMEGREEN);
-                    playSound("collect");
+                    playSound(AudioCue.PICKUP);
                     showAlert("Tabuleta " + tabletsCollected + "/" + TOTAL_TABLETS + " recebida! +2 de vida restaurada!");
                     persistProgress();
                 });
@@ -968,7 +983,7 @@ public class GameContext {
                         adaptiveDifficulty.recordEnemyDefeated();
                         double screenPx = isArena ? p.getX() : camera.toScreenX(p.getX());
                         particleSystem.addBurst(screenPx, p.getY(), Color.AQUAMARINE);
-                        playSound("shoot");
+                        playSound(AudioCue.ENEMY_DEFEATED);
                         it.remove();
                         hitSomething = true;
                         break;
@@ -979,12 +994,13 @@ public class GameContext {
                     if (rectsHit(p.getX() - 6, p.getY() - 6, 28, 28, boss.getX(), boss.getY(), BossEntity.BW, BossEntity.BH)) {
                         boss.takeDamage(1);
                         particleSystem.addBurst(boss.getX() + BossEntity.BW/2, boss.getY() + BossEntity.BH/2, Color.CYAN);
-                        playSound("boss-hit");
+                        playSound(AudioCue.BOSS_DAMAGED);
                         it.remove();
                         if (boss.isDead()) {
                             camera.applyShake(16, 420_000_000L, nanoTime);
                             particleSystem.addBurst(boss.getX() + BossEntity.BW/2, boss.getY() + BossEntity.BH/2, Color.GOLD);
-                            playSound("victory");
+                            playSound(AudioCue.VICTORY);
+                            publishBossMusic(false);
                             state = State.WIN;
                             phaseDone = 5;
                             persistProgress();
@@ -1023,7 +1039,10 @@ public class GameContext {
                 adaptiveDifficulty.recordEnemyDefeated();
                 double direction = hero.getX() + HeroEntity.HW / 2 < e.getWorldX() + e.getType().getWidth() / 2 ? -1 : 1;
                 hurtHero(difficulty.getCollisionDamage() * 0.60, direction * 4.0, -2.5, Color.RED, 6);
-                if (hero.getHp() <= 0) state = State.OVER;
+                if (hero.getHp() <= 0) {
+                    if (state == State.P5) publishBossMusic(false);
+                    state = State.OVER;
+                }
                 return;
             }
         }
@@ -1045,7 +1064,7 @@ public class GameContext {
             // isArena=false para P1-P4 (mundo com scroll), true para P5
             boolean isArena = (state == State.P5);
             projectiles.add(new Projectile(Projectile.Type.HERO_BUBBLE, bx, by, vx, 0, 1.0, isArena));
-            playSound("shoot");
+            playSound(AudioCue.ATTACK);
         } else {
             // BUGFIX 2026-08-15: mesmo padrão do fix em updateP5() — se o jogador
             // chegar em P5 sem ter achado o baú (poder de bolha), este alerta
@@ -1069,7 +1088,7 @@ public class GameContext {
         overlayCharTime = nanoTime;
         overlayCharsShown = 0;
         overlayOnComplete = onComplete;
-        playSound("collect");
+        playSound(AudioCue.DIALOGUE_ADVANCE);
     }
 
     public void advanceOverlay() {
@@ -1085,7 +1104,7 @@ public class GameContext {
         }
 
         overlayIdx++;
-        playSound("collect");
+        playSound(AudioCue.DIALOGUE_ADVANCE);
         if (overlayIdx < overlayLines.length) {
             overlayCharsShown = 0;
             overlayCharTime = nanoTime;
@@ -1165,8 +1184,11 @@ public class GameContext {
         camera.applyShake(shake, 150_000_000L, nanoTime);
         double screenX = state == State.P5 ? hero.getX() : camera.toScreenX(hero.getX());
         particleSystem.addBurst(screenX + HeroEntity.HW / 2, hero.getY() + HeroEntity.HH / 2, color);
-        playSound("hurt");
-        if (hero.getHp() <= 0) state = State.OVER;
+        playSound(AudioCue.HERO_DAMAGED);
+        if (hero.getHp() <= 0) {
+            if (state == State.P5) publishBossMusic(false);
+            state = State.OVER;
+        }
         return true;
     }
 
@@ -1199,8 +1221,18 @@ public class GameContext {
         }
     }
 
-    private void playSound(String soundName) {
-        eventBus.publish(GameEvent.sound(soundName));
+    private void publishAudioDepth() {
+        eventBus.publish(new GameEvent(GameEvent.Type.OCEAN_DEPTH_CHANGED,
+            OceanDepthProfile.forPhase(currentPhase), 0, 0));
+        publishBossMusic(currentPhase == 5);
+    }
+
+    private void publishBossMusic(boolean active) {
+        eventBus.publish(new GameEvent(GameEvent.Type.BOSS_MUSIC_CHANGED, active, 0, 0));
+    }
+
+    private void playSound(AudioCue cue) {
+        eventBus.publish(new GameEvent(GameEvent.Type.SOUND_REQUESTED, cue, 0, 0));
     }
 
     // Getters

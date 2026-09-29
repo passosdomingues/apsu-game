@@ -9,10 +9,8 @@ public record GameEvent(Type type, Object payload, double worldX, double worldY)
         ENEMY_DEFEATED,
         TABLET_COLLECTED,
         BOSS_DEFEATED,
-        BOSS_PHASE_CHANGED
-    }
-
-    public static GameEvent sound(String soundName) {
-        return new GameEvent(Type.SOUND_REQUESTED, soundName, 0, 0);
+        BOSS_PHASE_CHANGED,
+        OCEAN_DEPTH_CHANGED,
+        BOSS_MUSIC_CHANGED
     }
 }

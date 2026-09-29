@@ -12,4 +12,5 @@
 *.png binary
 *.jpg binary
 *.wav binary
+*.ogg binary
 *.pdf binary

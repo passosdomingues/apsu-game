@@ -69,7 +69,7 @@ CLR_DIM    := \033[2;37m
 CLR_RED    := \033[1;31m
 CLR_RESET  := \033[0m
 
-.PHONY: all setup setup-assets setup-mpi copy-blends clean-blender-backups test build run stop generate-characters generate-geyser-model generate-lava-pool-model generate-abyssal-enemies export-runtime-models generate-variant-attacks render-sprites render-backgrounds render-variant-attacks assets assets-variant-attacks package docker-build docker-run mpi-demo mpi-generate clean help
+.PHONY: all setup setup-assets setup-mpi audio-assets copy-blends clean-blender-backups test coverage build run stop generate-characters generate-geyser-model generate-lava-pool-model generate-abyssal-enemies export-runtime-models generate-variant-attacks render-sprites render-backgrounds render-variant-attacks assets assets-variant-attacks package docker-build docker-run mpi-demo mpi-generate clean help
 
 # Target padrão
 all: setup run
@@ -120,6 +120,12 @@ test: setup
 	@echo "$(CLR_YELLOW)[TEST ] Running JUnit 5 test suite...$(CLR_RESET)"
 	@$(MVN_CMD) test
 	@echo "$(CLR_GREEN)[OK] All unit and integration tests passed successfully.$(CLR_RESET)"
+
+## Executa testes e gera relatório JaCoCo em target/site/jacoco/index.html
+coverage: setup
+	@echo "$(CLR_YELLOW)[COVERAGE] Running tests and measuring JaCoCo coverage...$(CLR_RESET)"
+	@$(MVN_CMD) verify
+	@echo "$(CLR_GREEN)[OK] Coverage report: target/site/jacoco/index.html$(CLR_RESET)"
 
 ## Compila o código Java 21
 build: setup
@@ -184,8 +190,13 @@ render-variant-attacks: setup
 	@echo "$(CLR_GREEN)[OK] Variant attack preview renders baked.$(CLR_RESET)"
 
 ## Pipeline completo: modelos de personagens 3D runtime + cenários/PNGs 2.5D
-assets: generate-characters render-sprites render-backgrounds copy-blends clean-blender-backups
+assets: generate-characters render-sprites render-backgrounds audio-assets copy-blends clean-blender-backups
 	@echo "$(CLR_GREEN)[OK] Full 3D character + 2.5D scenery + phase panorama asset pipeline completed.$(CLR_RESET)"
+
+## Renderiza variantes acústicas de profundidade a partir dos WAVs-fonte com FFmpeg
+audio-assets:
+	@command -v ffmpeg >/dev/null 2>&1 || (echo "FFmpeg é necessário para make audio-assets"; exit 1)
+	@$(PYTHON_CMD) tools/audio/render_audio_assets.py
 
 ## Pipeline rápido de variantes
 assets-variant-attacks: generate-variant-attacks export-runtime-models copy-blends

@@ -1,294 +1,271 @@
-# AS ÁGUAS DE APSU: A LENDA DOS APKALLU
+# As Águas de Apsu: A Lenda dos Apkallu
 
-<div align="center">
+> **Documento central de produção.** Descreve o código e assets verificados, separa implementação de intenção e serve de checklist de sprint, modelagem, integração, áudio e QA. Atualize-o quando escopo ou estado mudar.
 
-```text
-+-----------------------------------------------------------------------------------+
-|                                                                                   |
-|   A S   A G U A S   D E   A P S U  ::  A   L E N D A   D O S   A P K A L L U      |
-|                                                                                   |
-|   [ 2.5D FREE SWIMMING ENGINE -- COMPUTATION GRAPHICS & FLUID MECHANICS 2026 ]    |
-|                                                                                   |
-+-----------------------------------------------------------------------------------+
-```
+## Estado e como iniciar
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Java-21_LTS-FF6600?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java 21 LTS" />
-  <img src="https://img.shields.io/badge/JavaFX-21.0.3-007ACC?style=for-the-badge&logo=openjfx&logoColor=white" alt="JavaFX 21" />
-  <img src="https://img.shields.io/badge/Blender-4.5_LTS-E87D0D?style=for-the-badge&logo=blender&logoColor=white" alt="Blender 4.5 LTS" />
-  <img src="https://img.shields.io/badge/Maven-3.9+-C71A36?style=for-the-badge&logo=apache-maven&logoColor=white" alt="Apache Maven" />
-  <img src="https://img.shields.io/badge/Platform-Linux_%7C_Windows-009944?style=for-the-badge&logo=linux&logoColor=white" alt="Linux & Windows" />
-  <img src="https://img.shields.io/badge/OpenMPI-Parallel_Map-00599C?style=for-the-badge&logo=c&logoColor=white" alt="OpenMPI" />
-  <img src="https://img.shields.io/badge/JUnit_5-45%2F45_Passed-00AA00?style=for-the-badge&logo=junit5&logoColor=white" alt="JUnit 5 Passed" />
-</p>
+Protótipo jogável Java 21/JavaFX 21, com câmera lateral, nado livre e composição 2.5D. O runtime desenha o cenário no Canvas e carrega algumas malhas OBJ/MTL texturizadas numa camada JavaFX 3D para Adapa, NPCs, inimigos e props. As cinco imagens em `src/main/resources/backgrounds/` são panoramas rasterizados, não cenários 3D navegáveis. Ter `.blend`, render, sprite ou WAV no repositório não significa que o asset tenha animação funcional ou esteja integrado.
 
-[Quick Start](#-quick-start--inicio-rapido) |
-[Diagrama DOT de Classes](#-diagrama-de-arquitetura-de-classes-preto-no-branco) |
-[Arquitetura Ponta a Ponta](#-comunicacao-entre-componentes-de-ponta-a-ponta) |
-[Personagens 3D + cenário 2.5D](#pipeline-gráfico-personagens-3d-em-tempo-real--cenário-25d) |
-[Conceitos de CG](#-mapeamento-de-conceitos-de-computacao-grafica) |
-[Comandos Makefile](#-menu-de-comandos-arcade-makefile) |
-[Troubleshooting](#-solucao-de-problemas-troubleshooting)
+Requisitos: Java 21, Maven e desktop com display gráfico.
 
----
-
-</div>
-
-> [!IMPORTANT]
-> **Propósito Acadêmico & Técnico:** Este projeto foi desenvolvido para demonstrar de ponta a ponta a aplicação prática dos fundamentos de **Computação Gráfica**, **Processamento de Imagens**, **Física de Mecânica dos Fluidos em Jogos** e **Arquitetura de Software Multiplataforma**. Ele conecta scripts procedurais 3D no Blender 4.5 LTS a um motor de renderização imperativo em JavaFX (Canvas 60 FPS), orquestrado de forma 100% idempotente por um Makefile compatível com **Linux (Debian/Ubuntu/Mint)** e **Windows**.
-
----
-
-## SCREENSHOT SCHEMATIC (GAMEVIEW)
-
-```text
-+----------------------------------------------------------------------------------+
-|                            AS ÁGUAS DE APSU (2.5D)                               |
-|                                                                                  |
-|   [HUD: Vida [========] 100% | Tabuletas: [3/5] | Fase: 3 - Correntes Abissais]   |
-|                                                                                  |
-|      ( ~ ~ ~ ~ Corrente Fluida ~ ~ ~ > )                                         |
-|                                                                                  |
-|            Swimmer          Bubble Shot                                          |
-|           (Adapa) -----------> (*) (*)               (Enguia Abissal)            |
-|          /~~~~~\                                      <><                        |
-|          \_____/                                                                 |
-|                                                                                  |
-|   [Recifes & Corais 2.5D]       [Gêiser Hidrotermal]     [Estátua do Guardião]   |
-+----------------------------------------------------------------------------------+
-```
-
----
-
-## QUICK START / INÍCIO RÁPIDO
-
-O comando `make` verifica e instala apenas o necessário para executar o jogo (**Java 21 LTS e Maven**). Blender e OpenMPI são opcionais e só são verificados pelos alvos de geração de assets/mapas; os modelos 3D de runtime já acompanham o repositório.
-
-### Option 1: Linux (Debian / Ubuntu / Linux Mint)
-Abra o terminal na pasta do projeto e digite:
 ```bash
-make
-```
-*O Makefile detecta seu sistema, configura o runtime e inicia o jogo. Para executar em container Linux com X11, use `make docker-run`.*
-
----
-
-### Option 2: Windows (Windows 10 / Windows 11)
-
-#### Via Makefile (no Git Bash ou WSL):
-```bash
-make
+make          # verifica o ambiente e inicia a aplicação JavaFX
+make test     # executa os testes
+make coverage # executa verify e gera target/site/jacoco/index.html
 ```
 
-#### Via PowerShell Direto:
-```powershell
-# 1. Executa a verificação/instalação das dependências de runtime (Java 21 e Maven)
-powershell -ExecutionPolicy Bypass -File tools/setup/setup_environment.ps1
+`mvn javafx:run` inicia diretamente. `make docker-run` usa Docker e encaminhamento X11. Geração visual exige Blender; composição de áudio exige FFmpeg. MPI é utilitário offline de mapas e não participa do loop gráfico/animação.
 
-# 2. Executa o jogo
-mvn javafx:run
-```
+Controles do runtime: WASD/setas movem Adapa; Espaço dispara bolhas depois de desbloqueadas; E/Enter/Espaço/F são teclas contextuais de interação/diálogo conforme estado. A progressão exige tabuletas nas fases 1–4; o baú da fase 2 concede bolhas; a fase 5 é arena fixa contra Kullullû. Reinicie uma partida para validar desde o início.
 
----
+## Legenda de status
 
-## DIAGRAMA DE ARQUITETURA DE CLASSES (PRETO NO BRANCO)
+- **IMPLEMENTADO** — existe no código/runtime ou asset usado diretamente pelo runtime.
+- **EM DESENVOLVIMENTO** — implementação parcial com integração/comportamento incompleto.
+- **PLACEHOLDER** — substituto temporário, não aprovado para produção.
+- **PENDENTE** — trabalho identificado ainda sem entrega integrada.
+- **A DEFINIR** — falta decisão baseada em referência/escopo.
+- **REFERÊNCIA** — material orientador, não necessariamente executado pelo jogo.
 
-O diagrama de arquitetura mapeia **100% das classes do sistema** (`br.apsu.*`), agrupadas por subgrafos funcionais, em formato de alto contraste monocromático ("preto no branco").
+Não marcar como implementado só porque existe um arquivo: confirmar uso no runtime.
 
-### Arquivos do Diagrama:
-* **DOT Source:** [`docs/diagrams/architecture_diagram.dot`](docs/diagrams/architecture_diagram.dot)
-* **Vectorial SVG:** [`docs/diagrams/architecture_diagram.svg`](docs/diagrams/architecture_diagram.svg)
-* **Imagem PNG:** [`docs/diagrams/architecture_diagram.png`](docs/diagrams/architecture_diagram.png)
+## Visão e linguagem de produção
 
-```text
-+---------------------------------------------------------------------------------------+
-|                                    LAUNCHER (Fat JAR)                                 |
-|                                            |                                          |
-|                                            v                                          |
-|                                    ApsuGameMain (Stage)                               |
-|                                            |                                          |
-|         +----------------------------------+----------------------------------+       |
-|         |                                  |                                  |       |
-|         v                                  v                                  v       |
-|     EventBus                        GameContext                         RenderEngine  |
-|         |                                  |                                  |       |
-|         +------------+                     +-------------+                    |       |
-|                      v                                   v                    v       |
-|            AudioEventSubscriber                     GameLoop <----------> Viewport    |
-|                      |                       (60 FPS Timer)                   |       |
-|                      v                                                        |       |
-|                 AudioManager <------------------------------------------------+       |
-+---------------------------------------------------------------------------------------+
-```
+Adapa, um Apkallu, atravessa cinco regiões submersas de profundidade crescente, conversa com guardiões, recupera tabuletas e enfrenta Kullullû no Templo de Apsu. O código usa níveis de 20 m a 6.000 m, pressão aproximada e menor flutuabilidade; é abstração de jogo, não simulação oceanográfica validada.
 
----
+Direção acordada: cenário 2.5D lateral; personagens e props criados a partir de modelos 3D, com malhas 3D no runtime onde integradas e renders/sprites para elementos adequados. Hierarquia 60/30/10 é referência de peso visual (protagonista / elementos de gameplay / fundo), não percentuais literais da tela. Nas fases profundas, reduzir luminância/saturação distante sem perder silhuetas, hazards, personagens ou HUD.
 
-## COMUNICAÇÃO ENTRE COMPONENTES DE PONTA A PONTA
+Nomenclatura de produção: fase + função + estado. Eventos de áudio devem ser semânticos e não conhecer nome/caminho de WAV, formato ou middleware.
 
-A arquitetura do jogo obedece a um fluxo desacoplado de alta performance:
+## Fases: estado e produção
 
-### 1. Bootstrapping & Lifecycle
-- `Launcher.java` -> Chama o `main()` sem requerer argumentos de módulos JavaFX no classpath.
-- `ApsuGameMain.java` -> Inicializa o Canvas JavaFX, o `Viewport` responsivo, o `EventBus` e o `SaveManager`.
-- Instancia o `GameContext` (mundo de jogo) e o `RenderEngine` (desenhista), conectando o `GameLoop` a 60 FPS.
+Descrições de runtime conferidas em `GameContext.startP1`–`startP5` e métodos de update. O walkthrough visual maior está em [LevelsWalkthrough.md](personagens/fases/LevelsWalkthrough.md); é **REFERÊNCIA** para produção Blender, não comprova integração runtime.
 
-### 2. Game Loop de 60 FPS (`GameLoop.java`)
-A cada quadro do relógio monotônico:
-1. `GameContext.update(delta)`:
-   - O `InputManager` atualiza o estado das teclas.
-   - O `HeroEntity` calcula as forças de arrasto quadrático da água e o empuxo de Arquimedes.
-   - As entidades de inimigos (`EnemyEntity`), boss (`BossEntity`) e projéteis (`Projectile`) têm suas coordenadas atualizadas.
-   - O spatial index `QuadTree` re-constrói os quadrantes AABB para colisão rápida $O(N \log N)$.
-   - Se ocorrer um evento relevante, o `GameContext` dispara um `GameEvent` no `EventBus`.
-2. `RenderEngine.render(gc, context)`:
-   - A `Camera` calcula a projeção World -> Screen.
-   - O `Runtime3DLayer` exibe personagens OBJ em 3D; o `SpriteManager` mantém os PNGs de cenário e interface.
-   - O `LightingEngine` aplica iluminação emissiva de contorno (Fresnel Rim Light) e dispersão sob a superfície (SSS).
-   - O `UIRenderer` desenha o HUD, radar e diálogos.
+### 1 — Águas Claras
 
-### 3. Sistema Pub/Sub de Eventos & Áudio
-- `EventBus.java` canaliza os eventos em tempo real.
-- `AudioEventSubscriber.java` escuta o barramento e solicita a execução de efeitos WAV ao `AudioManager.java` em thread separada.
+- **Objetivo/progressão — IMPLEMENTADO:** apresentar nado, primeiro Guardião Atlante e tabuleta; sair para P2 após obter a tabuleta.
+- **Conteúdo — IMPLEMENTADO:** peixe sombrio, enguia, medusa, caranguejo, gêiser tutorial, guardião, contato/diálogo, coleta e colisão.
+- **Visual — IMPLEMENTADO/PENDENTE:** panorama `phase-1.png`, modelos/sprites existem. Escala, composição, planos e hierarquia 60/30/10 precisam de revisão. Ruínas/naufrágio do walkthrough são **REFERÊNCIA** até confirmar integração nesta fase.
+- **Áudio:** perfil costeiro, tema e cues globais **IMPLEMENTADOS**; combate dedicado, stinger de entrada, transição temática, camadas e silêncio **PENDENTES/A DEFINIR**.
+- **Fluxo observado:** início em x=100; desenvolvimento com inimigos e gêiser em x=2400; encontro do guardião/tabuleta; encerramento ao alcançar a saída com tabuleta. Atos narrativos formais: **A DEFINIR**.
+- **Assets e camadas:** herói/guardião/inimigos e gêiser têm modelos/renders; manter panorama como background e definir midground/foreground da fase. Refinar textura/escala e ciclo de nado, inimigos, bolhas, hit e dano. Destrutíveis/decor específicos: **A DEFINIR**. Referência: panorama existente e capturas; composição final requer revisão.
+- **Aceite:** concluir rota, coletar tabuleta, validar colisão/dano, gêiser, diálogo, áudio e transição única; revisar escala dos modelos.
 
----
+### 2 — Cavernas de Coral
 
-## PIPELINE GRÁFICO: PERSONAGENS 3D EM TEMPO REAL + CENÁRIO 2.5D
+- **Objetivo/progressão — IMPLEMENTADO:** cruzar seis pares de corais, abrir baú em sala aberta para obter bolhas e coletar tabuleta.
+- **Conteúdo — IMPLEMENTADO:** caranguejo, medusa, enguia, golfinho abissal, guardião de coral, corais com colisão, baú, naufrágio, gêiser.
+- **Visual — PARCIAL:** panorama, recife/naufrágio/baú 3D existem e são posicionados no runtime; confirmar representação visual dos corais de colisão, escala e composição dos planos.
+- **Áudio:** perfil deep reef e tema **IMPLEMENTADOS**; som próprio para baú, bolha, coral, fauna e transição **PENDENTE**.
+- **Fluxo observado:** abertura com sala e primeiro inimigo; sequência de seis pares de coral; desenvolvimento com baú em x=1800 e guardião; gêiser em x=3200 e saída. Clímax narrativo além da coleta: **A DEFINIR**.
+- **Assets e camadas:** produzir/refinar recifes, cardumes, naufrágio, baú, seis pares de coral e guardião; panorama como background; definir separação midground/foreground. Refinar nado, peixe/cardume, abertura de baú, bolhas e hazards; destrutíveis adicionais **A DEFINIR**. Referências: `.blend`, renders, PNGs e walkthrough.
+- **Aceite:** rota sem aprisionamento; baú abre uma vez e libera ataque; tabuleta e transição funcionam; validar escalas e leitura dos hazards.
 
-Personagens e elementos de fase são exportados como malhas OBJ/MTL pelo Blender 4.5 LTS e renderizados em uma camada JavaFX 3D. Cada fase usa um panorama 3D próprio, renderizado offline em PNG de alta resolução e exibido como plano 2.5D com paralaxe. As imagens antigas `bg1.png`–`bg5.png` são referências legadas; a execução usa `src/main/resources/backgrounds/phase-1.png` até `phase-5.png`.
+### 3 — Correntes Abissais
 
-### Direção de arte e legibilidade
+- **Objetivo/progressão — IMPLEMENTADO:** atravessar três correntes, uma zona de pressão, dois obstáculos móveis e dois gêiseres; obter tabuleta do Lamassu.
+- **Conteúdo — IMPLEMENTADO:** peixe, enguia, medusa, caranguejo, golfinho; corrente afeta velocidade, pressão reduz flutuabilidade.
+- **Visual — PARCIAL:** panorama e modelos de corrente, obstáculo e gêiser existem. Orientação/força legíveis, animação visível e escala relativa precisam de QA.
+- **Áudio:** perfil abyssal **IMPLEMENTADO**; sinais de corrente, pressão, obstáculo e gêiser **PENDENTES**; camadas/silêncio **A DEFINIR**.
+- **Fluxo observado:** abertura apresenta corrente em x=900; desenvolvimento alterna zona de pressão/obstáculo, corrente em x=2000 e corrente em x=3100; gêiseres antes do final; saída após tabuleta. Clímax/cena final: **A DEFINIR**.
+- **Assets e camadas:** corrente, zonas de pressão, obstáculos móveis, gêiseres, inimigos e Lamassu possuem fontes 3D/renders; melhorar orientação visual, escala e sinais de perigo. Definir background/midground/foreground; animar corrente, obstáculos e nado; criar VFX/SFX dedicados. Destrutíveis: **A DEFINIR**. Referências: panorama e modelos/scripts existentes.
+- **Aceite:** força compreensível, controle recuperável, sem tremor, colisão coerente e desempenho revisado.
 
-- A cena de cada fase é montada proceduralmente em Blender com malhas low-poly de recifes, cardumes, colunas, ruínas, fendas vulcânicas e formas abissais. O render panorâmico é único por fase, sem repetir ou esticar uma foto para preencher o percurso.
-- A paleta progride de águas costeiras azul-esverdeadas para recifes escuros, abismo azul profundo, região vulcânica púrpura/vermelha e templo azul noturno. A luminância cai entre fases, mas os fundos mantêm meios-tons e contraste para preservar as cores dos personagens.
-- A regra de foco 60/30/10 é aplicada como hierarquia visual: o herói mantém a maior saturação e contraste; guardiões, inimigos e perigos usam acentos mais definidos; cenário distante usa valores e saturação menores. Os percentuais descrevem o peso visual, não uma divisão literal da tela.
-- A piscina de lava é agora uma malha 3D orgânica low-poly com borda de basalto e núcleo emissivo. Os retângulos e contornos amarelos que eram desenhados diretamente no Canvas foram removidos.
-- Os personagens 3D não recebem mais oscilação automática de posição e rotação. O nado do herói usa uma inclinação lenta e pequena, limitada a 20 graus e combinada com a inclinação física do movimento.
-- A profundidade progride em `OceanDepthProfile`: plataforma costeira (20 m), recifes (300 m), planície abissal (1.500 m), fontes hidrotermais (3.000 m) e fossa hadal (6.000 m). O HUD informa profundidade e pressão aproximada; a flutuabilidade diminui com a profundidade e com zonas locais de alta pressão.
-- Os inimigos novos são gerados como modelos 3D pelo script `tools/assets/generate_abyssal_enemies.py`: golfinho abissal nas fases 2 e 3, polvo abissal na fase 4 e lula vampira como ameaça adicional na arena final. Inimigos da arena final agora também atualizam, colidem e recebem projéteis como nas outras fases.
-- O panorama do templo já contém as ruínas e o portal. A instância 3D de ruínas de 450×420 foi removida da arena, onde encobria a área do boss.
-- A dificuldade aplica o fator de velocidade uma única vez, em vez de multiplicá-lo tanto na formação dos inimigos quanto no relógio de movimento. Iniciar uma nova partida restaura a vida ao máximo selecionado; no modo difícil, colisões causam mais dano e os ataques do boss têm um intervalo mínimo legível. Ao atravessar uma fase, a velocidade residual do herói é zerada sem apagar vida ou poder de bolha.
+### 4 — Abismo Vulcânico
 
-Para regenerar os panoramas com Blender instalado, execute `make render-backgrounds`. O alvo renderiza cinco PNGs em `src/main/resources/backgrounds/`; `make assets` também inclui essa etapa. Os modelos da piscina de lava e dos inimigos abissais são gerados por `make generate-lava-pool-model` e `make generate-abyssal-enemies`, e exportados junto das demais malhas pelo alvo `make export-runtime-models`.
+- **Objetivo/progressão — IMPLEMENTADO:** atravessar lava, rochas, correntes ascendentes, pressão e gêiseres; coletar tabuleta do Oráculo.
+- **Conteúdo — IMPLEMENTADO:** arraias, peixes, medusa, Leviatã Menor, polvo abissal; lava causa dano por contato.
+- **Visual — PARCIAL:** panorama e modelos 3D de lava/gêiser/rocha/criaturas existem. Contraste do hazard, escala do Leviatã e sobreposição precisam de revisão.
+- **Áudio:** perfil hidrotermal e faixa boss existem; identidade de lava, gêiser, Leviatã, polvo, combate e pausa antes do sub-boss **PENDENTE/A DEFINIR**.
+- **Fluxo observado:** arraia introduz a ameaça; lava/rochas iniciam hazards; Leviatã aparece perto de x=2650; arraia/polvo e gêiseres levam à saída com tabuleta. Conclusão cinematográfica: **A DEFINIR**.
+- **Assets e camadas:** refinar lava, rochas, gêiseres, arraias, Leviatã, polvo e Oráculo; melhorar escala e silhueta. Distinguir fundo vulcânico, hazards no midground e foreground sem cobrir herói. Faltam ciclos, telegraphs e VFX/SFX próprios; destrutíveis **A DEFINIR**. Referência: panorama, `.blend`, renders e walkthrough.
+- **Aceite:** área de dano coincide com visual, forças não acumulam dano inesperado, criaturas/NPC não escondem Adapa, tabuleta permite transição.
 
-```text
-  [ Scripting Python (bpy) em personagens/scripts/ ]
-   |-- _apsu_shared_lib.py (Paletas 60-30-10, Rim Fresnel, SSS)
-   |-- 01_adapa_heroi.py (Curva procedural anguiliforme smoothstep)
-   |-- 02_kullullu_boss.py (Obsidiana + Magma Voronoi)
-   `-- 14_leviata_menor.py (Serpente vulcânica 8 segmentos)
-             |
-             v  (Execução via Blender CLI / Make)
-  [ Blender 4.5 LTS Engine (Cycles / EEVEE) ]
-   |-- Geração de Malhas Poligonais & Modificadores
-   |-- Iluminação Três Pontos + Fresnel Rim Light
-   `-- Exportação de malhas base e variantes de ataque
-             |
-             +--> [ OBJ/MTL em src/main/resources/models/characters/ e scenery/ ]
-             |       v  (ObjModelLoader / Runtime3DLayer)
-             |   [ Personagens e elementos de fase 3D na SubScene JavaFX ]
-             |
-             +--> (tools/assets/generate_phase_backgrounds.py)
-             |   [ 5 panoramas 3D em src/main/resources/backgrounds/ ]
-             |
-             v  (tools/assets/render_all_2d5_sprites.py)
-  [ PNGs 2.5D em src/main/resources/sprites/ para cenário/UI ]
-             |
-             v
-  [ RenderEngine: planos 2.5D + malhas 3D de personagens e fase ]
-```
+### 5 — Templo Final de Apsu
 
----
+- **Objetivo/progressão — IMPLEMENTADO:** arena fixa, diálogo com Enki, correntes/pressão e combate por fases contra Kullullû; lula vampira como inimigo.
+- **Conteúdo — IMPLEMENTADO:** Kullullû, variantes aleatórias na dificuldade difícil, Enki, fases de combate e vitória.
+- **Visual — PARCIAL:** panorama, modelos de Kullullû/variantes, Enki e lula existem. Ruínas/portal estão no panorama; a camada runtime evita uma ruína que escondia o boss. Revisar tamanho, texturas, variantes, HUD e sobreposição.
+- **Áudio:** troca de perfil para faixa boss e cue de mudança de fase **IMPLEMENTADOS**; intro, telegraphs, ataque, stagger, morte e stinger **PENDENTES**.
+- **Fluxo observado:** entrada/diálogo de Enki → arena com lula/correntes/pressão → ciclos de padrão do boss → derrota/vitória. Transição para epílogo e encerramento pós-chefe: **A DEFINIR**.
+- **Assets e camadas:** rever arena, Kullullû e variantes, Enki, lula vampira, correntes, portal/ruínas do panorama. Ajustar escala/enquadramento e contraste do foreground para manter boss e Adapa visíveis. Animações visuais de ataque/dano/morte, telegraphs, VFX e SFX específicos pendentes; objetos destrutíveis e epílogo **A DEFINIR**. Referência: panorama, modelos, variantes e walkthrough.
+- **Aceite:** partida nova limpa estado; boss só aparece em P5, recebe dano e pode ser derrotado; validar padrões, feedback, Enki, mix e performance.
 
-## MAPEAMENTO DE CONCEITOS DE COMPUTAÇÃO GRÁFICA
+### Matriz consolidada por fase
 
-| Unidade da Disciplina | Conceito Teórico | Aplicação Prática no Projeto | Classe / Artefato no Código |
+| Fase | Cenário/personagens | Inimigos e NPCs | Elementos/eventos | Áudio/música | Boss | QA e estado |
+|---|---|---|---|---|---|---|
+| P1 Águas Claras | Panorama, Adapa, Guardião Atlante; acabamento pendente | Peixe, enguia, medusa, caranguejo / guardião | Gêiser, tabuleta, diálogo, saída | Tema costeiro e cues globais; combate pendente | — | Revisar escala, colisão e transição |
+| P2 Cavernas de Coral | Panorama, recife, naufrágio e baú | Caranguejo, medusa, enguia, golfinho / guardião coral | Corais, baú, bolhas, gêiser, tabuleta | Tema deep reef; cues de baú/fauna pendentes | — | Rota, desbloqueio, escala, hazards |
+| P3 Correntes Abissais | Panorama, correntes e props 3D / Lamassu | Peixe, enguia, medusa, caranguejo, golfinho | Correntes, pressão, obstáculos, gêiseres | Tema abyssal; cues de perigo pendentes | — | Forças, leitura visual, frame-time |
+| P4 Abismo Vulcânico | Panorama, lava, rochas, gêiser / Oráculo | Arraia, peixe, medusa, Leviatã, polvo | Hazards, corrente, pressão, tabuleta | Tema hidrotermal; identidade própria pendente | Leviatã é sub-boss/inimigo especial | Dano, escala, sobreposição |
+| P5 Templo de Apsu | Arena/panorama, Enki e modelos 3D | Lula vampira / Enki | Arena, correntes, pressão, fases e vitória | Faixa hadal e boss existentes; stingers pendentes | Kullullû | Reinício, combate e conclusão |
+
+## Pipeline 3D e saída 2.5D
+
+Scripts Blender em `personagens/scripts/`; fontes editáveis em `personagens/blends/`; renders de referência em `personagens/renders/`; recursos empacotados em `src/main/resources/`. O jogo não executa Blender em runtime. `make assets` regenera etapas; jogar usa recursos já empacotados.
+
+Fluxo: Blender → OBJ/MTL/texturas para malhas 3D carregadas por `Runtime3DLayer`; panoramas e sprites PNG para cenário 2.5D via render offline. Usar render como saída final para fundo/foreground/decor que não precisam interação. Usar malha runtime para personagens/props que precisam profundidade/interação quando escala e custo forem aceitáveis. Decisão por asset deve aparecer na matriz.
+
+Para cada modelo declarar nome estável, categoria/fase, escala/unidade, orientação frontal/eixo, origem, câmera e enquadramento, resolução/transparência, luz/material/paleta, textura relativa, estados/poses, ângulos, quadros/ciclos, export e destino no jogo. Ter timeline no Blender não significa animação no jogo: malhas OBJ são estáticas por estado; runtime aplica transformações simples. Rever materiais/texturas falhos, frente/lado, escala, pivôs, quantidade de polígonos/materiais, animações de nado/ataque/dano/morte, fundo transparente, resolução e cache. O nado deve evitar rotação excessiva (inclinação runtime limitada a ±20°).
+
+### Matriz de inventário de assets
+
+| Asset/categoria | Arquivos encontrados | Animação/VFX/SFX | Integração / estado |
 |---|---|---|---|
-| **I. Proc. Gráfico & Hardware** | Rasterização, GPU/CPU, VRAM | Renderização imperativa em Canvas JavaFX a 60 FPS; bake 3D->2.5D para VRAM. | [`RenderEngine.java`](src/main/java/br/apsu/graphics/RenderEngine.java), [`Makefile`](Makefile) |
-| **II. Pipeline Gráfica & APIs** | Shaders, Direct Mode vs Retained | Shaders procedurais Cycles/EEVEE; renderização via `GraphicsContext` JavaFX. | [`_apsu_shared_lib.py`](personagens/scripts/_apsu_shared_lib.py), [`pom.xml`](pom.xml) |
-| **III. Modelagem Poligonal** | Topologia, Extrude, Inset, Loop Cut | Construção procedural dos modelos de Adapa, Kullullû, Enki e Leviatã via `bpy`. | [`01_adapa_heroi.py`](personagens/scripts/01_adapa_heroi.py), [`02_kullullu_boss.py`](personagens/scripts/02_kullullu_boss.py) |
-| **IV. Transformações Geométricas**| Translação, Rotação, Matrizes | Hierarquia de ossos/segmentos de cauda; conversão de espaço de Mundo para Tela. | [`Camera.java`](src/main/java/br/apsu/core/Camera.java), [`HeroEntity.java`](src/main/java/br/apsu/model/hero/HeroEntity.java) |
-| **V. Câmeras & Visualização** | Projeção Perspectiva, Parallax | Câmera 2.5D com scroll lateral e efeito Parallax nos planos de fundo. | [`Camera.java`](src/main/java/br/apsu/core/Camera.java) |
-| **VI. Cenas Gráficas & PBR** | Materiais PBR, Roughness, Metallic | Materiais procedurais de obsidiana, magma Voronoi e escamas translucentes. | [`_apsu_shared_lib.py`](personagens/scripts/_apsu_shared_lib.py) |
-| **VII. Curvas e Superfícies** | Curvas de Bézier, Continuidade | Função `smooth_angle_chain` para ondulação da cauda sem quebras de junta. | [`_apsu_shared_lib.py`](personagens/scripts/_apsu_shared_lib.py) |
-| **VIII. Cor e Espaços de Cor** | RGB, HSV, Fresnel Rim Light | Leitura e quantização da paleta 60-30-10; iluminação Fresnel Rim Light. | [`LightingEngine.java`](src/main/java/br/apsu/graphics/LightingEngine.java) |
-| **IX. Ray Tracing vs Rasterização**| Path Tracing, Global Illumination | Síntese offline com Cycles (Path Tracing) versus rasterização 2D a 60 FPS. | [`render_all_2d5_sprites.py`](tools/assets/render_all_2d5_sprites.py) |
-| **X. Otimização & Bake** | Meshes, Frame Baking | Modelos 3D OBJ/MTL em runtime e bake PNG para elementos 2.5D. | [`Runtime3DLayer.java`](src/main/java/br/apsu/graphics/Runtime3DLayer.java), [`SpriteManager.java`](src/main/java/br/apsu/graphics/SpriteManager.java) |
+| Adapa: base, variantes, ataques | .blend, render, OBJ/MTL/texturas e PNG | Ataques em malhas por estado; ciclo e VFX incompletos | Base runtime implementada; variantes em desenvolvimento |
+| Enki e guardiões | .blend, renders, sprites, modelos de NPC | Ciclo contínuo pendente | Diálogo implementado; confirmar modelo de cada fase |
+| Inimigos comuns | modelos/renders/sprites de peixe, enguia, medusa, caranguejo | Sprites têm quadros em alguns casos; runtime usa malhas estáticas | Inimigos/colisões implementados |
+| Criaturas especiais | arraia, Leviatã, golfinho, polvo, lula em assets 3D/renders | Ataques, hit, morte, VFX/SFX dedicados pendentes | Golfinho P2/P3, criaturas P4, lula P5 |
+| Recife, cardume, naufrágio | .blend, render/sprite; recife e naufrágio posicionados em P2 | Animação contínua de cardume pendente | Integração parcial; escala/reuso em desenvolvimento |
+| Ruínas, colunas, portal | .blend/renders e panoramas | Destruição/interação a definir | Panorama existe; props de runtime limitados |
+| Corrente, pressão, obstáculos | Modelos 3D e renders | Indicação de força/telegraph pendente | Física implementada; leitura visual em desenvolvimento |
+| Gêiser, lava, rocha | Modelos 3D gerados/exportados | Ciclo/telegraph/VFX específicos pendentes | Elementos no runtime |
+| Panoramas de fase | PNG phase-1…phase-5 | Não são cenário 3D navegável nem layers parallax independentes | Implementados; revisão artística pendente |
+| VFX bolha/hit/dano/coleta | Partículas genéricas no core | Catálogo/timing por evento pendente | Alguns bursts implementados |
+| SFX e música | WAV fonte e WAV por perfil/profundidade | Catálogo completo e mix QA pendentes | Reprodução e troca de música implementadas |
+| Plataforma, porta, mecanismo, checkpoint, pickups extra | Sem inventário funcional confirmado | A definir | Não assumir requisito/implementação |
 
----
+Decompor cada fase em personagens (herói, NPC, inimigo, miniboss/boss), arquitetura (piso, parede, ruína, coluna, caminho, porta), natureza/ambiente, gameplay (hazard, pickup, tabuleta, baú, gatilho, checkpoint), visual (background, midground, foreground, luz, partículas, impacto, dano, destruição, transição) e áudio. Sem referência/ocorrência confirmada: **A DEFINIR**.
 
-## MENU DE COMANDOS ARCADE (MAKEFILE)
+### Matriz resumida de produção por asset e fase
 
-O `Makefile` adota um visual retro de fliperama no terminal e gerencia o ambiente automaticamente:
+“Existe” significa arquivo encontrado; não substitui revisão de qualidade. “Parcial” indica fonte/render presente, mas estado/animação/integração incompletos.
 
-```text
-+-----------------------------------------------------------------------+
-|   [ARCADE ENGINE 2026] -- AS AGUAS DE APSU // RETRO GAME SYSTEM       |
-+-----------------------------------------------------------------------+
-| COMMAND                      | DESCRIPTION                            |
-+------------------------------+----------------------------------------+
-  make / make all              Run setup, organize assets & start game
-  make run                     Start JavaFX 21 main game application
-  make setup                   Check & install dependencies (idempotent)
-  make setup-assets            Check Blender before regenerating 3D assets
-  make setup-mpi               Check/install OpenMPI for offline map generation
-  make build                   Compile Java 21 classes
-  make test                    Execute JUnit 5 test suite (45 tests)
-  make assets                  Full 3D character + scenery + phase panorama pipeline
-  make assets-variant-attacks  Export 3D attack poses for runtime
-  make generate-characters     Re-generate .blend and runtime OBJ/MTL models
-  make render-sprites          Render 2.5D scenery PNGs from .blend
-  make render-backgrounds      Generate five stylized 3D phase panoramas
-  make generate-lava-pool-model Generate the low-poly 3D lava basin
-  make copy-blends             Organize .blend 3D models into assets/
-  make package                 Build executable Fat JAR in target/
-  make docker-run              Build and run in Docker with Linux X11
-  make mpi-demo                Run parallel MPI map generator
-  make mpi-generate            Generate 5 JSON phase layouts via MPI
-  make clean                   Clean build artifacts and release RAM
-+-----------------------------------------------------------------------+
-```
+| Asset | Categoria | Fase | Existe? | Modelo 3D | Render 2.5D | Sprite | Animação | VFX | SFX | Integração / estado |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Adapa base | Herói | P1–P5 | Sim | Sim, modelo runtime | Sim, preview | Sim | Ataques por estado; nado parcial | Partículas genéricas | Ataque/dano genéricos | Base runtime; refinar ciclo |
+| Guardião Atlante | NPC | P1 | Sim | Sim | Sim, preview | Sim | Quadros existem; ciclo runtime não confirmado | Não específico | Diálogo genérico | Encontro integrado; revisar escala |
+| Coral, Lamassu, Oráculo | NPC | P2–P4 | Sim | Sim | Sim, preview | Sim | Ciclo runtime pendente | Não específico | Diálogo genérico | Encontro por fase; QA visual |
+| Enki | NPC narrativo | Intro/P5 | Sim, variantes | Sim | Sim, preview | Sim | Estático no runtime | Não específico | Avanço de diálogo | Modelo visível; refinar estados |
+| Peixe, enguia, medusa, caranguejo | Inimigos comuns | P1–P3 | Sim | Sim, runtime | Sim, preview | Sim | Alguns sprites têm quadros; mesh estática | Genérico | Acerto/derrota genéricos | Gameplay integrado; animação pendente |
+| Golfinho abissal | Inimigo especial | P2–P3 | Sim | Sim | Sim | Sim | Runtime pendente | Genérico | Genérico | Spawn/colisão implementados |
+| Arraia, Leviatã, polvo | Criaturas/sub-boss | P4 | Sim | Sim | Sim | Sim | Estados runtime incompletos | Genérico | Genérico | Gameplay existe; telegraph/escala pendentes |
+| Lula vampira e Kullullû | Inimigo e boss | P5 | Sim, variantes do boss | Sim | Sim | Sim | Fases do boss são lógicas; visual parcial | Genérico | Hit/fase/vitória | Combate integrado; cues/estados dedicados pendentes |
+| Recife, cardume, naufrágio, baú | Ambiente/interativo | P2 | Sim | Sim | Sim | Sim | Quadros existem; loop runtime não confirmado | Pickup genérico | Pickup genérico | Recife/navio/baú posicionados; baú interativo |
+| Correntes, pressão, obstáculos | Gameplay/ambiente | P3–P5 | Sim | Sim | Sim | Parcial | Oscilação/física lógica; visual parcial | Indicadores pendentes | Cues ambientais pendentes | Forças/colisões integradas |
+| Gêiser, lava, rocha vulcânica | Hazards | P1–P4 | Sim | Sim | Sim | Sim | Ciclo/telegraph visual pendente | Genérico/parcial | Cues próprios pendentes | Dano/impulso conforme tipo |
+| Panoramas e portal/ruínas | Fundo/transição | P1–P5 | Sim | Fonte procedural disponível | PNGs de fase | PNG de fundo | Sem camadas móveis confirmadas | Não específico | Transição pendente | Background integrado; não é cenário 3D navegável |
+| Tabuleta e feedback de coleta | Gameplay/VFX | P1–P4 | Parcial | A definir por objeto | A definir | Assets de jogo | Não aplicável | Burst genérico | Pickup genérico | Coleta/progressão integradas; variedade pendente |
+| Música, ambiência e SFX | Áudio | P1–P5 | Sim, fontes e WAVs | N/A | N/A | N/A | Loops por faixa; stems pendentes | N/A | Cues existentes | Troca de perfil integrada; catálogo/mix QA pendentes |
+| Portas, plataformas, mecanismos, checkpoints | Gameplay | A DEFINIR | Sem inventário funcional confirmado | A definir | A definir | A definir | A definir | A definir | A definir | Não presumir escopo/implementação |
 
-MPI is an offline map-generation utility, not part of the JavaFX frame loop. It does not synchronize character animation or rendering; those stay on the fixed-step game clock so they remain stable without MPI.
+## Eventos e áudio
 
----
+### Contrato semântico
 
-## SOLUÇÃO DE PROBLEMAS (TROUBLESHOOTING)
+`GameEvent`/ `EventBus` comunicam; `AudioEventSubscriber` conecta ao `AudioPort`/`AudioManager`; `JavaFxAudioOutput` resolve cue semântico para arquivos e ganho. `AudioCue` contém nomes de ação como `ATTACK`, `PICKUP`, `HERO_DAMAGED`, sem nome de arquivo. Trocar WAV fica no adaptador e não pede alteração da lógica de gameplay. Usar enum Java `UPPER_SNAKE_CASE`, nomeando ação/resultado e não instrumento, processamento ou nome do arquivo.
 
-> [!TIP]
-> **Java Version Mismatch / JavaFX Error**
-> O jogo requer **Java 21 LTS**. O comando `make setup` ou `tools/setup/setup_environment.ps1` ajusta o ambiente automaticamente. Caso precise forçar manualmente:
-> - **Linux:** `export JAVA_HOME=$HOME/java/current`
-> - **Windows:** `$env:JAVA_HOME="C:\Program Files\Eclipse Adoptium\jdk-21.0.4.7-hotspot"`
+Efeitos curtos são reproduzidos por `AudioClip`; trilhas longas usam `MediaPlayer` em loop. O player de música espera a faixa ficar pronta antes de tocar, usa volume-base de 55% (atenuado pela profundidade) e tenta o tema original se a faixa gerada estiver ausente ou falhar. Falhas de inicialização/reprodução são registradas no console como `[AUDIO]` em vez de serem ignoradas.
 
-> [!TIP]
-> **Permissão de Execução do JAR Baixado no Linux ("Blocked for Security Reasons")**
-> Se o navegador ou gerenciador de arquivos bloquear o `.jar` baixado por segurança:
-> - **Via Terminal:** `chmod +x ~/Downloads/apsu-game-1.0.0.jar && java -jar ~/Downloads/apsu-game-1.0.0.jar`
-> - **Via Interface Gráfica:** Clique com o botão direito no `.jar` -> *Propriedades* -> *Permissões* -> Marque *"Permitir execução do arquivo como programa"*.
+Tipos declarados em `GameEvent.Type`: `SOUND_REQUESTED`, `HERO_DAMAGED`, `HERO_SHOT`, `ENEMY_DEFEATED`, `TABLET_COLLECTED`, `BOSS_DEFEATED`, `BOSS_PHASE_CHANGED`, `OCEAN_DEPTH_CHANGED`, `BOSS_MUSIC_CHANGED`. A integração atualmente publicada/consumida no áudio inclui pedido de cue, mudança de profundidade, modo de faixa do boss e mudança de fase do boss. Declarar um enum sem produtor/consumidor não torna o comportamento implementado. Eventos adicionais só entram com produtor, payload, frequência, consumidor e teste definidos. O core não deve conhecer caminho/arquivo WAV nem middleware.
 
-> [!NOTE]
-> **Renderização via Software (Hardware Sem GPU)**
-> Se estiver rodando em máquina sem aceleração gráfica nativa ou em máquina virtual, execute com fallback por software:
-> ```bash
-> mvn javafx:run -Dprism.order=sw
-> ```
+### Matriz de eventos de áudio
 
----
+| Evento semântico | Momento/intenção sonora | Estado de core |
+|---|---|---|
+| `MENU_CONFIRM` | Confirma escolha, curto e discreto | Implementado |
+| `DIALOGUE_ADVANCE` | Avançar fala sem mascarar texto/voz | Implementado |
+| `PICKUP` | Recompensa clara para baú/tabuleta/item | Implementado; diferenciar tipos pendente |
+| `ATTACK` | Disparo de bolha, resposta imediata | Implementado |
+| `ENEMY_DAMAGED`, `ENEMY_DEFEATED` | Distinguir acerto e derrota | `ENEMY_DEFEATED` é chamado; produtor para `ENEMY_DAMAGED` pendente |
+| `HERO_DAMAGED` | Comunicar dano com prioridade | Implementado |
+| `BOSS_DAMAGED`, `BOSS_PHASE`, `VICTORY` | Impacto, nova fase e resolução | Implementado parcialmente; telegraph/morte dedicados pendentes |
+| `SWIM_LOOP`, `JUMP`, `LAND`, `INTERACT` | Movimento/contexto; nado é mecânica, não presumir pulo | A definir/pendente |
+| `ENEMY_SPAWN`, `ENEMY_DETECTS_PLAYER`, `ENEMY_ATTACK`, `ENEMY_SPECIAL_ATTACK` | Presença, ameaça, janela de reação | Pendente |
+| `GUARDIAN_DIALOGUE_STARTED/ENDED` | Entrada/saída e identidade de NPC | Pendente; avanço de fala existe |
+| `CHEST_OPENED`, `TABLET_COLLECTED`, `CHECKPOINT_ACTIVATED` | Feedback específico de mundo | Pickup genérico existe; eventos dedicados pendentes; checkpoint a definir |
+| `CURRENT_ENTERED/EXITED`, `PRESSURE_ENTERED`, `GEYSER_WARNING/ERUPTED`, `LAVA_CONTACT` | Perigo ambiental antes/durante/depois | Física/dano existem em parte; cues dedicados pendentes |
+| `PHASE_STARTED/COMPLETED`, `LEVEL_TRANSITION` | Música, ambiência e transição sincronizadas | Troca de perfil ao iniciar; eventos dedicados pendentes |
+| `BOSS_INTRO/ATTACK/STAGGER/DEFEATED` | Identidade, telegraph e resolução do boss | Modo musical/fase implementados; cues dedicados pendentes |
 
-## DOCUMENTAÇÃO DE GOVERNANÇA E CONTRIBUIÇÃO
+São sugestões de catálogo; só adicionar se a mecânica existir. Para cada evento aprovado, registrar produtor, payload, instante, cooldown/repetição, prioridade, posição espacial, consumidor de áudio/VFX/UI e teste. Um evento pode alimentar vários consumidores.
 
-Para consultar as diretrizes da equipe de 5 desenvolvedores, regras para agentes de IA e padrões de código:
+### Música e composição por fase
 
-- [`AGENTS.md`](AGENTS.md) — As 13 Regras Invioláveis de Desenvolvimento para Humanos e Agentes de IA.
-- [`CONTRIBUTING.md`](CONTRIBUTING.md) — Matriz de Responsabilidade dos 5 DEVs, Workflow Git e Conventional Commits.
-- [`DEVELOPMENT.md`](DEVELOPMENT.md) — Guia detalhado de Setup, Build, Test e Run (Linux & Windows).
-- [`ARCHITECTURE.md`](ARCHITECTURE.md) — Especificação técnica dos subsistemas de runtime, física e áudio.
-- [`LICENSE`](LICENSE) — Apache License 2.0.
+Intenção comum: mistério, descoberta e despertar de poder nas fases iniciais; densidade, menos agudos e pressão sonora progressiva no fundo; tensão clara no boss. Feedback de gameplay deve ser curto/priorizado; ambiência sustenta espaço sem competir. Música acompanha estados/eventos, não é somente arquivo fixo da fase. Hoje há troca de perfil de profundidade e faixa boss, mas não sistema geral de stems/camadas dinâmicas orientadas a todos os estados.
 
----
+| Fase | Principal/exploração | Combate/boss | Transições, stingers, loops, variações, silêncio, ambiência | Realidade |
+|---|---|---|---|---|
+| P1 coastal | Tema existente; descoberta e água clara | Combate próprio a definir; sem boss | Stinger de tabuleta/transição pendente; ambiência e silêncio a definir | Tema do perfil existe |
+| P2 deep reef | Exploração de recife/cavernas | Mudança por densidade de ameaça a definir | Baú, cardume, coral, camadas biológicas pendentes | Tema filtrado existe |
+| P3 abyssal plain | Correntes, espaço rarefeito | Intensificar corrente/perigo a definir | Entrada/saída, rumble, silêncio pendentes | Perfil filtrado existe; dinâmica parcial |
+| P4 hydrothermal vent | Tensão geológica com respiro | Leviatã/combate a definir | Lava/gêiser, pausa pré-sub-boss pendentes | Tema e boss track existem |
+| P5 hadal trench | Exploração do templo a definir | Faixa boss dedicada selecionável | Intro, telegraphs, mudança, vitória e retorno pendentes | Troca de modo e faixa boss implementadas |
 
-<div align="center">
+Cada perfil tem tema `apsu-theme.wav` e cues gerados para os identificadores atuais; há uma faixa boss por perfil. Isso não significa aprovação de mix/licenças novas. FFmpeg offline usa `tools/audio/render_audio_assets.py`; fontes, créditos e licenças em [docs/audio/SOURCES.md](docs/audio/SOURCES.md). Preservar fontes originais e registrar créditos novos.
 
-**As Águas de Apsu: A Lenda dos Apkallu — 2026**
+## Sprint (seis integrantes)
 
-</div>
+Uma pessoa lidera áudio e QA; cinco integrantes de arte/produção recebem individualmente uma fase no sprint. É divisão inicial, não impede revisão cruzada.
+
+1. **Preparação:** selecionar fase, ler este README, walkthrough e referências; registrar objetivo, limites, fontes e aceite. Bloqueios são decididos; lacunas ficam **A DEFINIR**.
+2. **Produção individual:** cada integrante faz assets/componentes atribuídos, registra escala, orientação, estados, destino e dependências. Áudio prepara mapa de eventos/música; QA prepara casos reproduzíveis.
+3. **Integração:** incorporar malhas/renders, colisões, eventos e recursos no classpath/runtime. Preview Blender não vale como integração.
+4. **Revisão coletiva:** jogar a fase inteira e rever gameplay, visual, câmera, composição, assets, escala, colisões, animações, eventos, áudio, performance, coerência e QA; guardar evidências.
+5. **Consolidação:** registrar problemas/severidade, correções, assets faltantes, decisões, eventos, necessidades de áudio, mudanças de gameplay/visual e responsáveis; atualizar matrizes.
+6. **Aceite:** rota completa repetível sem bloqueador; progressão correta; atores/NPCs corretos; escala, colisões e hazards legíveis; assets carregam; eventos/áudio/transições revisados; performance dentro do orçamento acordado; nenhum bug crítico/alto sem decisão. Limite numérico de FPS/frame-time e dispositivo de referência **A DEFINIR**.
+
+## QA por fase
+
+Marcar aprovado/reprovado/não aplicável; anexar fase/dificuldade, passos, estado inicial, esperado/observado, build/commit e evidência. Testar partida nova e, quando disponível, dificuldade normal/difícil.
+
+- [ ] Execução por `make`/JavaFX, início, pausa/retorno e saída sem erro fatal ou asset ausente.
+- [ ] Controles: nado em quatro direções, ataque, interação, diálogo e coleta.
+- [ ] Colisões: limites, projéteis, inimigos, pickups, hazards, corrente, pressão, dano e invulnerabilidade.
+- [ ] Câmera: scroll, arena fixa, HUD e composição sem cobrir personagem/evento.
+- [ ] Progressão: tabuletas, baú, desbloqueio, transição e vitória.
+- [ ] Checkpoints/saves: aplicar apenas onde existe; testar save/load e recomeço sem boss/entidade residual.
+- [ ] Inimigos/boss: fase correta, escala, textura, orientação, colisão, dano, estados, telegraph, derrota; boss apenas na P5.
+- [ ] Eventos/animações: disparo correto e uma vez; nado estável; mudança de estado sem salto de posição/escala.
+- [ ] Sprites/modelos: frente, silhueta, material/textura, alpha, resolução, perspectiva, escala e posição.
+- [ ] VFX: ataque, impacto, dano, coleta, hazard e transição legíveis sem cobrir HUD/atores.
+- [ ] Áudio: cue correto, volume, clipping, repetição, loop, perfil, modo boss, retorno e independência de nome de WAV.
+- [ ] Música/transições: explorar, combater, boss, mudança de fase, vitória e partida repetida; procurar cortes/sobreposição.
+- [ ] Bugs/assets faltantes: passos mínimos, esperado/observado, severidade, captura/log e responsável.
+- [ ] Performance: carregamento, frame pacing, CPU/GPU/GC em cena leve e cheia; comparar com orçamento aprovado. MPI não resolve frame pacing.
+- [ ] Fase completa concluída e repetida após reset; checklist/status atualizado.
+
+## Referências existentes e decisões
+
+| Referência | Preservar / representa | Derivar | Limites |
+|---|---|---|---|
+| [PDF gráfico](docs/diagrams/%5BGr%C3%A1fica%5D%20Game%20-%20%C3%81guas%20de%20Apsu.pdf) e ZIP próximo | Material gráfico já existente; consultar fonte completa | Inventário de telas/fases/assets após revisão da equipe | Não substituir por interpretação; lacunas ficam A DEFINIR |
+| [LevelsWalkthrough.md](personagens/fases/LevelsWalkthrough.md) | Proposta de cena Atlantis, zonas, câmeras, animações | Modelos/tomadas de Blender | Não prova gameplay/runtime |
+| `personagens/images/`, `personagens/fases/gameplay/` | Referências visuais e capturas existentes | Silhueta, paleta, comparação | Capturas podem ser build anterior |
+| `personagens/scripts/`, `tools/assets/` | Fontes procedurais, preservar | .blend, OBJ/MTL, sprites, panoramas | Escala, material e integração devem ser validados |
+| [SOURCES.md](docs/audio/SOURCES.md) | Fontes, autores, licenças registradas | Camadas de profundidade/boss via FFmpeg | Incluir origem/licença de todo asset novo |
+| `backgrounds/phase-1.png…phase-5.png` | Fundos empacotados no runtime | Composição e contraste de fase | Rasterizados, não fase completa em 3D |
+
+Preservar originais. Mudanças de paleta, personagem, história, câmera e conteúdo são decisão coletiva registrada no sprint. Sem evidência no código ou referência, usar **A DEFINIR**.
+
+## Arquitetura e manutenção
+
+- Entrada: `br.apsu.Launcher` → `ApsuGameMain`; protótipo principal JavaFX/Canvas.
+- Gameplay/montagem: `GameContext`; física/estado em `model`; loop/câmera em `core`.
+- Render: `RenderEngine`, `SpriteManager`, `Runtime3DLayer`, `ObjModelLoader`.
+- Eventos: `EventBus`/`GameEvent`; áudio/VFX como consumidores, sem colisão dentro do output.
+- Áudio: `AudioCue` semântico; `AudioManager` controla perfil; `JavaFxAudioOutput` mapeia WAV/ganhos; `AudioEventSubscriber` conecta barramento. FFmpeg offline.
+- MPI: mapas offline. Não adicionar sincronização MPI ao loop.
+- Automação: Makefile, `tools/assets/`, `tools/audio/`, fontes em `personagens/`.
+
+Ao adicionar evento, defina semântica antes do som. Ao trocar WAV, altere recursos/mapeamento no adaptador e créditos, sem modificar gameplay. Ao mudar fase, atualize matriz de assets, áudio, checklist e QA.
+
+## Testes e validação deste estado
+
+`make test`/`mvn test` rodam JUnit; `make coverage`/`mvn verify` geram `target/site/jacoco/index.html`. Cobertura mede execução de código, não qualidade visual, equilíbrio ou aceite de áudio. Evitar percentuais estáticos: usar relatório do build corrente.
+
+**Validação desta atualização (28/09/2026):** `mvn verify -q` concluiu com sucesso, 66 testes, sem falhas/erros, e gerou o relatório JaCoCo. `mvn javafx:run -q` iniciou e continua aberto na sessão gráfica para validação manual. A inicialização comprova o boot da aplicação, mas não substitui jogar cada fase usando a checklist acima. Foram emitidos avisos JavaFX `SCENE3D` no ambiente de execução dos testes; confirmar renderização 3D em máquina com aceleração gráfica ao fazer QA visual.
+
+**Ajuste de áudio (28/09/2026):** `mvn -q -DskipTests compile` passou; ao iniciar o jogo, o log confirmou a faixa costeira pronta a 55%. A sessão PipeWire apresentou o fluxo Java sem mute e sem cork. A audição subjetiva/volume do equipamento deve ser confirmada por quem está jogando.
+
+Registrar build/commit, comandos, resultado, ambiente gráfico e fases efetivamente jogadas nas próximas validações. **A DEFINIR:** orçamento numérico de performance, hardware de referência, critério formal de mix e arte final.
+
+## Documentação relacionada
+
+- [AGENTS.md](AGENTS.md) — regras locais.
+- [CONTRIBUTING.md](CONTRIBUTING.md) — workflow/responsabilidades.
+- [DEVELOPMENT.md](DEVELOPMENT.md) — setup/build/test/run.
+- [ARCHITECTURE.md](ARCHITECTURE.md) — arquitetura técnica.
+- [SOURCES.md](docs/audio/SOURCES.md) — fontes e créditos de áudio.
+- [Diagrama SVG](docs/diagrams/architecture_diagram.svg) — conferir contra o código ao atualizar.

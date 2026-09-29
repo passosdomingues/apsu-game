@@ -21,6 +21,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /** Carrega OBJ/MTL exportados pelo pipeline Blender para a cena JavaFX 3D. */
 final class ObjModelLoader {
+    @FunctionalInterface
+    interface TextureBinder {
+        void bind(PhongMaterial material, String resourcePath, boolean emissive) throws IOException;
+    }
+
     record Model(Group node, double width, double height) {}
     private record Face(int a, int b, int c, int na, int nb, int nc, int ta, int tb, int tc) {}
     private record MaterialAppearance(Color diffuse, String texture, Color specular, double shininess, boolean emissive) {}
@@ -32,6 +37,11 @@ final class ObjModelLoader {
     private ObjModelLoader() {}
 
     static Model load(String modelName, double targetWidth, double targetHeight) throws IOException {
+        return load(modelName, targetWidth, targetHeight, ObjModelLoader::bindTexture);
+    }
+
+    static Model load(String modelName, double targetWidth, double targetHeight,
+                      TextureBinder textureBinder) throws IOException {
         String resourceKey;
         if (modelName.startsWith("scenery/")) {
             String name = modelName.substring("scenery/".length());
@@ -124,11 +134,7 @@ final class ObjModelLoader {
             material.setSpecularColor(appearance.specular());
             material.setSpecularPower(appearance.shininess());
             if (appearance.texture() != null) {
-                var textureUrl = ObjModelLoader.class.getResource(appearance.texture());
-                if (textureUrl == null) throw new IOException("Textura MTL não encontrada: " + appearance.texture());
-                Image texture = TEXTURES.computeIfAbsent(textureUrl.toExternalForm(), key -> new Image(key, false));
-                material.setDiffuseMap(texture);
-                if (appearance.emissive()) material.setSelfIlluminationMap(texture);
+                textureBinder.bind(material, appearance.texture(), appearance.emissive());
             }
             view.setMaterial(material);
             result.getChildren().add(view);
@@ -226,6 +232,14 @@ final class ObjModelLoader {
     }
 
     private static double clamp(double c) { return Math.max(0, Math.min(1, c)); }
+
+    private static void bindTexture(PhongMaterial material, String resourcePath, boolean emissive) throws IOException {
+        var textureUrl = ObjModelLoader.class.getResource(resourcePath);
+        if (textureUrl == null) throw new IOException("Textura MTL não encontrada: " + resourcePath);
+        Image texture = TEXTURES.computeIfAbsent(textureUrl.toExternalForm(), key -> new Image(key, false));
+        material.setDiffuseMap(texture);
+        if (emissive) material.setSelfIlluminationMap(texture);
+    }
 
     private static InputStream resource(String path) throws IOException {
         InputStream stream = ObjModelLoader.class.getResourceAsStream(path);
