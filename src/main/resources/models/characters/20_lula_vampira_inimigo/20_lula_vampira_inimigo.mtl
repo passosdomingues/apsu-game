@@ -1,0 +1,42 @@
+# Blender 4.5.5 LTS MTL File: '20_lula_vampira_inimigo.blend'
+# www.blender.org
+
+newmtl cold_cyan_eye.001
+Ns 193.600006
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.094500 1.890000 2.100000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/000_02.png
+
+newmtl scarlet_webbing.001
+Ns 193.600006
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.097500 0.011250 0.030000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/000_01.png
+
+newmtl vampire_squid_dark_burgundy.001
+Ns 193.600006
+Ka 0.160000 0.160000 0.160000
+Ks 0.500000 0.500000 0.500000
+Ke 0.012600 0.003000 0.014400
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/000_00.png
+
+newmtl violet_photophores.001
+Ns 193.600006
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.400000 0.056000 1.440000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/000_03.png

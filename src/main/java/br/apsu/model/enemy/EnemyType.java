@@ -29,7 +29,19 @@ public enum EnemyType {
     /** Leviatã Menor — sub-boss da Fase 4, move rápido em diagonal */
     LEVIATA(5, 180, 160,
         "sprites/inimigos/12_leviata_menor.png",
-        "sprites/inimigos/12_leviata_menor");
+        "sprites/inimigos/12_leviata_menor"),
+
+    DELFIN_ABISSAL(6, 166, 92,
+        "sprites/inimigos/18_delfim_abissal_inimigo.png",
+        "sprites/inimigos/18_delfim_abissal_inimigo"),
+
+    POLVO_ABISSAL(7, 142, 150,
+        "sprites/inimigos/19_polvo_abissal_inimigo.png",
+        "sprites/inimigos/19_polvo_abissal_inimigo"),
+
+    LULA_VAMPIRA(8, 148, 136,
+        "sprites/inimigos/20_lula_vampira_inimigo.png",
+        "sprites/inimigos/20_lula_vampira_inimigo");
 
     private final int id;
     private final double width, height;

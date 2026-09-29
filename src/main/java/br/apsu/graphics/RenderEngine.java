@@ -5,6 +5,7 @@ import br.apsu.model.boss.BossEntity;
 import br.apsu.model.enemy.EnemyEntity;
 import br.apsu.model.environment.Projectile;
 import br.apsu.model.environment.SceneryElement;
+import br.apsu.model.environment.OceanDepthProfile;
 import br.apsu.model.guardian.GuardianEntity;
 import br.apsu.model.hero.HeroEntity;
 import br.apsu.model.hero.HeroType;
@@ -242,7 +243,8 @@ public class RenderEngine {
         drawHero(gc, ctx.getCamera().toScreenX(ctx.getHero().getX()), ctx.getHero().getY(), ctx.getHero(), timeSeconds);
         ctx.getParticleSystem().render(gc);
 
-        uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 1 — Águas Claras", ctx.getDifficulty());
+        uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 1 — Águas Claras", ctx.getDifficulty(),
+            OceanDepthProfile.forPhase(ctx.getCurrentPhase()));
         uiRenderer.drawMinimap(gc, ctx, width);
         drawAlert(gc, ctx, width, height);
     }
@@ -341,7 +343,8 @@ public class RenderEngine {
         drawHero(gc, ctx.getCamera().toScreenX(ctx.getHero().getX()), ctx.getHero().getY(), ctx.getHero(), timeSeconds);
         ctx.getParticleSystem().render(gc);
 
-        uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 2 — Cavernas de Coral", ctx.getDifficulty());
+        uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 2 — Cavernas de Coral", ctx.getDifficulty(),
+            OceanDepthProfile.forPhase(ctx.getCurrentPhase()));
         uiRenderer.drawMinimap(gc, ctx, width);
         drawAlert(gc, ctx, width, height);
     }
@@ -406,7 +409,8 @@ public class RenderEngine {
         drawHero(gc, ctx.getCamera().toScreenX(ctx.getHero().getX()), ctx.getHero().getY(), ctx.getHero(), timeSeconds);
         ctx.getParticleSystem().render(gc);
 
-        uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 3 — Correntes Abissais", ctx.getDifficulty());
+        uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 3 — Correntes Abissais", ctx.getDifficulty(),
+            OceanDepthProfile.forPhase(ctx.getCurrentPhase()));
         uiRenderer.drawMinimap(gc, ctx, width);
         drawAlert(gc, ctx, width, height);
     }
@@ -467,7 +471,8 @@ public class RenderEngine {
         drawHero(gc, ctx.getCamera().toScreenX(ctx.getHero().getX()), ctx.getHero().getY(), ctx.getHero(), timeSeconds);
         ctx.getParticleSystem().render(gc);
 
-        uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 4 — Abismo Vulcânico", ctx.getDifficulty());
+        uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 4 — Abismo Vulcânico", ctx.getDifficulty(),
+            OceanDepthProfile.forPhase(ctx.getCurrentPhase()));
         uiRenderer.drawMinimap(gc, ctx, width);
         drawAlert(gc, ctx, width, height);
     }
@@ -507,7 +512,8 @@ public class RenderEngine {
         drawHero(gc, ctx.getHero().getX(), ctx.getHero().getY(), ctx.getHero(), timeSeconds);
         ctx.getParticleSystem().render(gc);
 
-        uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 5 — Templo de Apsu", ctx.getDifficulty());
+        uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 5 — Templo de Apsu", ctx.getDifficulty(),
+            OceanDepthProfile.forPhase(ctx.getCurrentPhase()));
         uiRenderer.drawMinimap(gc, ctx, width);
         drawAlert(gc, ctx, width, height);
     }

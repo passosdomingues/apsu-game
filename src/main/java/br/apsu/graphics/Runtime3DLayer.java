@@ -193,11 +193,9 @@ public final class Runtime3DLayer {
             if (chest != null) place(chest, context.getCamera().toScreenX(context.getChestWX()) + 10,
                 context.getChestWY(), .26, timeSeconds, 0);
         }
-        if (context.getCurrentPhase() == 5) {
-            Actor ruins = actor("temple-ruins", "scenery/09_ruinas_e_colunas_atlantis", 450, 420);
-            if (ruins != null) place(ruins, VIEW_W / 2, VIEW_H / 2, .1, timeSeconds, 0);
-        }
-        if (context.getCurrentPhase() >= 1 && context.getCurrentPhase() <= 5) {
+        // A arena final já tem ruínas e portal no panorama 2.5D; repetir aqui
+        // uma ruína de 450x420 cobria a área de combate e escondia o boss.
+        if (context.getCurrentPhase() >= 1 && context.getCurrentPhase() <= 4) {
             Actor portal = actor("portal", "scenery/15_portal_atlantica_3d", 140, 140);
             if (portal != null) place(portal, context.getCamera().toScreenX(3900), VIEW_H / 2 - 16,
                 .8, timeSeconds, 0);

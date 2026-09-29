@@ -1,0 +1,52 @@
+# Blender 4.5.5 LTS MTL File: '18_delfim_abissal_inimigo.blend'
+# www.blender.org
+
+newmtl abyssal_dolphin_blue-black_skin.001
+Ns 193.600006
+Ka 0.160000 0.160000 0.160000
+Ks 0.500000 0.500000 0.500000
+Ke 0.002800 0.009600 0.016000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/000_00.png
+
+newmtl bioluminescent_scars.001
+Ns 193.600006
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.176000 0.902000 0.968000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/000_04.png
+
+newmtl cold_pale_underbelly.001
+Ns 193.600006
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.028000 0.043000 0.048000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/000_01.png
+
+newmtl hostile_magenta_eye.001
+Ns 193.600006
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 2.000000 0.050000 0.280000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/000_03.png
+
+newmtl indigo_fins.001
+Ns 193.600006
+Ka 0.120000 0.120000 0.120000
+Ks 0.500000 0.500000 0.500000
+Ke 0.004400 0.009600 0.020000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/000_02.png

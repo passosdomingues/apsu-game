@@ -1,0 +1,42 @@
+# Blender 4.5.5 LTS MTL File: '19_polvo_abissal_inimigo.blend'
+# www.blender.org
+
+newmtl cyan_sucker_glow.001
+Ns 193.600006
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.092000 0.828000 0.943000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/000_03.png
+
+newmtl octopus_amber_eye.001
+Ns 193.600006
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 1.800000 0.324000 0.063000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/000_02.png
+
+newmtl octopus_midnight_mantle.001
+Ns 193.600006
+Ka 0.120000 0.120000 0.120000
+Ks 0.500000 0.500000 0.500000
+Ke 0.010400 0.004550 0.024700
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/000_00.png
+
+newmtl octopus_violet_underside.001
+Ns 193.600006
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.070400 0.013200 0.079200
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/000_01.png

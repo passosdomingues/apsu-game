@@ -163,8 +163,12 @@ Personagens e elementos de fase são exportados como malhas OBJ/MTL pelo Blender
 - A regra de foco 60/30/10 é aplicada como hierarquia visual: o herói mantém a maior saturação e contraste; guardiões, inimigos e perigos usam acentos mais definidos; cenário distante usa valores e saturação menores. Os percentuais descrevem o peso visual, não uma divisão literal da tela.
 - A piscina de lava é agora uma malha 3D orgânica low-poly com borda de basalto e núcleo emissivo. Os retângulos e contornos amarelos que eram desenhados diretamente no Canvas foram removidos.
 - Os personagens 3D não recebem mais oscilação automática de posição e rotação. O nado do herói usa uma inclinação lenta e pequena, limitada a 20 graus e combinada com a inclinação física do movimento.
+- A profundidade progride em `OceanDepthProfile`: plataforma costeira (20 m), recifes (300 m), planície abissal (1.500 m), fontes hidrotermais (3.000 m) e fossa hadal (6.000 m). O HUD informa profundidade e pressão aproximada; a flutuabilidade diminui com a profundidade e com zonas locais de alta pressão.
+- Os inimigos novos são gerados como modelos 3D pelo script `tools/assets/generate_abyssal_enemies.py`: golfinho abissal nas fases 2 e 3, polvo abissal na fase 4 e lula vampira como ameaça adicional na arena final. Inimigos da arena final agora também atualizam, colidem e recebem projéteis como nas outras fases.
+- O panorama do templo já contém as ruínas e o portal. A instância 3D de ruínas de 450×420 foi removida da arena, onde encobria a área do boss.
+- A dificuldade aplica o fator de velocidade uma única vez, em vez de multiplicá-lo tanto na formação dos inimigos quanto no relógio de movimento. Iniciar uma nova partida restaura a vida ao máximo selecionado; no modo difícil, colisões causam mais dano e os ataques do boss têm um intervalo mínimo legível. Ao atravessar uma fase, a velocidade residual do herói é zerada sem apagar vida ou poder de bolha.
 
-Para regenerar os panoramas com Blender instalado, execute `make render-backgrounds`. O alvo renderiza cinco PNGs em `src/main/resources/backgrounds/`; `make assets` também inclui essa etapa. O modelo da piscina de lava é criado por `make generate-lava-pool-model` e exportado junto das demais malhas pelo alvo `make export-runtime-models`.
+Para regenerar os panoramas com Blender instalado, execute `make render-backgrounds`. O alvo renderiza cinco PNGs em `src/main/resources/backgrounds/`; `make assets` também inclui essa etapa. Os modelos da piscina de lava e dos inimigos abissais são gerados por `make generate-lava-pool-model` e `make generate-abyssal-enemies`, e exportados junto das demais malhas pelo alvo `make export-runtime-models`.
 
 ```text
   [ Scripting Python (bpy) em personagens/scripts/ ]

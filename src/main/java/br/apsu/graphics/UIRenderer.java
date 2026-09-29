@@ -3,6 +3,7 @@ package br.apsu.graphics;
 import br.apsu.core.GameContext;
 import br.apsu.model.enemy.EnemyEntity;
 import br.apsu.model.environment.Difficulty;
+import br.apsu.model.environment.OceanDepthProfile;
 import br.apsu.model.guardian.GuardianEntity;
 import br.apsu.model.hero.HeroEntity;
 import br.apsu.model.hero.HeroType;
@@ -21,6 +22,11 @@ import javafx.scene.text.TextAlignment;
 public class UIRenderer {
 
     public void drawHUD(GraphicsContext gc, HeroEntity hero, int tablets, String phaseName, Difficulty diff) {
+        drawHUD(gc, hero, tablets, phaseName, diff, OceanDepthProfile.COASTAL);
+    }
+
+    public void drawHUD(GraphicsContext gc, HeroEntity hero, int tablets, String phaseName, Difficulty diff,
+                        OceanDepthProfile depth) {
         gc.setFill(Color.rgb(0, 4, 14, 0.88));
         gc.fillRoundRect(8, 8, 440, 110, 12, 12);
         gc.setStroke(Color.rgb(0, 100, 200, 0.45)); gc.setLineWidth(1.5);
@@ -92,9 +98,14 @@ public class UIRenderer {
         gc.fillText(hero.getType().getName(), 438, 80);
         gc.setTextAlign(TextAlignment.LEFT);
 
+        gc.setFont(Font.font("Serif", 10));
+        gc.setFill(Color.web("#72a8c8"));
+        gc.fillText(depth.getLabel() + " · " + depth.getDepthMeters() + " m · " + depth.getPressureBar() + " bar",
+            22, 98);
+
         if (hasBubble) {
             gc.setFill(Color.web("#80b8d0")); gc.setFont(Font.font("Serif", 11));
-            gc.fillText(hero.isAttackPose2() ? "Modo: Multiplo" : "Modo: Direto", 22, 98);
+            gc.fillText(hero.isAttackPose2() ? "Modo: Multiplo" : "Modo: Direto", 22, 112);
         }
     }
 

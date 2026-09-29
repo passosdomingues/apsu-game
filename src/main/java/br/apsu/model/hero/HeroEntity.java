@@ -71,6 +71,25 @@ public class HeroEntity {
         this.squashY = 1.0;
     }
 
+    /** Repositions at a phase transition while preserving HP and unlocked powers. */
+    public void beginPhaseAt(double startX, double startY) {
+        x = startX;
+        y = startY;
+        vx = 0;
+        vy = 0;
+        pitchAngle = 0;
+        facingRight = true;
+        shooting = false;
+        attackOffsetX = 0;
+        attackOffsetY = 0;
+        currentSpeedRatio = 0;
+        lastSpeed = 0;
+        tailPhase = 0;
+        tailAngle = 0;
+        squashX = 1.0;
+        squashY = 1.0;
+    }
+
     /**
      * Atualiza física com suporte a correntes, pressão e cauda procedural.
      */
@@ -105,7 +124,7 @@ public class HeroEntity {
 
         // Zonas ambientais dão textura ao nado, mas não sequestram o input.
         // Limites estreitos evitam afundamento/subida súbita nas fases 3–5.
-        double safeBuoyancy = Math.max(0.82, Math.min(1.18, buoyancyMult));
+        double safeBuoyancy = Math.max(0.68, Math.min(1.18, buoyancyMult));
         ay -= type.getBuoy() * safeBuoyancy;
         ax += currentFx * 0.08;
         ay += currentFy * 0.08;

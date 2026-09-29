@@ -8,6 +8,7 @@ import br.apsu.model.boss.BossEntity;
 import br.apsu.model.enemy.EnemyEntity;
 import br.apsu.model.enemy.EnemyType;
 import br.apsu.model.environment.Difficulty;
+import br.apsu.model.environment.OceanDepthProfile;
 import br.apsu.model.environment.Projectile;
 import br.apsu.model.environment.SceneryElement;
 import br.apsu.model.guardian.GuardianEntity;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -34,6 +36,7 @@ public class GameContext {
      * A câmera converte para tela APENAS na hora de renderizar.
      * Toda colisão lógica usa coordenadas de MUNDO. */
     public enum State { MENU, DIALOGUE, P1, P2, P3, P4, P5, WIN, OVER }
+    private static final long MIN_BOSS_ATTACK_INTERVAL_NANOS = 650_000_000L;
 
     private State state = State.MENU;
     private Difficulty difficulty = Difficulty.MEDIO;
@@ -121,8 +124,8 @@ public class GameContext {
 
     public void cycleDiff(int dir) {
         Difficulty[] vals = Difficulty.values();
-        difficulty = vals[(difficulty.ordinal() + dir + vals.length) % vals.length];
-        hero.setMaxHP(difficulty.getInitialHP());
+        setDifficulty(vals[(difficulty.ordinal() + dir + vals.length) % vals.length]);
+        hero.heal(difficulty.getInitialHP());
         persistProgress();
     }
 
@@ -207,6 +210,7 @@ public class GameContext {
 
     public void reset() {
         hero.setMaxHP(difficulty.getInitialHP());
+        hero.heal(difficulty.getInitialHP());
         hero.resetPosition(100, 768 / 2.0 - HeroEntity.HH / 2.0);
         tabletsCollected = 0;
         camera.setX(0);
@@ -239,8 +243,8 @@ public class GameContext {
     // =========================================================
     public void startP1() {
         enemies.clear(); projectiles.clear(); guardians.clear(); sceneryElements.clear();
-        camera.setX(0); hero.setX(100); hero.setY(768 / 2.0);
-        double spd = difficulty.getEnemySpeedMult();
+        camera.setX(0); hero.beginPhaseAt(100, 768 / 2.0);
+        double spd = 1.0;
         double gX = (difficulty == Difficulty.DIFICIL) ? 400 : 900;
         guardians.add(new GuardianEntity(0, gX, 768 - GuardianEntity.GH - 60));
 
@@ -267,8 +271,8 @@ public class GameContext {
     // =========================================================
     public void startP2() {
         enemies.clear(); projectiles.clear(); guardians.clear(); sceneryElements.clear();
-        camera.setX(0); hero.setX(100); hero.setY(768 / 2.0);
-        double spd = difficulty.getEnemySpeedMult();
+        camera.setX(0); hero.beginPhaseAt(100, 768 / 2.0);
+        double spd = 1.0;
 
         // === REDESIGN 2026-08-20: inimigos nas SALAS ABERTAS, não nas passagens ===
         // Sala 1 (200-480px livre antes do 1º coral): caranguejo territorial
@@ -279,6 +283,7 @@ public class GameContext {
         enemies.add(new EnemyEntity(EnemyType.ENGUIA,     2350, 768 * .30, spd * 1.1, 75));
         // Sala final (3600-3800px): guarda antes do portal
         enemies.add(new EnemyEntity(EnemyType.CARANGUEJO, 3600, 768 * .48, spd,       45));
+        enemies.add(new EnemyEntity(EnemyType.DELFIN_ABISSAL, 2850, 768 * .42, spd * 1.05, 58));
 
         double gX = (difficulty == Difficulty.DIFICIL) ? 600 : 1400;
         guardians.add(new GuardianEntity(1, gX, 768 - GuardianEntity.GH - 60));
@@ -315,8 +320,8 @@ public class GameContext {
     // =========================================================
     public void startP3() {
         enemies.clear(); projectiles.clear(); guardians.clear(); sceneryElements.clear();
-        camera.setX(0); hero.setX(100); hero.setY(768 / 2.0);
-        double spd = difficulty.getEnemySpeedMult();
+        camera.setX(0); hero.beginPhaseAt(100, 768 / 2.0);
+        double spd = 1.0;
 
         // === REDESIGN 2026-08-20: 4 inimigos (não 6), bem separados, cada um em
         //     território próprio para o jogador processar antes do próximo ===
@@ -324,6 +329,7 @@ public class GameContext {
         enemies.add(new EnemyEntity(EnemyType.ENGUIA,    1600, 768 * .28, spd * 1.3, 80));
         enemies.add(new EnemyEntity(EnemyType.MEDUSA,    2500, 768 * .55, spd * 1.1, 90));
         enemies.add(new EnemyEntity(EnemyType.CARANGUEJO,3400, 768 * .35, spd,       70));
+        enemies.add(new EnemyEntity(EnemyType.DELFIN_ABISSAL, 2250, 768 * .44, spd * 1.1, 62));
 
         double gX = (difficulty == Difficulty.DIFICIL) ? 600 : 1100;
         guardians.add(new GuardianEntity(2, gX, 768 - GuardianEntity.GH - 60));
@@ -335,7 +341,7 @@ public class GameContext {
         sceneryElements.add(new SceneryElement(SceneryElement.Type.CURRENT, 3100, 60, 200, 600).withCurrent(2.5, -0.8));  // zona 3: diagonal suave
 
         // 1 zona de pressão (rara = mais impactante quando aparece)
-        sceneryElements.add(new SceneryElement(SceneryElement.Type.PRESSURE_ZONE, 1500, 0, 180, 768).withBuoyancy(2.5));
+        sceneryElements.add(new SceneryElement(SceneryElement.Type.PRESSURE_ZONE, 1500, 0, 180, 768).withBuoyancy(.90));
 
         // 2 obstáculos móveis bem espaçados (não 4 sobrepostos)
         sceneryElements.add(new SceneryElement(SceneryElement.Type.MOVING_OBSTACLE, 1250, 280, 100, 80).withOscillation(0, 150, 1.1, 0.0));
@@ -355,8 +361,8 @@ public class GameContext {
     // =========================================================
     public void startP4() {
         enemies.clear(); projectiles.clear(); guardians.clear(); sceneryElements.clear();
-        camera.setX(0); hero.setX(100); hero.setY(768 / 2.0);
-        double spd = difficulty.getEnemySpeedMult();
+        camera.setX(0); hero.beginPhaseAt(100, 768 / 2.0);
+        double spd = 1.0;
 
         // === REDESIGN 2026-08-20: 5 inimigos (não 7), Leviatã como MOMENTO ESPECIAL ===
         // Abertura: arraião solitário para estabelecer o tema da fase
@@ -368,6 +374,7 @@ public class GameContext {
         enemies.add(new EnemyEntity(EnemyType.LEVIATA,   2650, 768 * .38, spd * 1.3, 130));
         // Ato 3: arraião veloz após o Leviatã
         enemies.add(new EnemyEntity(EnemyType.ARRAIAO,   3400, 768 * .48, spd * 1.4, 90));
+        enemies.add(new EnemyEntity(EnemyType.POLVO_ABISSAL, 3700, 768 * .58, spd * .82, 75));
 
         double gX = (difficulty == Difficulty.DIFICIL) ? 500 : 1000;
         guardians.add(new GuardianEntity(3, gX, 768 - GuardianEntity.GH - 60));
@@ -387,6 +394,9 @@ public class GameContext {
         // Correntes de calor mais suaves — atmosfera, não punição
         sceneryElements.add(new SceneryElement(SceneryElement.Type.CURRENT, 1600, 220, 110, 380).withCurrent(0, -2.5));
         sceneryElements.add(new SceneryElement(SceneryElement.Type.CURRENT, 3150, 220, 110, 380).withCurrent(0, -2.5));
+
+        // A pressão aumenta nesta camada; a corrente mantém janelas de respiro.
+        sceneryElements.add(new SceneryElement(SceneryElement.Type.PRESSURE_ZONE, 1950, 0, 130, 768).withBuoyancy(.84));
 
         // Gêiseres de lava — 1 antes do Leviatã, 1 no ato final
         sceneryElements.add(new SceneryElement(SceneryElement.Type.GEYSER, 2000, 768 - 200, 80, 200));
@@ -414,15 +424,17 @@ public class GameContext {
 
         int bossVar = (difficulty == Difficulty.DIFICIL) ? (1 + (int)(Math.random() * 2)) : 0;
         boss = new BossEntity(bossVar, 1366 - BossEntity.BW - 80, 768 / 2.0 - BossEntity.BH / 2);
+        boss.setLastShotTime(nanoTime);
 
-        hero.setX(80); hero.setY(768 / 2.0 - HeroEntity.HH / 2);
+        hero.beginPhaseAt(80, 768 / 2.0 - HeroEntity.HH / 2);
 
         // Correntes na arena do boss — obrigam o jogador a dominar a mecânica
         sceneryElements.add(new SceneryElement(SceneryElement.Type.CURRENT, 400, 200, 150, 400).withCurrent(0, -3.5));
         sceneryElements.add(new SceneryElement(SceneryElement.Type.CURRENT, 800, 100, 150, 500).withCurrent(0, 4.0));
 
         // Zonas de pressão que mudam a dinâmica da arena
-        sceneryElements.add(new SceneryElement(SceneryElement.Type.PRESSURE_ZONE, 550, 0, 120, 768).withBuoyancy(0.2));
+        sceneryElements.add(new SceneryElement(SceneryElement.Type.PRESSURE_ZONE, 550, 0, 120, 768).withBuoyancy(.76));
+        enemies.add(new EnemyEntity(EnemyType.LULA_VAMPIRA, 710, 768 * .30, .78, 48));
 
         currentPhase = 5;
         state = State.P5; phaseStartTime = nanoTime; phaseHits = 0; adaptiveDifficulty.beginPhase();
@@ -478,7 +490,7 @@ public class GameContext {
             inputManager.isPressed(KeyCode.UP, KeyCode.W),
             inputManager.isPressed(KeyCode.DOWN, KeyCode.S),
             30, 768 - HeroEntity.HH - 30, phaseDone,
-            inPressureZone ? pressureBuoyMult : 1.0,
+            getEffectiveBuoyancy(),
             inCurrent ? currentFx : 0, inCurrent ? currentFy : 0, nanoTime
         );
 
@@ -516,7 +528,7 @@ public class GameContext {
             inputManager.isPressed(KeyCode.UP, KeyCode.W),
             inputManager.isPressed(KeyCode.DOWN, KeyCode.S),
             60, 768 - HeroEntity.HH - 60, phaseDone,
-            inPressureZone ? pressureBuoyMult : 1.0,
+            getEffectiveBuoyancy(),
             inCurrent ? currentFx : 0, inCurrent ? currentFy : 0, nanoTime
         );
 
@@ -593,7 +605,7 @@ public class GameContext {
             inputManager.isPressed(KeyCode.UP, KeyCode.W),
             inputManager.isPressed(KeyCode.DOWN, KeyCode.S),
             20, 768 - HeroEntity.HH - 20, phaseDone,
-            inPressureZone ? pressureBuoyMult : 1.0,
+            getEffectiveBuoyancy(),
             inCurrent ? currentFx : 0, inCurrent ? currentFy : 0, nanoTime
         );
 
@@ -630,7 +642,7 @@ public class GameContext {
             inputManager.isPressed(KeyCode.UP, KeyCode.W),
             inputManager.isPressed(KeyCode.DOWN, KeyCode.S),
             20, 768 - HeroEntity.HH - 20, phaseDone,
-            inPressureZone ? pressureBuoyMult : 1.0,
+            getEffectiveBuoyancy(),
             inCurrent ? currentFx : 0, inCurrent ? currentFy : 0, nanoTime
         );
 
@@ -679,7 +691,7 @@ public class GameContext {
             inputManager.isPressed(KeyCode.UP, KeyCode.W),
             inputManager.isPressed(KeyCode.DOWN, KeyCode.S),
             20, 768 - HeroEntity.HH - 20, phaseDone,
-            inPressureZone ? pressureBuoyMult : 1.0,
+            getEffectiveBuoyancy(),
             inCurrent ? currentFx : 0, inCurrent ? currentFy : 0, nanoTime
         );
         hero.setX(Math.max(20, Math.min(1366 - HeroEntity.HW - 20, hero.getX())));
@@ -719,7 +731,8 @@ public class GameContext {
                 case FUSAO_VULCANICA -> 0.82;
                 case FURIA_DE_APSU -> 0.68;
             };
-            long bullInterval = (long)(baseInterval * phaseTempo / (getThreatMultiplier() * BossEntity.SPD_MULT[boss.getVariant()]));
+            long bullInterval = Math.max(MIN_BOSS_ATTACK_INTERVAL_NANOS,
+                (long)(baseInterval * phaseTempo / (getThreatMultiplier() * BossEntity.SPD_MULT[boss.getVariant()])));
             if (!boss.isTelegraphing(nanoTime) && nanoTime - boss.getLastShotTime() > bullInterval) {
                 boss.setLastShotTime(nanoTime);
                 double bfx = boss.getX();
@@ -754,6 +767,8 @@ public class GameContext {
         }
 
         // Correntes e zonas de pressão na arena do boss — coordenadas de tela (sem scroll)
+        updateEnemies();
+        checkEnemyCollisions();
         checkSceneryCollisionsArena();
         updateProjectiles();
     }
@@ -769,6 +784,11 @@ public class GameContext {
     // =========================================================
     // MECÂNICAS AMBIENTAIS
     // =========================================================
+    private double getEffectiveBuoyancy() {
+        double phaseFactor = OceanDepthProfile.forPhase(currentPhase).getBuoyancyFactor();
+        return phaseFactor * (inPressureZone ? pressureBuoyMult : 1.0);
+    }
+
     /** Detecta correntes e zonas de pressão ao redor do herói. */
     private void applyEnvironmentalForces() {
         inCurrent = false;
@@ -884,6 +904,10 @@ public class GameContext {
             enemyQuadTree.insert(e);
 
             if (difficulty.canEnemiesShoot()) {
+                if (e.getLastShotTime() == 0) {
+                    e.setLastShotTime(nanoTime);
+                    continue;
+                }
                 double ex = camera.toScreenX(e.getWorldX());
                 double heroScreenX = camera.toScreenX(hero.getX());
                 if (ex > 0 && ex < 1366 && (nanoTime - e.getLastShotTime()) > 2_400_000_000L) {
@@ -1148,7 +1172,7 @@ public class GameContext {
 
     public double getThreatMultiplier() {
         double el = (nanoTime - phaseStartTime) / 1_000_000_000.0;
-        double b = (difficulty == Difficulty.DIFICIL) ? 1.25 : (difficulty == Difficulty.MEDIO ? 0.95 : 0.65);
+        double b = difficulty.getEnemySpeedMult();
         return Math.max(0.5, Math.min(1.45, b + adaptiveDifficulty.getAdjustment(el)));
     }
 
@@ -1183,7 +1207,10 @@ public class GameContext {
     public State getState() { return state; }
     public void setState(State state) { this.state = state; }
     public Difficulty getDifficulty() { return difficulty; }
-    public void setDifficulty(Difficulty difficulty) { this.difficulty = difficulty; }
+    public void setDifficulty(Difficulty difficulty) {
+        this.difficulty = Objects.requireNonNull(difficulty, "difficulty");
+        hero.setMaxHP(difficulty.getInitialHP());
+    }
     public HeroType getHeroType() { return heroType; }
     public void setHeroType(HeroType heroType) { this.heroType = heroType; hero.setType(heroType); }
     public HeroEntity getHero() { return hero; }

@@ -6,7 +6,7 @@ package br.apsu.model.environment;
 public enum Difficulty {
     FACIL("Fácil", "Inimigos lentos, sem projéteis, 5 de vida.", 5.0, 0.5, 0.7, false),
     MEDIO("Médio", "Inimigos mais rápidos, investidas, 4 de vida.", 4.0, 1.0, 1.0, false),
-    DIFICIL("Difícil", "Inimigos agressivos que atiram bolhas malignas, exploração retroativa, 3 de vida.", 3.0, 1.0, 1.35, true);
+    DIFICIL("Difícil", "Inimigos agressivos que atiram bolhas malignas, exploração retroativa, 3 de vida.", 3.0, 1.25, 1.35, true);
 
     private final String label;
     private final String description;

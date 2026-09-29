@@ -69,7 +69,7 @@ CLR_DIM    := \033[2;37m
 CLR_RED    := \033[1;31m
 CLR_RESET  := \033[0m
 
-.PHONY: all setup setup-assets setup-mpi copy-blends clean-blender-backups test build run stop generate-characters generate-geyser-model generate-lava-pool-model export-runtime-models generate-variant-attacks render-sprites render-backgrounds render-variant-attacks assets assets-variant-attacks package docker-build docker-run mpi-demo mpi-generate clean help
+.PHONY: all setup setup-assets setup-mpi copy-blends clean-blender-backups test build run stop generate-characters generate-geyser-model generate-lava-pool-model generate-abyssal-enemies export-runtime-models generate-variant-attacks render-sprites render-backgrounds render-variant-attacks assets assets-variant-attacks package docker-build docker-run mpi-demo mpi-generate clean help
 
 # Target padrão
 all: setup run
@@ -142,7 +142,7 @@ generate-characters: setup-assets
 	@echo "$(CLR_GREEN)[OK] All .blend models re-generated successfully.$(CLR_RESET)"
 
 ## Exporta personagens do Blender como malhas OBJ/MTL carregadas no jogo
-export-runtime-models: setup-assets generate-geyser-model generate-lava-pool-model
+export-runtime-models: setup-assets generate-geyser-model generate-lava-pool-model generate-abyssal-enemies
 	@echo "$(CLR_CYAN)[3D   ] Exporting runtime character meshes from Blender...$(CLR_RESET)"
 	@$(BLENDER_BIN) --background --python tools/assets/export_runtime_3d_models.py -- "$(CURDIR)"
 	@echo "$(CLR_GREEN)[OK] Runtime 3D character models exported.$(CLR_RESET)"
@@ -154,6 +154,10 @@ generate-geyser-model: setup-assets
 ## Gera a piscina irregular de lava em malha 3D low-poly
 generate-lava-pool-model: setup-assets
 	@$(BLENDER_BIN) --background --python tools/assets/generate_lava_pool_3d.py -- "$(CURDIR)"
+
+## Gera inimigos 3D do golfinho predador e criaturas abissais
+generate-abyssal-enemies: setup-assets
+	@$(BLENDER_BIN) --background --python tools/assets/generate_abyssal_enemies.py -- "$(CURDIR)"
 
 ## Renderiza PNGs 2.5D do cenário (personagens são modelos 3D de runtime)
 render-sprites: setup-assets
@@ -257,10 +261,11 @@ help:
 	@echo "  $(CLR_GREEN)make setup$(CLR_RESET)                   Check & install dependencies (idempotent)"
 	@echo "  $(CLR_GREEN)make build$(CLR_RESET)                   Compile Java 21 classes"
 	@echo "  $(CLR_GREEN)make test$(CLR_RESET)                    Execute JUnit 5 test suite (45 tests)"
-	@echo "  $(CLR_CYAN)make assets$(CLR_RESET)                  Full 3D character + 2.5D scenery pipeline"
+	@echo "  $(CLR_CYAN)make assets$(CLR_RESET)                  Full models, enemies, scenery and phase art pipeline"
 	@echo "  $(CLR_CYAN)make assets-variant-attacks$(CLR_RESET)  Export 3D attack poses for runtime"
 	@echo "  $(CLR_CYAN)make generate-characters$(CLR_RESET)   Re-generate .blend and runtime models"
 	@echo "  $(CLR_CYAN)make render-sprites$(CLR_RESET)        Render 2.5D scenery PNGs from .blend"
+	@echo "  $(CLR_CYAN)make generate-abyssal-enemies$(CLR_RESET) Generate dolphin, octopus and squid models"
 	@echo "  $(CLR_CYAN)make copy-blends$(CLR_RESET)           Organize .blend 3D models into assets/"
 	@echo "  $(CLR_CYAN)make package$(CLR_RESET)               Build executable Fat JAR in target/"
 	@echo "  $(CLR_YELLOW)make docker-run$(CLR_RESET)           Run inside Docker container (Linux)"
