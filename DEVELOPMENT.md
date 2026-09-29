@@ -67,9 +67,23 @@ mvn test
 ```bash
 # Iniciar a aplicação JavaFX principal
 make run
+# Ver o hardware/renderer e o perfil que o Makefile detectou
+make system-info
+# Substituir o perfil automático (performance, balanced ou low)
+APSU_PROFILE=balanced make run
+# Em notebook híbrido com Mesa, comparar a Radeon dedicada
+APSU_GPU=amd make run
 # ou via Maven:
 mvn javafx:run
 ```
+
+`make run` escolhe um perfil usando threads disponíveis, memória e controladores
+gráficos detectados. O perfil `performance` inicia com efeitos completos; abaixo
+de 50 FPS, o loop reduz efeitos para proteger o controle. `APSU_GPU=amd` pede
+`DRI_PRIME=1`; mantenha `auto` para deixar o driver selecionar a GPU e compare
+`make system-info` para conferir o renderer OpenGL ativo. `balanced` e `low`
+limitam progressivamente a memória máxima da JVM e iniciam com efeitos reduzidos,
+sem alterar regras de jogo, conteúdo ou colisões.
 
 ---
 

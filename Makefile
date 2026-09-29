@@ -47,14 +47,56 @@ else
     PYTHON_CMD      := python3
     
     CPU_CORES       := $(shell nproc 2>/dev/null || echo 4)
-    RAM_GB          := $(shell free -g 2>/dev/null | awk '/Mem:/ {print $$2}' || echo 8)
+    RAM_MIB         := $(shell host=$$(free -m 2>/dev/null | awk '/Mem:/ {print $$2}'); limit=$$(cat /sys/fs/cgroup/memory.max 2>/dev/null); if [ -z "$$limit" ]; then limit=$$(cat /sys/fs/cgroup/memory/memory.limit_in_bytes 2>/dev/null); fi; if [ -n "$$host" ] && [ -n "$$limit" ] && [ "$$limit" != max ]; then limit=$$(expr "$$limit" / 1048576 2>/dev/null || echo $$host); if [ "$$limit" -lt "$$host" ]; then echo $$limit; else echo $$host; fi; else echo "$${host:-8192}"; fi)
+    RAM_GB          := $(shell awk -v m="$(RAM_MIB)" 'BEGIN {printf "%.1f", m/1024}')
+    MACHINE_MODEL   := $(shell cat /sys/devices/virtual/dmi/id/product_name 2>/dev/null || echo "Linux host")
+    CPU_MODEL       := $(shell lscpu 2>/dev/null | sed -n 's/^Model name:[[:space:]]*//p' | head -1)
+    OS_RELEASE      := $(shell . /etc/os-release 2>/dev/null; echo "$${PRETTY_NAME:-Linux}")
+    GPU_INFO        := $(shell lspci 2>/dev/null | grep -Ei 'VGA compatible controller|3D controller|Display controller' | sed 's/^[^:]*: //' | paste -sd '; ' -)
+    GL_RENDERER     := $(shell glxinfo -B 2>/dev/null | sed -n 's/^OpenGL renderer string: //p' | head -1)
+    GL_ACCELERATED  := $(shell glxinfo -B 2>/dev/null | sed -n 's/^ *Accelerated: //p' | head -1)
+    AMD_GPU_READY   := $(shell if printf '%s' "$(GPU_INFO)" | grep -Eqi 'AMD|ATI|Radeon' && DRI_PRIME=1 glxinfo -B 2>/dev/null | grep -q 'Accelerated: yes'; then echo yes; else echo no; fi)
     
     RM_DIR          := rm -rf
     RM_FILE         := rm -f
     MKDIR           := mkdir -p
 endif
 
-MPI_PROCESSES ?= 8
+APSU_PROFILE ?= auto
+APSU_GPU ?= auto
+ifeq ($(APSU_PROFILE),auto)
+    ifeq ($(IS_WINDOWS),1)
+        APSU_PROFILE := $(shell if [ "$(CPU_CORES)" -ge 8 ] && [ "$(RAM_GB)" -ge 12 ]; then echo performance; elif [ "$(CPU_CORES)" -ge 4 ] && [ "$(RAM_GB)" -ge 8 ]; then echo balanced; else echo low; fi)
+    else
+        APSU_PROFILE := $(shell if [ "$(CPU_CORES)" -ge 8 ] && [ "$(RAM_MIB)" -ge 12288 ] && [ "$(GL_ACCELERATED)" = yes ] && printf '%s' "$(GPU_INFO)" | grep -Eqi 'Intel|AMD|ATI|NVIDIA'; then echo performance; elif [ "$(CPU_CORES)" -ge 4 ] && [ "$(RAM_MIB)" -ge 7168 ]; then echo balanced; else echo low; fi)
+    endif
+endif
+ifeq ($(filter $(APSU_PROFILE),performance balanced low),)
+    $(error APSU_PROFILE deve ser auto, performance, balanced ou low)
+endif
+ifeq ($(APSU_PROFILE),performance)
+    APSU_JVM_ARGS ?= -Xms256m -Xmx3g -Dapsu.quality=high
+else ifeq ($(APSU_PROFILE),balanced)
+    APSU_JVM_ARGS ?= -Xms128m -Xmx2g -Dapsu.quality=balanced
+else
+    APSU_JVM_ARGS ?= -Xms64m -Xmx1g -Dapsu.quality=low
+endif
+ifeq ($(APSU_GPU),amd)
+    APSU_GPU_ENV := DRI_PRIME=1
+    APSU_GPU_SELECTED := Radeon (manual)
+else ifeq ($(APSU_GPU),intel)
+    APSU_GPU_ENV := DRI_PRIME=0
+    APSU_GPU_SELECTED := Intel UHD (manual)
+else ifeq ($(AMD_GPU_READY),yes)
+    APSU_GPU_ENV := DRI_PRIME=1
+    APSU_GPU_SELECTED := Radeon (automatic, accelerated)
+else ifneq ($(APSU_GPU),auto)
+    $(error APSU_GPU deve ser auto, intel ou amd)
+else
+    APSU_GPU_SELECTED := driver padrão do sistema
+endif
+
+MPI_PROCESSES ?= $(CPU_CORES)
 
 # ============================================================
 # PALETA DE CORES ANSI RETRO ARCADE (NEON CYAN, MAGENTA, YELLOW)
@@ -69,7 +111,7 @@ CLR_DIM    := \033[2;37m
 CLR_RED    := \033[1;31m
 CLR_RESET  := \033[0m
 
-.PHONY: all setup setup-assets setup-mpi audio-assets copy-blends clean-blender-backups test coverage build run stop generate-characters generate-geyser-model generate-lava-pool-model generate-abyssal-enemies export-runtime-models generate-variant-attacks render-sprites render-backgrounds render-variant-attacks assets assets-variant-attacks package docker-build docker-run mpi-demo mpi-generate clean help
+.PHONY: all setup setup-assets setup-mpi audio-assets copy-blends clean-blender-backups test coverage build run system-info stop generate-characters generate-geyser-model generate-lava-pool-model generate-abyssal-enemies export-runtime-models generate-variant-attacks render-sprites render-backgrounds render-variant-attacks assets assets-variant-attacks package docker-build docker-run mpi-demo mpi-generate clean help
 
 # Target padrão
 all: setup run
@@ -138,7 +180,20 @@ run: setup
 	@echo "$(CLR_HEADER)+-----------------------------------------------------------------------+$(CLR_RESET)"
 	@echo "$(CLR_HEADER)| [RUN  ] LAUNCHING AS AGUAS DE APSU ON $(SO_NAME)                         |$(CLR_RESET)"
 	@echo "$(CLR_HEADER)+-----------------------------------------------------------------------+$(CLR_RESET)"
-	@$(MVN_CMD) javafx:run
+	@echo "$(CLR_CYAN)[PERF ] Perfil $(APSU_PROFILE) | $(CPU_CORES) threads | ~$(RAM_GB) GB RAM | GPU: $(APSU_GPU_SELECTED)$(CLR_RESET)"
+	@$(APSU_GPU_ENV) JAVA_TOOL_OPTIONS="$${JAVA_TOOL_OPTIONS:+$$JAVA_TOOL_OPTIONS }$(APSU_JVM_ARGS)" $(MVN_CMD) javafx:run
+
+## Mostra o hardware detectado e os perfis disponíveis para execução
+system-info:
+	@echo "$(CLR_HEADER)[APSU] Diagnóstico do sistema$(CLR_RESET)"
+	@echo "  SO: $(if $(filter 1,$(IS_WINDOWS)),$(SO_NAME),$(OS_RELEASE))"
+	@echo "  Máquina: $(MACHINE_MODEL)"
+	@echo "  CPU: $(CPU_MODEL) ($(CPU_CORES) threads disponíveis)"
+	@echo "  RAM/limite de memória detectado: ~$(RAM_GB) GB"
+	@echo "  GPU(s): $(if $(GPU_INFO),$(GPU_INFO),não detectada)"
+	@echo "  Renderer OpenGL padrão: $(if $(GL_RENDERER),$(GL_RENDERER),indisponível nesta sessão/display) ($(if $(GL_ACCELERATED),aceleração $(GL_ACCELERATED),aceleração não detectada))"
+	@echo "  Perfil selecionado: $(APSU_PROFILE) (use APSU_PROFILE=low|balanced|performance para substituir)"
+	@echo "  GPU selecionada: $(APSU_GPU_SELECTED) (use APSU_GPU=intel|amd para comparar)"
 
 ## Regenera TODOS os modelos .blend via Python/bpy
 generate-characters: setup-assets
@@ -269,6 +324,7 @@ help:
 	@echo "$(CLR_DIM)+------------------------------+----------------------------------------+$(CLR_RESET)"
 	@echo "  $(CLR_GREEN)make / make all$(CLR_RESET)              Run setup, organize assets & start game"
 	@echo "  $(CLR_GREEN)make run$(CLR_RESET)                     Start JavaFX 21 main game application"
+	@echo "  $(CLR_GREEN)make system-info$(CLR_RESET)             Detect machine, graphics driver and runtime profile"
 	@echo "  $(CLR_GREEN)make setup$(CLR_RESET)                   Check & install dependencies (idempotent)"
 	@echo "  $(CLR_GREEN)make build$(CLR_RESET)                   Compile Java 21 classes"
 	@echo "  $(CLR_GREEN)make test$(CLR_RESET)                    Execute JUnit 5 test suite (45 tests)"

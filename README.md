@@ -10,11 +10,14 @@ Requisitos: Java 21, Maven e desktop com display gráfico.
 
 ```bash
 make          # verifica o ambiente e inicia a aplicação JavaFX
+make system-info # mostra o hardware, driver OpenGL e perfil automático
 make test     # executa os testes
 make coverage # executa verify e gera target/site/jacoco/index.html
 ```
 
 `mvn javafx:run` inicia diretamente. `make docker-run` usa Docker e encaminhamento X11. Geração visual exige Blender; composição de áudio exige FFmpeg. MPI é utilitário offline de mapas e não participa do loop gráfico/animação.
+
+`make run` seleciona automaticamente `performance` (8+ threads, 12+ GB e GPU detectada), `balanced` ou `low`; no perfil alto, inicia com efeitos completos e reduz efeitos automaticamente se o FPS cair abaixo de 50. Sobrescreva com `APSU_PROFILE=performance|balanced|low make run`. Em notebooks híbridos Linux/Mesa, se `DRI_PRIME=1` confirmar uma GPU AMD acelerada, o Makefile usa a Radeon; compare com `APSU_GPU=intel make run` para selecionar a Intel integrada. `APSU_GPU=amd make run` força a Radeon, e `make system-info` mostra o renderer OpenGL padrão da sessão quando disponível. O perfil limita a heap Java a 3 GB/2 GB/1 GB respectivamente e respeita o limite de memória visível ao processo; assets e mecânicas não são removidos.
 
 Controles do runtime: WASD/setas movem Adapa; Espaço dispara bolhas depois de desbloqueadas; E/Enter/Espaço/F são teclas contextuais de interação/diálogo conforme estado. A progressão exige tabuletas nas fases 1–4; o baú da fase 2 concede bolhas; a fase 5 é arena fixa contra Kullullû. Reinicie uma partida para validar desde o início.
 

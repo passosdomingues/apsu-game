@@ -29,6 +29,9 @@ public class GameLoop extends AnimationTimer {
         this.gc = gc;
         this.width = width;
         this.height = height;
+        boolean reducedEffects = !"high".equalsIgnoreCase(System.getProperty("apsu.quality", "balanced"));
+        renderer.setReducedEffects(reducedEffects);
+        context.getParticleSystem().setReducedEffects(reducedEffects);
     }
 
     @Override

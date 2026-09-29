@@ -45,6 +45,24 @@ class GameLoopTest {
         assertEquals(3, renderer.renders);
     }
 
+    @Test
+    void performanceProfileStartsWithFullEffects() {
+        String previousQuality = System.getProperty("apsu.quality");
+        try {
+            System.setProperty("apsu.quality", "high");
+            GameContext context = new GameContext(new SaveManager(java.nio.file.Path.of("target/loop-test-save.json")));
+            RecordingRenderer renderer = new RecordingRenderer();
+            new GameLoop(context, renderer, null, 1366, 768);
+
+            assertFalse(renderer.reducedEffects);
+            assertFalse(context.getParticleSystem().isReducedEffects());
+            assertEquals(1, renderer.qualityChanges);
+        } finally {
+            if (previousQuality == null) System.clearProperty("apsu.quality");
+            else System.setProperty("apsu.quality", previousQuality);
+        }
+    }
+
     private static final class RecordingRenderer implements GameRenderer {
         private boolean reducedEffects;
         private int qualityChanges;
