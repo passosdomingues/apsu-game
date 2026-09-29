@@ -2,6 +2,7 @@ package br.apsu.audio;
 
 /** Identificadores semânticos de eventos sonoros; não representam arquivos de áudio. */
 public enum AudioCue {
+    MENU_NAVIGATE,
     MENU_CONFIRM,
     DIALOGUE_ADVANCE,
     PICKUP,

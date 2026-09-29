@@ -91,6 +91,22 @@ public class GameContextIntegrationTest {
 
         assertFalse(targetEnemy.isAlive(), "Bolhas do herói devem DESTRUIR inimigos comuns ao colidir");
         assertTrue(cues.contains(AudioCue.ENEMY_DEFEATED));
+        assertTrue(cues.contains(AudioCue.ENEMY_DAMAGED), "O acerto precisa publicar o evento de impacto próprio");
+    }
+
+    @Test
+    @DisplayName("Navegação e confirmação do menu publicam sons diferentes")
+    void menuNavigationAndConfirmationPublishDistinctCues() {
+        List<AudioCue> cues = new ArrayList<>();
+        eventBus.subscribe(GameEvent.Type.SOUND_REQUESTED,
+            event -> cues.add((AudioCue) event.payload()));
+
+        context.onKey(KeyCode.UP);
+        context.setMenuSel(2);
+        context.onKey(KeyCode.ENTER);
+
+        assertTrue(cues.contains(AudioCue.MENU_NAVIGATE));
+        assertTrue(cues.contains(AudioCue.MENU_CONFIRM));
     }
 
     @Test

@@ -5,7 +5,6 @@ import br.apsu.core.GameRenderer;
 import br.apsu.model.boss.BossEntity;
 import br.apsu.model.enemy.EnemyEntity;
 import br.apsu.model.environment.Projectile;
-import br.apsu.model.environment.SceneryElement;
 import br.apsu.model.environment.OceanDepthProfile;
 import br.apsu.model.guardian.GuardianEntity;
 import br.apsu.model.hero.HeroEntity;
@@ -261,45 +260,6 @@ public class RenderEngine implements GameRenderer {
             drawGradientBackground(gc, width, height, "#040c16", "#081826", "#0a2234");
         }
 
-        // === REDESIGN 2026-08-20: FUNDO RICO COM VIDA MARINHA DECORATIVA ===
-        double camX = ctx.getCamera().getX();
-
-        // Recifes decorativos no plano de fundo (sem colisão, paralaxe 0.2)
-        Image recife = spriteManager.getImage("sprites/scenery/08_recifes_e_cardume_elemento-cenario.png");
-        for (int ri = 0; ri < 5; ri++) {
-            double rWorldX = 600 + ri * 680;
-            double rxScreen = rWorldX - camX * 0.20;
-            if (rxScreen < -200 || rxScreen > width + 200) continue;
-            double ry = height - 180 - (ri % 3) * 50;
-            if (recife != null) {
-                gc.setGlobalAlpha(0.30 + (ri % 2) * 0.12);
-                gc.drawImage(recife, rxScreen - 80, ry, 180, 160);
-                gc.setGlobalAlpha(1.0);
-            } else {
-                // fallback: pequenos arbustos de coral no fundo
-                gc.setFill(Color.rgb(0, 80, 120, 0.18));
-                gc.fillOval(rxScreen - 40, ry + 40, 80, 80);
-            }
-        }
-
-        // Polvos/medusas decorativas animadas no fundo (paralaxe 0.15)
-        for (int pi = 0; pi < 4; pi++) {
-            double pWorldX = 800 + pi * 750;
-            double pxScreen = pWorldX - camX * 0.15;
-            if (pxScreen < -100 || pxScreen > width + 100) continue;
-            double py = 120 + pi * 130;
-            double pulse = Math.sin(timeSeconds * 1.5 + pi * 1.8) * 0.08;
-            gc.setFill(Color.rgb(100, 30, 160, 0.12));
-            gc.fillOval(pxScreen - 22, py, 44 * (1 + pulse), 44);
-            // tentáculos
-            for (int ti = 0; ti < 5; ti++) {
-                double tentX = pxScreen - 16 + ti * 8;
-                double tentLen = 18 + Math.sin(timeSeconds * 2 + ti * 0.8 + pi) * 8;
-                gc.setStroke(Color.rgb(120, 40, 180, 0.10));
-                gc.setLineWidth(1.5);
-                gc.strokeLine(tentX, py + 44, tentX + Math.sin(timeSeconds + ti) * 5, py + 44 + tentLen);
-            }
-        }
 
         // Galeão e Baú
         double csx = ctx.getCamera().toScreenX(ctx.getChestWX());
@@ -314,17 +274,6 @@ public class RenderEngine implements GameRenderer {
                 gc.setFill(Color.web("#ffd700")); gc.setFont(Font.font("Serif", FontWeight.BOLD, 12));
                 gc.setTextAlign(TextAlignment.CENTER);
                 gc.fillText("[ E / ESPAÇO: BAÚ ]", csx, ctx.getChestWY() - 46);
-            }
-        }
-
-        // === CORAIS ORGÂNICOS E BIOLUMINESCENTES ===
-        for (SceneryElement elem : ctx.getSceneryElements()) {
-            double cx = ctx.getCamera().toScreenX(elem.getWorldX());
-            if (cx < -140 || cx > width + 140) continue;
-
-            if (elem.getType() == SceneryElement.Type.CORAL) {
-                // A malha 3D de recife/cardume é desenhada pela Runtime3DLayer.
-
             }
         }
 
@@ -374,26 +323,6 @@ public class RenderEngine implements GameRenderer {
             // strokeOval removido — impacto visual negligível, custo alto
         }
 
-        // Elementos ambientais
-        for (SceneryElement elem : ctx.getSceneryElements()) {
-            double cx = ctx.getCamera().toScreenX(elem.getWorldX());
-            if (cx < -200 || cx > width + 200) continue;
-
-            switch (elem.getType()) {
-                case CURRENT -> drawCurrentZone(gc, cx, elem.getWorldY(), elem.getWidth(), elem.getHeight(),
-                                                elem.getCurrentVx(), elem.getCurrentVy(), timeSeconds);
-                case PRESSURE_ZONE -> drawPressureZone(gc, cx, elem.getWorldY(), elem.getWidth(), elem.getHeight(),
-                                                        elem.getBuoyancyMult(), timeSeconds);
-                case MOVING_OBSTACLE -> {
-                    // O obstáculo abissal é uma malha 3D da Runtime3DLayer.
-                }
-                case GEYSER -> {
-                    // O gêiser é uma malha OBJ/MTL renderizada na Runtime3DLayer.
-                }
-                default -> {}
-            }
-        }
-
         for (GuardianEntity g : ctx.getGuardians()) {
             double gx = ctx.getCamera().toScreenX(g.getWorldX());
             drawGuardian(gc, gx, g.getWorldY(), g.getType(), !g.isContacted(), timeSeconds);
@@ -425,35 +354,6 @@ public class RenderEngine implements GameRenderer {
             drawParallaxBackground(gc, bg4, ctx.getCamera().getX(), width, height, 0.30);
         } else {
             drawGradientBackground(gc, width, height, "#1a0500", "#380800", "#5a0a00");
-        }
-
-        // Elementos do cenário
-        for (SceneryElement elem : ctx.getSceneryElements()) {
-            double cx = ctx.getCamera().toScreenX(elem.getWorldX());
-            if (cx < -200 || cx > width + 200) continue;
-
-            switch (elem.getType()) {
-                case LAVA_POOL -> {
-                    // A piscina irregular de lava é a malha 3D da Runtime3DLayer.
-                }
-                case VOLCANIC_ROCK -> {
-                    drawEmbers(gc, cx + elem.getWidth() / 2,
-                        (elem.getWorldY() == 0 ? elem.getHeight() : elem.getWorldY()),
-                        elem.getWidth(), timeSeconds, elem.getWorldX());
-                }
-                case MOVING_OBSTACLE -> {
-                    drawEmbers(gc, cx + elem.getWidth() / 2, elem.getWorldY() + elem.getHeight() / 2,
-                        elem.getWidth(), timeSeconds, elem.getWorldX() * 1.3);
-                }
-                case GEYSER -> {
-                    // O gêiser é uma malha OBJ/MTL renderizada na Runtime3DLayer.
-                }
-                case CURRENT -> {
-                    drawCurrentZone(gc, cx, elem.getWorldY(), elem.getWidth(), elem.getHeight(),
-                                    elem.getCurrentVx(), elem.getCurrentVy(), timeSeconds);
-                }
-                default -> {}
-            }
         }
 
         for (GuardianEntity g : ctx.getGuardians()) {
@@ -489,18 +389,6 @@ public class RenderEngine implements GameRenderer {
             drawGradientBackground(gc, width, height, "#080018", "#150030", "#200050");
         }
 
-        // Colunas de Atlantis
-        // Correntes e zonas na arena
-        for (SceneryElement elem : ctx.getSceneryElements()) {
-            if (elem.getType() == SceneryElement.Type.CURRENT) {
-                drawCurrentZone(gc, elem.getWorldX(), elem.getWorldY(), elem.getWidth(), elem.getHeight(),
-                                elem.getCurrentVx(), elem.getCurrentVy(), timeSeconds);
-            } else if (elem.getType() == SceneryElement.Type.PRESSURE_ZONE) {
-                drawPressureZone(gc, elem.getWorldX(), elem.getWorldY(), elem.getWidth(), elem.getHeight(),
-                                  elem.getBuoyancyMult(), timeSeconds);
-            }
-        }
-
         for (GuardianEntity g : ctx.getGuardians()) {
             drawGuardian(gc, g.getWorldX(), g.getWorldY(), g.getType(), !g.isContacted(), timeSeconds);
         }
@@ -522,41 +410,6 @@ public class RenderEngine implements GameRenderer {
     // =========================================================
     // ELEMENTOS VISUAIS AMBIENTAIS
     // =========================================================
-
-    /** Corrente 3D estática; a orientação comunica a força sem blocos translúcidos. */
-    private void drawCurrentZone(GraphicsContext gc, double x, double y, double w, double h,
-                                  double vx, double vy, double t) {
-        // A geometria da corrente é uma malha 3D da Runtime3DLayer.
-    }
-
-    /** Vórtice 3D para pressão/empuxo, sem placas, textos ou retângulos. */
-    private void drawPressureZone(GraphicsContext gc, double x, double y, double w, double h,
-                                   double buoyMult, double t) {
-        // Zonas de pressão usam a mesma malha 3D; a física permanece em GameContext.
-    }
-
-    /**
-     * Coral orgânico procedural: corpo sólido + ramos laterais + bioluminescência.
-     * Substitui os fillRoundRect simples da Fase 2.
-     */
-    private void drawOrganicCoral(GraphicsContext gc, double x, double y, double w, double h,
-                                   boolean growsDown, Color glowColor, double t) {
-        // Cenário é estático. Alternar frames renderizados separadamente faz as
-        // bordas do coral mudarem de posição e produz o flicker observado.
-        Image frame = spriteManager.getImage("sprites/scenery/10_perigos_e_obstaculos_cenario.png");
-
-        if (frame != null) {
-            gc.save();
-            if (growsDown) {
-                gc.translate(x + w / 2, y + h / 2);
-                gc.scale(1, -1);
-                gc.drawImage(frame, -w / 2, -h / 2, w, h);
-            } else {
-                gc.drawImage(frame, x, y, w, h);
-            }
-            gc.restore();
-        }
-    }
 
     /** Embers/faíscas subindo de rochas vulcânicas (zero alocação). */
     private void drawEmbers(GraphicsContext gc, double cx, double baseY, double w, double t, double seed) {

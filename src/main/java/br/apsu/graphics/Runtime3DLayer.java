@@ -28,6 +28,8 @@ public final class Runtime3DLayer {
     private final Group actors = new Group();
     private final SubScene view;
     private final Map<String, Actor> actorsById = new HashMap<>();
+    private final Map<String, ObjModelLoader.Model> modelTemplates = new HashMap<>();
+    private final java.util.List<Actor> visibleActors = new java.util.ArrayList<>();
     private final java.util.Set<String> failedModels = new java.util.HashSet<>();
     private double shakeX, shakeY;
     private static final String[] ENKI_MODELS = {
@@ -76,7 +78,8 @@ public final class Runtime3DLayer {
     public void update(GameContext context, double timeSeconds, double shakeX, double shakeY) {
         this.shakeX = shakeX;
         this.shakeY = shakeY;
-        for (Actor cached : actorsById.values()) cached.node.setVisible(false);
+        for (Actor cached : visibleActors) cached.node.setVisible(false);
+        visibleActors.clear();
         GameContext.State state = context.getState();
         if (state == GameContext.State.MENU) {
             HeroType type = context.getHeroType();
@@ -116,8 +119,6 @@ public final class Runtime3DLayer {
                     + Math.sin(timeSeconds * (2.1 + hero.getCurrentSpeedRatio() * 1.2)) * 2.5)));
             if (hero.isInvulnerable()) heroActor.node.setOpacity(0.45 + 0.3 * Math.sin(timeSeconds * 24.0));
             else heroActor.node.setOpacity(1.0);
-            heroActor.node.setScaleX(1.0);
-            heroActor.node.setScaleY(1.0);
         }
 
         int enemyIndex = 0;
@@ -125,19 +126,23 @@ public final class Runtime3DLayer {
             int id = enemyIndex++;
             if (!enemy.isAlive()) continue;
             EnemyType type = enemy.getType();
+            double screenX = context.getCamera().toScreenX(enemy.getWorldX()) + type.getWidth() / 2.0;
+            if (!insideViewport(screenX, type.getWidth())) continue;
             Actor enemyActor = actor("enemy-" + id, modelName(type.getStaticSprite()), type.getWidth(), type.getHeight());
             if (enemyActor != null) place(enemyActor,
-                context.getCamera().toScreenX(enemy.getWorldX()) + type.getWidth() / 2.0,
+                screenX,
                 enemy.getCurrentY() + type.getHeight() / 2.0,
                 enemy.getWorldX() / 4000.0, timeSeconds, 54);
         }
 
         int guardianIndex = 0;
         for (GuardianEntity guardian : context.getGuardians()) {
+            double screenX = context.getCamera().toScreenX(guardian.getWorldX()) + GuardianEntity.GW / 2.0;
+            if (!insideViewport(screenX, GuardianEntity.GW)) { guardianIndex++; continue; }
             String model = modelName(guardian.getSpritePath());
             Actor npc = actor("guardian-" + guardianIndex++, model, GuardianEntity.GW, GuardianEntity.GH);
             if (npc != null) place(npc,
-                context.getCamera().toScreenX(guardian.getWorldX()) + GuardianEntity.GW / 2.0,
+                screenX,
                 guardian.getWorldY() + GuardianEntity.GH / 2.0,
                 guardian.getWorldX() / 4000.0, timeSeconds, 0);
         }
@@ -221,8 +226,14 @@ public final class Runtime3DLayer {
         if (current != null && current.modelName.equals(modelName)
             && current.targetWidth == targetWidth && current.targetHeight == targetHeight) return current;
         try {
-            ObjModelLoader.Model model = ObjModelLoader.load(modelName, targetWidth, targetHeight);
+            ObjModelLoader.Model template = modelTemplates.get(modelName);
+            if (template == null) {
+                template = ObjModelLoader.load(modelName, 1, 1);
+                modelTemplates.put(modelName, template);
+            }
+            ObjModelLoader.Model model = ObjModelLoader.instance(template, targetWidth, targetHeight);
             Actor loaded = new Actor(modelName, model.node(), targetWidth, targetHeight);
+            loaded.node.setVisible(false);
             actorsById.put(cacheId, loaded);
             (modelName.startsWith("scenery/") ? scenery : actors).getChildren().add(loaded.node);
             return loaded;
@@ -247,6 +258,7 @@ public final class Runtime3DLayer {
         actor.node.setTranslateZ(phase * 2.0);
         actor.yaw.setAngle(180 + yaw);
         actor.pitch.setAngle(Math.max(-20, Math.min(20, pitch)));
+        if (!actor.node.isVisible()) visibleActors.add(actor);
         actor.node.setVisible(true);
     }
 
@@ -254,5 +266,9 @@ public final class Runtime3DLayer {
         String name = spritePath.substring(spritePath.lastIndexOf('/') + 1);
         int extension = name.lastIndexOf('.');
         return extension < 0 ? name : name.substring(0, extension);
+    }
+
+    private static boolean insideViewport(double centerX, double width) {
+        return centerX + width / 2 >= -180 && centerX - width / 2 <= VIEW_W + 180;
     }
 }

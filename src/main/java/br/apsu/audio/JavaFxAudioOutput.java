@@ -129,8 +129,12 @@ final class JavaFxAudioOutput implements AudioOutput {
     /** Asset names belong to this output adapter; gameplay emits only AudioCue values. */
     static String asset(AudioCue cue) {
         return switch (cue) {
-            case MENU_CONFIRM, DIALOGUE_ADVANCE, PICKUP -> "collect";
-            case ATTACK, ENEMY_DAMAGED, ENEMY_DEFEATED -> "shoot";
+            case MENU_NAVIGATE -> "menu-navigate";
+            case MENU_CONFIRM -> "menu-confirm";
+            case DIALOGUE_ADVANCE, PICKUP -> "collect";
+            case ATTACK -> "shoot";
+            case ENEMY_DAMAGED -> "enemy-damaged";
+            case ENEMY_DEFEATED -> "collect";
             case BOSS_DAMAGED, BOSS_PHASE -> "boss-hit";
             case HERO_DAMAGED -> "hurt";
             case VICTORY -> "victory";
@@ -139,12 +143,13 @@ final class JavaFxAudioOutput implements AudioOutput {
 
     static double gain(AudioCue cue) {
         return switch (cue) {
+            case MENU_NAVIGATE -> 0.12;
             case MENU_CONFIRM -> 0.20;
             case DIALOGUE_ADVANCE -> 0.16;
             case PICKUP -> 0.28;
             case ATTACK -> 0.22;
-            case ENEMY_DAMAGED -> 0.25;
-            case ENEMY_DEFEATED -> 0.32;
+            case ENEMY_DAMAGED -> 0.24;
+            case ENEMY_DEFEATED -> 0.16;
             case BOSS_DAMAGED -> 0.30;
             case BOSS_PHASE -> 0.24;
             case HERO_DAMAGED -> 0.38;

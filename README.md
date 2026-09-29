@@ -164,11 +164,12 @@ Tipos declarados em `GameEvent.Type`: `SOUND_REQUESTED`, `HERO_DAMAGED`, `HERO_S
 
 | Evento semântico | Momento/intenção sonora | Estado de core |
 |---|---|---|
-| `MENU_CONFIRM` | Confirma escolha, curto e discreto | Implementado |
+| `MENU_NAVIGATE` | Move seleção ou altera opção do menu | Implementado; fonte sintetizada pelo FFmpeg, substituível |
+| `MENU_CONFIRM` | Confirma escolha, curto e discreto | Implementado; fonte sintetizada pelo FFmpeg, substituível |
 | `DIALOGUE_ADVANCE` | Avançar fala sem mascarar texto/voz | Implementado |
 | `PICKUP` | Recompensa clara para baú/tabuleta/item | Implementado; diferenciar tipos pendente |
 | `ATTACK` | Disparo de bolha, resposta imediata | Implementado |
-| `ENEMY_DAMAGED`, `ENEMY_DEFEATED` | Distinguir acerto e derrota | `ENEMY_DEFEATED` é chamado; produtor para `ENEMY_DAMAGED` pendente |
+| `ENEMY_DAMAGED`, `ENEMY_DEFEATED` | Impacto seguido de derrota em inimigo de vida única | Ambos publicados no acerto fatal; impacto usa fonte sintetizada pelo FFmpeg, substituível |
 | `HERO_DAMAGED` | Comunicar dano com prioridade | Implementado |
 | `BOSS_DAMAGED`, `BOSS_PHASE`, `VICTORY` | Impacto, nova fase e resolução | Implementado parcialmente; telegraph/morte dedicados pendentes |
 | `SWIM_LOOP`, `JUMP`, `LAND`, `INTERACT` | Movimento/contexto; nado é mecânica, não presumir pulo | A definir/pendente |
@@ -258,6 +259,8 @@ Ao adicionar evento, defina semântica antes do som. Ao trocar WAV, altere recur
 **Validação desta atualização (28/09/2026):** `mvn verify -q` concluiu com sucesso, 66 testes, sem falhas/erros, e gerou o relatório JaCoCo. `mvn javafx:run -q` iniciou e continua aberto na sessão gráfica para validação manual. A inicialização comprova o boot da aplicação, mas não substitui jogar cada fase usando a checklist acima. Foram emitidos avisos JavaFX `SCENE3D` no ambiente de execução dos testes; confirmar renderização 3D em máquina com aceleração gráfica ao fazer QA visual.
 
 **Ajuste de áudio (28/09/2026):** `mvn -q -DskipTests compile` passou; ao iniciar o jogo, o log confirmou a faixa costeira pronta a 55%. A sessão PipeWire apresentou o fluxo Java sem mute e sem cork. A audição subjetiva/volume do equipamento deve ser confirmada por quem está jogando.
+
+**Melhorias de desempenho, áudio e QA (28/09/2026):** o runtime agora carrega um OBJ por modelo e compartilha malhas/materiais entre instâncias; vértices e normais repetidos são deduplicados, e inimigos/NPCs fora da câmera não são instanciados. Removidos adornos Canvas repetidos na P2 e caminhos de desenho ambiental que eram vazios. A quadtree é atualizada uma vez antes dos projéteis, sem reconstrução duplicada. `make audio-assets` gera e processa fontes provisórias substituíveis para navegação/confirmação do menu e impacto em inimigo; os eventos continuam independentes dos arquivos. `mvn -q verify` passou com 68 testes e relatório JaCoCo; `mvn javafx:run -q` está aberto e confirmou a trilha costeira ativa. O ambiente de teste ainda avisa que não oferece suporte a `SCENE3D`; a renderização deve ser conferida na sessão gráfica. **PENDENTE:** fontes finais desses três SFX, sons de movimento/ambiente/transições, e um modelo de coral de colisão dedicado e leve (o modelo atual de recife mistura cardume e vários materiais). O orçamento de FPS e a validação de cada fase continuam a definir/pendentes.
 
 Registrar build/commit, comandos, resultado, ambiente gráfico e fases efetivamente jogadas nas próximas validações. **A DEFINIR:** orçamento numérico de performance, hardware de referência, critério formal de mix e arte final.
 

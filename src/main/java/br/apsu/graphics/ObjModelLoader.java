@@ -101,10 +101,13 @@ final class ObjModelLoader {
         for (Map.Entry<String, MaterialFaces> entry : facesByMaterial.entrySet()) {
             if (entry.getValue().faces.isEmpty()) continue;
             TriangleMesh mesh = new TriangleMesh(VertexFormat.POINT_NORMAL_TEXCOORD);
+            Map<Integer, Integer> pointIndices = new HashMap<>();
+            Map<Integer, Integer> normalIndices = new HashMap<>();
             if (texCoords.isEmpty()) mesh.getTexCoords().addAll(0, 0);
             else for (double[] uv : texCoords) mesh.getTexCoords().addAll((float) uv[0], (float) (1.0 - uv[1]));
             int[] triangles = new int[entry.getValue().faces.size() * 9];
             int out = 0;
+            int faceIndex = 0;
             for (Face face : entry.getValue().faces) {
                 int[] vertexIds = {face.a(), face.b(), face.c()};
                 int[] normalIds = {face.na(), face.nb(), face.nc()};
@@ -112,19 +115,31 @@ final class ObjModelLoader {
                 double[] faceNormal = transformedFaceNormal(vertices.get(face.a()), vertices.get(face.b()), vertices.get(face.c()));
                 for (int i = 0; i < vertexIds.length; i++) {
                     int index = vertexIds[i];
-                    double[] v = vertices.get(index);
-                    mesh.getPoints().addAll(
-                        (float) ((v[0] - (minX + maxX) * 0.5) * scale),
-                        (float) (-(v[2] - (minZ + maxZ) * 0.5) * scale),
-                        (float) (v[1] * scale));
-                    double[] n = normalIds[i] >= 0 ? transformNormal(normals.get(normalIds[i])) : faceNormal;
-                    mesh.getNormals().addAll((float) n[0], (float) n[1], (float) n[2]);
-                    int vertexOut = mesh.getPoints().size() / 3 - 1;
-                    int normalOut = mesh.getNormals().size() / 3 - 1;
+                    Integer pointIndex = pointIndices.get(index);
+                    if (pointIndex == null) {
+                        double[] v = vertices.get(index);
+                        mesh.getPoints().addAll(
+                            (float) ((v[0] - (minX + maxX) * 0.5) * scale),
+                            (float) (-(v[2] - (minZ + maxZ) * 0.5) * scale),
+                            (float) (v[1] * scale));
+                        pointIndex = mesh.getPoints().size() / 3 - 1;
+                        pointIndices.put(index, pointIndex);
+                    }
+                    int vertexOut = pointIndex;
+                    int sourceNormal = normalIds[i] >= 0 ? normalIds[i] : -faceIndex - 1;
+                    Integer mappedNormal = normalIndices.get(sourceNormal);
+                    if (mappedNormal == null) {
+                        double[] n = normalIds[i] >= 0 ? transformNormal(normals.get(normalIds[i])) : faceNormal;
+                        mesh.getNormals().addAll((float) n[0], (float) n[1], (float) n[2]);
+                        mappedNormal = mesh.getNormals().size() / 3 - 1;
+                        normalIndices.put(sourceNormal, mappedNormal);
+                    }
+                    int normalOut = mappedNormal;
                     triangles[out++] = vertexOut;
                     triangles[out++] = normalOut;
                     triangles[out++] = uvIds[i] >= 0 ? uvIds[i] : 0;
                 }
+                faceIndex++;
             }
             mesh.getFaces().addAll(triangles);
             MeshView view = new MeshView(mesh);
@@ -140,6 +155,22 @@ final class ObjModelLoader {
             result.getChildren().add(view);
         }
         return new Model(result, modelW * scale, modelH * scale);
+    }
+
+    /** Creates an inexpensive instance that shares immutable mesh and material data. */
+    static Model instance(Model template, double targetWidth, double targetHeight) {
+        double scale = Math.min(targetWidth / template.width(), targetHeight / template.height());
+        Group node = new Group();
+        for (javafx.scene.Node child : template.node().getChildren()) {
+            MeshView source = (MeshView) child;
+            MeshView view = new MeshView(source.getMesh());
+            view.setMaterial(source.getMaterial());
+            node.getChildren().add(view);
+        }
+        node.setScaleX(scale);
+        node.setScaleY(scale);
+        node.setScaleZ(scale);
+        return new Model(node, template.width() * scale, template.height() * scale);
     }
 
     private static int vertexIndex(String facePoint, int vertexCount) {

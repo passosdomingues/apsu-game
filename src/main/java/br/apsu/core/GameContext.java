@@ -192,16 +192,18 @@ public class GameContext {
     }
 
     private void menuKey(KeyCode k) {
-        if (k == KeyCode.UP   || k == KeyCode.W) menuSel = (menuSel - 1 + 3) % 3;
-        if (k == KeyCode.DOWN || k == KeyCode.S) menuSel = (menuSel + 1) % 3;
+        boolean navigated = false;
+        if (k == KeyCode.UP   || k == KeyCode.W) { menuSel = (menuSel - 1 + 3) % 3; navigated = true; }
+        if (k == KeyCode.DOWN || k == KeyCode.S) { menuSel = (menuSel + 1) % 3; navigated = true; }
         if (k == KeyCode.LEFT || k == KeyCode.A) {
-            if (menuSel == 0) cycleDiff(-1);
-            else if (menuSel == 1) cycleHero(-1);
+            if (menuSel == 0) { cycleDiff(-1); navigated = true; }
+            else if (menuSel == 1) { cycleHero(-1); navigated = true; }
         }
         if (k == KeyCode.RIGHT|| k == KeyCode.D) {
-            if (menuSel == 0) cycleDiff(+1);
-            else if (menuSel == 1) cycleHero(+1);
+            if (menuSel == 0) { cycleDiff(+1); navigated = true; }
+            else if (menuSel == 1) { cycleHero(+1); navigated = true; }
         }
+        if (navigated) playSound(AudioCue.MENU_NAVIGATE);
         if (k == KeyCode.ENTER || k == KeyCode.SPACE || k == KeyCode.E) {
             switch (menuSel) {
                 case 0 -> cycleDiff(+1);
@@ -509,8 +511,8 @@ public class GameContext {
 
         checkGuardians(false);
         checkSceneryCollisions();
-        updateProjectiles();
         updateEnemies();
+        updateProjectiles();
         checkEnemyCollisions();
 
         if (hero.getX() > 4000 - 200) {
@@ -586,8 +588,8 @@ public class GameContext {
             showAlert("PODER DAS BOLHAS DESPERTADO! Pressione ESPAÇO para disparar! ");
         }
 
-        updateProjectiles();
         updateEnemies();
+        updateProjectiles();
         checkEnemyCollisions();
 
         if (hero.getX() > 4000 - 200) {
@@ -624,8 +626,8 @@ public class GameContext {
 
         checkGuardians(false);
         checkSceneryCollisions();
-        updateProjectiles();
         updateEnemies();
+        updateProjectiles();
         checkEnemyCollisions();
 
         if (hero.getX() > 4000 - 200) {
@@ -673,8 +675,8 @@ public class GameContext {
 
         checkGuardians(false);
         checkSceneryCollisions();
-        updateProjectiles();
         updateEnemies();
+        updateProjectiles();
         checkEnemyCollisions();
 
         if (hero.getX() > 4000 - 200) {
@@ -941,20 +943,10 @@ public class GameContext {
         }
     }
 
-    private void rebuildEnemyQuadTree() {
-        enemyQuadTree.clear();
-        for (EnemyEntity e : enemies) {
-            if (e.isAlive()) {
-                enemyQuadTree.insert(e);
-            }
-        }
-    }
-
     // =========================================================
     // B3-FIX PRINCIPAL — Projéteis em coordenadas de MUNDO
     // =========================================================
     private void updateProjectiles() {
-        rebuildEnemyQuadTree();
         boolean isArena = (state == State.P5); // P5 sem câmera scrolling
 
         Iterator<Projectile> it = projectiles.iterator();
@@ -983,6 +975,7 @@ public class GameContext {
                         adaptiveDifficulty.recordEnemyDefeated();
                         double screenPx = isArena ? p.getX() : camera.toScreenX(p.getX());
                         particleSystem.addBurst(screenPx, p.getY(), Color.AQUAMARINE);
+                        playSound(AudioCue.ENEMY_DAMAGED);
                         playSound(AudioCue.ENEMY_DEFEATED);
                         it.remove();
                         hitSomething = true;

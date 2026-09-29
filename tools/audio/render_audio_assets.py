@@ -16,8 +16,28 @@ PROFILES = {
     "hydrothermal-vent": (4600, "72|144", "0.20|0.10", 0.19, 0.125),
     "hadal-trench": (3200, "92|184", "0.22|0.11", 0.16, 0.160),
 }
-SOURCES = ("apsu-theme", "shoot", "collect", "hurt", "boss-hit", "victory")
+SOURCES = ("apsu-theme", "shoot", "collect", "hurt", "boss-hit", "victory",
+           "menu-navigate", "menu-confirm", "enemy-damaged")
 SOURCE_DIR = AUDIO / "sources"
+
+
+def create_missing_cue_sources(ffmpeg: str) -> None:
+    """Create replaceable synthesized cues only when an artist source is absent."""
+    cues = {
+        "menu-navigate": ("sine=frequency=880:duration=0.09", "afade=t=out:st=0.035:d=0.055,highpass=f=250,volume=0.35"),
+        "menu-confirm": ("sine=frequency=660:duration=0.19", "afade=t=out:st=0.10:d=0.09,highpass=f=180,volume=0.48"),
+        "enemy-damaged": ("anoisesrc=color=pink:duration=0.14:amplitude=0.7", "lowpass=f=1800,highpass=f=140,afade=t=out:st=0.035:d=0.105,volume=0.52"),
+    }
+    for name, (source, filters) in cues.items():
+        output = AUDIO / f"{name}.wav"
+        if output.is_file():
+            continue
+        subprocess.run([
+            ffmpeg, "-hide_banner", "-loglevel", "error", "-y", "-f", "lavfi",
+            "-i", source, "-af", filters, "-ar", "22050", "-ac", "2",
+            "-c:a", "pcm_s16le", str(output),
+        ], check=True)
+        print(f"Fonte sintetizada (substituível): {output.name}")
 
 
 def main() -> int:
@@ -25,6 +45,7 @@ def main() -> int:
     if not ffmpeg:
         print("FFmpeg não encontrado no PATH. Instale FFmpeg para renderizar os perfis.", file=sys.stderr)
         return 2
+    create_missing_cue_sources(ffmpeg)
     missing = [name for name in SOURCES if not (AUDIO / f"{name}.wav").is_file()]
     if missing:
         print("Áudios-fonte ausentes: " + ", ".join(missing), file=sys.stderr)
