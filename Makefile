@@ -69,7 +69,7 @@ CLR_DIM    := \033[2;37m
 CLR_RED    := \033[1;31m
 CLR_RESET  := \033[0m
 
-.PHONY: all setup setup-assets setup-mpi copy-blends clean-blender-backups test build run stop generate-characters generate-geyser-model export-runtime-models generate-variant-attacks render-sprites render-variant-attacks assets assets-variant-attacks package docker-build docker-run mpi-demo mpi-generate clean help
+.PHONY: all setup setup-assets setup-mpi copy-blends clean-blender-backups test build run stop generate-characters generate-geyser-model generate-lava-pool-model export-runtime-models generate-variant-attacks render-sprites render-backgrounds render-variant-attacks assets assets-variant-attacks package docker-build docker-run mpi-demo mpi-generate clean help
 
 # Target padrão
 all: setup run
@@ -142,7 +142,7 @@ generate-characters: setup-assets
 	@echo "$(CLR_GREEN)[OK] All .blend models re-generated successfully.$(CLR_RESET)"
 
 ## Exporta personagens do Blender como malhas OBJ/MTL carregadas no jogo
-export-runtime-models: setup-assets generate-geyser-model
+export-runtime-models: setup-assets generate-geyser-model generate-lava-pool-model
 	@echo "$(CLR_CYAN)[3D   ] Exporting runtime character meshes from Blender...$(CLR_RESET)"
 	@$(BLENDER_BIN) --background --python tools/assets/export_runtime_3d_models.py -- "$(CURDIR)"
 	@echo "$(CLR_GREEN)[OK] Runtime 3D character models exported.$(CLR_RESET)"
@@ -151,11 +151,21 @@ export-runtime-models: setup-assets generate-geyser-model
 generate-geyser-model: setup-assets
 	@$(BLENDER_BIN) --background --python tools/assets/generate_geyser_3d.py -- "$(CURDIR)"
 
+## Gera a piscina irregular de lava em malha 3D low-poly
+generate-lava-pool-model: setup-assets
+	@$(BLENDER_BIN) --background --python tools/assets/generate_lava_pool_3d.py -- "$(CURDIR)"
+
 ## Renderiza PNGs 2.5D do cenário (personagens são modelos 3D de runtime)
 render-sprites: setup-assets
 	@echo "$(CLR_CYAN)[BAKE ] Baking 2.5D scenery PNGs using Blender...$(CLR_RESET)"
 	@$(BLENDER_BIN) --background --python tools/assets/render_all_2d5_sprites.py
 	@echo "$(CLR_GREEN)[OK] 2.5D scenery rendering complete.$(CLR_RESET)"
+
+## Renderiza panoramas 3D estilizados para as cinco fases
+render-backgrounds: setup-assets
+	@echo "$(CLR_CYAN)[BG 3D] Rendering phase panoramas with Blender...$(CLR_RESET)"
+	@$(BLENDER_BIN) --background --python tools/assets/generate_phase_backgrounds.py -- "$(CURDIR)"
+	@echo "$(CLR_GREEN)[OK] Phase panoramas written to src/main/resources/backgrounds/.$(CLR_RESET)"
 
 ## Gera poses de ataque das variantes
 generate-variant-attacks: setup-assets
@@ -170,8 +180,8 @@ render-variant-attacks: setup
 	@echo "$(CLR_GREEN)[OK] Variant attack preview renders baked.$(CLR_RESET)"
 
 ## Pipeline completo: modelos de personagens 3D runtime + cenários/PNGs 2.5D
-assets: generate-characters render-sprites copy-blends clean-blender-backups
-	@echo "$(CLR_GREEN)[OK] Full 3D character + 2.5D scenery asset pipeline completed.$(CLR_RESET)"
+assets: generate-characters render-sprites render-backgrounds copy-blends clean-blender-backups
+	@echo "$(CLR_GREEN)[OK] Full 3D character + 2.5D scenery + phase panorama asset pipeline completed.$(CLR_RESET)"
 
 ## Pipeline rápido de variantes
 assets-variant-attacks: generate-variant-attacks export-runtime-models copy-blends

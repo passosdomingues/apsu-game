@@ -30,23 +30,6 @@ public class RenderEngine {
     private boolean reducedEffects = true;
 
     // Gradients e Cores estáticos para evitar alocações a cada frame (GC zero)
-    private static final LinearGradient LAVA_FOOTER_GRADIENT = new LinearGradient(0, 0, 0, 1, true, CycleMethod.NO_CYCLE,
-        new Stop(0, Color.rgb(255, 80, 0, 0)),
-        new Stop(0.5, Color.rgb(255, 80, 0, 0.35)),
-        new Stop(1, Color.rgb(220, 30, 0, 0.92)));
-
-    private static final LinearGradient LAVA_POOL_GRADIENT = new LinearGradient(0, 0, 0, 1, true, CycleMethod.NO_CYCLE,
-        new Stop(0, Color.rgb(255, 120, 0, 0.85)),
-        new Stop(0.6, Color.rgb(220, 40, 0, 0.95)),
-        new Stop(1, Color.rgb(160, 10, 0, 0.98)));
-
-    private static final Color LAVA_WAVE_COLOR = Color.rgb(255, 140, 0, 0.6);
-    private static final Color LAVA_GLOW_COLOR = Color.rgb(255, 60, 0, 0.08);
-    private static final Color LAVA_BORDER_COLOR = Color.rgb(255, 220, 0, 0.9);
-    private static final Color LAVA_REFLECT_COLOR = Color.rgb(255, 200, 0, 0.25);
-    private static final Color LAVA_BUBBLE_COLOR = Color.rgb(255, 180, 20, 0.60);
-    private static final Color LAVA_STEAM_COLOR = Color.rgb(200, 100, 60, 0.20);
-
     private static final Color[] EMBER_COLORS = {
         Color.rgb(255, 200, 0, 0.85),
         Color.rgb(255, 150, 0, 0.65),
@@ -227,7 +210,7 @@ public class RenderEngine {
     // FASE 1 — Águas Claras
     // =========================================================
     private void drawP1(GraphicsContext gc, GameContext ctx, double width, double height, double timeSeconds) {
-        Image bg1 = spriteManager.getImage("bg1.png");
+        Image bg1 = spriteManager.getImage("backgrounds/phase-1.png");
         if (bg1 != null) {
             drawParallaxBackground(gc, bg1, ctx.getCamera().getX(), width, height, 0.40);
         } else {
@@ -268,7 +251,7 @@ public class RenderEngine {
     // FASE 2 — Cavernas de Coral
     // =========================================================
     private void drawP2(GraphicsContext gc, GameContext ctx, double width, double height, double timeSeconds) {
-        Image bg2 = spriteManager.getImage("bg2.png");
+        Image bg2 = spriteManager.getImage("backgrounds/phase-2.png");
         if (bg2 != null) {
             drawParallaxBackground(gc, bg2, ctx.getCamera().getX(), width, height, 0.40);
         } else {
@@ -367,7 +350,7 @@ public class RenderEngine {
     // FASE 3 — Correntes Abissais
     // =========================================================
     private void drawP3(GraphicsContext gc, GameContext ctx, double width, double height, double timeSeconds) {
-        Image bg3 = spriteManager.getImage("bg3.png");
+        Image bg3 = spriteManager.getImage("backgrounds/phase-3.png");
         if (bg3 != null) {
             drawParallaxBackground(gc, bg3, ctx.getCamera().getX(), width, height, 0.35);
         } else {
@@ -432,35 +415,11 @@ public class RenderEngine {
     // FASE 4 — Abismo Vulcânico
     // =========================================================
     private void drawP4(GraphicsContext gc, GameContext ctx, double width, double height, double timeSeconds) {
-        Image bg4 = spriteManager.getImage("bg4.png");
+        Image bg4 = spriteManager.getImage("backgrounds/phase-4.png");
         if (bg4 != null) {
             drawParallaxBackground(gc, bg4, ctx.getCamera().getX(), width, height, 0.30);
         } else {
             drawGradientBackground(gc, width, height, "#1a0500", "#380800", "#5a0a00");
-        }
-
-        // === REDESIGN 2026-08-20: FAIXA DE LAVA PULSANTE NO RODAPÉ (visual, não colisão) ===
-        double lavaBaseY = height - 22;
-        gc.setFill(new LinearGradient(0, lavaBaseY - 30, 0, height, false, CycleMethod.NO_CYCLE,
-            new Stop(0, Color.rgb(255, 80, 0, 0)),
-            new Stop(0.5, Color.rgb(255, 80, 0, 0.35)),
-            new Stop(1, Color.rgb(220, 30, 0, 0.92))));
-        gc.fillRect(0, lavaBaseY - 30, width, height - lavaBaseY + 30);
-
-        // Ondas de lava — 8 (era 12) é suficiente para a impressão de movimento
-        gc.setFill(Color.rgb(255, 140, 0, 0.6));
-        for (int wi = 0; wi < 8; wi++) {
-            double waveX = (wi * 115 + timeSeconds * 25) % (width + 60) - 30;
-            double waveH = 6 + Math.sin(timeSeconds * 2.5 + wi * 0.9) * 3;
-            gc.fillOval(waveX - 30, lavaBaseY - waveH, 60, waveH * 2);
-        }
-
-        // Brilho de lava difuso — 4 halos (era 6)
-        for (int i = 0; i < 4; i++) {
-            double gx = (i * 220 + timeSeconds * 12 + 50) % (width + 200) - 100;
-            double gy = height - 60 + Math.sin(timeSeconds * 1.5 + i) * 18;
-            gc.setFill(Color.rgb(255, 60, 0, 0.07 + Math.sin(timeSeconds * 2.2 + i) * 0.03));
-            gc.fillOval(gx - 80, gy - 20, 160, 40);
         }
 
         // Elementos do cenário
@@ -470,33 +429,7 @@ public class RenderEngine {
 
             switch (elem.getType()) {
                 case LAVA_POOL -> {
-                    double pulse = 0.82 + Math.sin(timeSeconds * 2.8 + elem.getWorldX() * 0.01) * 0.18;
-                    // Pool principal pulsante
-                    gc.setFill(new LinearGradient(cx, elem.getWorldY(), cx, elem.getWorldY() + elem.getHeight(), false,
-                        CycleMethod.NO_CYCLE,
-                        new Stop(0, Color.rgb(255, 120, 0, 0.85 * pulse)),
-                        new Stop(0.6, Color.rgb(220, 40, 0, 0.95 * pulse)),
-                        new Stop(1, Color.rgb(160, 10, 0, 0.98))));
-                    gc.fillRoundRect(cx, elem.getWorldY(), elem.getWidth(), elem.getHeight(), 6, 6);
-                    gc.setStroke(Color.rgb(255, 220, 0, 0.9)); gc.setLineWidth(2.5);
-                    gc.strokeRoundRect(cx, elem.getWorldY(), elem.getWidth(), elem.getHeight(), 6, 6);
-                    // Reflexo ondulante na superfície
-                    for (int r = 0; r < 4; r++) {
-                        double rx = cx + elem.getWidth() * (0.15 + r * 0.22) + Math.sin(timeSeconds * 3.5 + r) * 6;
-                        gc.setFill(Color.rgb(255, 200, 0, 0.25 * pulse));
-                        gc.fillOval(rx - 14, elem.getWorldY() + 3, 28, 7);
-                    }
-                    // Bolhas brotando — 3 (era 4)
-                    for (int b = 0; b < 3; b++) {
-                        double bprog = ((timeSeconds * 0.9 + b * 0.28) % 1.0);
-                        double bx2 = cx + (b * 0.22 + 0.1) * elem.getWidth() + Math.sin(timeSeconds * 1.8 + b) * 8;
-                        double by2 = elem.getWorldY() - bprog * 28;
-                        double br2 = (1.0 - bprog) * 7 + 2;
-                        gc.setFill(Color.rgb(255, 180, 20, (1.0 - bprog) * 0.65));
-                        gc.fillOval(bx2 - br2, by2 - br2, br2 * 2, br2 * 2);
-                    }
-                    // Coluna de vapor ascendente sobre o pool
-                    drawLavaSteam(gc, cx + elem.getWidth() / 2, elem.getWorldY(), elem.getWidth(), timeSeconds);
+                    // A piscina irregular de lava é a malha 3D da Runtime3DLayer.
                 }
                 case VOLCANIC_ROCK -> {
                     drawEmbers(gc, cx + elem.getWidth() / 2,
@@ -543,9 +476,9 @@ public class RenderEngine {
     // FASE 5 — Templo Final de Apsu (arena boss)
     // =========================================================
     private void drawP5(GraphicsContext gc, GameContext ctx, double width, double height, double timeSeconds) {
-        Image bg5 = spriteManager.getImage("bg5.png");
+        Image bg5 = spriteManager.getImage("backgrounds/phase-5.png");
         if (bg5 != null) {
-            gc.drawImage(bg5, 0, 0, width, height);
+            drawParallaxBackground(gc, bg5, ctx.getCamera().getX(), width, height, 0.24);
         } else {
             drawGradientBackground(gc, width, height, "#080018", "#150030", "#200050");
         }
@@ -628,19 +561,6 @@ public class RenderEngine {
             double r = (1.0 - progress) * 3.5 + 1.0;
             gc.setFill(EMBER_COLORS[i % EMBER_COLORS.length]);
             gc.fillOval(ex - r, ey - r, r * 2, r * 2);
-        }
-    }
-
-    /** Vapor ascendente sobre piscinas de lava (zero alocação). */
-    private void drawLavaSteam(GraphicsContext gc, double cx, double baseY, double poolW, double t) {
-        int count = reducedEffects ? 2 : 3;
-        gc.setFill(LAVA_STEAM_COLOR);
-        for (int i = 0; i < count; i++) {
-            double progress = ((t * 0.35 + i * 0.22) % 1.0);
-            double sx = cx + Math.sin(t * 0.9 + i * 1.3) * poolW * 0.30;
-            double sy = baseY - progress * 90 - 8;
-            double sr = 8 + progress * 20;
-            gc.fillOval(sx - sr, sy - sr * 0.5, sr * 2, sr);
         }
     }
 

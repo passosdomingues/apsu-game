@@ -168,6 +168,7 @@ def simplify_runtime_scenery(model_name, scene):
     ratios = {
         "08_recifes_e_cardume_elemento-cenario": 0.16,
         "16_corrente_abissal_3d": 0.12,
+        "17_piscina_lava_3d": 0.45,
         "07_navio_naufragado_elemento-cenario": 0.38,
         "06_bau_tesouro_elemento-cenario": 0.55,
         "15_portal_atlantica_3d": 0.55,
@@ -203,6 +204,7 @@ for root, _dirs, files in os.walk(blend_root):
             "bau_tesouro", "navio_naufragado", "recifes_e_cardume",
             "ruinas_e_colunas", "obstaculo_abissal", "obstaculo_vulcanico",
             "corrente_abissal", "portal_atlantica", "geiser",
+            "piscina_lava",
         ))
         if not is_character and not is_scenery:
             continue

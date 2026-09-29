@@ -154,7 +154,17 @@ A cada quadro do relógio monotônico:
 
 ## PIPELINE GRÁFICO: PERSONAGENS 3D EM TEMPO REAL + CENÁRIO 2.5D
 
-Personagens e elementos de fase são exportados como malhas OBJ/MTL pelo Blender 4.5 LTS e renderizados em uma camada JavaFX 3D. Planos de fundo, paralaxe, partículas e HUD continuam no Canvas 2.5D.
+Personagens e elementos de fase são exportados como malhas OBJ/MTL pelo Blender 4.5 LTS e renderizados em uma camada JavaFX 3D. Cada fase usa um panorama 3D próprio, renderizado offline em PNG de alta resolução e exibido como plano 2.5D com paralaxe. As imagens antigas `bg1.png`–`bg5.png` são referências legadas; a execução usa `src/main/resources/backgrounds/phase-1.png` até `phase-5.png`.
+
+### Direção de arte e legibilidade
+
+- A cena de cada fase é montada proceduralmente em Blender com malhas low-poly de recifes, cardumes, colunas, ruínas, fendas vulcânicas e formas abissais. O render panorâmico é único por fase, sem repetir ou esticar uma foto para preencher o percurso.
+- A paleta progride de águas costeiras azul-esverdeadas para recifes escuros, abismo azul profundo, região vulcânica púrpura/vermelha e templo azul noturno. A luminância cai entre fases, mas os fundos mantêm meios-tons e contraste para preservar as cores dos personagens.
+- A regra de foco 60/30/10 é aplicada como hierarquia visual: o herói mantém a maior saturação e contraste; guardiões, inimigos e perigos usam acentos mais definidos; cenário distante usa valores e saturação menores. Os percentuais descrevem o peso visual, não uma divisão literal da tela.
+- A piscina de lava é agora uma malha 3D orgânica low-poly com borda de basalto e núcleo emissivo. Os retângulos e contornos amarelos que eram desenhados diretamente no Canvas foram removidos.
+- Os personagens 3D não recebem mais oscilação automática de posição e rotação. O nado do herói usa uma inclinação lenta e pequena, limitada a 20 graus e combinada com a inclinação física do movimento.
+
+Para regenerar os panoramas com Blender instalado, execute `make render-backgrounds`. O alvo renderiza cinco PNGs em `src/main/resources/backgrounds/`; `make assets` também inclui essa etapa. O modelo da piscina de lava é criado por `make generate-lava-pool-model` e exportado junto das demais malhas pelo alvo `make export-runtime-models`.
 
 ```text
   [ Scripting Python (bpy) em personagens/scripts/ ]
@@ -172,6 +182,9 @@ Personagens e elementos de fase são exportados como malhas OBJ/MTL pelo Blender
              +--> [ OBJ/MTL em src/main/resources/models/characters/ e scenery/ ]
              |       v  (ObjModelLoader / Runtime3DLayer)
              |   [ Personagens e elementos de fase 3D na SubScene JavaFX ]
+             |
+             +--> (tools/assets/generate_phase_backgrounds.py)
+             |   [ 5 panoramas 3D em src/main/resources/backgrounds/ ]
              |
              v  (tools/assets/render_all_2d5_sprites.py)
   [ PNGs 2.5D em src/main/resources/sprites/ para cenário/UI ]
@@ -216,10 +229,12 @@ O `Makefile` adota um visual retro de fliperama no terminal e gerencia o ambient
   make setup-mpi               Check/install OpenMPI for offline map generation
   make build                   Compile Java 21 classes
   make test                    Execute JUnit 5 test suite (45 tests)
-  make assets                  Full 3D character + 2.5D scenery pipeline
+  make assets                  Full 3D character + scenery + phase panorama pipeline
   make assets-variant-attacks  Export 3D attack poses for runtime
   make generate-characters     Re-generate .blend and runtime OBJ/MTL models
   make render-sprites          Render 2.5D scenery PNGs from .blend
+  make render-backgrounds      Generate five stylized 3D phase panoramas
+  make generate-lava-pool-model Generate the low-poly 3D lava basin
   make copy-blends             Organize .blend 3D models into assets/
   make package                 Build executable Fat JAR in target/
   make docker-run              Build and run in Docker with Linux X11

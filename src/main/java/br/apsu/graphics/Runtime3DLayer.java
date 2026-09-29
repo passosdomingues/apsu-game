@@ -113,13 +113,11 @@ public final class Runtime3DLayer {
                 hero.isFacingRight() ? 18 : -18,
                 Math.max(-20.0, Math.min(20.0,
                     hero.getPitchAngle() * 0.65
-                    + Math.sin(timeSeconds * (4.0 + hero.getCurrentSpeedRatio() * 3.0)) * 4.0)));
+                    + Math.sin(timeSeconds * (2.1 + hero.getCurrentSpeedRatio() * 1.2)) * 2.5)));
             if (hero.isInvulnerable()) heroActor.node.setOpacity(0.45 + 0.3 * Math.sin(timeSeconds * 24.0));
             else heroActor.node.setOpacity(1.0);
-            double swimPulse = Math.sin(timeSeconds * (5.0 + hero.getCurrentSpeedRatio() * 4.0))
-                * (0.012 + hero.getCurrentSpeedRatio() * 0.012);
-            heroActor.node.setScaleX(1.0 - swimPulse);
-            heroActor.node.setScaleY(1.0 + swimPulse);
+            heroActor.node.setScaleX(1.0);
+            heroActor.node.setScaleY(1.0);
         }
 
         int enemyIndex = 0;
@@ -212,6 +210,7 @@ public final class Runtime3DLayer {
             case CURRENT, PRESSURE_ZONE -> "16_corrente_abissal_3d";
             case MOVING_OBSTACLE -> "13_obstaculo_abissal";
             case GEYSER -> "14_geiser_hidrotermal_3d";
+            case LAVA_POOL -> "17_piscina_lava_3d";
             case VOLCANIC_ROCK -> "12_obstaculo_vulcanico";
             default -> null;
         };
@@ -246,10 +245,9 @@ public final class Runtime3DLayer {
         // projeção perspectiva foi calibrada para coordenadas de tela. Subtrair
         // esse centro aqui deslocava todos os modelos para fora da SubScene.
         actor.node.setTranslateX(centerX + shakeX);
-        double bob = actor.modelName.startsWith("scenery/") ? 0 : Math.sin(time * 2.1 + phase * 8) * 2.0;
-        actor.node.setTranslateY(centerY + shakeY + bob);
+        actor.node.setTranslateY(centerY + shakeY);
         actor.node.setTranslateZ(phase * 2.0);
-        actor.yaw.setAngle(180 + yaw + Math.sin(time * 1.3 + phase * 5) * 0.4);
+        actor.yaw.setAngle(180 + yaw);
         actor.pitch.setAngle(Math.max(-20, Math.min(20, pitch)));
         actor.node.setVisible(true);
     }
