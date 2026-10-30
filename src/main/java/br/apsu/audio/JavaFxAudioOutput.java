@@ -82,7 +82,7 @@ final class JavaFxAudioOutput implements AudioOutput {
 
         String generatedPath = bossMode
             ? "/audio/generated/boss/" + key(depth) + ".wav"
-            : "/audio/generated/" + key(depth) + "/apsu-theme.wav";
+            : "/audio/generated/" + key(depth) + "/fase" + depth.getPhase() + ".wav";
         String selectedPath = useOriginalFallback ? "/audio/apsu-theme.wav" : generatedPath;
         URL resource = getClass().getResource(selectedPath);
         if (resource == null && !useOriginalFallback) {

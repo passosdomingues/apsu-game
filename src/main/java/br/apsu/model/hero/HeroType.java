@@ -7,13 +7,13 @@ import javafx.scene.paint.Color;
  * Overhaul: velocidades e acelerações calibradas para nado fluido e responsivo.
  */
 public enum HeroType {
-    GUARDIAO("Guardião dos Oceanos",
+    GUARDIAO("Adapa",
         "sprites/adapa/01_adapa_heroi.png",
         "sprites/adapa/01_adapa_nadando_disparo_bolhas.png",
         "sprites/adapa/01_adapa_nadando_atirando_bolhas.png",
         "sprites/adapa/01_adapa_heroi",
         11.0, 1.35, 0.945, 0.06, 1.0, "#4db8ff",
-        "Equilibrado — velocidade legivel e controle preciso."),
+        "Herói principal — velocidade legível e controle preciso."),
 
     ABISSAL("Apkallu Abissal",
         "sprites/adapa/01_adapa_var_abissal.png",

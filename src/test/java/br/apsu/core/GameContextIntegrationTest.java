@@ -68,6 +68,7 @@ public class GameContextIntegrationTest {
         context.startP5();
         assertEquals(GameContext.State.P5, context.getState());
         assertNotNull(context.getBoss(), "Fase 5 (Boss Final) deve spawnar o Boss Kullullû");
+        assertEquals(0, context.getBoss().getVariant(), "A fase usa apenas o Kullullû principal");
     }
 
     @Test
@@ -194,18 +195,23 @@ public class GameContextIntegrationTest {
     }
 
     @Test
-    @DisplayName("Troca de Dificuldades e seleção de Herói via Teclado")
+    @DisplayName("Menu abre o submenu de dificuldade e mantém Adapa principal")
     void testMenuKeyboardNavigation() {
         assertEquals(Difficulty.MEDIO, context.getDifficulty());
 
+        context.onKey(KeyCode.ENTER);
+        assertTrue(context.isDifficultyMenuOpen());
         context.onKey(KeyCode.UP);
-        context.onKey(KeyCode.UP);
-        context.onKey(KeyCode.LEFT);
+        context.onKey(KeyCode.ENTER);
         assertEquals(Difficulty.FACIL, context.getDifficulty());
-
+        assertFalse(context.isDifficultyMenuOpen());
+        context.onKey(KeyCode.ENTER);
         context.onKey(KeyCode.DOWN);
-        context.onKey(KeyCode.RIGHT);
-        assertEquals(HeroType.ABISSAL, context.getHeroType());
+        context.onKey(KeyCode.DOWN);
+        context.onKey(KeyCode.ENTER);
+        assertEquals(Difficulty.DIFICIL, context.getDifficulty());
+        context.cycleHero(+1);
+        assertEquals(HeroType.GUARDIAO, context.getHeroType());
     }
 
     @Test
@@ -251,7 +257,7 @@ public class GameContextIntegrationTest {
         GameContext restored = new GameContext(new SaveManager(tempDir.resolve("savegame.json")));
 
         assertEquals(Difficulty.DIFICIL, restored.getDifficulty());
-        assertEquals(HeroType.ABISSAL, restored.getHeroType());
+        assertEquals(HeroType.GUARDIAO, restored.getHeroType());
     }
 
     @Test

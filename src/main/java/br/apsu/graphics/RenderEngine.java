@@ -4,6 +4,7 @@ import br.apsu.core.GameContext;
 import br.apsu.core.GameRenderer;
 import br.apsu.model.boss.BossEntity;
 import br.apsu.model.enemy.EnemyEntity;
+import br.apsu.model.environment.Difficulty;
 import br.apsu.model.environment.Projectile;
 import br.apsu.model.environment.OceanDepthProfile;
 import br.apsu.model.guardian.GuardianEntity;
@@ -30,6 +31,17 @@ public class RenderEngine implements GameRenderer {
     private final Runtime3DLayer runtime3DLayer = new Runtime3DLayer();
     private final LightingEngine lightingEngine = new LightingEngine();
     private final UIRenderer uiRenderer = new UIRenderer();
+    private final Image[][] phaseBackgroundLayers = new Image[5][3];
+    private final Image[] legacyPhaseBackgrounds = new Image[5];
+    private final boolean[] legacyPhaseBackgroundLoaded = new boolean[5];
+    private final Paint[] phaseBackgroundGradients = new Paint[5];
+    private static final String[][] PHASE_BACKGROUND_COLORS = {
+        {"#08192e", "#0e3050", "#144870"},
+        {"#040c16", "#081826", "#0a2234"},
+        {"#060012", "#110028", "#1a0040"},
+        {"#1a0500", "#380800", "#5a0a00"},
+        {"#080018", "#150030", "#200050"}
+    };
     private boolean reducedEffects = true;
     private final Map<String, LinearGradient> backgroundGradients = new HashMap<>();
     private static final Map<String, Color> COLOR_CACHE = new java.util.concurrent.ConcurrentHashMap<>();
@@ -43,6 +55,17 @@ public class RenderEngine implements GameRenderer {
 
     public RenderEngine() {
         lightingEngine.setReducedEffects(true);
+        String[] layers = {"fundo", "meio", "frente"};
+        for (int phase = 1; phase <= phaseBackgroundLayers.length; phase++) {
+            String base = "backgrounds/phase-" + phase;
+            String[] colors = PHASE_BACKGROUND_COLORS[phase - 1];
+            phaseBackgroundGradients[phase - 1] = new LinearGradient(0, 0, 0, 1, true,
+                CycleMethod.NO_CYCLE, new Stop(0, color(colors[0])),
+                new Stop(0.5, color(colors[1])), new Stop(1, color(colors[2])));
+            for (int layer = 0; layer < layers.length; layer++) {
+                phaseBackgroundLayers[phase - 1][layer] = spriteManager.getImage(base + "-" + layers[layer] + ".png");
+            }
+        }
     }
 
     /** Qualidade dinâmica: o Canvas continua no thread JavaFX, mas os efeitos
@@ -141,30 +164,55 @@ public class RenderEngine implements GameRenderer {
         drawStatBar(gc, "Resistência", (hero.getDrag() - 0.85) / 0.12, px - 25, py + ph + 96, pw + 50, color("#ffaa44"));
         drawStatBar(gc, "Poder Bolha", hero.getPwr()      / 1.6,  px - 25, py + ph + 120, pw + 50, color("#e060ff"));
 
-        // Menu 3 Opções
+        // Menu principal: poucas ações visíveis e navegação por teclado explícita.
         gc.setTextAlign(TextAlignment.CENTER);
-        String[] opts = {
-            "  Dificuldade: " + ctx.getDifficulty().getLabel() + "  [A / D]",
-            "  Heroi: " + hero.getName() + "  [A / D]",
-            "  INICIAR JOGO"
-        };
-        double[] ys = {380, 455, 545};
+        String[] opts = {"DIFICULDADE     ▾     " + ctx.getDifficulty().getLabel(), "▶  INICIAR JOGO"};
+        double[] ys = {400, 500};
         for (int i = 0; i < opts.length; i++) {
             boolean sel = (i == ctx.getMenuSel());
             if (sel) {
-                gc.setFill(Color.rgb(0, 100, 220, 0.28));
-                gc.fillRoundRect(width / 2.0 - 340, ys[i] - 32, 680, 62, 16, 16);
+                gc.setFill(Color.rgb(0, 100, 220, 0.32));
+                gc.fillRoundRect(width / 2.0 - 280, ys[i] - 31, 560, 62, 16, 16);
                 gc.setStroke(color("#ffd700")); gc.setLineWidth(2);
-                gc.strokeRoundRect(width / 2.0 - 340, ys[i] - 32, 680, 62, 16, 16);
+                gc.strokeRoundRect(width / 2.0 - 280, ys[i] - 31, 560, 62, 16, 16);
             }
             gc.setFont(Font.font("Serif", sel ? FontWeight.BOLD : FontWeight.NORMAL, sel ? 28 : 22));
             gc.setFill(sel ? color("#ffd700") : color("#78b4cc"));
             gc.fillText(opts[i], width / 2.0, ys[i]);
         }
 
-        gc.setFont(Font.font("Serif", 15));
-        gc.setFill(color("#ffd700"));
-        gc.fillText(ctx.getDifficulty().getDescription(), width / 2.0, 625);
+        if (ctx.isDifficultyMenuOpen()) {
+            double panelX = width / 2.0 - 235, panelY = 270, panelW = 470, panelH = 320;
+            gc.setFill(Color.rgb(3, 12, 30, 0.97));
+            gc.fillRoundRect(panelX, panelY, panelW, panelH, 20, 20);
+            gc.setStroke(color("#4db8ff")); gc.setLineWidth(2);
+            gc.strokeRoundRect(panelX, panelY, panelW, panelH, 20, 20);
+            gc.setTextAlign(TextAlignment.CENTER);
+            gc.setFont(Font.font("Serif", FontWeight.BOLD, 22)); gc.setFill(color("#ffd700"));
+            gc.fillText("ESCOLHA A DIFICULDADE", width / 2.0, panelY + 34);
+            Difficulty[] modes = Difficulty.values();
+            for (int i = 0; i < modes.length; i++) {
+                double rowY = panelY + 78 + i * 45;
+                boolean selected = i == ctx.getDifficultyMenuSel();
+                if (selected) {
+                    gc.setFill(Color.rgb(0, 100, 220, 0.38));
+                    gc.fillRoundRect(panelX + 18, rowY - 19, panelW - 36, 38, 12, 12);
+                }
+                gc.setFont(Font.font("Serif", selected ? FontWeight.BOLD : FontWeight.NORMAL, 19));
+                gc.setFill(selected ? color("#ffffff") : color("#78b4cc"));
+                gc.fillText((selected ? "▶  " : "     ") + modes[i].getLabel(), width / 2.0, rowY);
+            }
+            gc.setTextAlign(TextAlignment.LEFT);
+            gc.setFont(Font.font("Serif", 12)); gc.setFill(color("#9ac6da"));
+            uiRenderer.wrapText(gc, modes[ctx.getDifficultyMenuSel()].getDescription(),
+                panelX + 24, panelY + 220, panelW - 48, 16);
+            gc.setTextAlign(TextAlignment.CENTER);
+            gc.setFont(Font.font("Serif", 13)); gc.setFill(color("#9ac6da"));
+            gc.fillText("↑  ↓  navegar     Enter  confirmar     Esc  voltar", width / 2.0, panelY + panelH - 17);
+        } else {
+            gc.setFont(Font.font("Serif", 15)); gc.setFill(color("#a8c9d8"));
+            gc.fillText("↑  ↓  navegar     Enter  selecionar", width / 2.0, 585);
+        }
     }
 
     private void drawStatBar(GraphicsContext gc, String label, double ratio, double x, double y, double width, Color color) {
@@ -212,16 +260,34 @@ public class RenderEngine implements GameRenderer {
         }
     }
 
+    private void drawPhaseBackground(GraphicsContext gc, GameContext ctx, double width, double height,
+                                    int phase, double fallbackFactor) {
+        int index = phase - 1;
+        gc.setFill(phaseBackgroundGradients[index]);
+        gc.fillRect(0, 0, width, height);
+        Image background = phaseBackgroundLayers[index][0];
+        Image midground = phaseBackgroundLayers[index][1];
+        Image foreground = phaseBackgroundLayers[index][2];
+        if (background == null) {
+            if (!legacyPhaseBackgroundLoaded[index]) {
+                legacyPhaseBackgrounds[index] = spriteManager.getImage("backgrounds/phase-" + phase + ".png");
+                legacyPhaseBackgroundLoaded[index] = true;
+            }
+            Image legacy = legacyPhaseBackgrounds[index];
+            if (legacy != null) drawParallaxBackground(gc, legacy, ctx.getCamera().getX(), width, height, fallbackFactor);
+            return;
+        }
+        double cameraX = ctx.getCamera().getX();
+        drawParallaxBackground(gc, background, cameraX, width, height, 0.16);
+        drawParallaxBackground(gc, midground, cameraX, width, height, 0.42);
+        drawParallaxBackground(gc, foreground, cameraX, width, height, 0.72);
+    }
+
     // =========================================================
     // FASE 1 — Águas Claras
     // =========================================================
     private void drawP1(GraphicsContext gc, GameContext ctx, double width, double height, double timeSeconds) {
-        Image bg1 = spriteManager.getImage("backgrounds/phase-1.png");
-        if (bg1 != null) {
-            drawParallaxBackground(gc, bg1, ctx.getCamera().getX(), width, height, 0.40);
-        } else {
-            drawGradientBackground(gc, width, height, "#08192e", "#0e3050", "#144870");
-        }
+        drawPhaseBackground(gc, ctx, width, height, 1, 0.40);
 
         lightingEngine.drawSunCaustics(gc, width, height, timeSeconds);
 
@@ -255,12 +321,7 @@ public class RenderEngine implements GameRenderer {
     // FASE 2 — Cavernas de Coral
     // =========================================================
     private void drawP2(GraphicsContext gc, GameContext ctx, double width, double height, double timeSeconds) {
-        Image bg2 = spriteManager.getImage("backgrounds/phase-2.png");
-        if (bg2 != null) {
-            drawParallaxBackground(gc, bg2, ctx.getCamera().getX(), width, height, 0.40);
-        } else {
-            drawGradientBackground(gc, width, height, "#040c16", "#081826", "#0a2234");
-        }
+        drawPhaseBackground(gc, ctx, width, height, 2, 0.40);
 
 
         // Galeão e Baú
@@ -304,12 +365,7 @@ public class RenderEngine implements GameRenderer {
     // FASE 3 — Correntes Abissais
     // =========================================================
     private void drawP3(GraphicsContext gc, GameContext ctx, double width, double height, double timeSeconds) {
-        Image bg3 = spriteManager.getImage("backgrounds/phase-3.png");
-        if (bg3 != null) {
-            drawParallaxBackground(gc, bg3, ctx.getCamera().getX(), width, height, 0.35);
-        } else {
-            drawGradientBackground(gc, width, height, "#060012", "#110028", "#1a0040");
-        }
+        drawPhaseBackground(gc, ctx, width, height, 3, 0.35);
 
         // === REDESIGN 2026-08-20: BOLHAS ASCENDENTES DE FUNDO EM CAMADAS ===
         // 12 bolhas (era 18) sem strokeOval por frame — preenchimento simples.
@@ -351,12 +407,7 @@ public class RenderEngine implements GameRenderer {
     // FASE 4 — Abismo Vulcânico
     // =========================================================
     private void drawP4(GraphicsContext gc, GameContext ctx, double width, double height, double timeSeconds) {
-        Image bg4 = spriteManager.getImage("backgrounds/phase-4.png");
-        if (bg4 != null) {
-            drawParallaxBackground(gc, bg4, ctx.getCamera().getX(), width, height, 0.30);
-        } else {
-            drawGradientBackground(gc, width, height, "#1a0500", "#380800", "#5a0a00");
-        }
+        drawPhaseBackground(gc, ctx, width, height, 4, 0.30);
 
         for (GuardianEntity g : ctx.getGuardians()) {
             double gx = ctx.getCamera().toScreenX(g.getWorldX());
@@ -383,12 +434,7 @@ public class RenderEngine implements GameRenderer {
     // FASE 5 — Templo Final de Apsu (arena boss)
     // =========================================================
     private void drawP5(GraphicsContext gc, GameContext ctx, double width, double height, double timeSeconds) {
-        Image bg5 = spriteManager.getImage("backgrounds/phase-5.png");
-        if (bg5 != null) {
-            drawParallaxBackground(gc, bg5, ctx.getCamera().getX(), width, height, 0.24);
-        } else {
-            drawGradientBackground(gc, width, height, "#080018", "#150030", "#200050");
-        }
+        drawPhaseBackground(gc, ctx, width, height, 5, 0.24);
 
         for (GuardianEntity g : ctx.getGuardians()) {
             drawGuardian(gc, g.getWorldX(), g.getWorldY(), g.getType(), !g.isContacted(), timeSeconds);

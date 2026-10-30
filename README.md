@@ -4,7 +4,7 @@
 
 ## Estado e como iniciar
 
-Protótipo jogável Java 21/JavaFX 21, com câmera lateral, nado livre e composição 2.5D. O runtime desenha o cenário no Canvas e carrega algumas malhas OBJ/MTL texturizadas numa camada JavaFX 3D para Adapa, NPCs, inimigos e props. As cinco imagens em `src/main/resources/backgrounds/` são panoramas rasterizados, não cenários 3D navegáveis. Ter `.blend`, render, sprite ou WAV no repositório não significa que o asset tenha animação funcional ou esteja integrado.
+Protótipo jogável Java 21/JavaFX 21, com câmera lateral, nado livre e composição 2.5D. O runtime desenha o cenário no Canvas e carrega algumas malhas OBJ/MTL texturizadas numa camada JavaFX 3D para Adapa, NPCs, inimigos e props. Cada fase usa três panoramas rasterizados com parallax (Fundo/Meio/Frente) derivados de `personagens/fases/fase1.blend`; as camadas dão profundidade visual, sem transformar a fase em geometria 3D navegável. Ter `.blend`, render, sprite ou WAV no repositório não significa que o asset tenha animação funcional ou esteja integrado.
 
 Requisitos: Java 21, Maven e desktop com display gráfico.
 
@@ -19,7 +19,13 @@ make coverage # executa verify e gera target/site/jacoco/index.html
 
 `make run` seleciona automaticamente `performance` (8+ threads, 12+ GB e GPU detectada), `balanced` ou `low`; no perfil alto, inicia com efeitos completos e reduz efeitos automaticamente se o FPS cair abaixo de 50. Sobrescreva com `APSU_PROFILE=performance|balanced|low make run`. Em notebooks híbridos Linux/Mesa, se `DRI_PRIME=1` confirmar uma GPU AMD acelerada, o Makefile usa a Radeon; compare com `APSU_GPU=intel make run` para selecionar a Intel integrada. `APSU_GPU=amd make run` força a Radeon, e `make system-info` mostra o renderer OpenGL padrão da sessão quando disponível. O perfil limita a heap Java a 3 GB/2 GB/1 GB respectivamente e respeita o limite de memória visível ao processo; assets e mecânicas não são removidos.
 
-Controles do runtime: WASD/setas movem Adapa; Espaço dispara bolhas depois de desbloqueadas; E/Enter/Espaço/F são teclas contextuais de interação/diálogo conforme estado. A progressão exige tabuletas nas fases 1–4; o baú da fase 2 concede bolhas; a fase 5 é arena fixa contra Kullullû. Reinicie uma partida para validar desde o início.
+Controles do runtime: no menu, ↑/↓ navegam, Enter abre a dificuldade ou inicia a partida, e Esc fecha o submenu; Adapa é sempre o herói principal. Durante o jogo, WASD/setas movem Adapa; Espaço dispara bolhas depois de desbloqueadas; E/Enter/Espaço/F são teclas contextuais de interação/diálogo conforme estado. A progressão exige tabuletas nas fases 1–4; o baú da fase 2 concede bolhas; a fase 5 é arena fixa contra Kullullû. Reinicie uma partida para validar desde o início.
+
+### UX do menu e onboarding
+
+O menu oferece duas ações: abrir o submenu de dificuldade (Fácil, Médio, Difícil) e iniciar. O submenu mantém o modo atual destacado e mostra os comandos de navegação/confirmação/retorno. Adapa usa sempre o modelo principal `01_adapa_heroi.blend`; saves antigos com uma variação são carregados com o protagonista principal.
+
+Direção de UX para as fases: introduzir uma mecânica de cada vez em zonas seguras; reforçar comandos contextualmente perto da primeira interação; dar sinais visuais antes de dano (direção, tempo e área); manter objetivo, tabuletas e saída legíveis no HUD; confirmar coleta, dano, desbloqueio e transição com sinais visuais e sonoros coerentes. A implementação incremental deve começar por dicas contextuais e telegraphs de perigo, seguida por revisão de contraste, hierarquia e legibilidade em cada fase.
 
 ## Legenda de status
 
@@ -141,7 +147,7 @@ Descrições de runtime conferidas em `GameContext.startP1`–`startP5` e métod
 ### 5 — Templo Final de Apsu
 
 - **Objetivo/progressão — IMPLEMENTADO:** arena fixa, diálogo com Enki, correntes/pressão e combate por fases contra Kullullû; lula vampira como inimigo.
-- **Conteúdo — IMPLEMENTADO:** Kullullû, variantes aleatórias na dificuldade difícil, Enki, fases de combate e vitória.
+- **Conteúdo — IMPLEMENTADO:** Kullullû principal, Enki, fases de combate e vitória. As variantes visuais não são selecionadas.
 - **Visual — PARCIAL:** panorama, modelos de Kullullû/variantes, Enki e lula existem. Ruínas/portal estão no panorama; a camada runtime evita uma ruína que escondia o boss. Revisar tamanho, texturas, variantes, HUD e sobreposição.
 - **Áudio:** troca de perfil para faixa boss e cue de mudança de fase **IMPLEMENTADOS**; intro, telegraphs, ataque, stagger, morte e stinger **PENDENTES**.
 - **Fluxo observado:** entrada/diálogo de Enki → arena com lula/correntes/pressão → ciclos de padrão do boss → derrota/vitória. Transição para epílogo e encerramento pós-chefe: **A DEFINIR**.
@@ -160,7 +166,7 @@ Descrições de runtime conferidas em `GameContext.startP1`–`startP5` e métod
 
 ## Pipeline 3D e saída 2.5D
 
-Scripts Blender em `personagens/scripts/`; fontes editáveis em `personagens/blends/`; renders de referência em `personagens/renders/`; recursos empacotados em `src/main/resources/`. O jogo não executa Blender em runtime. `make assets` regenera etapas; jogar usa recursos já empacotados.
+Scripts Blender em `personagens/scripts/`; fontes editáveis em `personagens/blends/` e `personagens/fases/`; renders de referência em `personagens/renders/`; recursos empacotados em `src/main/resources/`. O cenário 2.5D de todas as fases é renderizado da mesma cena-base `fase1.blend`, com progressão de ruínas e iluminação; os PNGs Fundo/Meio/Frente são desenhados em velocidades distintas de parallax. O jogo não executa Blender em runtime. `make render-backgrounds` regenera os cinco cenários; `make assets` regenera etapas; jogar usa recursos já empacotados.
 
 Fluxo: Blender → OBJ/MTL/texturas para malhas 3D carregadas por `Runtime3DLayer`; panoramas e sprites PNG para cenário 2.5D via render offline. Usar render como saída final para fundo/foreground/decor que não precisam interação. Usar malha runtime para personagens/props que precisam profundidade/interação quando escala e custo forem aceitáveis. Decisão por asset deve aparecer na matriz.
 
@@ -251,7 +257,7 @@ Intenção comum: mistério, descoberta e despertar de poder nas fases iniciais;
 | P4 hydrothermal vent | Tensão geológica com respiro | Leviatã/combate a definir | Lava/gêiser, pausa pré-sub-boss pendentes | Tema e boss track existem |
 | P5 hadal trench | Exploração do templo a definir | Faixa boss dedicada selecionável | Intro, telegraphs, mudança, vitória e retorno pendentes | Troca de modo e faixa boss implementadas |
 
-Cada perfil tem tema `apsu-theme.wav` e cues gerados para os identificadores atuais; há uma faixa boss por perfil. Isso não significa aprovação de mix/licenças novas. FFmpeg offline usa `tools/audio/render_audio_assets.py`; fontes, créditos e licenças em [docs/audio/SOURCES.md](docs/audio/SOURCES.md). Preservar fontes originais e registrar créditos novos.
+Os quatro arquivos `fase1.mpeg`–`fase4.mpeg` são convertidos para WAV PCM 16-bit/44,1 kHz estéreo em `audio/generated/<perfil>/faseN.wav` e usados na fase correspondente. A conversão mantém intacta a qualidade já decodificada do MP3; não recupera informação perdida na compressão MPEG original. `apsu-theme.wav` segue como fallback da faixa costeira; as faixas boss e os demais efeitos permanecem. FFmpeg offline também gera os cues de profundidade por `tools/audio/render_audio_assets.py`; fontes, créditos e licenças em [docs/audio/SOURCES.md](docs/audio/SOURCES.md). Registrar créditos novos ao adicionar áudio.
 
 ## Sprint (seis integrantes)
 

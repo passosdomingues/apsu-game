@@ -77,7 +77,9 @@ public class GameContext {
     private long chestTime = 0;
 
     // Menu & Diálogos
-    private int menuSel = 2; // 0=Difficulty, 1=Hero, 2=Start Game
+    private int menuSel = 0; // 0=Difficulty, 1=Start Game
+    private boolean difficultyMenuOpen;
+    private int difficultyMenuSel = Difficulty.MEDIO.ordinal();
     private int dlgPhase = 0;
     private int dlgIdx = 0;
 
@@ -118,7 +120,6 @@ public class GameContext {
         this.eventBus = eventBus;
         SaveManager.SaveData saved = saveManager.load().orElseGet(saveManager::newGame);
         this.difficulty = Difficulty.valueOf(saved.difficulty());
-        this.heroType = HeroType.valueOf(saved.selectedHero());
         this.phaseDone = Math.max(0, saved.unlockedPhase() - 1);
         this.hero = new HeroEntity(heroType, difficulty.getInitialHP());
     }
@@ -131,10 +132,7 @@ public class GameContext {
     }
 
     public void cycleHero(int dir) {
-        HeroType[] vals = HeroType.values();
-        heroType = vals[(heroType.ordinal() + dir + vals.length) % vals.length];
-        hero.setType(heroType);
-        persistProgress();
+        // Adapa uses the principal model for every new game.
     }
 
     public void onKey(KeyCode k) {
@@ -193,22 +191,34 @@ public class GameContext {
 
     private void menuKey(KeyCode k) {
         boolean navigated = false;
-        if (k == KeyCode.UP   || k == KeyCode.W) { menuSel = (menuSel - 1 + 3) % 3; navigated = true; }
-        if (k == KeyCode.DOWN || k == KeyCode.S) { menuSel = (menuSel + 1) % 3; navigated = true; }
-        if (k == KeyCode.LEFT || k == KeyCode.A) {
-            if (menuSel == 0) { cycleDiff(-1); navigated = true; }
-            else if (menuSel == 1) { cycleHero(-1); navigated = true; }
+        if (difficultyMenuOpen) {
+            if (k == KeyCode.UP || k == KeyCode.W) {
+                difficultyMenuSel = (difficultyMenuSel - 1 + Difficulty.values().length) % Difficulty.values().length;
+                navigated = true;
+            } else if (k == KeyCode.DOWN || k == KeyCode.S) {
+                difficultyMenuSel = (difficultyMenuSel + 1) % Difficulty.values().length;
+                navigated = true;
+            } else if (k == KeyCode.ESCAPE || k == KeyCode.LEFT) {
+                difficultyMenuOpen = false;
+                navigated = true;
+            } else if (k == KeyCode.ENTER || k == KeyCode.SPACE || k == KeyCode.E) {
+                setDifficulty(Difficulty.values()[difficultyMenuSel]);
+                hero.heal(difficulty.getInitialHP());
+                difficultyMenuOpen = false;
+                playSound(AudioCue.MENU_CONFIRM);
+                persistProgress();
+                return;
+            }
+            if (navigated) playSound(AudioCue.MENU_NAVIGATE);
+            return;
         }
-        if (k == KeyCode.RIGHT|| k == KeyCode.D) {
-            if (menuSel == 0) { cycleDiff(+1); navigated = true; }
-            else if (menuSel == 1) { cycleHero(+1); navigated = true; }
-        }
+        if (k == KeyCode.UP || k == KeyCode.W) { menuSel = (menuSel - 1 + 2) % 2; navigated = true; }
+        if (k == KeyCode.DOWN || k == KeyCode.S) { menuSel = (menuSel + 1) % 2; navigated = true; }
         if (navigated) playSound(AudioCue.MENU_NAVIGATE);
         if (k == KeyCode.ENTER || k == KeyCode.SPACE || k == KeyCode.E) {
             switch (menuSel) {
-                case 0 -> cycleDiff(+1);
-                case 1 -> cycleHero(+1);
-                case 2 -> { reset(); transitionToPhase(1); }
+                case 0 -> { difficultyMenuOpen = true; difficultyMenuSel = difficulty.ordinal(); }
+                case 1 -> { reset(); transitionToPhase(1); }
             }
             playSound(AudioCue.MENU_CONFIRM);
         }
@@ -432,8 +442,7 @@ public class GameContext {
         camera.setX(0);
         guardians.add(new GuardianEntity(4, 160, 768 / 2.0 - GuardianEntity.GH)); // Enki em pessoa!
 
-        int bossVar = (difficulty == Difficulty.DIFICIL) ? (1 + (int)(Math.random() * 2)) : 0;
-        boss = new BossEntity(bossVar, 1366 - BossEntity.BW - 80, 768 / 2.0 - BossEntity.BH / 2);
+        boss = new BossEntity(0, 1366 - BossEntity.BW - 80, 768 / 2.0 - BossEntity.BH / 2);
         boss.setLastShotTime(nanoTime);
 
         hero.beginPhaseAt(80, 768 / 2.0 - HeroEntity.HH / 2);
@@ -1244,7 +1253,7 @@ public class GameContext {
         hero.setMaxHP(difficulty.getInitialHP());
     }
     public HeroType getHeroType() { return heroType; }
-    public void setHeroType(HeroType heroType) { this.heroType = heroType; hero.setType(heroType); }
+    public void setHeroType(HeroType heroType) { this.heroType = HeroType.GUARDIAO; hero.setType(HeroType.GUARDIAO); }
     public HeroEntity getHero() { return hero; }
     public BossEntity getBoss() { return boss; }
     public AdaptiveDifficulty getAdaptiveDifficulty() { return adaptiveDifficulty; }
@@ -1282,6 +1291,8 @@ public class GameContext {
     public void setDlgIdx(int idx) { this.dlgIdx = idx; }
     public int getMenuSel() { return menuSel; }
     public void setMenuSel(int menuSel) { this.menuSel = menuSel; }
+    public boolean isDifficultyMenuOpen() { return difficultyMenuOpen; }
+    public int getDifficultyMenuSel() { return difficultyMenuSel; }
     public boolean isChestOpen() { return chestOpen; }
     public double getChestWX() { return chestWX; }
     public double getChestWY() { return chestWY; }

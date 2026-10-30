@@ -44,7 +44,8 @@ public final class SaveManager {
         public SaveData {
             version = (version == null || version.isBlank()) ? CURRENT_VERSION : version;
             difficulty = isDifficulty(difficulty) ? difficulty : Difficulty.MEDIO.name();
-            selectedHero = isHero(selectedHero) ? selectedHero : HeroType.GUARDIAO.name();
+            // Older saves may contain a selectable skin; this game now uses Adapa's principal model.
+            selectedHero = HeroType.GUARDIAO.name();
             unlockedPhase = Math.max(1, Math.min(5, unlockedPhase));
             tabletsCollected = tabletsCollected == null ? new boolean[5] : tabletsCollected.clone();
             highScore = Math.max(0, highScore);
@@ -64,14 +65,6 @@ public final class SaveManager {
             }
         }
 
-        private static boolean isHero(String value) {
-            try {
-                HeroType.valueOf(value);
-                return true;
-            } catch (IllegalArgumentException | NullPointerException ignored) {
-                return false;
-            }
-        }
     }
 
     public SaveData newGame() {

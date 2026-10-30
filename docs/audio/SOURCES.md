@@ -9,3 +9,11 @@ As três fontes abaixo foram baixadas para `src/main/resources/audio/sources/` e
 | `boss-approach.ogg` | *Enemy Ship Approaching*, yd | Tema de suspense/combate ao entrar na arena do boss | [CC0 / OpenGameArt](https://opengameart.org/content/enemy-ship-approaching) |
 
 O pipeline mistura e filtra essas fontes com FFmpeg; os OGG originais são preservados para futuras remixagens. A licença CC0 e a autoria foram confirmadas nas páginas de cada obra.
+
+## Trilhas por fase
+
+| Arquivo local | Uso | Origem/licença |
+|---|---|---|
+| `fase1.mpeg`–`fase4.mpeg` | Música principal das fases 1–4 | Arquivos fornecidos no projeto; tags de autoria e licença não estão presentes nos MPEGs. Confirmar os créditos/licença antes de redistribuir fora do projeto. |
+
+Os MPEGs originais são mantidos. A conversão para WAV usa PCM 16-bit, 44,1 kHz e estéreo; ela não adiciona perdas à decodificação, mas também não recupera dados já descartados pela compressão MP3.
