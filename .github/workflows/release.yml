@@ -134,9 +134,24 @@ jobs:
               mv dist/installers/*.dmg "dist/apsu-game-${RELEASE_TAG}-${PLATFORM}.dmg"
               ;;
             windows-x64)
-              iscc.exe "/DAppVersion=$app_version" \
+              iscc_path="$(command -v ISCC.exe || true)"
+              if [[ -z "$iscc_path" ]]; then
+                for candidate in "/c/Program Files (x86)/Inno Setup 6/ISCC.exe" \
+                  "/c/Program Files/Inno Setup 6/ISCC.exe"; do
+                  if [[ -x "$candidate" ]]; then iscc_path="$candidate"; break; fi
+                done
+              fi
+              if [[ -z "$iscc_path" ]]; then
+                echo "Inno Setup (ISCC.exe) não encontrado no runner Windows." >&2
+                exit 1
+              fi
+              inno_log=target/inno-setup.log
+              if ! "$iscc_path" "/DAppVersion=$app_version" \
                 "/DOutputName=apsu-game-${RELEASE_TAG}-${PLATFORM}" \
-                release/windows-installer.iss
+                release/windows-installer.iss >"$inno_log" 2>&1; then
+                while IFS= read -r line; do echo "::error title=Inno Setup::$line"; done < "$inno_log"
+                exit 1
+              fi
               mv "dist/installers/apsu-game-${RELEASE_TAG}-${PLATFORM}.exe" \
                 "dist/apsu-game-${RELEASE_TAG}-${PLATFORM}.exe"
               ;;
