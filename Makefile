@@ -85,7 +85,8 @@ else
     APSU_JVM_ARGS ?= -Xms64m -Xmx1g -Dapsu.quality=low
 endif
 APSU_PERF_ARGS := $(if $(filter 1 true yes,$(APSU_PERF)),-Dapsu.perf=true,)
-APSU_AUDIO_ARGS := -Dapsu.audio.enabled=$(APSU_AUDIO)
+APSU_AUDIO_ENABLED := $(if $(filter 1 true yes on,$(APSU_AUDIO)),true,false)
+APSU_AUDIO_ARGS := -Dapsu.audio.enabled=$(APSU_AUDIO_ENABLED)
 APSU_JFR_THREAD_ARGS := $(if $(filter 1 true yes,$(APSU_JFR_THREAD_STACKS)),$(APSU_COMMA)jdk.ThreadStart#stackTrace=true,)
 APSU_JFR_ARGS := $(if $(filter 1 true yes,$(APSU_JFR)),-XX:StartFlightRecording=filename=$(APSU_JFR_FILE)$(APSU_COMMA)settings=profile$(APSU_COMMA)dumponexit=true$(APSU_JFR_THREAD_ARGS),)
 JFR_CMD ?= jfr
