@@ -42,9 +42,6 @@ jobs:
           - runner: ubuntu-latest
             platform: linux-x64
             javafx: linux
-          - runner: ubuntu-24.04-arm
-            platform: linux-arm64
-            javafx: linux-aarch64
           - runner: macos-15
             platform: macos-arm64
             javafx: mac-aarch64
@@ -69,7 +66,18 @@ jobs:
           cache: maven
 
       - name: Compile the platform build
-        run: mvn --batch-mode package -DskipTests -Djavafx.platform=${{ matrix.javafx }}
+        shell: bash
+        run: |
+          set -o pipefail
+          mvn --batch-mode package -DskipTests -Djavafx.platform=${{ matrix.javafx }} 2>&1 | tee target/platform-build.log
+
+      - name: Report platform build error
+        if: failure()
+        shell: bash
+        run: |
+          errors=$(grep -E '^\[ERROR\]|Caused by:' target/platform-build.log | tail -n 8 || true)
+          if [[ -z "$errors" ]]; then errors="Build step failed before Maven reported a cause."; fi
+          echo "::error title=Platform build details::$errors"
 
       - name: Build installer and portable files
         shell: bash
@@ -108,10 +116,8 @@ jobs:
           PY
 
           case "$PLATFORM" in
-            linux-x64|linux-arm64)
-              if [[ "$PLATFORM" == linux-x64 ]]; then
-                cp "$resource_zip" "dist/apsu-game-${RELEASE_TAG}-resources.zip"
-              fi
+            linux-x64)
+              cp "$resource_zip" "dist/apsu-game-${RELEASE_TAG}-resources.zip"
               jpackage --type deb --app-image dist/app-image/ApsuGame \
                 --name apsu-game --app-version "$app_version" --dest dist/installers \
                 --linux-shortcut --description "As Águas de Apsu — aventura submersa"
@@ -188,7 +194,6 @@ jobs:
           ## Instalação simples
 
           - **Ubuntu/Debian x64:** baixe [o instalador Linux](${base_url}/apsu-game-${RELEASE_TAG}-linux-x64.deb) e abra o arquivo. Java já vem incluído.
-          - **Ubuntu/Debian ARM64:** baixe [o instalador ARM64](${base_url}/apsu-game-${RELEASE_TAG}-linux-arm64.deb). Java já vem incluído.
           - **macOS Apple Silicon:** baixe [o instalador para M1/M2/M3/M4](${base_url}/apsu-game-${RELEASE_TAG}-macos-arm64.dmg), abra e arraste o jogo para Aplicativos.
           - **macOS Intel:** baixe [o instalador Intel](${base_url}/apsu-game-${RELEASE_TAG}-macos-x64.dmg), abra e arraste o jogo para Aplicativos.
           - **Windows 10/11:** baixe [o instalador .exe](${base_url}/apsu-game-${RELEASE_TAG}-windows-x64.exe) e siga as etapas. Java já vem incluído.
@@ -197,7 +202,7 @@ jobs:
 
           ## Opção portátil
 
-          JARs: [Linux x64](${base_url}/apsu-game-${RELEASE_TAG}-linux-x64.jar) · [Linux ARM64](${base_url}/apsu-game-${RELEASE_TAG}-linux-arm64.jar) · [macOS Apple Silicon](${base_url}/apsu-game-${RELEASE_TAG}-macos-arm64.jar) · [macOS Intel](${base_url}/apsu-game-${RELEASE_TAG}-macos-x64.jar) · [Windows x64](${base_url}/apsu-game-${RELEASE_TAG}-windows-x64.jar).
+          JARs: [Linux x64](${base_url}/apsu-game-${RELEASE_TAG}-linux-x64.jar) · [macOS Apple Silicon](${base_url}/apsu-game-${RELEASE_TAG}-macos-arm64.jar) · [macOS Intel](${base_url}/apsu-game-${RELEASE_TAG}-macos-x64.jar) · [Windows x64](${base_url}/apsu-game-${RELEASE_TAG}-windows-x64.jar).
 
           Baixe também o [pacote comum de recursos](${base_url}/apsu-game-${RELEASE_TAG}-resources.zip) e o [launcher Linux/macOS](${base_url}/jogar.sh) ou [launcher Windows](${base_url}/jogar.bat) e [seu auxiliar PowerShell](${base_url}/jogar-windows.ps1). Deixe tudo na mesma pasta. No Linux/macOS, rode \`bash jogar.sh\`; no Windows, abra \`jogar.bat\`. Se Java 21 não estiver instalado, o launcher baixa uma cópia só para sua conta, sem alterar o sistema. Com GNU Make, use também \`make -f Makefile-Jogar jogar\`.
 

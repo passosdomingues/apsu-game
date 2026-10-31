@@ -7,7 +7,6 @@ machine="$(uname -m)"
 
 case "$system:$machine" in
   Linux:x86_64|Linux:amd64) platform=linux-x64; api_os=linux; api_arch=x64 ;;
-  Linux:aarch64|Linux:arm64) platform=linux-arm64; api_os=linux; api_arch=aarch64 ;;
   Darwin:x86_64) platform=macos-x64; api_os=mac; api_arch=x64 ;;
   Darwin:arm64|Darwin:aarch64) platform=macos-arm64; api_os=mac; api_arch=aarch64 ;;
   *) echo "Sistema/arquitetura não cobertos por este launcher: $system $machine" >&2; exit 1 ;;
