@@ -28,7 +28,7 @@ Este documento detalha os princípios de design, componentes de software e subsi
 
 ## 1. Ciclo de Vida e Bootstrapping (`br.apsu.Launcher` / `ApsuGameMain`)
 
-- `Launcher.java`: Wrapper que permite executar o Fat JAR via `java -jar` sem passar argumentos `--module-path` JavaFX.
+- `Launcher.java`: Wrapper de entrada do app JAR com dependências; na release, o launcher mantém o ZIP de recursos de jogo no classpath junto ao JAR executável.
 - `ApsuGameMain.java`: Ponto de entrada JavaFX `Application`. Configura o Canvas responsivo (1366x768), inicializa o `EventBus`, conecta o `AudioEventSubscriber` e instancia o `GameContext`, o `RenderEngine` e o `GameLoop`.
 
 ---

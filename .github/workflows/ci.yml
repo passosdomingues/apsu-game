@@ -34,6 +34,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: apsu-game-${{ github.sha }}-playable
-          path: target/*-jar-with-dependencies.jar
+          path: |
+            target/*-jar-with-dependencies.jar
+            target/*-resources.zip
           if-no-files-found: warn
           retention-days: 30

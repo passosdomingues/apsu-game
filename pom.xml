@@ -52,6 +52,24 @@
                 <javafx.platform>mac</javafx.platform>
             </properties>
         </profile>
+        <profile>
+            <id>linux-aarch64</id>
+            <activation>
+                <os><family>unix</family><arch>aarch64</arch></os>
+            </activation>
+            <properties>
+                <javafx.platform>linux-aarch64</javafx.platform>
+            </properties>
+        </profile>
+        <profile>
+            <id>mac-aarch64</id>
+            <activation>
+                <os><family>mac</family><arch>aarch64</arch></os>
+            </activation>
+            <properties>
+                <javafx.platform>mac-aarch64</javafx.platform>
+            </properties>
+        </profile>
     </profiles>
 
     <dependencies>
@@ -132,6 +150,17 @@
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
+            <!-- Keep executable platform jars small; immutable game data ships once as a shared ZIP. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.4.1</version>
+                <configuration>
+                    <includes>
+                        <include>br/**/*.class</include>
+                    </includes>
+                </configuration>
+            </plugin>
 
             <!-- Mantém bibliotecas nativas do JavaFX dentro de target durante testes. -->
             <plugin>
@@ -208,9 +237,6 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.6.0</version>
                 <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
                     <archive>
                         <manifest>
                             <mainClass>${main.class}</mainClass>
@@ -228,6 +254,23 @@
                         <goals>
                             <goal>single</goal>
                         </goals>
+                        <configuration>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>make-game-resources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>src/assembly/game-resources.xml</descriptor>
+                            </descriptors>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

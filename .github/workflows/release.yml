@@ -15,10 +15,29 @@ permissions:
   contents: write
 
 jobs:
-  build-and-upload:
-    runs-on: ubuntu-latest
+  build-platforms:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            platform: linux-x64
+            javafx: linux
+          - runner: ubuntu-24.04-arm
+            platform: linux-arm64
+            javafx: linux-aarch64
+          - runner: macos-15
+            platform: macos-arm64
+            javafx: mac-aarch64
+          - runner: macos-15-intel
+            platform: macos-x64
+            javafx: mac
+          - runner: windows-latest
+            platform: windows-x64
+            javafx: win
+    runs-on: ${{ matrix.runner }}
     steps:
-      - name: Check out source
+      - name: Check out tagged source
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.tag || github.ref }}
@@ -30,43 +49,163 @@ jobs:
           distribution: temurin
           cache: maven
 
-      - name: Run tests and build executable JAR
-        run: mvn --batch-mode verify
+      - name: Test and package the platform build
+        run: mvn --batch-mode verify -Djavafx.platform=${{ matrix.javafx }}
+
+      - name: Build installer and portable files
+        shell: bash
+        env:
+          PLATFORM: ${{ matrix.platform }}
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          set -euo pipefail
+          app_jar=$(find target -maxdepth 1 -name '*-jar-with-dependencies.jar' -print -quit)
+          resource_zip=$(find target -maxdepth 1 -name '*-resources.zip' -print -quit)
+          test -n "$app_jar"
+          test -n "$resource_zip"
+          app_version="${RELEASE_TAG#v}"
+          app_version="${app_version:0:4}.${app_version:4:2}.${app_version:6:2}"
+          mkdir -p dist/input dist/installers
+          cp "$app_jar" dist/input/ApsuGame.jar
+          cp "$resource_zip" dist/input/ApsuGame-resources.zip
+          cp "$app_jar" "dist/apsu-game-${RELEASE_TAG}-${PLATFORM}.jar"
+          jpackage --type app-image --input dist/input --main-jar ApsuGame.jar \
+            --main-class br.apsu.Launcher --name ApsuGame --app-version "$app_version" \
+            --dest dist/app-image
+          python3 - "$PLATFORM" dist/app-image/ApsuGame <<'PY'
+          from pathlib import Path
+          import sys
+
+          platform, image = sys.argv[1], Path(sys.argv[2])
+          config = next(image.rglob('ApsuGame.cfg'))
+          separator = ';' if platform.startswith('windows-') else ':'
+          lines = config.read_text().splitlines()
+          lines = [
+              f'app.classpath=$APPDIR/ApsuGame.jar{separator}$APPDIR/ApsuGame-resources.zip'
+              if line.startswith('app.classpath=') else line
+              for line in lines
+          ]
+          config.write_text('\n'.join(lines) + '\n')
+          PY
+
+          case "$PLATFORM" in
+            linux-x64|linux-arm64)
+              if [[ "$PLATFORM" == linux-x64 ]]; then
+                cp "$resource_zip" "dist/apsu-game-${RELEASE_TAG}-resources.zip"
+              fi
+              jpackage --type deb --app-image dist/app-image/ApsuGame \
+                --name apsu-game --app-version "$app_version" --dest dist/installers \
+                --linux-shortcut --description "As Águas de Apsu — aventura submersa"
+              mv dist/installers/*.deb "dist/apsu-game-${RELEASE_TAG}-${PLATFORM}.deb"
+              ;;
+            macos-arm64|macos-x64)
+              jpackage --type dmg --app-image dist/app-image/ApsuGame \
+                --name ApsuGame --app-version "$app_version" --dest dist/installers \
+                --mac-package-name "As Águas de Apsu"
+              mv dist/installers/*.dmg "dist/apsu-game-${RELEASE_TAG}-${PLATFORM}.dmg"
+              ;;
+            windows-x64)
+              jpackage --type exe --app-image dist/app-image/ApsuGame \
+                --name ApsuGame --app-version "$app_version" --dest dist/installers \
+                --win-menu --win-shortcut --win-dir-chooser --vendor "As Águas de Apsu"
+              mv dist/installers/*.exe "dist/apsu-game-${RELEASE_TAG}-${PLATFORM}.exe"
+              ;;
+          esac
+
+          for asset in dist/apsu-game-*; do
+            case "$asset" in *.sha256) continue ;; esac
+            printf '%s  %s\n' "$(sha256sum "$asset" | awk '{print $1}')" "${asset##*/}" > "$asset.sha256"
+          done
+
+      - name: Upload platform release files
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.platform }}
+          path: dist/apsu-game-*
+          if-no-files-found: error
+          retention-days: 1
+
+  publish:
+    needs: build-platforms
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out tagged source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+
+      - name: Download platform files
+        uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          path: dist
+          merge-multiple: true
+
+      - name: Prepare source archive and player instructions
+        env:
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          source_archive="apsu-game-${RELEASE_TAG}-source.zip"
+          git archive --format=zip --prefix="apsu-game-${RELEASE_TAG}/" "$RELEASE_TAG" \
+            src/main/java src/test/java tools/assets tools/audio tools/setup release pom.xml Makefile src/assembly > "dist/$source_archive"
+          source_hash=$(sha512sum "dist/$source_archive" | awk '{print $1}')
+          printf '%s  %s\n' "$source_hash" "$source_archive" > "dist/$source_archive.sha512"
+          cp release/Makefile dist/Makefile-Jogar
+          cp release/jogar.sh release/jogar.bat release/jogar-windows.ps1 dist/
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('dist/jogar.bat')
+          path.write_bytes(path.read_text().replace('\r\n', '\n').replace('\n', '\r\n').encode())
+          PY
+          base_url="https://github.com/${GITHUB_REPOSITORY}/releases/download/${RELEASE_TAG}"
+          cat > dist/release-notes.md <<EOF
+          # As Águas de Apsu
+
+          Atravesse cinco regiões submersas inspiradas na mitologia suméria. Como Adapa, recupere tabuletas antigas, desperte o poder das bolhas e enfrente Kullullû nas profundezas do Templo de Apsu.
+
+          ## Instalação simples
+
+          - **Ubuntu/Debian x64:** baixe [o instalador Linux](${base_url}/apsu-game-${RELEASE_TAG}-linux-x64.deb) e abra o arquivo. Java já vem incluído.
+          - **Ubuntu/Debian ARM64:** baixe [o instalador ARM64](${base_url}/apsu-game-${RELEASE_TAG}-linux-arm64.deb). Java já vem incluído.
+          - **macOS Apple Silicon:** baixe [o instalador para M1/M2/M3/M4](${base_url}/apsu-game-${RELEASE_TAG}-macos-arm64.dmg), abra e arraste o jogo para Aplicativos.
+          - **macOS Intel:** baixe [o instalador Intel](${base_url}/apsu-game-${RELEASE_TAG}-macos-x64.dmg), abra e arraste o jogo para Aplicativos.
+          - **Windows 10/11:** baixe [o instalador .exe](${base_url}/apsu-game-${RELEASE_TAG}-windows-x64.exe) e siga as etapas. Java já vem incluído.
+
+          Os instaladores incluem Java 21 e criam atalhos para abrir o jogo.
+
+          ## Opção portátil
+
+          JARs: [Linux x64](${base_url}/apsu-game-${RELEASE_TAG}-linux-x64.jar) · [Linux ARM64](${base_url}/apsu-game-${RELEASE_TAG}-linux-arm64.jar) · [macOS Apple Silicon](${base_url}/apsu-game-${RELEASE_TAG}-macos-arm64.jar) · [macOS Intel](${base_url}/apsu-game-${RELEASE_TAG}-macos-x64.jar) · [Windows x64](${base_url}/apsu-game-${RELEASE_TAG}-windows-x64.jar).
+
+          Baixe também o [pacote comum de recursos](${base_url}/apsu-game-${RELEASE_TAG}-resources.zip) e o [launcher Linux/macOS](${base_url}/jogar.sh) ou [launcher Windows](${base_url}/jogar.bat) e [seu auxiliar PowerShell](${base_url}/jogar-windows.ps1). Deixe tudo na mesma pasta. No Linux/macOS, rode \`bash jogar.sh\`; no Windows, abra \`jogar.bat\`. Se Java 21 não estiver instalado, o launcher baixa uma cópia só para sua conta, sem alterar o sistema. Com GNU Make, use também \`make -f Makefile-Jogar jogar\`.
+
+          O Makefile, os launchers, o ZIP de código-fonte e seus hashes SHA-512 estão entre os arquivos desta release.
+
+          Cada instalador e JAR tem um arquivo SHA-256 ao lado. O pacote de código-fonte inclui SHA-512 para preservar uma versão identificável do código.
+          EOF
 
       - name: Create or update GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
         run: |
-          built_asset=$(find target -maxdepth 1 -name '*-jar-with-dependencies.jar' -print -quit)
-          test -n "$built_asset"
-          asset="apsu-game-${RELEASE_TAG}-jar-with-dependencies.jar"
-          cp "$built_asset" "$asset"
-          source_archive="apsu-game-${RELEASE_TAG}-source.zip"
-          git archive --format=zip --prefix="apsu-game-${RELEASE_TAG}/" "$RELEASE_TAG" \
-            src/main/java src/test/java tools/assets tools/audio tools/setup pom.xml Makefile > "$source_archive"
-          jar_hash=$(sha256sum "$asset" | awk '{print $1}')
-          source_hash=$(sha512sum "$source_archive" | awk '{print $1}')
-          printf '%s  %s\n' "$jar_hash" "$asset" > "$asset.sha256"
-          printf '%s  %s\n' "$source_hash" "$source_archive" > "$source_archive.sha512"
-          cat > release-notes.md <<EOF
-          # As Águas de Apsu
-
-          Atravesse cinco regiões submersas inspiradas na mitologia suméria. Como Adapa, recupere as tabuletas antigas, desperte o poder das bolhas e enfrente Kullullû nas profundezas do Templo de Apsu.
-
-          Baixe o JAR executável e jogue com Java 21.
-
-          ## Integridade dos arquivos
-
-          - Executável SHA-256: \`$jar_hash\`
-          - Pacote de código-fonte SHA-512: \`$source_hash\`
-          EOF
+          set -euo pipefail
           if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
-            if gh release view "$RELEASE_TAG" --json assets --jq '.assets[].name' | grep -Fxq 'apsu-game-1.0.0-jar-with-dependencies.jar'; then
-              gh release delete-asset "$RELEASE_TAG" 'apsu-game-1.0.0-jar-with-dependencies.jar' --yes
-            fi
-            gh release upload "$RELEASE_TAG" "$asset" "$asset.sha256" "$source_archive" "$source_archive.sha512" --clobber
-            gh release edit "$RELEASE_TAG" --title "As Águas de Apsu $RELEASE_TAG" --notes-file release-notes.md
+            gh release view "$RELEASE_TAG" --json assets --jq '.assets[].name' |
+              while IFS= read -r old_asset; do
+                case "$old_asset" in
+                  apsu-game-1.0.0-jar-with-dependencies.jar|apsu-game-v*-jar-with-dependencies.jar)
+                    gh release delete-asset "$RELEASE_TAG" "$old_asset" --yes
+                    ;;
+                esac
+              done
+            mapfile -t assets < <(find dist -maxdepth 1 -type f ! -name 'release-notes.md' -printf '%p\n' | sort)
+            gh release upload "$RELEASE_TAG" "${assets[@]}" --clobber
+            gh release edit "$RELEASE_TAG" --title "As Águas de Apsu $RELEASE_TAG" --notes-file dist/release-notes.md
           else
-            gh release create "$RELEASE_TAG" "$asset" "$asset.sha256" "$source_archive" "$source_archive.sha512" --verify-tag --title "As Águas de Apsu $RELEASE_TAG" --notes-file release-notes.md
+            mapfile -t assets < <(find dist -maxdepth 1 -type f ! -name 'release-notes.md' -printf '%p\n' | sort)
+            gh release create "$RELEASE_TAG" "${assets[@]}" --verify-tag --title "As Águas de Apsu $RELEASE_TAG" --notes-file dist/release-notes.md
           fi

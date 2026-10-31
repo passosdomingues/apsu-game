@@ -279,11 +279,12 @@ convert-phase-music:
 	@$(PYTHON_CMD) tools/audio/convert_phase_music.py
 
 ## Pipeline rápido de variantes
-## Gera Fat JAR executável
+## Gera o JAR de execução e o pacote de recursos partilhado
 package: build
-	@echo "$(CLR_CYAN)[PACK ] Building Fat JAR package in target/...$(CLR_RESET)"
+	@echo "$(CLR_CYAN)[PACK ] Building app JAR and shared resources in target/...$(CLR_RESET)"
 	@$(MVN_CMD) package -q -DskipTests
-	@echo "$(CLR_GREEN)[OK] Executable JAR created: target/apsu-game-$(VERSION)-jar-with-dependencies.jar$(CLR_RESET)"
+	@echo "$(CLR_GREEN)[OK] App JAR: target/apsu-game-$(VERSION)-jar-with-dependencies.jar$(CLR_RESET)"
+	@echo "$(CLR_GREEN)[OK] Shared game resources: target/apsu-game-$(VERSION)-resources.zip$(CLR_RESET)"
 
 ## Constrói a imagem Docker
 docker-build:
@@ -342,7 +343,7 @@ help:
 	@echo "  $(CLR_CYAN)make render-3d-previews$(CLR_RESET)   Create review-only Blender renders outside runtime assets"
 	@echo "  $(CLR_CYAN)make generate-abyssal-enemies$(CLR_RESET) Generate dolphin, octopus and squid models"
 	@echo "  $(CLR_CYAN)make copy-blends$(CLR_RESET)           Organize .blend 3D models into assets/"
-	@echo "  $(CLR_CYAN)make package$(CLR_RESET)               Build executable Fat JAR in target/"
+	@echo "  $(CLR_CYAN)make package$(CLR_RESET)               Build app JAR and shared game resources"
 	@echo "  $(CLR_YELLOW)make docker-run$(CLR_RESET)           Run inside Docker container (Linux)"
 	@echo "  $(CLR_RED)make clean$(CLR_RESET)                Clean build artifacts and release RAM"
 	@echo "$(CLR_DIM)+-----------------------------------------------------------------------+$(CLR_RESET)"
