@@ -3,25 +3,25 @@
 # Substitua os placeholders abaixo pelos usernames reais do GitHub.
 
 # DEV 1 — Núcleo do Jogo (Core Engine, Eventos, Estado)
-/src/main/java/br/apsu/core/**       @rafael
+/src/main/java/br/apsu/core/**       @passosdomingues
 /src/main/java/br/apsu/audio/**      @erik
-/src/main/java/br/apsu/Launcher.java  @rafael
-/src/main/java/br/apsu/ApsuGameMain.java @rafael
+/src/main/java/br/apsu/Launcher.java  @passosdomingues
+/src/main/java/br/apsu/ApsuGameMain.java @passosdomingues
 
 # DEV 2 — Gráficos (RenderEngine, Sprites, Câmera, Shaders, HUD)
-/src/main/java/br/apsu/graphics/**   @rafael
+/src/main/java/br/apsu/graphics/**   @passosdomingues
 
 # DEV 3 — Gameplay (Heroi, Inimigos, Boss, Guardiões, Projéteis, Físicas)
-/src/main/java/br/apsu/model/**      @rafael
+/src/main/java/br/apsu/model/**      @passosdomingues
 
 # DEV 4 — Pipeline de Assets 3D (Blender, Scripts bpy, Spritesheets)
-/personagens/**                       @wagner
-/assets/**                            @marcos
+/personagens/**                       @passosdomingues
+/assets/**                            @passosdomingues
 
 # DEV 5 — Plataforma, Build e Sistemas (Tools, CI/CD, Makefile)
-/tools/**                             @rafael
-/.github/**                           @rafael
-/Makefile                             @rafael
-/pom.xml                              @rafael
-/docker-compose.yml                   @rafael
-/docs/**                              @rafael
+/tools/**                             @passosdomingues
+/.github/**                           @passosdomingues
+/Makefile                             @passosdomingues
+/pom.xml                              @passosdomingues
+/docker-compose.yml                   @passosdomingues
+/docs/**                              @passosdomingues
