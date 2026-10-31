@@ -69,6 +69,7 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
+          mkdir -p target
           mvn --batch-mode package -DskipTests -Djavafx.platform=${{ matrix.javafx }} 2>&1 | tee target/platform-build.log
 
       - name: Report platform build error
