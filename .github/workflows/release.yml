@@ -134,10 +134,11 @@ jobs:
               mv dist/installers/*.dmg "dist/apsu-game-${RELEASE_TAG}-${PLATFORM}.dmg"
               ;;
             windows-x64)
-              jpackage --type exe --app-image "$app_image" \
-                --name ApsuGame --app-version "$app_version" --dest dist/installers \
-                --win-menu --win-shortcut --win-dir-chooser --vendor "As Águas de Apsu"
-              mv dist/installers/*.exe "dist/apsu-game-${RELEASE_TAG}-${PLATFORM}.exe"
+              iscc.exe "/DAppVersion=$app_version" \
+                "/DOutputName=apsu-game-${RELEASE_TAG}-${PLATFORM}" \
+                release/windows-installer.iss
+              mv "dist/installers/apsu-game-${RELEASE_TAG}-${PLATFORM}.exe" \
+                "dist/apsu-game-${RELEASE_TAG}-${PLATFORM}.exe"
               ;;
           esac
 
