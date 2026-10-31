@@ -53,15 +53,6 @@
             </properties>
         </profile>
         <profile>
-            <id>linux-aarch64</id>
-            <activation>
-                <os><family>unix</family><arch>aarch64</arch></os>
-            </activation>
-            <properties>
-                <javafx.platform>linux-aarch64</javafx.platform>
-            </properties>
-        </profile>
-        <profile>
             <id>mac-aarch64</id>
             <activation>
                 <os><family>mac</family><arch>aarch64</arch></os>
@@ -86,6 +77,12 @@
             <version>${fxgl.version}</version>
         </dependency>
         <!-- JavaFX Controls (botões, menus — necessário para Stage/Scene) -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>${javafx.platform}</classifier>
+        </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>

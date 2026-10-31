@@ -76,7 +76,7 @@ jobs:
         if: failure()
         shell: bash
         run: |
-          errors=$(grep -E '^\[ERROR\]|Caused by:' target/platform-build.log | tail -n 8 || true)
+          errors=$(grep -E '^\[ERROR\]|Caused by:' target/platform-build.log | tail -n 30 || true)
           if [[ -z "$errors" ]]; then errors="Build step failed before Maven reported a cause."; fi
           echo "::error title=Platform build details::$errors"
 
