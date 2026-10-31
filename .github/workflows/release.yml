@@ -87,6 +87,7 @@ jobs:
           RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
         run: |
           set -euo pipefail
+          trap 'status=$?; echo "::error title=Installer step failed::${BASH_COMMAND} (exit ${status})"; exit "$status"' ERR
           app_jar=$(find target -maxdepth 1 -name '*-jar-with-dependencies.jar' -print -quit)
           resource_zip=$(find target -maxdepth 1 -name '*-resources.zip' -print -quit)
           test -n "$app_jar"
@@ -100,7 +101,9 @@ jobs:
           jpackage --type app-image --input dist/input --main-jar ApsuGame.jar \
             --main-class br.apsu.Launcher --name ApsuGame --app-version "$app_version" \
             --dest dist/app-image
-          python3 - "$PLATFORM" dist/app-image/ApsuGame <<'PY'
+          app_image=dist/app-image/ApsuGame
+          if [[ "$PLATFORM" == macos-* ]]; then app_image+=".app"; fi
+          python3 - "$PLATFORM" "$app_image" <<'PY'
           from pathlib import Path
           import sys
 
@@ -125,13 +128,13 @@ jobs:
               mv dist/installers/*.deb "dist/apsu-game-${RELEASE_TAG}-${PLATFORM}.deb"
               ;;
             macos-arm64|macos-x64)
-              jpackage --type dmg --app-image dist/app-image/ApsuGame \
+              jpackage --type dmg --app-image "$app_image" \
                 --name ApsuGame --app-version "$app_version" --dest dist/installers \
                 --mac-package-name "As Águas de Apsu"
               mv dist/installers/*.dmg "dist/apsu-game-${RELEASE_TAG}-${PLATFORM}.dmg"
               ;;
             windows-x64)
-              jpackage --type exe --app-image dist/app-image/ApsuGame \
+              jpackage --type exe --app-image "$app_image" \
                 --name ApsuGame --app-version "$app_version" --dest dist/installers \
                 --win-menu --win-shortcut --win-dir-chooser --vendor "As Águas de Apsu"
               mv dist/installers/*.exe "dist/apsu-game-${RELEASE_TAG}-${PLATFORM}.exe"
