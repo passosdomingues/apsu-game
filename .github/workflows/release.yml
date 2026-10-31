@@ -241,7 +241,7 @@ jobs:
             gh release view "$RELEASE_TAG" --json assets --jq '.assets[].name' |
               while IFS= read -r old_asset; do
                 case "$old_asset" in
-                  apsu-game-1.0.0-jar-with-dependencies.jar|apsu-game-v*-jar-with-dependencies.jar)
+                  apsu-game-1.0.0-jar-with-dependencies.jar|apsu-game-1.0.0-jar-with-dependencies.jar.sha256|apsu-game-v*-jar-with-dependencies.jar|apsu-game-v*-jar-with-dependencies.jar.sha256)
                     gh release delete-asset "$RELEASE_TAG" "$old_asset" --yes
                     ;;
                 esac
