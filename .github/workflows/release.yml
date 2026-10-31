@@ -42,13 +42,31 @@ jobs:
           test -n "$built_asset"
           asset="apsu-game-${RELEASE_TAG}-jar-with-dependencies.jar"
           cp "$built_asset" "$asset"
-          awk '/^## Aprendizados e desafios/{show=1} show{print} /^## Créditos/{exit}' README.md > release-notes.md
+          source_archive="apsu-game-${RELEASE_TAG}-source.zip"
+          git archive --format=zip --prefix="apsu-game-${RELEASE_TAG}/" "$RELEASE_TAG" \
+            src/main/java src/test/java tools/assets tools/audio tools/setup pom.xml Makefile > "$source_archive"
+          jar_hash=$(sha256sum "$asset" | awk '{print $1}')
+          source_hash=$(sha512sum "$source_archive" | awk '{print $1}')
+          printf '%s  %s\n' "$jar_hash" "$asset" > "$asset.sha256"
+          printf '%s  %s\n' "$source_hash" "$source_archive" > "$source_archive.sha512"
+          cat > release-notes.md <<EOF
+          # As Águas de Apsu
+
+          Atravesse cinco regiões submersas inspiradas na mitologia suméria. Como Adapa, recupere as tabuletas antigas, desperte o poder das bolhas e enfrente Kullullû nas profundezas do Templo de Apsu.
+
+          Baixe o JAR executável e jogue com Java 21.
+
+          ## Integridade dos arquivos
+
+          - Executável SHA-256: \`$jar_hash\`
+          - Pacote de código-fonte SHA-512: \`$source_hash\`
+          EOF
           if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
             if gh release view "$RELEASE_TAG" --json assets --jq '.assets[].name' | grep -Fxq 'apsu-game-1.0.0-jar-with-dependencies.jar'; then
               gh release delete-asset "$RELEASE_TAG" 'apsu-game-1.0.0-jar-with-dependencies.jar' --yes
             fi
-            gh release upload "$RELEASE_TAG" "$asset" --clobber
+            gh release upload "$RELEASE_TAG" "$asset" "$asset.sha256" "$source_archive" "$source_archive.sha512" --clobber
             gh release edit "$RELEASE_TAG" --title "As Águas de Apsu $RELEASE_TAG" --notes-file release-notes.md
           else
-            gh release create "$RELEASE_TAG" "$asset" --verify-tag --title "As Águas de Apsu $RELEASE_TAG" --notes-file release-notes.md
+            gh release create "$RELEASE_TAG" "$asset" "$asset.sha256" "$source_archive" "$source_archive.sha512" --verify-tag --title "As Águas de Apsu $RELEASE_TAG" --notes-file release-notes.md
           fi

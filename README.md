@@ -319,7 +319,18 @@ Ao adicionar evento, defina semântica antes do som. Ao trocar WAV, altere recur
 
 Registrar build/commit, comandos, resultado, ambiente gráfico e fases efetivamente jogadas nas próximas validações. **A DEFINIR:** orçamento numérico de performance, hardware de referência, critério formal de mix e arte final.
 
-**Verificação da revisão (31/10/2026):** `mvn test -q` passou com 80 testes, sem falhas/erros/skips. A quadtree de inimigos é preenchida a cada atualização e a colisão de contato tem regressão automatizada; os diálogos de fase/guardiões agora usam uma frase curta. P2 não replica mais o OBJ de recife/cardume em cada barreira; o naufrágio usa a malha 3D e seu eixo de profundidade agora é centrado, com um único baú interativo no meio da ruptura do casco. O golfinho abissal aparece na P4; a arena P5 não instancia Enki, inimigos laterais ou correntes, e posiciona o boss ampliado à direita, voltado para a esquerda e dentro da tela. Os materiais de personagens e props devem ser ajustados à paleta fixa de cada fase com a referência 60/30/10; os panoramas não fazem parte desses ajustes. Efeitos compartilham nove WAVs-fonte, evitam sobreposição idêntica e mantêm a música PCM por fase/boss. A amostra JFR com áudio ligado caiu de 8.617 criações de thread em 99 s para 3 em 20 s. Em execução direta no host, sem Docker, o áudio desligado ainda apresentou picos de pulse; por isso Docker não explica sozinho a lentidão observada. As capturas por fase permitem revisar a cena, mas ainda é necessário medir em GPU/dispositivo de referência para concluir o diagnóstico de frame pacing. O workflow de release foi preparado; a autenticação atual do GitHub CLI retornou HTTP 401 e o host não resolve `github.com`, impedindo o disparo remoto.
+**Verificação da revisão (31/10/2026):** `mvn verify` passou localmente com 80 testes, sem falhas/erros/skips. O workflow de release publicou a tag `v20261031-111014` e o JAR executável com a versão timestampada. P2 não replica o OBJ de recife/cardume em cada barreira; o naufrágio usa a malha 3D, com eixo de profundidade centrado e um único baú interativo no meio da ruptura do casco. O golfinho abissal aparece na P4; a arena P5 não instancia Enki, inimigos laterais ou correntes, e posiciona o boss ampliado à direita, voltado para a esquerda e dentro da tela. Personagens e props são ajustados à paleta de cada fase pela referência 60/30/10; os cenários permanecem intactos. As capturas por fase em `gameplay/revisao-2026-10-31/` documentam a revisão visual; ainda é necessário medir frame pacing em GPU/dispositivo de referência.
+
+## Documentação relacionada
+
+- [AGENTS.md](AGENTS.md) — regras locais.
+- [CONTRIBUTING.md](CONTRIBUTING.md) — workflow/responsabilidades.
+- [DEVELOPMENT.md](DEVELOPMENT.md) — setup/build/test/run.
+- [ARCHITECTURE.md](ARCHITECTURE.md) — arquitetura técnica.
+- [SOURCES.md](docs/audio/SOURCES.md) — fontes e créditos de áudio.
+- [Diagrama SVG](docs/diagrams/architecture_diagram.svg) — conferir contra o código ao atualizar.
+
+Para preservar uma cópia identificável do código-fonte, a release anexa um ZIP versionado e seu resumo SHA-512. O INPI solicita o hash da documentação técnica (código-fonte), que pode ser um conjunto compactado; para um pedido futuro, deve-se guardar exatamente o arquivo correspondente ao hash. Consulte o [guia oficial do INPI](https://www.gov.br/inpi/pt-br/servicos/programas-de-computador/guia-basico).
 
 ## Aprendizados e desafios
 
@@ -333,15 +344,6 @@ Registrar build/commit, comandos, resultado, ambiente gráfico e fases efetivame
 - Um OBJ ambiental completo com cardume não é uma peça de coral: instanciá-lo em cada obstáculo replica a cena toda e espalha elementos. Use uma composição completa uma vez ou gere um asset modular antes de distribuir peças pelo mapa.
 - Feedback visual não deve simular dano com piscadas contínuas ou tremor intenso: a invulnerabilidade é comunicada no HUD, enquanto o shake global e a oscilação ociosa do personagem ficam sutis. Conferir isso em captura de tela e jogando continua necessário.
 - Testes unitários validam regras e carregamento de malha, mas não substituem QA visual em GPU acelerada. Registrar fase, dificuldade, modelo visível, renderer e amostra de frame-time junto com cada captura torna o relato reproduzível.
-
-## Documentação relacionada
-
-- [AGENTS.md](AGENTS.md) — regras locais.
-- [CONTRIBUTING.md](CONTRIBUTING.md) — workflow/responsabilidades.
-- [DEVELOPMENT.md](DEVELOPMENT.md) — setup/build/test/run.
-- [ARCHITECTURE.md](ARCHITECTURE.md) — arquitetura técnica.
-- [SOURCES.md](docs/audio/SOURCES.md) — fontes e créditos de áudio.
-- [Diagrama SVG](docs/diagrams/architecture_diagram.svg) — conferir contra o código ao atualizar.
 
 ## Créditos
 
