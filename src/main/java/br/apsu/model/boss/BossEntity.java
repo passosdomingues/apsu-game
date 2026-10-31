@@ -17,7 +17,9 @@ public class BossEntity {
     }
 
     public static final long TELEGRAPH_NANOS = 500_000_000L;
-    public static final double BW = 160, BH = 250;
+    /** Hitbox gameplay do boss; o render 3D mantém proporção maior que o herói. */
+    public static final double BW = 260, BH = 400;
+    public static final double RENDER_W = 3800, RENDER_H = 4600;
     public static final int[] HP_BY_VAR = { 5, 7, 6 };
     public static final double[] SPD_MULT = { 1.0, 0.7, 1.4 };
     public static final double[] SPREAD = { Math.PI/5, Math.PI/6, Math.PI/3.5 };
@@ -40,7 +42,7 @@ public class BossEntity {
 
     public void updatePosition(double time, double screenHeight) {
         double spd = SPD_MULT[Math.min(variant, SPD_MULT.length - 1)];
-        double targetY = screenHeight / 2.0 - BH / 2.0 + Math.sin(time * 1.6 * spd) * 80.0;
+        double targetY = screenHeight / 2.0 - BH / 2.0 - 130.0 + Math.sin(time * 1.2 * spd) * 28.0;
         this.y = Math.max(20.0, Math.min(screenHeight - BH - 20.0, targetY));
     }
 

@@ -14,7 +14,7 @@ Para evitar conflitos de merge e organizar a colaboração, as áreas do projeto
 | **DEV 2 — Gráficos** | `RenderEngine`, `Camera`, `SpriteManager`, `LightingEngine`, `UIRenderer`, performance 60 FPS | `src/main/java/br/apsu/graphics/` |
 | **DEV 3 — Gameplay** | `HeroEntity`, `EnemyEntity`, `BossEntity`, `GuardianEntity`, físicas, colisões, IA | `src/main/java/br/apsu/model/` |
 | **DEV 4 — Pipeline de Assets** | Blender/bpy, modelos 3D procedurais, animações, baking 2.5D, spritesheets PNG | `personagens/`, `tools/assets/` |
-| **DEV 5 — Plataforma & Sistemas** | OpenMPI, gerador de mapas em C, Makefile, `pom.xml`, CI/CD, scripts de setup | `mpi/`, `tools/setup/`, `.github/`, `Makefile` |
+| **DEV 5 — Plataforma & Sistemas** | Makefile, `pom.xml`, CI/CD, scripts de setup | `tools/setup/`, `.github/`, `Makefile` |
 
 ---
 

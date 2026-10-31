@@ -62,7 +62,8 @@ public class Camera {
         if (progress >= 1) return 0;
         double envelope = 1.0 - progress;
         double seconds = (now - shakeStartedAt) / 1_000_000_000.0;
-        return Math.sin(seconds * frequency) * shakeIntensity * envelope;
+        // Keep hit feedback visible without making every character tremble.
+        return Math.sin(seconds * frequency) * shakeIntensity * envelope * 0.18;
     }
 
     public double getX() { return x; }

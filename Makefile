@@ -9,7 +9,6 @@ MAIN_CLASS   := br.apsu.Launcher
 SRC_DIR      := src/main/java
 RES_DIR      := src/main/resources
 TARGET_DIR   := target
-MPI_DIR      := mpi
 
 # ============================================================
 # DETECÇÃO AUTOMÁTICA DE SISTEMA OPERACIONAL (LINUX VS WINDOWS)
@@ -55,8 +54,6 @@ else
     GPU_INFO        := $(shell lspci 2>/dev/null | grep -Ei 'VGA compatible controller|3D controller|Display controller' | sed 's/^[^:]*: //' | paste -sd '; ' -)
     GL_RENDERER     := $(shell glxinfo -B 2>/dev/null | sed -n 's/^OpenGL renderer string: //p' | head -1)
     GL_ACCELERATED  := $(shell glxinfo -B 2>/dev/null | sed -n 's/^ *Accelerated: //p' | head -1)
-    AMD_GPU_READY   := $(shell if printf '%s' "$(GPU_INFO)" | grep -Eqi 'AMD|ATI|Radeon' && DRI_PRIME=1 glxinfo -B 2>/dev/null | grep -q 'Accelerated: yes'; then echo yes; else echo no; fi)
-    
     RM_DIR          := rm -rf
     RM_FILE         := rm -f
     MKDIR           := mkdir -p
@@ -64,11 +61,17 @@ endif
 
 APSU_PROFILE ?= auto
 APSU_GPU ?= auto
+APSU_PERF ?= 0
+APSU_AUDIO ?= 1
+APSU_JFR ?= 0
+APSU_JFR_FILE ?= target/apsu-gameplay.jfr
+APSU_JFR_THREAD_STACKS ?= 0
+APSU_COMMA := ,
 ifeq ($(APSU_PROFILE),auto)
     ifeq ($(IS_WINDOWS),1)
-        APSU_PROFILE := $(shell if [ "$(CPU_CORES)" -ge 8 ] && [ "$(RAM_GB)" -ge 12 ]; then echo performance; elif [ "$(CPU_CORES)" -ge 4 ] && [ "$(RAM_GB)" -ge 8 ]; then echo balanced; else echo low; fi)
+        APSU_PROFILE := $(shell if [ "$(CPU_CORES)" -ge 12 ] && [ "$(RAM_GB)" -ge 16 ]; then echo performance; elif [ "$(CPU_CORES)" -ge 4 ] && [ "$(RAM_GB)" -ge 8 ]; then echo balanced; else echo low; fi)
     else
-        APSU_PROFILE := $(shell if [ "$(CPU_CORES)" -ge 8 ] && [ "$(RAM_MIB)" -ge 12288 ] && [ "$(GL_ACCELERATED)" = yes ] && printf '%s' "$(GPU_INFO)" | grep -Eqi 'Intel|AMD|ATI|NVIDIA'; then echo performance; elif [ "$(CPU_CORES)" -ge 4 ] && [ "$(RAM_MIB)" -ge 7168 ]; then echo balanced; else echo low; fi)
+        APSU_PROFILE := $(shell if [ "$(CPU_CORES)" -ge 12 ] && [ "$(RAM_MIB)" -ge 16384 ] && [ "$(GL_ACCELERATED)" = yes ] && printf '%s' "$(GPU_INFO)" | grep -Eqi 'Intel|AMD|ATI|NVIDIA'; then echo performance; elif [ "$(CPU_CORES)" -ge 4 ] && [ "$(RAM_MIB)" -ge 7168 ]; then echo balanced; else echo low; fi)
     endif
 endif
 ifeq ($(filter $(APSU_PROFILE),performance balanced low),)
@@ -81,22 +84,24 @@ else ifeq ($(APSU_PROFILE),balanced)
 else
     APSU_JVM_ARGS ?= -Xms64m -Xmx1g -Dapsu.quality=low
 endif
+APSU_PERF_ARGS := $(if $(filter 1 true yes,$(APSU_PERF)),-Dapsu.perf=true,)
+APSU_AUDIO_ARGS := -Dapsu.audio.enabled=$(APSU_AUDIO)
+APSU_JFR_THREAD_ARGS := $(if $(filter 1 true yes,$(APSU_JFR_THREAD_STACKS)),$(APSU_COMMA)jdk.ThreadStart#stackTrace=true,)
+APSU_JFR_ARGS := $(if $(filter 1 true yes,$(APSU_JFR)),-XX:StartFlightRecording=filename=$(APSU_JFR_FILE)$(APSU_COMMA)settings=profile$(APSU_COMMA)dumponexit=true$(APSU_JFR_THREAD_ARGS),)
+JFR_CMD ?= jfr
 ifeq ($(APSU_GPU),amd)
     APSU_GPU_ENV := DRI_PRIME=1
     APSU_GPU_SELECTED := Radeon (manual)
 else ifeq ($(APSU_GPU),intel)
     APSU_GPU_ENV := DRI_PRIME=0
     APSU_GPU_SELECTED := Intel UHD (manual)
-else ifeq ($(AMD_GPU_READY),yes)
-    APSU_GPU_ENV := DRI_PRIME=1
-    APSU_GPU_SELECTED := Radeon (automatic, accelerated)
 else ifneq ($(APSU_GPU),auto)
     $(error APSU_GPU deve ser auto, intel ou amd)
 else
-    APSU_GPU_SELECTED := driver padrão do sistema
+    APSU_GPU_SELECTED := renderer padrão da sessão
 endif
 
-MPI_PROCESSES ?= $(CPU_CORES)
+ADAPA_RUNTIME_MODEL_PATHS := personagens/blends/01_adapa_heroi/01_adapa_heroi.blend,personagens/blends/01_adapa_heroi/01_adapa_ataque_thrust.blend
 
 # ============================================================
 # PALETA DE CORES ANSI RETRO ARCADE (NEON CYAN, MAGENTA, YELLOW)
@@ -111,7 +116,7 @@ CLR_DIM    := \033[2;37m
 CLR_RED    := \033[1;31m
 CLR_RESET  := \033[0m
 
-.PHONY: all setup setup-assets setup-mpi audio-assets copy-blends clean-blender-backups test coverage build run system-info stop generate-characters generate-geyser-model generate-lava-pool-model generate-abyssal-enemies export-runtime-models generate-variant-attacks render-sprites render-backgrounds render-variant-attacks assets assets-variant-attacks package docker-build docker-run mpi-demo mpi-generate clean help
+.PHONY: all setup setup-assets audio-assets convert-phase-music copy-blends clean-blender-backups test coverage build run perf-summary system-info stop generate-characters generate-geyser-model generate-lava-pool-model generate-abyssal-enemies export-runtime-models export-model render-model-sprites refresh-model refresh-adapa-models refresh-adapa-sprites render-sprites render-3d-previews render-backgrounds assets assets-procedural assets-regenerate package docker-build docker-run clean help
 
 # Target padrão
 all: setup run
@@ -123,15 +128,10 @@ setup:
 	@echo "$(CLR_HEADER)+-----------------------------------------------------------------------+$(CLR_RESET)"
 	@$(if $(filter 1,$(IS_WINDOWS)),$(SHELL_SETUP) -RuntimeOnly,APSU_RUNTIME_ONLY=1 $(SHELL_SETUP))
 
-## Instala também Blender/OpenMPI, necessários só para geração de assets e mapas
+## Instala Blender, necessário apenas para regenerar assets 3D
 setup-assets:
 	@echo "$(CLR_CYAN)[SETUP] Checking asset-generation dependencies...$(CLR_RESET)"
-	@$(if $(filter 1,$(IS_WINDOWS)),$(SHELL_SETUP),APSU_SKIP_MPI=1 $(SHELL_SETUP))
-
-## Instala OpenMPI sob demanda, sem baixar Blender
-setup-mpi:
-	@echo "$(CLR_CYAN)[SETUP] Checking OpenMPI dependencies...$(CLR_RESET)"
-	@$(if $(filter 1,$(IS_WINDOWS)),$(SHELL_SETUP),APSU_SKIP_BLENDER=1 $(SHELL_SETUP))
+	@$(if $(filter 1,$(IS_WINDOWS)),$(SHELL_SETUP),$(SHELL_SETUP))
 
 ## Organiza e copia os modelos 3D .blend para assets/
 copy-blends:
@@ -149,6 +149,7 @@ copy-blends:
 	@cp -f personagens/blends/08_*/*.blend assets/scenery/ 2>/dev/null || true
 	@cp -f personagens/blends/09_*/*.blend assets/scenery/ 2>/dev/null || true
 	@cp -f personagens/blends/10_*/*.blend assets/scenery/ 2>/dev/null || true
+	@cp -f personagens/blends/11_*/*.blend assets/characters/inimigos/ 2>/dev/null || true
 	@echo "$(CLR_GREEN)[OK] 3D .blend models organized successfully.$(CLR_RESET)"
 
 ## Remove backups .blend1
@@ -181,7 +182,12 @@ run: setup
 	@echo "$(CLR_HEADER)| [RUN  ] LAUNCHING AS AGUAS DE APSU ON $(SO_NAME)                         |$(CLR_RESET)"
 	@echo "$(CLR_HEADER)+-----------------------------------------------------------------------+$(CLR_RESET)"
 	@echo "$(CLR_CYAN)[PERF ] Perfil $(APSU_PROFILE) | $(CPU_CORES) threads | ~$(RAM_GB) GB RAM | GPU: $(APSU_GPU_SELECTED)$(CLR_RESET)"
-	@$(APSU_GPU_ENV) JAVA_TOOL_OPTIONS="$${JAVA_TOOL_OPTIONS:+$$JAVA_TOOL_OPTIONS }$(APSU_JVM_ARGS)" $(MVN_CMD) javafx:run
+	@$(APSU_GPU_ENV) JAVA_TOOL_OPTIONS="$${JAVA_TOOL_OPTIONS:+$$JAVA_TOOL_OPTIONS }$(APSU_JVM_ARGS) $(APSU_AUDIO_ARGS) $(APSU_PERF_ARGS) $(APSU_JFR_ARGS)" $(MVN_CMD) javafx:run
+
+## Mostra o resumo de uma gravação JFR criada com APSU_JFR=1
+perf-summary:
+	@test -f "$(APSU_JFR_FILE)" || { echo "Arquivo JFR não encontrado: $(APSU_JFR_FILE)"; exit 1; }
+	@$(JFR_CMD) summary "$(APSU_JFR_FILE)"
 
 ## Mostra o hardware detectado e os perfis disponíveis para execução
 system-info:
@@ -194,19 +200,37 @@ system-info:
 	@echo "  Renderer OpenGL padrão: $(if $(GL_RENDERER),$(GL_RENDERER),indisponível nesta sessão/display) ($(if $(GL_ACCELERATED),aceleração $(GL_ACCELERATED),aceleração não detectada))"
 	@echo "  Perfil selecionado: $(APSU_PROFILE) (use APSU_PROFILE=low|balanced|performance para substituir)"
 	@echo "  GPU selecionada: $(APSU_GPU_SELECTED) (use APSU_GPU=intel|amd para comparar)"
+	@echo "  Diagnóstico de frame: use APSU_PERF=1 make run para FPS/update/render e tempo de carga OBJ"
 
-## Regenera TODOS os modelos .blend via Python/bpy
+## Regenera os modelos .blend editáveis via Python/bpy
 generate-characters: setup-assets
 	@echo "$(CLR_CYAN)[BAKE ] Re-generating 3D models (.blend) via Blender Python API...$(CLR_RESET)"
 	@BLENDER_BIN="$(BLENDER_BIN)" $(PYTHON_CMD) personagens/scripts/gerador_mestre_apsu.py
-	@$(MAKE) --no-print-directory export-runtime-models
-	@echo "$(CLR_GREEN)[OK] All .blend models re-generated successfully.$(CLR_RESET)"
+	@echo "$(CLR_GREEN)[OK] Blender source models re-generated.$(CLR_RESET)"
 
 ## Exporta personagens do Blender como malhas OBJ/MTL carregadas no jogo
-export-runtime-models: setup-assets generate-geyser-model generate-lava-pool-model generate-abyssal-enemies
+export-runtime-models: setup-assets
 	@echo "$(CLR_CYAN)[3D   ] Exporting runtime character meshes from Blender...$(CLR_RESET)"
-	@$(BLENDER_BIN) --background --python tools/assets/export_runtime_3d_models.py -- "$(CURDIR)"
+	@$(BLENDER_BIN) --background --python tools/assets/export_runtime_3d_models.py -- "$(CURDIR)" $(if $(MODEL),--only-path "$(MODEL)",)
 	@echo "$(CLR_GREEN)[OK] Runtime 3D character models exported.$(CLR_RESET)"
+
+## Exporta apenas um .blend alterado (caminho relativo a personagens/blends ou absoluto)
+export-model: setup-assets
+	@test -n "$(MODEL)" || { echo "Use: make export-model MODEL=personagens/blends/.../arquivo.blend"; exit 2; }
+	@$(BLENDER_BIN) --background --python tools/assets/export_runtime_3d_models.py -- "$(CURDIR)" --only-path "$(MODEL)"
+
+## Compatibilidade: atualiza apenas a malha 3D de runtime de um .blend
+render-model-sprites: export-model
+
+## Atualiza as malhas 3D do Adapa (modelo de nado e pose de ataque)
+refresh-adapa-models: MODEL=$(ADAPA_RUNTIME_MODEL_PATHS)
+refresh-adapa-models: export-runtime-models
+
+## Compatibilidade: o runtime agora atualiza malhas 3D, não PNGs de sprites
+refresh-adapa-sprites: refresh-adapa-models
+
+## Exporta a malha de runtime de uma única fonte Blender
+refresh-model: export-model
 
 ## Gera o modelo low-poly 3D do gêiser para o pipeline de runtime
 generate-geyser-model: setup-assets
@@ -220,11 +244,12 @@ generate-lava-pool-model: setup-assets
 generate-abyssal-enemies: setup-assets
 	@$(BLENDER_BIN) --background --python tools/assets/generate_abyssal_enemies.py -- "$(CURDIR)"
 
-## Renderiza PNGs 2.5D do cenário (personagens são modelos 3D de runtime)
-render-sprites: setup-assets
-	@echo "$(CLR_CYAN)[BAKE ] Baking 2.5D scenery PNGs using Blender...$(CLR_RESET)"
-	@$(BLENDER_BIN) --background --python tools/assets/render_all_2d5_sprites.py
-	@echo "$(CLR_GREEN)[OK] 2.5D scenery rendering complete.$(CLR_RESET)"
+## Compatibilidade: exporta as malhas Blender usadas diretamente no runtime 3D
+render-sprites: export-runtime-models
+
+## Gera renders auxiliares em personagens/renders/previews (fora do runtime)
+render-3d-previews: setup-assets
+	@$(BLENDER_BIN) --background --python tools/assets/render_3d_previews.py
 
 ## Renderiza panoramas 3D estilizados para as cinco fases
 render-backgrounds: setup-assets
@@ -232,31 +257,28 @@ render-backgrounds: setup-assets
 	@$(BLENDER_BIN) --background --python tools/assets/generate_phase_backgrounds.py -- "$(CURDIR)"
 	@echo "$(CLR_GREEN)[OK] Phase panoramas written to src/main/resources/backgrounds/.$(CLR_RESET)"
 
-## Gera poses de ataque das variantes
-generate-variant-attacks: setup-assets
-	@echo "$(CLR_CYAN)[BAKE ] Generating variant attack poses (.blend)...$(CLR_RESET)"
-	@$(BLENDER_BIN) --background --python personagens/scripts/01_adapa_variacoes_ataque.py
-	@echo "$(CLR_GREEN)[OK] Variant attack poses generated.$(CLR_RESET)"
+## Gera recursos runtime a partir das fontes existentes sem sobrescrever .blend
+assets: export-runtime-models render-backgrounds audio-assets copy-blends
+	@echo "$(CLR_GREEN)[OK] Runtime 3D meshes, phase backgrounds, and audio updated.$(CLR_RESET)"
 
-## Gera renders PNG de preview das poses de ataque (não usados no jogo)
-render-variant-attacks: setup
-	@echo "$(CLR_CYAN)[BAKE ] Baking variant attack sprites...$(CLR_RESET)"
-	@$(BLENDER_BIN) --background --python tools/assets/render_all_2d5_sprites.py -- --only 01_adapa_var_abissal_ataque_thrust,01_adapa_var_abissal_ataque_slash,01_adapa_var_abissal_ataque_spin,01_adapa_var_abissal_ataque_charge,01_adapa_var_deus_dourado_ataque_thrust,01_adapa_var_deus_dourado_ataque_slash,01_adapa_var_deus_dourado_ataque_spin,01_adapa_var_deus_dourado_ataque_charge,01_adapa_var_recife_ataque_thrust,01_adapa_var_recife_ataque_slash,01_adapa_var_recife_ataque_spin,01_adapa_var_recife_ataque_charge
-	@echo "$(CLR_GREEN)[OK] Variant attack preview renders baked.$(CLR_RESET)"
+## Regenera apenas os modelos procedurais de hazards/fauna e atualiza recursos runtime
+assets-procedural: generate-geyser-model generate-lava-pool-model generate-abyssal-enemies export-runtime-models copy-blends
+	@echo "$(CLR_GREEN)[OK] Procedural Blender models and runtime assets regenerated.$(CLR_RESET)"
 
-## Pipeline completo: modelos de personagens 3D runtime + cenários/PNGs 2.5D
-assets: generate-characters render-sprites render-backgrounds audio-assets copy-blends clean-blender-backups
-	@echo "$(CLR_GREEN)[OK] Full 3D character + 2.5D scenery + phase panorama asset pipeline completed.$(CLR_RESET)"
+## Regenera fontes .blend e depois reconstrói todos os recursos (pode sobrescrever fontes)
+assets-regenerate: generate-characters generate-geyser-model generate-lava-pool-model generate-abyssal-enemies export-runtime-models render-backgrounds audio-assets copy-blends clean-blender-backups
+	@echo "$(CLR_GREEN)[OK] Regenerated Blender sources and runtime assets.$(CLR_RESET)"
 
 ## Renderiza variantes acústicas de profundidade a partir dos WAVs-fonte com FFmpeg
-audio-assets:
+audio-assets: convert-phase-music
 	@command -v ffmpeg >/dev/null 2>&1 || (echo "FFmpeg é necessário para make audio-assets"; exit 1)
 	@$(PYTHON_CMD) tools/audio/render_audio_assets.py
 
-## Pipeline rápido de variantes
-assets-variant-attacks: generate-variant-attacks export-runtime-models copy-blends
-	@echo "$(CLR_GREEN)[OK] Fast 3D variant attack models exported for runtime.$(CLR_RESET)"
+## Converte as quatro músicas de fase para WAV PCM e atualiza o fallback costeiro
+convert-phase-music:
+	@$(PYTHON_CMD) tools/audio/convert_phase_music.py
 
+## Pipeline rápido de variantes
 ## Gera Fat JAR executável
 package: build
 	@echo "$(CLR_CYAN)[PACK ] Building Fat JAR package in target/...$(CLR_RESET)"
@@ -273,7 +295,7 @@ docker-run: docker-build
 	@echo "$(CLR_CYAN)[DOCK ] Running game in Docker container with X11 forwarding...$(CLR_RESET)"
 	@command -v xhost >/dev/null 2>&1 && xhost +local:docker > /dev/null 2>&1 || true
 	@DRI_FLAGS=$$( [ -d /dev/dri ] && echo "--device /dev/dri:/dev/dri" || echo "" ); \
-	docker run --rm --name $(APP_NAME) -e DISPLAY=$${DISPLAY:-:0} -e LIBGL_ALWAYS_SOFTWARE=$${LIBGL_ALWAYS_SOFTWARE:-1} \
+	docker run --rm --name $(APP_NAME) -e DISPLAY=$${DISPLAY:-:0} -e LIBGL_ALWAYS_SOFTWARE=$${LIBGL_ALWAYS_SOFTWARE:-0} \
 	-v $${X11_SOCKET_DIR:-/tmp/.X11-unix}:/tmp/.X11-unix:rw $$DRI_FLAGS $(APP_NAME):$(VERSION)
 
 ## Encerra containers Docker
@@ -283,35 +305,10 @@ stop:
 	@docker ps -q --filter name=$(APP_NAME) | xargs -r docker stop 2>/dev/null || true
 	@echo "$(CLR_GREEN)[OK] Docker containers stopped.$(CLR_RESET)"
 
-## Executa a demonstração MPI paralela em C
-mpi-demo: setup-mpi
-	@echo "$(CLR_CYAN)[MPI  ] Compiling and running parallel C map generator...$(CLR_RESET)"
-	@mkdir -p $(MPI_DIR)
-	@command -v mpicc >/dev/null || { echo "[ERROR] mpicc (OpenMPI) is required for mpi-demo."; exit 1; }
-	@command -v mpirun >/dev/null || { echo "[ERROR] mpirun (OpenMPI) is required for mpi-demo."; exit 1; }
-	@mpicc -O2 -Wall -Wextra -o $(MPI_DIR)/map_gen $(MPI_DIR)/src/MapGenerator.c
-	@mpirun --oversubscribe -np $(MPI_PROCESSES) $(MPI_DIR)/map_gen --phase 1
-
-## Gera os 5 layouts JSON via MPI
-mpi-generate: setup-mpi
-	@echo "$(CLR_CYAN)[MPI  ] Generating 5 phase layouts via MPI...$(CLR_RESET)"
-	@mkdir -p $(MPI_DIR)/generated
-	@command -v mpicc >/dev/null || { echo "[ERROR] mpicc (OpenMPI) is required for mpi-generate."; exit 1; }
-	@command -v mpirun >/dev/null || { echo "[ERROR] mpirun (OpenMPI) is required for mpi-generate."; exit 1; }
-	@mpicc -O2 -Wall -Wextra -o $(MPI_DIR)/map_gen $(MPI_DIR)/src/MapGenerator.c
-	@set -eu; for phase in 1 2 3 4 5; do \
-		tmp=$(MPI_DIR)/generated/phase-$$phase.json.tmp; \
-		mpirun --oversubscribe -np $(MPI_PROCESSES) $(MPI_DIR)/map_gen --phase $$phase --output $$tmp; \
-		test -s $$tmp; \
-		mv $$tmp $(MPI_DIR)/generated/phase-$$phase.json; \
-	done
-	@echo "$(CLR_GREEN)[OK] MPI JSON phase layouts generated in $(MPI_DIR)/generated/$(CLR_RESET)"
-
 ## Limpa artefatos temporários
 clean: stop
 	@echo "$(CLR_YELLOW)[CLEAN] Removing build directory (target/)...$(CLR_RESET)"
 	@$(RM_DIR) $(TARGET_DIR) 2>/dev/null || true
-	@rm -f $(MPI_DIR)/map_gen $(MPI_DIR)/*.o 2>/dev/null || true
 	@echo "$(CLR_GREEN)[OK] Project clean completed.$(CLR_RESET)"
 
 ## Exibe o menu de ajuda estilo fliperama retro arcade
@@ -322,22 +319,31 @@ help:
 	@echo "$(CLR_HEADER)+-----------------------------------------------------------------------+$(CLR_RESET)"
 	@echo "$(CLR_WHITE)| COMMAND                      | DESCRIPTION                            |$(CLR_RESET)"
 	@echo "$(CLR_DIM)+------------------------------+----------------------------------------+$(CLR_RESET)"
-	@echo "  $(CLR_GREEN)make / make all$(CLR_RESET)              Run setup, organize assets & start game"
+	@echo "  $(CLR_GREEN)make / make all$(CLR_RESET)              Check runtime dependencies and start the game"
 	@echo "  $(CLR_GREEN)make run$(CLR_RESET)                     Start JavaFX 21 main game application"
 	@echo "  $(CLR_GREEN)make system-info$(CLR_RESET)             Detect machine, graphics driver and runtime profile"
 	@echo "  $(CLR_GREEN)make setup$(CLR_RESET)                   Check & install dependencies (idempotent)"
 	@echo "  $(CLR_GREEN)make build$(CLR_RESET)                   Compile Java 21 classes"
-	@echo "  $(CLR_GREEN)make test$(CLR_RESET)                    Execute JUnit 5 test suite (45 tests)"
-	@echo "  $(CLR_CYAN)make assets$(CLR_RESET)                  Full models, enemies, scenery and phase art pipeline"
-	@echo "  $(CLR_CYAN)make assets-variant-attacks$(CLR_RESET)  Export 3D attack poses for runtime"
+	@echo "  $(CLR_GREEN)make test$(CLR_RESET)                    Execute the JUnit 5 test suite"
+	@echo "  $(CLR_CYAN)make assets$(CLR_RESET)                  Refresh runtime assets from existing sources"
+	@echo "  $(CLR_CYAN)make assets-procedural$(CLR_RESET)       Rebuild generated hazard and fauna Blender sources"
+	@echo "  $(CLR_CYAN)make assets-regenerate$(CLR_RESET)       Regenerate Blender source files and runtime assets"
+	@echo "  $(CLR_CYAN)make refresh-model MODEL=...$(CLR_RESET)  Export one edited model and its sprite preview"
+	@echo "  $(CLR_CYAN)make refresh-adapa-models$(CLR_RESET)   Export Adapa's runtime 3D swim and attack meshes"
+	@echo "  $(CLR_CYAN)make convert-phase-music$(CLR_RESET)      Convert phase MPEG audio to WAV with FFmpeg"
+	@echo "  $(CLR_CYAN)make audio-assets$(CLR_RESET)            Convert phase music and render audio profiles"
+	@echo "  $(CLR_CYAN)APSU_PERF=1 make run$(CLR_RESET)          Log FPS, frame times and OBJ load duration"
+	@echo "  $(CLR_CYAN)APSU_AUDIO=0 make run$(CLR_RESET)         Disable audio to isolate media/driver frame pacing"
+	@echo "  $(CLR_CYAN)APSU_PERF=1 APSU_JFR=1 make run$(CLR_RESET) Log gameplay and record Java Flight Recorder data"
+	@echo "  $(CLR_CYAN)APSU_JFR_THREAD_STACKS=1$(CLR_RESET)          Include stacks for every thread creation (diagnostic overhead)"
+	@echo "  $(CLR_CYAN)make perf-summary$(CLR_RESET)             Summarize target/apsu-gameplay.jfr after closing the game"
 	@echo "  $(CLR_CYAN)make generate-characters$(CLR_RESET)   Re-generate .blend and runtime models"
-	@echo "  $(CLR_CYAN)make render-sprites$(CLR_RESET)        Render 2.5D scenery PNGs from .blend"
+	@echo "  $(CLR_CYAN)make render-sprites$(CLR_RESET)        Compatibility alias: export runtime 3D meshes"
+	@echo "  $(CLR_CYAN)make render-3d-previews$(CLR_RESET)   Create review-only Blender renders outside runtime assets"
 	@echo "  $(CLR_CYAN)make generate-abyssal-enemies$(CLR_RESET) Generate dolphin, octopus and squid models"
 	@echo "  $(CLR_CYAN)make copy-blends$(CLR_RESET)           Organize .blend 3D models into assets/"
 	@echo "  $(CLR_CYAN)make package$(CLR_RESET)               Build executable Fat JAR in target/"
 	@echo "  $(CLR_YELLOW)make docker-run$(CLR_RESET)           Run inside Docker container (Linux)"
-	@echo "  $(CLR_YELLOW)make mpi-demo$(CLR_RESET)             Run parallel MPI map generator"
-	@echo "  $(CLR_YELLOW)make mpi-generate$(CLR_RESET)         Generate 5 JSON phase layouts via MPI"
 	@echo "  $(CLR_RED)make clean$(CLR_RESET)                Clean build artifacts and release RAM"
 	@echo "$(CLR_DIM)+-----------------------------------------------------------------------+$(CLR_RESET)"
 	@echo "$(CLR_HEADER)| SYSTEM DIAGNOSTICS                                                    |$(CLR_RESET)"

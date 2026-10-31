@@ -1,0 +1,4 @@
+services:
+  apsu-game:
+    devices:
+      - /dev/dri:/dev/dri

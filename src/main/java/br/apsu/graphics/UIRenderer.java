@@ -40,9 +40,9 @@ public class UIRenderer {
     public void drawHUD(GraphicsContext gc, HeroEntity hero, int tablets, String phaseName, Difficulty diff,
                         OceanDepthProfile depth) {
         gc.setFill(rgb(0, 4, 14, 0.88));
-        gc.fillRoundRect(8, 8, 440, 110, 12, 12);
+        gc.fillRoundRect(8, 8, 440, 136, 12, 12);
         gc.setStroke(rgb(0, 100, 200, 0.45)); gc.setLineWidth(1.5);
-        gc.strokeRoundRect(8, 8, 440, 110, 12, 12);
+        gc.strokeRoundRect(8, 8, 440, 136, 12, 12);
 
         gc.setTextAlign(TextAlignment.LEFT);
         gc.setFont(Font.font("Serif", FontWeight.BOLD, 14));
@@ -70,13 +70,21 @@ public class UIRenderer {
             gc.strokeLine(lx, barY + 1, lx, barY + barH - 1);
         }
         // Borda
-        gc.setStroke(hpColor.deriveColor(0, 1, 1, 0.5)); gc.setLineWidth(1);
+        gc.setStroke(hero.isInvulnerable() ? color("#ff6b6b") : hpColor.deriveColor(0, 1, 1, 0.5));
+        gc.setLineWidth(hero.isInvulnerable() ? 2 : 1);
         gc.strokeRoundRect(barX, barY, barTotalW, barH, 4, 4);
-        // Texto numérico
+        // Décimos tornam impactos leves visíveis sem arredondá-los para cima.
         gc.setFont(Font.font("Serif", 11));
         gc.setFill(color("#c0e0ff"));
-        gc.fillText(Math.round(Math.max(0, hero.getHp())) + " / " + Math.round(hero.getMaxHP()),
+        int hpTenths = (int) Math.round(Math.max(0, hero.getHp()) * 10);
+        String hpText = (hpTenths / 10) + "." + (hpTenths % 10) + " / " + (int) Math.round(hero.getMaxHP());
+        gc.fillText(hpText,
             barX + barTotalW + 6, barY + 11);
+        if (hero.isInvulnerable()) {
+            gc.setFill(color("#ff7777"));
+            gc.setFont(Font.font("Serif", FontWeight.BOLD, 9));
+            gc.fillText("DANO", 270, barY + 11);
+        }
 
         // Tabuletas
         gc.setFont(Font.font("Serif", FontWeight.BOLD, 14));
@@ -117,8 +125,12 @@ public class UIRenderer {
 
         if (hasBubble) {
             gc.setFill(color("#80b8d0")); gc.setFont(Font.font("Serif", 11));
-            gc.fillText(hero.isAttackPose2() ? "Modo: Multiplo" : "Modo: Direto", 22, 112);
+            gc.fillText(hero.isMultipleShotMode() ? "Bolhas: múltiplas [M]" : "Bolha: direta [M]", 22, 112);
         }
+
+        gc.setFont(Font.font("Serif", 11));
+        gc.setFill(color("#9cc8df"));
+        gc.fillText("WASD / SETAS: NADAR   ·   E: INTERAGIR   ·   ESPAÇO: BOLHAS", 22, 130);
     }
 
     /** Radar compacto: posição de inimigos e guardiões sem revelar detalhes. */

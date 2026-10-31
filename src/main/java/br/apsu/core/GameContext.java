@@ -3,7 +3,6 @@ package br.apsu.core;
 import br.apsu.core.events.EventBus;
 import br.apsu.core.events.GameEvent;
 import br.apsu.audio.AudioCue;
-import br.apsu.core.map.MPIMapLoader;
 import br.apsu.core.spatial.QuadTree;
 import br.apsu.model.boss.BossEntity;
 import br.apsu.model.enemy.EnemyEntity;
@@ -24,7 +23,6 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Gerenciador mestre de estado, lógica e atualização das regras do jogo.
@@ -66,7 +64,6 @@ public class GameContext {
     private final List<EnemyEntity> nearbyEnemiesBuffer = new ArrayList<>();
 
     private final InputManager inputManager = new InputManager();
-    private final MPIMapLoader mpiMapLoader = new MPIMapLoader();
     private final Camera camera = new Camera(1366, 4000);
     private final SaveManager saveManager;
     private final EventBus eventBus;
@@ -168,6 +165,9 @@ public class GameContext {
                 if (k == KeyCode.ESCAPE) {
                     if (state == State.P5) publishBossMusic(false);
                     state = State.MENU;
+                } else if (k == KeyCode.M && hero.hasBubblePower()) {
+                    hero.toggleMultipleShotMode();
+                    playSound(AudioCue.MENU_CONFIRM);
                 }
             }
             case WIN, OVER -> {
@@ -347,7 +347,6 @@ public class GameContext {
         enemies.add(new EnemyEntity(EnemyType.ENGUIA,    1600, 768 * .28, spd * 1.3, 80));
         enemies.add(new EnemyEntity(EnemyType.MEDUSA,    2500, 768 * .55, spd * 1.1, 90));
         enemies.add(new EnemyEntity(EnemyType.CARANGUEJO,3400, 768 * .35, spd,       70));
-        enemies.add(new EnemyEntity(EnemyType.DELFIN_ABISSAL, 2250, 768 * .44, spd * 1.1, 62));
 
         double gX = (difficulty == Difficulty.DIFICIL) ? 600 : 1100;
         guardians.add(new GuardianEntity(2, gX, 768 - GuardianEntity.GH - 60));
@@ -383,7 +382,7 @@ public class GameContext {
         camera.setX(0); hero.beginPhaseAt(100, 768 / 2.0);
         double spd = 1.0;
 
-        // === REDESIGN 2026-08-20: 5 inimigos (não 7), Leviatã como MOMENTO ESPECIAL ===
+        // === REDESIGN: seis inimigos separados, Leviatã como momento especial ===
         // Abertura: arraião solitário para estabelecer o tema da fase
         enemies.add(new EnemyEntity(EnemyType.ARRAIAO,    600,  768 * .42, spd,       90));
         // Ato 1: peixe rápido + medusa
@@ -391,8 +390,8 @@ public class GameContext {
         enemies.add(new EnemyEntity(EnemyType.MEDUSA,     1900, 768 * .55, spd * 1.2, 90));
         // === LEVIATÃ: 600px de espaço exclusivo (2400-3000px), isolado como sub-boss ===
         enemies.add(new EnemyEntity(EnemyType.LEVIATA,   2650, 768 * .38, spd * 1.3, 130));
-        // Ato 3: arraião veloz após o Leviatã
-        enemies.add(new EnemyEntity(EnemyType.ARRAIAO,   3400, 768 * .48, spd * 1.4, 90));
+        // Ato 3: golfinho abissal migrado de P3, seguido pelo polvo final
+        enemies.add(new EnemyEntity(EnemyType.DELFIN_ABISSAL, 3400, 768 * .48, spd * 1.1, 72));
         enemies.add(new EnemyEntity(EnemyType.POLVO_ABISSAL, 3700, 768 * .58, spd * .82, 75));
 
         double gX = (difficulty == Difficulty.DIFICIL) ? 500 : 1000;
@@ -440,20 +439,14 @@ public class GameContext {
         // o burst de partícula fora da tela e poderia afetar qualquer outro
         // código futuro que assuma camera.getX()==0 durante a arena do boss.
         camera.setX(0);
-        guardians.add(new GuardianEntity(4, 160, 768 / 2.0 - GuardianEntity.GH)); // Enki em pessoa!
 
-        boss = new BossEntity(0, 1366 - BossEntity.BW - 80, 768 / 2.0 - BossEntity.BH / 2);
+        // The boss owns the right side of the arena with a visible margin.
+        boss = new BossEntity(0, 1366 - BossEntity.BW - 110, 768 / 2.0 - BossEntity.BH / 2 - 130);
         boss.setLastShotTime(nanoTime);
 
         hero.beginPhaseAt(80, 768 / 2.0 - HeroEntity.HH / 2);
 
-        // Correntes na arena do boss — obrigam o jogador a dominar a mecânica
-        sceneryElements.add(new SceneryElement(SceneryElement.Type.CURRENT, 400, 200, 150, 400).withCurrent(0, -3.5));
-        sceneryElements.add(new SceneryElement(SceneryElement.Type.CURRENT, 800, 100, 150, 500).withCurrent(0, 4.0));
-
-        // Zonas de pressão que mudam a dinâmica da arena
-        sceneryElements.add(new SceneryElement(SceneryElement.Type.PRESSURE_ZONE, 550, 0, 120, 768).withBuoyancy(.76));
-        enemies.add(new EnemyEntity(EnemyType.LULA_VAMPIRA, 710, 768 * .30, .78, 48));
+        // Arena limpa para o duelo final: sem NPC, correntes ou inimigos laterais.
 
         currentPhase = 5;
         publishAudioDepth();
@@ -584,17 +577,14 @@ public class GameContext {
         checkGuardians(false);
 
         // Baú (B3-FIX: coordenadas de mundo para colisão com baú)
-        if (!chestOpen && inputManager.isInteractPressed()
-                && rectsHit(hero.getX(), hero.getY(), HeroEntity.HW + 80, HeroEntity.HH + 80,
-                            chestWX - 40, chestWY - 40, 160, 140)) {
+        if (canOpenChest() && inputManager.isInteractPressed()) {
             chestOpen = true; chestTime = nanoTime;
             hero.setHasBubblePower(true);
             double csx = camera.toScreenX(chestWX);
-            particleSystem.addBurst(csx + 60, chestWY + 40, Color.GOLD);
-            particleSystem.addBurst(csx + 60, chestWY + 40, Color.CYAN);
+            particleSystem.addBurst(csx, chestWY, Color.GOLD);
+            particleSystem.addBurst(csx, chestWY, Color.CYAN);
             playSound(AudioCue.PICKUP);
-            playSound(AudioCue.VICTORY);
-            showAlert("PODER DAS BOLHAS DESPERTADO! Pressione ESPAÇO para disparar! ");
+            showAlert("Bolhas despertas. Espaço para disparar.");
         }
 
         updateEnemies();
@@ -740,7 +730,9 @@ public class GameContext {
                 // offset residual deixado pela Fase 4 (camera.setX nunca é resetado ao
                 // entrar em P5), jogando a partícula pra fora da tela.
                 double direction = hero.getX() + HeroEntity.HW / 2 < boss.getX() + BossEntity.BW / 2 ? -1 : 1;
-                hurtHero(difficulty.getCollisionDamage() * 0.65, direction * 5.5, -3.0, Color.PURPLE, 8);
+                // O contato direto deve retirar ao menos meio ponto no Fácil,
+                // para que o HUD e o jogador percebam imediatamente o impacto.
+                hurtHero(difficulty.getCollisionDamage(), direction * 5.5, -3.0, Color.PURPLE, 8);
             }
 
             // Cada estágio tem um padrão próprio. Durante os 0,5 s do
@@ -922,19 +914,14 @@ public class GameContext {
     // =========================================================
     private void updateEnemies() {
         double t = nanoTime / 1_000_000_000.0;
-        boolean indexNeeded = false;
-        for (Projectile projectile : projectiles) {
-            if (projectile.getType() == Projectile.Type.HERO_BUBBLE) {
-                indexNeeded = true;
-                break;
-            }
-        }
-        if (indexNeeded) enemyQuadTree.clear();
+        // Contact damage queries this tree every frame, whether or not a
+        // hero bubble is active. Leaving it empty between shots disabled hits.
+        enemyQuadTree.clear();
 
         for (EnemyEntity e : enemies) {
             if (!e.isAlive()) continue;
             e.update(t, getThreatMultiplier());
-            if (indexNeeded) enemyQuadTree.insert(e);
+            enemyQuadTree.insert(e);
 
             if (difficulty.canEnemiesShoot()) {
                 if (e.getLastShotTime() == 0) {
@@ -1072,7 +1059,13 @@ public class GameContext {
             double vx = (right ? 1 : -1) * 16.0 * hero.getType().getPwr();
             // isArena=false para P1-P4 (mundo com scroll), true para P5
             boolean isArena = (state == State.P5);
-            projectiles.add(new Projectile(Projectile.Type.HERO_BUBBLE, bx, by, vx, 0, 1.0, isArena));
+            if (hero.isMultipleShotMode()) {
+                projectiles.add(new Projectile(Projectile.Type.HERO_BUBBLE, bx, by, vx, -2.2, 1.0, isArena));
+                projectiles.add(new Projectile(Projectile.Type.HERO_BUBBLE, bx, by, vx, 0, 1.0, isArena));
+                projectiles.add(new Projectile(Projectile.Type.HERO_BUBBLE, bx, by, vx, 2.2, 1.0, isArena));
+            } else {
+                projectiles.add(new Projectile(Projectile.Type.HERO_BUBBLE, bx, by, vx, 0, 1.0, isArena));
+            }
             playSound(AudioCue.ATTACK);
         } else {
             // BUGFIX 2026-08-15: mesmo padrão do fix em updateP5() — se o jogador
@@ -1278,14 +1271,6 @@ public class GameContext {
     public long getAlertTime() { return alertTime; }
     public long getNanoTime() { return nanoTime; }
 
-    /**
-     * Disponibiliza o layout paralelo da fase ativa quando a execução foi
-     * iniciada com {@code -Dapsu.map.layoutDir=...}. A ausência do arquivo é
-     * intencionalmente segura: o layout autoral da fase continua sendo usado.
-     */
-    public Optional<MPIMapLoader.Layout> getGeneratedMapLayout() {
-        return currentPhase == 0 ? Optional.empty() : mpiMapLoader.loadConfiguredPhase(currentPhase);
-    }
     public int getDlgPhase() { return dlgPhase; }
     public int getDlgIdx() { return dlgIdx; }
     public void setDlgIdx(int idx) { this.dlgIdx = idx; }
@@ -1294,6 +1279,11 @@ public class GameContext {
     public boolean isDifficultyMenuOpen() { return difficultyMenuOpen; }
     public int getDifficultyMenuSel() { return difficultyMenuSel; }
     public boolean isChestOpen() { return chestOpen; }
+    public boolean canOpenChest() {
+        return state == State.P2 && !chestOpen
+            && rectsHit(hero.getX() - 40, hero.getY() - 40, HeroEntity.HW + 80, HeroEntity.HH + 80,
+                chestWX - 80, chestWY - 70, 160, 140);
+    }
     public double getChestWX() { return chestWX; }
     public double getChestWY() { return chestWY; }
     public long getChestTime() { return chestTime; }

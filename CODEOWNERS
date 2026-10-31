@@ -3,26 +3,25 @@
 # Substitua os placeholders abaixo pelos usernames reais do GitHub.
 
 # DEV 1 — Núcleo do Jogo (Core Engine, Eventos, Estado)
-/src/main/java/br/apsu/core/**       @SUBSTITUIR-dev1-core
-/src/main/java/br/apsu/audio/**      @SUBSTITUIR-dev1-core
-/src/main/java/br/apsu/Launcher.java  @SUBSTITUIR-dev1-core
-/src/main/java/br/apsu/ApsuGameMain.java @SUBSTITUIR-dev1-core
+/src/main/java/br/apsu/core/**       @rafael
+/src/main/java/br/apsu/audio/**      @erik
+/src/main/java/br/apsu/Launcher.java  @rafael
+/src/main/java/br/apsu/ApsuGameMain.java @rafael
 
 # DEV 2 — Gráficos (RenderEngine, Sprites, Câmera, Shaders, HUD)
-/src/main/java/br/apsu/graphics/**   @SUBSTITUIR-dev2-graphics
+/src/main/java/br/apsu/graphics/**   @rafael
 
 # DEV 3 — Gameplay (Heroi, Inimigos, Boss, Guardiões, Projéteis, Físicas)
-/src/main/java/br/apsu/model/**      @SUBSTITUIR-dev3-gameplay
+/src/main/java/br/apsu/model/**      @rafael
 
 # DEV 4 — Pipeline de Assets 3D (Blender, Scripts bpy, Spritesheets)
-/personagens/**                       @SUBSTITUIR-dev4-assets
-/assets/**                            @SUBSTITUIR-dev4-assets
+/personagens/**                       @wagner
+/assets/**                            @marcos
 
-# DEV 5 — Plataforma, Build e Sistemas (MPI, Tools, CI/CD, Makefile)
-/mpi/**                               @SUBSTITUIR-dev5-platform
-/tools/**                             @SUBSTITUIR-dev5-platform
-/.github/**                           @SUBSTITUIR-dev5-platform
-/Makefile                             @SUBSTITUIR-dev5-platform
-/pom.xml                              @SUBSTITUIR-dev5-platform @SUBSTITUIR-dev1-core
-/docker-compose.yml                   @SUBSTITUIR-dev5-platform
-/docs/**                              @SUBSTITUIR-dev1-core @SUBSTITUIR-dev5-platform
+# DEV 5 — Plataforma, Build e Sistemas (Tools, CI/CD, Makefile)
+/tools/**                             @rafael
+/.github/**                           @rafael
+/Makefile                             @rafael
+/pom.xml                              @rafael
+/docker-compose.yml                   @rafael
+/docs/**                              @rafael

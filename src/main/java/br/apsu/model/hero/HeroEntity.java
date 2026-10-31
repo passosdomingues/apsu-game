@@ -2,11 +2,11 @@ package br.apsu.model.hero;
 
 /**
  * Entidade cinemática do herói, gerenciando posição, velocidade, inércia, vida,
- * sequência natural de ataque em 4 estágios e física procedural da cauda.
+ * movimento, vida, poderes e janela de disparo.
  */
 public class HeroEntity {
     public static final double HW = 72, HH = 192;
-    public static final double RENDER_W = 84.0, RENDER_H = 192.0;
+    public static final double ATTACK_DURATION_SECONDS = 0.26;
 
     private HeroType type;
     private double x, y;
@@ -16,30 +16,12 @@ public class HeroEntity {
     private boolean invulnerable;
     private long invulnerableTime;
     private boolean hasBubblePower = false;
-    private boolean attackPose2;
-    // Estilo visual do ataque (2026-08-16): cicla thrust/slash/spin/charge
-    // a cada tiro — independente de attackPose2 (que só controla offset de
-    // spawn da bolha, não tocado, pra não arriscar mudar física/colisão).
-    private int attackStyleIndex = 0;
+    private boolean multipleShotMode;
     private long lastShotTime;
-    private double pitchAngle = 0;
-
-    // --- Ataque em 4 Estágios (Charge -> Impulse -> Firing -> Recovery) ---
     private boolean shooting = false;
     private long shootingTime = 0;
-    private double attackOffsetX = 0; // Deslocamento suave X do ataque
-    private double attackOffsetY = 0; // Deslocamento suave Y do ataque
-
-    // --- Física Procedural da Cauda ---
     private double tailPhase = 0;
-    private double tailAngle = 0;
-    private double tailAmplitude = 2.0;
     private double currentSpeedRatio = 0;
-    private double lastSpeed = 0;
-
-    // --- Squash & Stretch (leitura de peso/impulso, estilo Donkey Kong Country) ---
-    private double squashX = 1.0;
-    private double squashY = 1.0;
 
     public HeroEntity(HeroType type, double initialHP) {
         this.type = type;
@@ -53,22 +35,14 @@ public class HeroEntity {
         this.y = startY;
         this.vx = 0;
         this.vy = 0;
-        this.pitchAngle = 0;
         this.facingRight = true;
         this.invulnerable = false;
         this.hasBubblePower = false;
-        this.attackPose2 = false;
-        this.attackStyleIndex = 0;
+        this.multipleShotMode = false;
         this.shooting = false;
         this.lastShotTime = 0;
-        this.attackOffsetX = 0;
-        this.attackOffsetY = 0;
         this.tailPhase = 0;
-        this.tailAngle = 0;
-        this.tailAmplitude = 2.0;
-        this.lastSpeed = 0;
-        this.squashX = 1.0;
-        this.squashY = 1.0;
+        this.currentSpeedRatio = 0;
     }
 
     /** Repositions at a phase transition while preserving HP and unlocked powers. */
@@ -77,17 +51,9 @@ public class HeroEntity {
         y = startY;
         vx = 0;
         vy = 0;
-        pitchAngle = 0;
         facingRight = true;
         shooting = false;
-        attackOffsetX = 0;
-        attackOffsetY = 0;
         currentSpeedRatio = 0;
-        lastSpeed = 0;
-        tailPhase = 0;
-        tailAngle = 0;
-        squashX = 1.0;
-        squashY = 1.0;
     }
 
     /**
@@ -185,69 +151,10 @@ public class HeroEntity {
         y = Math.max(minY, Math.min(maxY, y));
 
         currentSpeedRatio = Math.min(1.0, currentSpeed / Math.max(1.0, maxSpd));
+        tailPhase += (4.0 + currentSpeedRatio * 8.0) * 0.016;
 
-        // --- SQUASH & STRETCH (leitura de peso/impulso, estilo Donkey Kong Country) ---
-        // Estica levemente na direção do movimento quando acelera, "esmaga" quando
-        // freia/colide — reforça a sensação de peso na água sem precisar de frames
-        // de sprite extras (funciona em cima de qualquer pose renderizada).
-        double speedDelta = currentSpeed - lastSpeed;
-        double stretch = Math.max(-0.10, Math.min(0.14, speedDelta * 0.9));
-        double targetSquashX = 1.0 + stretch;
-        double targetSquashY = 1.0 - stretch * 0.6;
-        squashX += (targetSquashX - squashX) * 0.25;
-        squashY += (targetSquashY - squashY) * 0.25;
-        lastSpeed = currentSpeed;
-
-        // --- ATUALIZAÇÃO DA ANIMAÇÃO PROCEDURAL DA CAUDA ---
-        // Nado rápido -> maior frequência e amplitude; parado -> ondulação leve idle
-        double waveFreq = 4.0 + currentSpeedRatio * 8.0;
-        tailPhase += waveFreq * 0.016; // incrementa fase por frame (~60 FPS)
-
-        double targetAmp = 1.8 + currentSpeedRatio * 6.2;
-        this.tailAmplitude += (targetAmp - this.tailAmplitude) * 0.15;
-
-        // Atraso de inércia da cauda em curvas (tailLag)
-        double targetTailAngle = -vy * 2.2 * (facingRight ? 1 : -1);
-        this.tailAngle += (targetTailAngle - this.tailAngle) * 0.12;
-
-        // Pitch Angle (inclinação de nado)
-        double targetPitch = Math.max(-22.0, Math.min(22.0, vy * 3.2 * (facingRight ? 1 : -1)));
-        this.pitchAngle += (targetPitch - this.pitchAngle) * 0.18;
-
-        // --- MÁQUINA DE ESTADOS DO ATAQUE EM 4 ESTÁGIOS ---
-        if (shooting) {
-            long elapsedNano = Math.max(0, currentNanoTime - shootingTime);
-            long elapsedMs = elapsedNano / 1_000_000L;
-
-            if (elapsedMs < 80) {
-                // Estágio 1: Recuo / Carga (-4px)
-                double progress = elapsedMs / 80.0;
-                attackOffsetX = -4.0 * progress * (facingRight ? 1 : -1);
-                attackOffsetY = -1.0 * progress;
-            } else if (elapsedMs < 180) {
-                // Estágio 2: Impulso / Projeção (+6px)
-                double progress = (elapsedMs - 80) / 100.0;
-                attackOffsetX = (-4.0 + 10.0 * progress) * (facingRight ? 1 : -1);
-                attackOffsetY = (-1.0 + 2.0 * progress);
-                // Pop de squash no pico do impulso (leitura de impacto imediata)
-                double impactPulse = Math.sin(progress * Math.PI) * 0.12;
-                squashX = 1.0 + impactPulse;
-                squashY = 1.0 - impactPulse * 0.7;
-            } else if (elapsedMs < 320) {
-                // Estágio 3: Disparo e Sustentação (+4px -> 0px)
-                double progress = (elapsedMs - 180) / 140.0;
-                attackOffsetX = (6.0 - 6.0 * progress) * (facingRight ? 1 : -1);
-                attackOffsetY = (1.0 - 1.0 * progress);
-            } else if (elapsedMs < 450) {
-                // Estágio 4: Recuperação Suave (0px)
-                double progress = (elapsedMs - 320) / 130.0;
-                attackOffsetX = (0.0);
-                attackOffsetY = (0.0);
-            } else {
-                shooting = false;
-                attackOffsetX = 0;
-                attackOffsetY = 0;
-            }
+        if (shooting && currentNanoTime - shootingTime >= (long) (ATTACK_DURATION_SECONDS * 1_000_000_000L)) {
+            shooting = false;
         }
     }
 
@@ -278,7 +185,7 @@ public class HeroEntity {
     }
 
     public void checkInvulnerability(long nanoTime) {
-        if (invulnerable && (nanoTime - invulnerableTime > 2_200_000_000L)) {
+        if (invulnerable && (nanoTime - invulnerableTime > 1_250_000_000L)) {
             invulnerable = false;
         }
     }
@@ -286,10 +193,6 @@ public class HeroEntity {
     public void triggerShooting(long nanoTime) {
         this.shooting = true;
         this.shootingTime = nanoTime;
-        this.attackPose2 = !this.attackPose2;
-        this.attackStyleIndex = (this.attackStyleIndex + 1) % 4;
-        this.attackOffsetX = 0;
-        this.attackOffsetY = 0;
     }
 
     // Getters & Setters
@@ -301,9 +204,6 @@ public class HeroEntity {
     public void setY(double y) { this.y = y; }
     public double getVx() { return vx; }
     public double getVy() { return vy; }
-    public double getPitchAngle() { return pitchAngle; }
-    public double getSquashX() { return squashX; }
-    public double getSquashY() { return squashY; }
     public boolean isFacingRight() { return facingRight; }
     public double getHp() { return hp; }
     public double getMaxHP() { return maxHP; }
@@ -312,27 +212,23 @@ public class HeroEntity {
     public boolean hasBubblePower() { return hasBubblePower; }
     public void setHasBubblePower(boolean has) { this.hasBubblePower = has; }
     public boolean isShooting() { return shooting; }
-    public double getAttackElapsedSeconds(long currentNanoTime) {
-        return shooting ? Math.max(0, currentNanoTime - shootingTime) / 1_000_000_000.0 : 0;
+    public double getAttackProgress(long currentNanoTime) {
+        if (!shooting) return 0;
+        long elapsed = Math.max(0, currentNanoTime - shootingTime);
+        return Math.min(1.0, elapsed / (ATTACK_DURATION_SECONDS * 1_000_000_000.0));
     }
-    public double getAttackOffsetX() { return attackOffsetX; }
-    public double getAttackOffsetY() { return attackOffsetY; }
-    public double getTailPhase() { return tailPhase; }
-    public double getTailAngle() { return tailAngle; }
-    public double getTailAmplitude() { return tailAmplitude; }
     public double getCurrentSpeedRatio() { return currentSpeedRatio; }
 
     public double getBubbleSpawnX() {
-        double baseOffset = attackPose2 ? 125 : 180;
-        return facingRight ? x + baseOffset : x - 15;
+        return facingRight ? x + 92 : x - 20;
     }
 
     public double getBubbleSpawnY() {
-        return attackPose2 ? y + 65 : y + 33;
+        return y + 74;
     }
 
-    public boolean isAttackPose2() { return attackPose2; }
-    public int getAttackStyleIndex() { return attackStyleIndex; }
+    public boolean isMultipleShotMode() { return multipleShotMode; }
+    public void toggleMultipleShotMode() { multipleShotMode = !multipleShotMode; }
     public long getLastShotTime() { return lastShotTime; }
     public void setLastShotTime(long t) { this.lastShotTime = t; }
 }

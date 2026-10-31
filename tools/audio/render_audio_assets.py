@@ -16,8 +16,9 @@ PROFILES = {
     "hydrothermal-vent": (4600, "72|144", "0.20|0.10", 0.19, 0.125),
     "hadal-trench": (3200, "92|184", "0.22|0.11", 0.16, 0.160),
 }
-SOURCES = ("apsu-theme", "shoot", "collect", "hurt", "boss-hit", "victory",
-           "menu-navigate", "menu-confirm", "enemy-damaged")
+AUDIO_SOURCES = ("apsu-theme", "shoot", "collect", "hurt", "boss-hit", "victory",
+                 "menu-navigate", "menu-confirm", "enemy-damaged")
+DEPTH_RENDER_SOURCES = ("apsu-theme",)
 SOURCE_DIR = AUDIO / "sources"
 
 
@@ -46,7 +47,7 @@ def main() -> int:
         print("FFmpeg não encontrado no PATH. Instale FFmpeg para renderizar os perfis.", file=sys.stderr)
         return 2
     create_missing_cue_sources(ffmpeg)
-    missing = [name for name in SOURCES if not (AUDIO / f"{name}.wav").is_file()]
+    missing = [name for name in AUDIO_SOURCES if not (AUDIO / f"{name}.wav").is_file()]
     if missing:
         print("Áudios-fonte ausentes: " + ", ".join(missing), file=sys.stderr)
         return 2
@@ -62,7 +63,9 @@ def main() -> int:
     for profile, (cutoff, delays, decays, pad_gain, rumble_gain) in PROFILES.items():
         destination = AUDIO / "generated" / profile
         destination.mkdir(parents=True, exist_ok=True)
-        for name in SOURCES:
+        # Short cues are loaded once from /audio at runtime. Per-depth copies
+        # created by older versions remain untouched, but are no longer emitted.
+        for name in DEPTH_RENDER_SOURCES:
             source = AUDIO / f"{name}.wav"
             fd, temporary = tempfile.mkstemp(prefix=f".{name}-", suffix=".wav", dir=destination)
             os.close(fd)

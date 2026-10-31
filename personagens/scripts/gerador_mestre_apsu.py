@@ -40,7 +40,6 @@ SCRIPTS = [
     "01_adapa_nadando_disparo_bolhas.py",
     "01_adapa_variacoes.py",
     "01_adapa_ataque_variacoes.py",
-    "01_adapa_variacoes_ataque.py",
     "02_kullullu_boss.py",
     "02_kullullu_boss_variacoes.py",
     "03_enki_npc.py",
@@ -58,7 +57,6 @@ SCRIPTS = [
     "12_obstaculo_vulcanico.py",
     "13_obstaculo_abissal.py",
     "14_leviata_menor.py",
-    "15_portal_atlantica_3d.py",
     "16_corrente_abissal_3d.py"
 ]
 

@@ -70,7 +70,6 @@ digraph ClassArchitecture {
         AdaptiveDifficulty [label="AdaptiveDifficulty\n[Dynamic Pressure Scaler]"];
         SaveManager [label="SaveManager\n[JSON Progress Persistence]"];
         QuadTree [label="QuadTree\n[Spatial Index / AABB Collisions]"];
-        MPIMapLoader [label="MPIMapLoader\n[MPI C Layout JSON Parser]"];
     }
 
     // ============================================================
@@ -161,7 +160,6 @@ digraph ClassArchitecture {
     GameContext -> QuadTree [label="rebuilds spatial index"];
     GameContext -> AdaptiveDifficulty [label="evaluates pressure"];
     GameContext -> SaveManager [label="saves/loads JSON"];
-    GameContext -> MPIMapLoader [label="loads MPI layouts"];
     GameContext -> EventBus [label="publishes events"];
 
     // Gerenciamento de Entidades no GameContext

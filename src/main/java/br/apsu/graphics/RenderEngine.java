@@ -49,6 +49,12 @@ public class RenderEngine implements GameRenderer {
     private static final Color MENU_BUBBLE_COLOR = Color.rgb(80, 180, 255);
     private static final Color ABYSS_BUBBLE_COLOR = Color.rgb(80, 160, 255);
     private static final Color SHADOW_COLOR = Color.rgb(2, 8, 14, 0.40);
+    private static final Color HERO_BUBBLE_FILL = Color.rgb(160, 240, 255, 0.85);
+    private static final Color HERO_BUBBLE_STROKE = Color.rgb(0, 200, 255, 0.7);
+    private static final Color HERO_BUBBLE_HIGHLIGHT = Color.rgb(255, 255, 255, 0.5);
+    private static final Color HERO_BUBBLE_TRAIL = Color.rgb(150, 225, 245, 0.35);
+    private static final Color ENEMY_BULLET_FILL = Color.web("#ff2a4b");
+    private static final Color ENEMY_BULLET_HALO = Color.rgb(255, 80, 80, 0.4);
     private static final LinearGradient SEAFLOOR_GRADIENT = new LinearGradient(0, 730, 0, 768,
         false, CycleMethod.NO_CYCLE,
         new Stop(0, Color.rgb(10, 45, 22, 0)), new Stop(1, Color.rgb(10, 45, 22, 0.95)));
@@ -136,16 +142,14 @@ public class RenderEngine implements GameRenderer {
         gc.setFill(color("#70b8d8"));
         gc.fillText("A Lenda dos Apkallu", width / 2.0, 150);
 
-        // B1-FIX: aspecto calculado da imagem ESTÁTICA (não do frame animado)
+        // A malha 3D de Adapa aparece na camada sincronizada ao Canvas.
         HeroType hero = ctx.getHeroType();
         final double ph = 210;
-        double aspect = 0.5;
-        final double pw = ph * aspect; // LARGURA ESTÁVEL — não depende do frame animado
+        final double pw = 112;
 
         double px = width * 0.82 - pw / 2.0, py = 150;
 
         drawShadow(gc, px + pw / 2, py + ph - 5, pw * 0.8, 14);
-        // O herói do menu também é uma malha 3D, desenhada pela Runtime3DLayer.
         lightingEngine.drawBioluminescentHalo(gc, px + pw/2, py + ph/2, pw, hero.getAura());
 
         // Card Glassmorphic de Atributos
@@ -301,14 +305,14 @@ public class RenderEngine implements GameRenderer {
             drawGuardian(gc, gx, g.getWorldY(), g.getType(), !g.isContacted(), timeSeconds);
         }
 
-        drawPortal(gc, ctx.getCamera().toScreenX(4000 - 100), ctx.getTabletsCollected() >= 1, height, timeSeconds);
+        drawPhaseExit(gc, ctx.getCamera().toScreenX(3900), ctx.getTabletsCollected() >= 1);
 
         for (EnemyEntity e : ctx.getEnemies()) {
             drawVisibleEnemy(gc, ctx, e, width, timeSeconds);
         }
 
         drawProjectiles(gc, ctx);
-        drawHero(gc, ctx.getCamera().toScreenX(ctx.getHero().getX()), ctx.getHero().getY(), ctx.getHero(), timeSeconds);
+        drawHero(gc, ctx.getCamera().toScreenX(ctx.getHero().getX()), ctx.getHero().getY(), ctx.getHero(), timeSeconds, ctx.getNanoTime());
         ctx.getParticleSystem().render(gc);
 
         uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 1 — Águas Claras", ctx.getDifficulty(),
@@ -322,7 +326,8 @@ public class RenderEngine implements GameRenderer {
     // =========================================================
     private void drawP2(GraphicsContext gc, GameContext ctx, double width, double height, double timeSeconds) {
         drawPhaseBackground(gc, ctx, width, height, 2, 0.40);
-
+        gc.setFill(Color.rgb(1, 12, 27, 0.34));
+        gc.fillRect(0, 0, width, height);
 
         // Galeão e Baú
         double csx = ctx.getCamera().toScreenX(ctx.getChestWX());
@@ -331,12 +336,12 @@ public class RenderEngine implements GameRenderer {
 
             if (open) {
                 lightingEngine.drawBioluminescentHalo(gc, csx + 10, ctx.getChestWY(), 95, Color.GOLD);
-            } else {
+            } else if (ctx.canOpenChest()) {
                 gc.setFill(Color.rgb(0, 12, 28, 0.88));
                 gc.fillRoundRect(csx - 70, ctx.getChestWY() - 62, 140, 24, 8, 8);
                 gc.setFill(color("#ffd700")); gc.setFont(Font.font("Serif", FontWeight.BOLD, 12));
                 gc.setTextAlign(TextAlignment.CENTER);
-                gc.fillText("[ E / ESPAÇO: BAÚ ]", csx, ctx.getChestWY() - 46);
+                gc.fillText("[ E / ESPAÇO: ABRIR BAÚ ]", csx, ctx.getChestWY() - 46);
             }
         }
 
@@ -345,14 +350,14 @@ public class RenderEngine implements GameRenderer {
             drawGuardian(gc, gx, g.getWorldY(), g.getType(), !g.isContacted(), timeSeconds);
         }
 
-        drawPortal(gc, ctx.getCamera().toScreenX(4000 - 100), ctx.getTabletsCollected() >= 2, height, timeSeconds);
+        drawPhaseExit(gc, ctx.getCamera().toScreenX(3900), ctx.getTabletsCollected() >= 2);
 
         for (EnemyEntity e : ctx.getEnemies()) {
             drawVisibleEnemy(gc, ctx, e, width, timeSeconds);
         }
 
         drawProjectiles(gc, ctx);
-        drawHero(gc, ctx.getCamera().toScreenX(ctx.getHero().getX()), ctx.getHero().getY(), ctx.getHero(), timeSeconds);
+        drawHero(gc, ctx.getCamera().toScreenX(ctx.getHero().getX()), ctx.getHero().getY(), ctx.getHero(), timeSeconds, ctx.getNanoTime());
         ctx.getParticleSystem().render(gc);
 
         uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 2 — Cavernas de Coral", ctx.getDifficulty(),
@@ -387,14 +392,14 @@ public class RenderEngine implements GameRenderer {
             drawGuardian(gc, gx, g.getWorldY(), g.getType(), !g.isContacted(), timeSeconds);
         }
 
-        drawPortal(gc, ctx.getCamera().toScreenX(4000 - 100), ctx.getTabletsCollected() >= 3, height, timeSeconds);
+        drawPhaseExit(gc, ctx.getCamera().toScreenX(3900), ctx.getTabletsCollected() >= 3);
 
         for (EnemyEntity e : ctx.getEnemies()) {
             drawVisibleEnemy(gc, ctx, e, width, timeSeconds);
         }
 
         drawProjectiles(gc, ctx);
-        drawHero(gc, ctx.getCamera().toScreenX(ctx.getHero().getX()), ctx.getHero().getY(), ctx.getHero(), timeSeconds);
+        drawHero(gc, ctx.getCamera().toScreenX(ctx.getHero().getX()), ctx.getHero().getY(), ctx.getHero(), timeSeconds, ctx.getNanoTime());
         ctx.getParticleSystem().render(gc);
 
         uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 3 — Correntes Abissais", ctx.getDifficulty(),
@@ -414,14 +419,14 @@ public class RenderEngine implements GameRenderer {
             drawGuardian(gc, gx, g.getWorldY(), g.getType(), !g.isContacted(), timeSeconds);
         }
 
-        drawPortal(gc, ctx.getCamera().toScreenX(4000 - 100), ctx.getTabletsCollected() >= 4, height, timeSeconds);
+        drawPhaseExit(gc, ctx.getCamera().toScreenX(3900), ctx.getTabletsCollected() >= 4);
 
         for (EnemyEntity e : ctx.getEnemies()) {
             drawVisibleEnemy(gc, ctx, e, width, timeSeconds);
         }
 
         drawProjectiles(gc, ctx);
-        drawHero(gc, ctx.getCamera().toScreenX(ctx.getHero().getX()), ctx.getHero().getY(), ctx.getHero(), timeSeconds);
+        drawHero(gc, ctx.getCamera().toScreenX(ctx.getHero().getX()), ctx.getHero().getY(), ctx.getHero(), timeSeconds, ctx.getNanoTime());
         ctx.getParticleSystem().render(gc);
 
         uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 4 — Abismo Vulcânico", ctx.getDifficulty(),
@@ -441,11 +446,11 @@ public class RenderEngine implements GameRenderer {
         }
 
         if (ctx.getBoss() != null) {
-            drawBoss(gc, ctx.getBoss(), timeSeconds);
+            drawBoss(gc, ctx.getBoss(), timeSeconds, width);
         }
 
         drawProjectiles(gc, ctx);
-        drawHero(gc, ctx.getHero().getX(), ctx.getHero().getY(), ctx.getHero(), timeSeconds);
+        drawHero(gc, ctx.getHero().getX(), ctx.getHero().getY(), ctx.getHero(), timeSeconds, ctx.getNanoTime());
         ctx.getParticleSystem().render(gc);
 
         uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 5 — Templo de Apsu", ctx.getDifficulty(),
@@ -461,46 +466,16 @@ public class RenderEngine implements GameRenderer {
     // =========================================================
     // HERÓI
     // =========================================================
-    private void drawHero(GraphicsContext gc, double x, double y, HeroEntity hero, double timeSeconds) {
-        if (hero.isInvulnerable()) {
-            gc.setGlobalAlpha(0.45);
-        }
+    private void drawHero(GraphicsContext gc, double x, double y, HeroEntity hero,
+                          double timeSeconds, long currentNanoTime) {
+        final double targetW = 112;
+        final double targetH = 205;
 
-        boolean shooting = hero.isShooting();
-        final double targetH = HeroEntity.HH;
-        double targetW = 120;
-
-        double attackX = shooting ? hero.getAttackOffsetX() : 0;
-        double attackY = shooting ? hero.getAttackOffsetY() : 0;
-        x += attackX;
-        y += attackY;
-        drawShadow(gc, x + HeroEntity.HW / 2, y + HeroEntity.HH - 3, targetW * 0.55, 12);
-
-        // A pose 3D é renderizada pela Runtime3DLayer.
-
-        lightingEngine.drawBioluminescentHalo(gc, x + HeroEntity.HW/2, y + HeroEntity.HH/2,
+        double centerX = x + HeroEntity.HW / 2.0;
+        double centerY = y + HeroEntity.HH / 2.0;
+        drawShadow(gc, centerX, centerY + targetH * 0.44, targetW * 0.48, 10);
+        lightingEngine.drawBioluminescentHalo(gc, centerX, centerY,
             targetW * 0.32, hero.getType().getAura());
-        if (shooting) {
-            drawVariantAttackCue(gc, x, y, hero, timeSeconds);
-        }
-        if (hero.isInvulnerable()) {
-            gc.setGlobalAlpha(1.0);
-        }
-    }
-
-    /** Feedback de ataque para skins sem sequência Blender dedicada. */
-    private void drawVariantAttackCue(GraphicsContext gc, double x, double y, HeroEntity hero, double timeSeconds) {
-        double direction = hero.isFacingRight() ? 1 : -1;
-        double originX = x + HeroEntity.HW / 2 + direction * 34;
-        double originY = y + HeroEntity.HH * 0.42;
-        double pulse = 0.65 + Math.sin(timeSeconds * 28) * 0.25;
-        gc.save();
-        gc.setStroke(hero.getType().getAura().deriveColor(0, 1, 1, pulse));
-        gc.setLineWidth(4);
-        gc.strokeLine(originX - direction * 18, originY + 16, originX + direction * 38, originY - 18);
-        gc.setFill(Color.rgb(210, 250, 255, pulse));
-        gc.fillOval(originX + direction * 30 - 7, originY - 25, 14, 14);
-        gc.restore();
     }
 
     // =========================================================
@@ -517,30 +492,38 @@ public class RenderEngine implements GameRenderer {
         double eh = eType.getHeight();
 
         drawShadow(gc, x + ew / 2, y + eh - 2, ew * 0.65, 9);
-        // Inimigos 3D são mantidos fora da camada Canvas.
     }
 
     // =========================================================
     // BOSS
     // =========================================================
-    private void drawBoss(GraphicsContext gc, BossEntity boss, double timeSeconds) {
-        drawShadow(gc, boss.getX() + BossEntity.BW / 2, boss.getY() + BossEntity.BH - 5, BossEntity.BW * 0.7, 22);
-        // O modelo 3D do boss é desenhado pela Runtime3DLayer.
+    private void drawBoss(GraphicsContext gc, BossEntity boss, double timeSeconds, double width) {
+        drawShadow(gc, boss.getX() + BossEntity.BW / 2, boss.getY() + BossEntity.BH - 5,
+            BossEntity.RENDER_W * 0.10, 16);
 
-        // Telegrafo antes da troca de estágio: contraste alto e duração curta,
-        // para ser lido sem encobrir o sprite ou o HUD.
+        // Aviso de transição fica preso acima do boss; não desenha aura/anel
+        // pulsante em volta do modelo, que confundia o sinal de ataque.
         if (boss.isTelegraphing((long) (timeSeconds * 1_000_000_000L))) {
-            double pulse = 0.45 + 0.35 * Math.sin(timeSeconds * 28);
-            gc.setStroke(Color.rgb(255, 190, 40, pulse));
-            gc.setLineWidth(5);
-            gc.strokeOval(boss.getX() - 14, boss.getY() - 14, BossEntity.BW + 28, BossEntity.BH + 28);
+            double cueX = boss.getX() + BossEntity.BW / 2.0 - 74;
+            if (cueX > width - 320) cueX -= 300;
+            double cueY = Math.max(94, boss.getY() - 42);
+            gc.setFill(Color.rgb(8, 16, 28, 0.92));
+            gc.fillRoundRect(cueX, cueY, 148, 26, 8, 8);
+            gc.setStroke(Color.rgb(255, 190, 40, 0.95));
+            gc.setLineWidth(2);
+            gc.strokeRoundRect(cueX, cueY, 148, 26, 8, 8);
+            gc.setFill(Color.rgb(255, 210, 90));
+            gc.setFont(Font.font("Serif", FontWeight.BOLD, 12));
+            gc.setTextAlign(TextAlignment.CENTER);
+            gc.fillText("ATAQUE · " + boss.getCombatPhase().getLabel(),
+                boss.getX() + BossEntity.BW / 2.0, cueY + 17);
         }
 
         // Barra de vida do boss
         double hpRatio = (double) boss.getHp() / boss.getMaxHp();
-        double barW = BossEntity.BW * 0.9;
-        double barX = boss.getX() + BossEntity.BW * 0.05;
-        double barY = boss.getY() - 18;
+        double barW = 360;
+        double barX = (width - barW) / 2.0;
+        double barY = 30;
         gc.setFill(Color.rgb(20, 0, 0, 0.8));
         gc.fillRoundRect(barX, barY, barW, 10, 4, 4);
         gc.setFill(hpRatio > 0.5 ? color("#ff4444") : color("#ff8800"));
@@ -550,7 +533,7 @@ public class RenderEngine implements GameRenderer {
         gc.setFont(Font.font("Serif", FontWeight.BOLD, 11));
         gc.setFill(color("#ffd27a"));
         gc.setTextAlign(TextAlignment.CENTER);
-        gc.fillText(boss.getCombatPhase().getLabel(), boss.getX() + BossEntity.BW / 2, barY - 5);
+        gc.fillText(boss.getCombatPhase().getLabel(), width / 2.0, barY - 5);
     }
 
     private void drawGuardian(GraphicsContext gc, double x, double y, int type, boolean prompt, double timeSeconds) {
@@ -568,19 +551,13 @@ public class RenderEngine implements GameRenderer {
         }
     }
 
-    private void drawPortal(GraphicsContext gc, double px, boolean unlocked, double height, double timeSeconds) {
-        double centerX = px + 8;
-        double centerY = height / 2.0 - 16;
-        // A geometria do portal vem da malha 3D da Runtime3DLayer.
-        double pulse = 0.88 + Math.sin(timeSeconds * 2.4) * 0.12;
-        lightingEngine.drawBioluminescentHalo(gc, centerX, centerY, 104 * pulse,
-            unlocked ? color("#28d9ff") : color("#d94a5e"));
-
-        // Indicador de estado compacto; a geometria do portal vem do sprite 3D.
+    /** O texto instrui a descida; a ruína que marca a rota é uma malha 3D. */
+    private void drawPhaseExit(GraphicsContext gc, double worldX, boolean unlocked) {
+        Color signal = unlocked ? color("#9cecff") : color("#d6b77a");
         gc.setFont(Font.font("Serif", FontWeight.BOLD, 11));
         gc.setTextAlign(TextAlignment.CENTER);
-        gc.setFill(unlocked ? color("#75ecff") : color("#ff8290"));
-        gc.fillText(unlocked ? "PORTAL ABERTO" : "PORTAL SELADO", centerX, centerY + 84);
+        gc.setFill(signal);
+        gc.fillText(unlocked ? "DESCIDA LIBERADA" : "RUÍNAS ANTIGAS", worldX, 520);
     }
 
     /** B3-FIX: projéteis renderizados convertendo coordenadas de mundo para tela. */
@@ -592,17 +569,20 @@ public class RenderEngine implements GameRenderer {
             double screenY = p.getY();
 
             if (p.getType() == Projectile.Type.HERO_BUBBLE) {
-                // Bolha bonita com brilho
-                gc.setFill(Color.rgb(160, 240, 255, 0.85));
+                double direction = Math.signum(p.getVx());
+                gc.setFill(HERO_BUBBLE_TRAIL);
+                gc.fillOval(screenX - direction * 14 - 3, screenY + 3, 6, 6);
+                gc.fillOval(screenX - direction * 25 - 2, screenY - 4, 4, 4);
+                gc.setFill(HERO_BUBBLE_FILL);
                 gc.fillOval(screenX - 8, screenY - 8, 16, 16);
-                gc.setStroke(Color.rgb(0, 200, 255, 0.7)); gc.setLineWidth(1.5);
+                gc.setStroke(HERO_BUBBLE_STROKE); gc.setLineWidth(1.5);
                 gc.strokeOval(screenX - 8, screenY - 8, 16, 16);
-                gc.setFill(Color.rgb(255, 255, 255, 0.5));
+                gc.setFill(HERO_BUBBLE_HIGHLIGHT);
                 gc.fillOval(screenX - 5, screenY - 5, 5, 5); // highlight
             } else {
-                gc.setFill(color("#ff2a4b"));
+                gc.setFill(ENEMY_BULLET_FILL);
                 gc.fillOval(screenX - 6, screenY - 6, 12, 12);
-                gc.setFill(Color.rgb(255, 80, 80, 0.4));
+                gc.setFill(ENEMY_BULLET_HALO);
                 gc.fillOval(screenX - 10, screenY - 10, 20, 20); // halo
             }
         }

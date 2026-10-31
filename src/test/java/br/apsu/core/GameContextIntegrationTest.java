@@ -11,6 +11,7 @@ import br.apsu.model.environment.Projectile;
 import br.apsu.model.environment.OceanDepthProfile;
 import br.apsu.model.environment.SceneryElement;
 import br.apsu.model.hero.HeroType;
+import br.apsu.model.hero.HeroEntity;
 import javafx.scene.input.KeyCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -137,6 +138,73 @@ public class GameContextIntegrationTest {
     }
 
     @Test
+    @DisplayName("Projétil do boss reduz vida e ativa feedback de dano na arena final")
+    void bossProjectileDamagesHeroInFinalArena() {
+        context.setDifficulty(Difficulty.FACIL);
+        context.startP5();
+        context.getHero().resetPosition(80, 280);
+        double hpBefore = context.getHero().getHp();
+        Projectile bullet = new Projectile(Projectile.Type.BOSS_BULLET,
+            context.getHero().getX() + 32, context.getHero().getY() + 90,
+            0, 0, 0.5, true);
+        context.getProjectiles().add(bullet);
+
+        context.update(1_000_000_000L);
+
+        assertEquals(hpBefore - 0.5, context.getHero().getHp(), 0.001,
+            "O HUD precisa refletir dano fracionário do projétil do boss");
+        assertTrue(context.getHero().isInvulnerable(), "Um acerto deve iniciar a janela de recuperação");
+        assertFalse(context.getProjectiles().contains(bullet), "O projétil que acertou deve ser consumido");
+    }
+
+    @Test
+    @DisplayName("Colisão de contato com inimigo reduz a vida mesmo sem bolha ativa")
+    void enemyContactDamagesHeroWithoutActiveBubble() {
+        context.setDifficulty(Difficulty.MEDIO);
+        context.startP1();
+        context.getProjectiles().clear();
+        context.getEnemies().clear();
+        context.getHero().setX(100);
+        context.getHero().setY(300);
+        EnemyEntity contact = new EnemyEntity(EnemyType.PEIXE, 110, 310, 0, 0);
+        context.getEnemies().add(contact);
+        double hpBefore = context.getHero().getHp();
+
+        context.update(1_000_000_000L);
+
+        assertTrue(context.getHero().getHp() < hpBefore,
+            "O índice de colisão deve ser atualizado mesmo quando o jogador não dispara");
+        assertTrue(context.getHero().isInvulnerable());
+        assertFalse(contact.isAlive(), "O contato deve afastar o inimigo que atingiu o herói");
+    }
+
+    @Test
+    @DisplayName("Arena final posiciona o boss maior dentro da área visível")
+    void finalBossStartsLeftAndAboveItsPreviousPosition() {
+        context.startP5();
+        BossEntity boss = context.getBoss();
+
+        assertEquals(1126, boss.getX() + BossEntity.BW / 2.0, 0.001);
+        assertEquals(254, boss.getY() + BossEntity.BH / 2.0, 0.001);
+        assertEquals(3800, BossEntity.RENDER_W);
+        assertEquals(4600, BossEntity.RENDER_H);
+    }
+
+    @Test
+    @DisplayName("Golfinho abissal fica na fase 4 e a arena final mantém o duelo limpo")
+    void dolphinMovesToPhaseFourAndBossArenaHasNoExtraActorsOrCurrents() {
+        context.startP3();
+        assertFalse(context.getEnemies().stream().anyMatch(e -> e.getType() == EnemyType.DELFIN_ABISSAL));
+        context.startP4();
+        assertTrue(context.getEnemies().stream().anyMatch(e -> e.getType() == EnemyType.DELFIN_ABISSAL));
+        context.startP5();
+        assertTrue(context.getEnemies().isEmpty());
+        assertTrue(context.getGuardians().isEmpty(), "O encontro final não deve ter Enki na arena");
+        assertTrue(context.getSceneryElements().stream().noneMatch(e ->
+            e.getType() == SceneryElement.Type.CURRENT || e.getType() == SceneryElement.Type.PRESSURE_ZONE));
+    }
+
+    @Test
     @DisplayName("Eventos de áudio acompanham profundidade e entrada na arena do boss")
     void phaseChangesPublishDepthAndBossMusicState() {
         List<OceanDepthProfile> depths = new ArrayList<>();
@@ -219,6 +287,14 @@ public class GameContextIntegrationTest {
     void testChestOpeningAndBubblePower() {
         context.startP2();
         assertFalse(context.getHero().hasBubblePower());
+
+        context.getHero().setY(context.getChestWY() - HeroEntity.HH / 2.0);
+        context.getHero().setX(context.getChestWX() - HeroEntity.HW - 70);
+        assertTrue(context.canOpenChest(), "A área de interação deve alcançar o baú pelo lado esquerdo");
+        context.getHero().setX(context.getChestWX() + 70);
+        assertTrue(context.canOpenChest(), "A área de interação deve alcançar o baú pelo lado direito");
+        context.getHero().setX(context.getChestWX() - HeroEntity.HW - 170);
+        assertFalse(context.canOpenChest(), "O prompt não deve aparecer fora do alcance do jogador");
 
         context.getHero().setX(context.getChestWX());
         context.getHero().setY(context.getChestWY());

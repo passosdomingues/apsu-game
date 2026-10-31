@@ -32,11 +32,10 @@ ele separado, mas ele TEM que estar na mesma pasta. Fornece:
   verdade (o `criar_mat_escamas` do Adapa usava 0.12, quase zero).
 - **Ciclo de nado real**: `swim_cycle_keyframes()` — onda anguiliforme
   (amplitude cresce da cabeça pra ponta da cauda) + bob de flutuação,
-  gera keyframes de verdade nos frames que `tools/render_all_2d5_sprites.py`
+  gera keyframes de verdade nos frames que `tools/assets/render_3d_previews.py`
   (agora 8, era 6) vai capturar.
-- **Variações de ataque**: `attack_pose_keyframes()` — thrust/slash/
-  spin/charge para armas (tridente etc.), com squash-and-stretch de
-  impacto. Usado por `01_adapa_ataque_variacoes.py` (novo).
+- **Pose de disparo**: `attack_pose_keyframes()` cria uma pose thrust
+  para o tridente, sincronizada com o tiro de bolhas do runtime.
 
 ## Arquivos — personagens
 | Arquivo | O que é | v5.0 (2026-08-15) |
@@ -44,7 +43,7 @@ ele separado, mas ele TEM que estar na mesma pasta. Fornece:
 | `01_adapa_heroi.py` | Herói Adapa | + rim light quente, + SSS real na escama, + ciclo de nado real (8 frames) |
 | `01_adapa_nadando_disparo_bolhas.py` | Adapa disparando | (ainda não recebeu o passe de rim/nado — mesmo padrão do `01_adapa_heroi.py` se aplica) |
 | `01_adapa_variacoes.py` | Skins alternativas do Adapa | idem acima — pendente |
-| `01_adapa_ataque_variacoes.py` | **Novo** — 4 poses de ataque | thrust / slash / spin / charge, reusa o corpo de `01_adapa_heroi.py` |
+| `01_adapa_ataque_variacoes.py` | Pose de disparo | thrust, reusa o corpo de `01_adapa_heroi.py` |
 | `02_kullullu_boss.py` | Boss Kullullû | + rim magenta-violeta (contraste proposital com o dourado do herói e com a magma laranja do próprio corpo) |
 | `02_kullullu_boss_variacoes.py` | Variações do boss (glacial/tóxico) | pendente do passe de rim |
 | `03_enki_npc.py` | NPC sábio/mentor | + rim dourado "divino" (tema recorrente em todas as fases) |
@@ -82,9 +81,9 @@ Cada script tem comentário no topo explicando a paleta específica daquele pers
   Não use caminhos absolutos ou caminhos copiados de outra máquina: derive a
   raiz com `os.path.dirname(os.path.dirname(os.path.abspath(__file__)))`.
 - **Pipeline após editar um script:** rode `make assets`; ele gera os `.blend`,
-  renderiza os PNGs 2.5D e copia os modelos organizados para `assets/`.
+  renderiza sprites a partir das cenas 3D e copia os modelos organizados para `assets/`.
 - Depois de gerar cada personagem, use **File > Export** (ou render com fundo transparente) pra tirar o sprite/frame que vai virar `hero.png`, `boss.png`, `npc.png` no jogo Java.
-- Pra manter o estilo Donkey Kong Country (2.5D), renderize sempre do mesmo ângulo de câmera fixo por personagem — todos os scripts já deixam a câmera configurada nesse sentido.
+- Para manter a leitura consistente dos sprites renderizados em 3D, use sempre o mesmo ângulo de câmera fixo por personagem; os scripts mantêm essa câmera entre os quadros.
 - Aplicar o mesmo passe de `_apsu_shared_lib.py` (rim + SSS + ciclo de
   nado) nos scripts marcados "pendente" acima — o padrão de edição é
   sempre o mesmo (ver diff de `01_adapa_heroi.py` como referência):
@@ -107,9 +106,8 @@ regenerar os assets. Ao revisar:
    se a cauda balançar pra "dentro/fora da tela" em vez de
    "esquerda/direita", troque `wave_axis=1` pra `wave_axis=2` ou `0`
    na chamada dentro do script do personagem.
-3. **Ataque (thrust/slash/spin/charge)**: rode
-   `01_adapa_ataque_variacoes.py` e confira os 4 renders — o braço
-   deve se mover de forma legível e voltar pra pose de repouso no
-   último frame.
+3. **Ataque (thrust)**: rode `01_adapa_ataque_variacoes.py` e confira
+   os oito frames — o braço deve se mover de forma legível e voltar à
+   pose de repouso no último frame.
 4. Rode `make assets` para regenerar as malhas OBJ/MTL dos personagens e os
    PNGs de cenário; a exportação dos personagens é feita automaticamente.

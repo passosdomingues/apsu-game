@@ -7,6 +7,6 @@ services:
     container_name: apsu-game-app
     environment:
       - DISPLAY=${DISPLAY:-:0}
-      - LIBGL_ALWAYS_SOFTWARE=${LIBGL_ALWAYS_SOFTWARE:-1}
+      - LIBGL_ALWAYS_SOFTWARE=${LIBGL_ALWAYS_SOFTWARE:-0}
     volumes:
       - ${X11_SOCKET_DIR:-/tmp/.X11-unix}:/tmp/.X11-unix:rw

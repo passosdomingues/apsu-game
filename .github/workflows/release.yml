@@ -1,0 +1,49 @@
+name: Build and publish timestamped release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing Git tag to publish
+        required: true
+        default: v20261031-111014
+        type: string
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: temurin
+          cache: maven
+
+      - name: Run tests and build executable JAR
+        run: mvn --batch-mode verify
+
+      - name: Create or update GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          asset=$(find target -maxdepth 1 -name '*-jar-with-dependencies.jar' -print -quit)
+          test -n "$asset"
+          awk '/^## Aprendizados e desafios/{show=1} show{print} /^## Créditos/{exit}' README.md > release-notes.md
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" "$asset" --clobber
+            gh release edit "$RELEASE_TAG" --title "As Águas de Apsu $RELEASE_TAG" --notes-file release-notes.md
+          else
+            gh release create "$RELEASE_TAG" "$asset" --verify-tag --title "As Águas de Apsu $RELEASE_TAG" --notes-file release-notes.md
+          fi

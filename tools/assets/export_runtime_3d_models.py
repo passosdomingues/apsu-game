@@ -15,11 +15,20 @@ def args_after_separator():
 args = args_after_separator()
 project_root = args[0] if args else os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 only_models = None
+only_source_paths = None
 fix_mtls_only = "--fix-mtls-only" in args
 if "--only" in args:
     only_index = args.index("--only")
     if only_index + 1 < len(args):
         only_models = {name.strip() for name in args[only_index + 1].split(",") if name.strip()}
+if "--only-path" in args:
+    path_index = args.index("--only-path")
+    if path_index + 1 < len(args):
+        raw_paths = [value.strip() for value in args[path_index + 1].split(",") if value.strip()]
+        only_source_paths = {
+            os.path.normcase(os.path.abspath(path if os.path.isabs(path) else os.path.join(project_root, path)))
+            for path in raw_paths
+        }
 blend_root = os.path.join(project_root, "personagens", "blends")
 output_root = os.path.join(project_root, "src", "main", "resources", "models")
 
@@ -149,6 +158,55 @@ def ensure_mtl_textures(mtl_path):
         target.writelines(result)
 
 
+def keep_boss_body_visible(mtl_path):
+    """Override the all-black Body.002 placeholder from the authored boss asset."""
+    if os.path.basename(mtl_path) != "02_kullullu_boss.mtl":
+        return
+    with open(mtl_path, "r", encoding="utf-8") as source:
+        lines = source.readlines()
+    result = []
+    active_material = None
+    body_color_written = False
+    for line in lines:
+        if line.startswith("newmtl "):
+            if active_material == "Body.002" and not body_color_written:
+                result.append("Kd 0.620000 0.035000 0.055000\n")
+            active_material = line[7:].strip()
+            body_color_written = False
+            result.append(line)
+            continue
+        if active_material == "Body.002":
+            if line.startswith("map_Kd "):
+                continue
+            if line.startswith("Kd "):
+                result.append("Kd 0.620000 0.035000 0.055000\n")
+                body_color_written = True
+                continue
+        result.append(line)
+    if active_material == "Body.002" and not body_color_written:
+        result.append("Kd 0.620000 0.035000 0.055000\n")
+    with open(mtl_path, "w", encoding="utf-8") as target:
+        target.writelines(result)
+
+
+def strip_ship_chest_from_runtime(obj_path):
+    """Leave the wreck's broken hull and use the game's single interactive chest."""
+    if os.path.basename(obj_path) != "07_navio_naufragado_elemento-cenario.obj":
+        return
+    hidden_objects = {"corpo_bau", "Cube.001", "Topo_bau"}
+    with open(obj_path, "r", encoding="utf-8") as source:
+        lines = source.readlines()
+    result = []
+    active_object = None
+    for line in lines:
+        if line.startswith("o "):
+            active_object = line[2:].strip()
+        if active_object not in hidden_objects:
+            result.append(line)
+    with open(obj_path, "w", encoding="utf-8") as target:
+        target.writelines(result)
+
+
 def collect_existing_texture_paths(target_dir):
     """Rebuild the deterministic Blender material-to-bake filename mapping."""
     baked_material_paths.clear()
@@ -163,15 +221,26 @@ def collect_existing_texture_paths(target_dir):
                 target_dir, "textures", f"{obj_index:03d}_{slot_index:02d}.png")
 
 
-def simplify_runtime_scenery(model_name, scene):
-    """Decimate busy environmental meshes before they enter the 60 FPS scene."""
+def simplify_runtime_meshes(model_name, scene):
+    """Bake real-time LOD ratios before models enter the JavaFX 3D scene."""
     ratios = {
+        # Large authored meshes are rendered every frame. Keep silhouette and
+        # material data while limiting software-rendering cost in Docker/low-end GPUs.
+        "02_kullullu_boss": 0.42,
+        "03_enki_npc": 0.50,
+        "03_enki_var_celestial": 0.50,
+        "03_enki_var_eremita": 0.50,
+        "05_guardiao_atlante_npc": 0.50,
+        "05_guardiao_coral_vivo": 0.50,
+        "05_guardiao_lamassu_aquatico": 0.50,
+        "05_guardiao_oraculo_correntes": 0.50,
+        "04_peixe_sombrio_inimigo": 0.45,
+        "11_arraiao_abissal": 0.55,
         "08_recifes_e_cardume_elemento-cenario": 0.16,
         "16_corrente_abissal_3d": 0.12,
         "17_piscina_lava_3d": 0.45,
         "07_navio_naufragado_elemento-cenario": 0.38,
         "06_bau_tesouro_elemento-cenario": 0.55,
-        "15_portal_atlantica_3d": 0.55,
         "13_obstaculo_abissal": 0.55,
         "12_obstaculo_vulcanico": 0.70,
     }
@@ -179,14 +248,18 @@ def simplify_runtime_scenery(model_name, scene):
     if ratio is None:
         return
     for obj in scene.objects:
-        if obj.type != "MESH" or len(obj.data.polygons) < 80:
+        if obj.type != "MESH" or len(obj.data.polygons) < 80 or obj.data.shape_keys:
             continue
         modifier = obj.modifiers.new("Apsu Runtime LOD", "DECIMATE")
         modifier.ratio = ratio
         bpy.ops.object.select_all(action="DESELECT")
         obj.select_set(True)
         bpy.context.view_layer.objects.active = obj
-        bpy.ops.object.modifier_apply(modifier=modifier.name)
+        try:
+            bpy.ops.object.modifier_apply(modifier=modifier.name)
+        except RuntimeError as error:
+            obj.modifiers.remove(modifier)
+            print("[3D] LOD ignorado em " + obj.name + ": " + str(error))
 
 
 for root, _dirs, files in os.walk(blend_root):
@@ -194,6 +267,8 @@ for root, _dirs, files in os.walk(blend_root):
         if not filename.endswith(".blend"):
             continue
         name = os.path.splitext(filename)[0]
+        if "_ataque_" in name and not name.endswith("_ataque_thrust"):
+            continue
         if only_models is not None and name not in only_models:
             continue
         is_character = any(key in name.lower() for key in (
@@ -203,34 +278,42 @@ for root, _dirs, files in os.walk(blend_root):
         is_scenery = any(key in name.lower() for key in (
             "bau_tesouro", "navio_naufragado", "recifes_e_cardume",
             "ruinas_e_colunas", "obstaculo_abissal", "obstaculo_vulcanico",
-            "corrente_abissal", "portal_atlantica", "geiser",
+            "corrente_abissal", "geiser",
             "piscina_lava",
         ))
         if not is_character and not is_scenery:
             continue
 
         source = os.path.join(root, filename)
+        if only_source_paths is not None and os.path.normcase(os.path.abspath(source)) not in only_source_paths:
+            continue
         category = "characters" if is_character else "scenery"
         target_dir = os.path.join(output_root, category, name)
         os.makedirs(target_dir, exist_ok=True)
         target = os.path.join(target_dir, name + ".obj")
         bpy.ops.wm.open_mainfile(filepath=source)
         scene = bpy.context.scene
-        scene.frame_set(scene.frame_start)
+        attack_pose = name.endswith("_ataque_thrust")
+        scene.frame_set(scene.frame_start + 5 if attack_pose else scene.frame_start)
         if fix_mtls_only:
             collect_existing_texture_paths(target_dir)
             for current_root, _dirs, current_files in os.walk(target_dir):
                 for current_file in current_files:
                     if current_file.endswith(".mtl"):
-                        ensure_mtl_textures(os.path.join(current_root, current_file))
+                        mtl_path = os.path.join(current_root, current_file)
+                        ensure_mtl_textures(mtl_path)
+                        keep_boss_body_visible(mtl_path)
+                        strip_ship_chest_from_runtime(os.path.splitext(mtl_path)[0] + ".obj")
             print("[3D] MTL texturas revisados: " + name)
             exported += 1
             continue
-        if is_scenery:
-            simplify_runtime_scenery(name, scene)
+        simplify_runtime_meshes(name, scene)
         bake_material_textures(target_dir)
         export_obj(target)
-        ensure_mtl_textures(os.path.splitext(target)[0] + ".mtl")
+        mtl_path = os.path.splitext(target)[0] + ".mtl"
+        ensure_mtl_textures(mtl_path)
+        keep_boss_body_visible(mtl_path)
+        strip_ship_chest_from_runtime(target)
         print("[3D] " + name + " -> " + target)
         exported += 1
 

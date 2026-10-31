@@ -39,15 +39,16 @@ class SpriteManagerTest {
     }
 
     @Test
-    @DisplayName("Transição de nado mistura frames vizinhos em vez de cortar a textura")
-    void blendsAdjacentFramesSmoothly() {
+    @DisplayName("Animação seleciona um único quadro sem sobrepor poses")
+    void selectsDiscreteFramesWithoutPoseGhosting() {
         SpriteManager.FrameSeq sequence = SpriteManager.getInstance().loadSequence(
             "sprites/adapa/01_adapa_heroi", 8.0, null);
 
-        SpriteManager.FrameBlend blend = sequence.blend(0.0625); // metade entre frame 1 e 2 a 8 FPS
-        assertNotNull(blend.current());
-        assertNotNull(blend.next());
-        assertEquals(0.5, blend.nextAlpha(), 0.001);
-        assertNotSame(blend.current(), blend.next());
+        Image first = sequence.get(0.0625); // continua no primeiro quadro até 1/8 s
+        Image second = sequence.get(0.125);
+        assertNotNull(first);
+        assertNotNull(second);
+        assertNotSame(first, second);
+        assertSame(first, sequence.get(1.0625)); // o ciclo repete sem sobreposição
     }
 }

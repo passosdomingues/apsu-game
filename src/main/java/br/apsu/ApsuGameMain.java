@@ -32,7 +32,7 @@ public class ApsuGameMain extends Application {
         StackPane root = new StackPane(canvas, renderer.get3DView());
         root.setAlignment(Pos.CENTER);
         root.setStyle("-fx-background-color: black;");
-        Scene scene = new Scene(root, W, H, true, SceneAntialiasing.BALANCED);
+        Scene scene = new Scene(root, W, H, true, SceneAntialiasing.DISABLED);
         scene.setFill(Color.BLACK);
         Runnable fitCanvas = () -> {
             Viewport viewport = Viewport.fit(root.getWidth(), root.getHeight(), W, H);

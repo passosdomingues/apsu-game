@@ -13,6 +13,8 @@ import java.util.Map;
 public class LightingEngine {
     private boolean reducedEffects;
     private static final Color CAUSTIC_BLUE = Color.rgb(140, 210, 255, 0.04);
+    private final double[] causticX = new double[4];
+    private final double[] causticY = new double[4];
 
     private final Map<Color, Color> outerAlphaCache = new HashMap<>();
     private final Map<Color, Color> innerAlphaCache = new HashMap<>();
@@ -27,9 +29,13 @@ public class LightingEngine {
         for (int i = 0; i < bands; i++) {
             double sx = 60 + i * 220 + Math.sin(timeSeconds * 0.3 + i) * 22;
             double wave = Math.sin(timeSeconds * 0.5 + i * 0.7) * 15;
-            gc.fillPolygon(
-                new double[]{sx + wave, sx + 60 + wave, sx + 220 + 60, sx + 220},
-                new double[]{0, 0, height, height}, 4);
+            causticX[0] = sx + wave;
+            causticX[1] = sx + 60 + wave;
+            causticX[2] = sx + 280;
+            causticX[3] = sx + 220;
+            causticY[0] = causticY[1] = 0;
+            causticY[2] = causticY[3] = height;
+            gc.fillPolygon(causticX, causticY, 4);
         }
     }
 

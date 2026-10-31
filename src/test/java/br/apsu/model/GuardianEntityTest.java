@@ -24,6 +24,12 @@ public class GuardianEntityTest {
         g0.setContacted(true);
         assertTrue(g0.isContacted());
 
-        assertTrue(g0.getDialogue().length >= 4, "Cada guardião deve possuir pelo menos 4 frases de diálogo");
+        assertEquals(1, g0.getDialogue().length,
+            "Cada interação deve orientar o jogador com uma única fala curta");
+        assertTrue(g0.getDialogue()[0].length() <= 60);
+        for (String[] intro : GuardianEntity.ENKI_INTRO_DIALOGUES) {
+            assertEquals(1, intro.length, "A introdução da fase deve caber em uma fala");
+            assertTrue(intro[0].length() <= 60, "A fala deve ser curta e acionável");
+        }
     }
 }

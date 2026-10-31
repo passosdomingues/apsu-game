@@ -68,20 +68,20 @@ public class HeroEntityTest {
     }
 
     @Test
-    @DisplayName("Animação de ataque segue o relógio fornecido pela simulação")
-    void testAttackAnimationUsesSimulationClock() {
+    @DisplayName("Janela de ataque segue o relógio da simulação")
+    void testAttackWindowUsesSimulationClock() {
         long shotAt = 1_000_000_000L;
         hero.triggerShooting(shotAt);
 
         hero.updatePhysics(false, false, false, false, 0, 768, 0,
             1.0, 0, 0, shotAt + 150_000_000L);
-        assertTrue(hero.isShooting(), "O ataque deve continuar durante a fase de impulso");
-        assertTrue(hero.getAttackOffsetX() > 0, "O impulso deve deslocar a pose para frente");
+        assertTrue(hero.isShooting(), "O modelo 3D deve permanecer na pose de ataque durante o disparo");
+        assertEquals(150.0 / 260.0, hero.getAttackProgress(shotAt + 150_000_000L), 0.001);
 
         hero.updatePhysics(false, false, false, false, 0, 768, 0,
-            1.0, 0, 0, shotAt + 500_000_000L);
-        assertFalse(hero.isShooting(), "O ataque deve terminar após a recuperação, sem depender do relógio real");
-        assertEquals(0.0, hero.getAttackOffsetX(), 0.001);
+            1.0, 0, 0, shotAt + 300_000_000L);
+        assertFalse(hero.isShooting(), "A pose de ataque deve terminar após a duração configurada");
+        assertEquals(0.0, hero.getAttackProgress(shotAt + 300_000_000L));
     }
 
     @Test

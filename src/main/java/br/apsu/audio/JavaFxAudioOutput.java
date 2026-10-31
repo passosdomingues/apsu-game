@@ -7,13 +7,13 @@ import javafx.scene.media.MediaPlayer;
 
 import java.net.URL;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Map;
 
 /** Adaptador JavaFX: AudioClip para efeitos curtos e MediaPlayer para música em loop. */
 final class JavaFxAudioOutput implements AudioOutput {
     private final boolean enabled;
-    private final Map<OceanDepthProfile, Map<AudioCue, AudioClip>> effects = new EnumMap<>(OceanDepthProfile.class);
+    private final Map<AudioCue, AudioClip> effects = new EnumMap<>(AudioCue.class);
+    private final Map<String, Long> lastEffectAt = new java.util.HashMap<>();
     private MediaPlayer currentMusic;
 
     private static final double MUSIC_VOLUME = 0.55;
@@ -24,20 +24,18 @@ final class JavaFxAudioOutput implements AudioOutput {
     }
 
     private void loadAssets() {
-        for (OceanDepthProfile profile : OceanDepthProfile.values()) {
-            EnumMap<AudioCue, AudioClip> profileEffects = new EnumMap<>(AudioCue.class);
-            Map<String, AudioClip> profileAssets = new HashMap<>();
-            for (AudioCue cue : AudioCue.values()) {
-                String asset = asset(cue);
-                AudioClip clip = profileAssets.get(asset);
-                if (!profileAssets.containsKey(asset)) {
-                    clip = load("/audio/generated/" + key(profile) + "/" + asset + ".wav");
-                    if (clip == null) clip = load("/audio/" + asset + ".wav");
-                    if (clip != null) profileAssets.put(asset, clip);
-                }
-                if (clip != null) profileEffects.put(cue, clip);
+        Map<String, AudioClip> clipsByAsset = new java.util.HashMap<>();
+        for (AudioCue cue : AudioCue.values()) {
+            String asset = asset(cue);
+            AudioClip clip = clipsByAsset.get(asset);
+            if (clip == null) {
+                // One shared short clip per cue asset avoids loading five
+                // depth-specific copies into JavaFX Media at startup. Music
+                // remains phase-specific; effect depth is expressed by gain.
+                clip = load("/audio/" + asset + ".wav");
+                if (clip != null) clipsByAsset.put(asset, clip);
             }
-            effects.put(profile, profileEffects);
+            if (clip != null) effects.put(cue, clip);
         }
     }
 
@@ -53,8 +51,17 @@ final class JavaFxAudioOutput implements AudioOutput {
 
     @Override public void playEffect(AudioCue cue, OceanDepthProfile depth) {
         if (!enabled || cue == null || depth == null) return;
-        AudioClip clip = effects.getOrDefault(depth, Map.of()).get(cue);
-        if (clip != null) try { clip.play(gain(cue) * depthGain(depth)); }
+        AudioClip clip = effects.get(cue);
+        if (clip != null) try {
+            String asset = asset(cue);
+            long now = System.nanoTime();
+            long last = lastEffectAt.getOrDefault(asset, Long.MIN_VALUE / 2);
+            // Suppress duplicate same-cue overlaps (e.g. several hit events
+            // arriving in one update); keep attack cadence and menu taps intact.
+            if (clip.isPlaying() || now - last < 70_000_000L) return;
+            lastEffectAt.put(asset, now);
+            clip.play(gain(cue) * depthGain(depth));
+        }
         catch (RuntimeException ignored) { }
     }
 

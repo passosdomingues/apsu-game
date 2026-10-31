@@ -17,18 +17,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 
 /** Carrega OBJ/MTL exportados pelo pipeline Blender para a cena JavaFX 3D. */
 final class ObjModelLoader {
     @FunctionalInterface
     interface TextureBinder {
-        void bind(PhongMaterial material, String resourcePath, boolean emissive) throws IOException;
+        void bind(PhongMaterial material, String resourcePath) throws IOException;
     }
 
     record Model(Group node, double width, double height) {}
     private record Face(int a, int b, int c, int na, int nb, int nc, int ta, int tb, int tc) {}
-    private record MaterialAppearance(Color diffuse, String texture, Color specular, double shininess, boolean emissive) {}
+    private record MaterialAppearance(Color diffuse, String texture, Color specular, double shininess) {}
     private static final Map<String, Image> TEXTURES = new ConcurrentHashMap<>();
     private static final class MaterialFaces {
         final List<Face> faces = new ArrayList<>();
@@ -46,11 +47,18 @@ final class ObjModelLoader {
         if (modelName.startsWith("scenery/")) {
             String name = modelName.substring("scenery/".length());
             resourceKey = "scenery/" + name + "/" + name;
+        } else if (modelName.startsWith("characters/")) {
+            String name = modelName.substring("characters/".length());
+            resourceKey = "characters/" + name + "/" + name;
         } else {
             resourceKey = modelName.contains("/") ? modelName : modelName + "/" + modelName;
         }
-        String base = "/models/" + (resourceKey.startsWith("scenery/")
-            ? resourceKey : "characters/" + resourceKey);
+        String base = "/models/";
+        if (resourceKey.startsWith("scenery/") || resourceKey.startsWith("characters/")) {
+            base += resourceKey;
+        } else {
+            base += "characters/" + resourceKey;
+        }
         List<double[]> vertices = new ArrayList<>();
         List<double[]> normals = new ArrayList<>();
         List<double[]> texCoords = new ArrayList<>();
@@ -63,24 +71,35 @@ final class ObjModelLoader {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (line.startsWith("v ")) {
-                    String[] p = line.trim().split("\\s+");
-                    vertices.add(new double[]{Double.parseDouble(p[1]), Double.parseDouble(p[2]), Double.parseDouble(p[3])});
+                    StringTokenizer p = new StringTokenizer(line);
+                    p.nextToken();
+                    vertices.add(new double[]{Double.parseDouble(p.nextToken()), Double.parseDouble(p.nextToken()), Double.parseDouble(p.nextToken())});
                 } else if (line.startsWith("vn ")) {
-                    String[] p = line.trim().split("\\s+");
-                    normals.add(new double[]{Double.parseDouble(p[1]), Double.parseDouble(p[2]), Double.parseDouble(p[3])});
+                    StringTokenizer p = new StringTokenizer(line);
+                    p.nextToken();
+                    normals.add(new double[]{Double.parseDouble(p.nextToken()), Double.parseDouble(p.nextToken()), Double.parseDouble(p.nextToken())});
                 } else if (line.startsWith("vt ")) {
-                    String[] p = line.trim().split("\\s+");
-                    texCoords.add(new double[]{Double.parseDouble(p[1]), Double.parseDouble(p[2])});
+                    StringTokenizer p = new StringTokenizer(line);
+                    p.nextToken();
+                    texCoords.add(new double[]{Double.parseDouble(p.nextToken()), Double.parseDouble(p.nextToken())});
                 } else if (line.startsWith("usemtl ")) {
                     activeMaterial = line.substring(7).trim();
                     active = facesByMaterial.computeIfAbsent(activeMaterial, ignored -> new MaterialFaces());
                 } else if (line.startsWith("f ")) {
-                    String[] p = line.trim().split("\\s+");
-                    int first = vertexIndex(p[1], vertices.size());
-                    for (int i = 2; i + 1 < p.length; i++) {
-                        active.faces.add(new Face(first, vertexIndex(p[i], vertices.size()), vertexIndex(p[i + 1], vertices.size()),
-                            normalIndex(p[1], normals.size()), normalIndex(p[i], normals.size()), normalIndex(p[i + 1], normals.size()),
-                            texCoordIndex(p[1], texCoords.size()), texCoordIndex(p[i], texCoords.size()), texCoordIndex(p[i + 1], texCoords.size())));
+                    StringTokenizer p = new StringTokenizer(line);
+                    p.nextToken();
+                    String firstPoint = p.nextToken();
+                    String previousPoint = p.nextToken();
+                    int first = vertexIndex(firstPoint, vertices.size());
+                    int previous = vertexIndex(previousPoint, vertices.size());
+                    while (p.hasMoreTokens()) {
+                        String nextPoint = p.nextToken();
+                        int next = vertexIndex(nextPoint, vertices.size());
+                        active.faces.add(new Face(first, previous, next,
+                            normalIndex(firstPoint, normals.size()), normalIndex(previousPoint, normals.size()), normalIndex(nextPoint, normals.size()),
+                            texCoordIndex(firstPoint, texCoords.size()), texCoordIndex(previousPoint, texCoords.size()), texCoordIndex(nextPoint, texCoords.size())));
+                        previousPoint = nextPoint;
+                        previous = next;
                     }
                 }
             }
@@ -120,7 +139,11 @@ final class ObjModelLoader {
                         mesh.getPoints().addAll(
                             (float) ((v[0] - (minX + maxX) * 0.5) * scale),
                             (float) (-(v[2] - (minZ + maxZ) * 0.5) * scale),
-                            (float) (v[1] * scale));
+                            // Center Blender's depth axis too. Leaving the
+                            // source object origin here creates large,
+                            // model-specific parallax in the perspective view
+                            // (the shipwreck was displaced hundreds of pixels).
+                            (float) ((v[1] - (minY + maxY) * 0.5) * scale));
                         pointIndex = mesh.getPoints().size() / 3 - 1;
                         pointIndices.put(index, pointIndex);
                     }
@@ -143,12 +166,12 @@ final class ObjModelLoader {
             mesh.getFaces().addAll(triangles);
             MeshView view = new MeshView(mesh);
             MaterialAppearance appearance = materials.getOrDefault(entry.getKey(),
-                new MaterialAppearance(Color.LIGHTGRAY, null, Color.color(0.15, 0.15, 0.15), 24, false));
+                new MaterialAppearance(Color.LIGHTGRAY, null, Color.color(0.15, 0.15, 0.15), 24));
             PhongMaterial material = new PhongMaterial(appearance.diffuse());
             material.setSpecularColor(appearance.specular());
             material.setSpecularPower(appearance.shininess());
             if (appearance.texture() != null) {
-                textureBinder.bind(material, appearance.texture(), appearance.emissive());
+                textureBinder.bind(material, appearance.texture());
             }
             view.setMaterial(material);
             result.getChildren().add(view);
@@ -158,12 +181,23 @@ final class ObjModelLoader {
 
     /** Creates an inexpensive instance that shares immutable mesh and material data. */
     static Model instance(Model template, double targetWidth, double targetHeight) {
+        return instance(template, targetWidth, targetHeight, Color.WHITE);
+    }
+
+    /** Creates a tinted instance while sharing the source texture maps and meshes. */
+    static Model instance(Model template, double targetWidth, double targetHeight, Color tint) {
         double scale = Math.min(targetWidth / template.width(), targetHeight / template.height());
         Group node = new Group();
         for (javafx.scene.Node child : template.node().getChildren()) {
             MeshView source = (MeshView) child;
             MeshView view = new MeshView(source.getMesh());
-            view.setMaterial(source.getMaterial());
+            PhongMaterial sourceMaterial = (PhongMaterial) source.getMaterial();
+            PhongMaterial material = new PhongMaterial(multiply(sourceMaterial.getDiffuseColor(), tint));
+            material.setDiffuseMap(sourceMaterial.getDiffuseMap());
+            material.setSpecularColor(sourceMaterial.getSpecularColor());
+            material.setSpecularPower(sourceMaterial.getSpecularPower());
+            material.setSelfIlluminationMap(sourceMaterial.getSelfIlluminationMap());
+            view.setMaterial(material);
             node.getChildren().add(view);
         }
         node.setScaleX(scale);
@@ -174,22 +208,33 @@ final class ObjModelLoader {
 
     private static int vertexIndex(String facePoint, int vertexCount) {
         int slash = facePoint.indexOf('/');
-        int index = Integer.parseInt(slash < 0 ? facePoint : facePoint.substring(0, slash));
-        return index < 0 ? vertexCount + index : index - 1;
+        return parseIndex(facePoint, 0, slash < 0 ? facePoint.length() : slash, vertexCount);
     }
 
     private static int normalIndex(String facePoint, int normalCount) {
-        String[] parts = facePoint.split("/", -1);
-        if (parts.length < 3 || parts[2].isEmpty()) return -1;
-        int index = Integer.parseInt(parts[2]);
-        return index < 0 ? normalCount + index : index - 1;
+        int firstSlash = facePoint.indexOf('/');
+        if (firstSlash < 0) return -1;
+        int secondSlash = facePoint.indexOf('/', firstSlash + 1);
+        if (secondSlash < 0 || secondSlash + 1 == facePoint.length()) return -1;
+        return parseIndex(facePoint, secondSlash + 1, facePoint.length(), normalCount);
     }
 
     private static int texCoordIndex(String facePoint, int uvCount) {
-        String[] parts = facePoint.split("/", -1);
-        if (parts.length < 2 || parts[1].isEmpty()) return -1;
-        int index = Integer.parseInt(parts[1]);
-        return index < 0 ? uvCount + index : index - 1;
+        int firstSlash = facePoint.indexOf('/');
+        if (firstSlash < 0) return -1;
+        int secondSlash = facePoint.indexOf('/', firstSlash + 1);
+        int end = secondSlash < 0 ? facePoint.length() : secondSlash;
+        if (firstSlash + 1 == end) return -1;
+        return parseIndex(facePoint, firstSlash + 1, end, uvCount);
+    }
+
+    private static int parseIndex(String token, int start, int end, int itemCount) {
+        boolean negative = token.charAt(start) == '-';
+        int value = 0;
+        for (int i = negative ? start + 1 : start; i < end; i++) {
+            value = value * 10 + token.charAt(i) - '0';
+        }
+        return negative ? itemCount - value : value - 1;
     }
 
     private static double[] transformNormal(double[] source) {
@@ -218,17 +263,15 @@ final class ObjModelLoader {
             String material = "default", line, texture = null;
             Color diffuse = Color.LIGHTGRAY, specular = Color.color(0.15, 0.15, 0.15);
             double shininess = 24;
-            boolean emissive = false;
             while ((line = reader.readLine()) != null) {
                 if (line.startsWith("newmtl ")) {
                     if (!material.equals("default")) result.put(material,
-                        new MaterialAppearance(diffuse, texture, specular, shininess, emissive));
+                        new MaterialAppearance(diffuse, texture, specular, shininess));
                     material = line.substring(7).trim();
                     diffuse = Color.LIGHTGRAY;
                     specular = Color.color(0.15, 0.15, 0.15);
                     shininess = 24;
                     texture = null;
-                    emissive = false;
                 } else if (line.startsWith("Kd ")) {
                     String[] p = line.trim().split("\\s+");
                     diffuse = Color.color(clamp(Double.parseDouble(p[1])), clamp(Double.parseDouble(p[2])), clamp(Double.parseDouble(p[3])));
@@ -237,16 +280,13 @@ final class ObjModelLoader {
                     specular = Color.color(clamp(Double.parseDouble(p[1])), clamp(Double.parseDouble(p[2])), clamp(Double.parseDouble(p[3])));
                 } else if (line.startsWith("Ns ")) {
                     shininess = Math.max(1, Math.min(128, Double.parseDouble(line.substring(3).trim())));
-                } else if (line.startsWith("Ke ")) {
-                    String[] p = line.trim().split("\\s+");
-                    emissive = Double.parseDouble(p[1]) + Double.parseDouble(p[2]) + Double.parseDouble(p[3]) > 0.05;
                 } else if (line.startsWith("map_Kd ")) {
                     String file = line.substring(7).trim();
                     String directory = path.substring(0, path.lastIndexOf('/') + 1);
                     texture = normalizeResource(directory + file);
                 }
             }
-            result.put(material, new MaterialAppearance(diffuse, texture, specular, shininess, emissive));
+            result.put(material, new MaterialAppearance(diffuse, texture, specular, shininess));
         }
         return result;
     }
@@ -263,12 +303,17 @@ final class ObjModelLoader {
 
     private static double clamp(double c) { return Math.max(0, Math.min(1, c)); }
 
-    private static void bindTexture(PhongMaterial material, String resourcePath, boolean emissive) throws IOException {
+    private static Color multiply(Color source, Color tint) {
+        return Color.color(clamp(source.getRed() * tint.getRed()),
+            clamp(source.getGreen() * tint.getGreen()),
+            clamp(source.getBlue() * tint.getBlue()), source.getOpacity());
+    }
+
+    private static void bindTexture(PhongMaterial material, String resourcePath) throws IOException {
         var textureUrl = ObjModelLoader.class.getResource(resourcePath);
         if (textureUrl == null) throw new IOException("Textura MTL não encontrada: " + resourcePath);
         Image texture = TEXTURES.computeIfAbsent(textureUrl.toExternalForm(), key -> new Image(key, false));
         material.setDiffuseMap(texture);
-        if (emissive) material.setSelfIlluminationMap(texture);
     }
 
     private static InputStream resource(String path) throws IOException {

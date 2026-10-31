@@ -279,6 +279,26 @@ def construir_adapa():
     tr_root.location = (0.9, -0.45, 2.9)
     tr_root.rotation_euler = (math.radians(-5), math.radians(15), math.radians(20))
 
+    # Braço armado acompanha a articulação do tridente nos quadros de ataque.
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=16, ring_count=12)
+    braco_direito = bpy.context.active_object
+    braco_direito.name = "Braco_Direito_Articulado"
+    braco_direito.scale = (0.48, 0.19, 0.20)
+    braco_direito.location = (-0.34, 0.0, -0.18)
+    braco_direito.data.materials.append(m_pele)
+    braco_direito.parent = tr_root
+    smooth(braco_direito)
+
+    # O braço livre dá equilíbrio à silhueta vertical durante o nado.
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=16, ring_count=12,
+                                         location=(-0.78, 0.0, 2.55))
+    braco_esquerdo = bpy.context.active_object
+    braco_esquerdo.name = "Braco_Esquerdo"
+    braco_esquerdo.scale = (0.20, 0.20, 0.54)
+    braco_esquerdo.data.materials.append(m_pele)
+    braco_esquerdo.parent = root
+    smooth(braco_esquerdo)
+
     bpy.ops.mesh.primitive_cylinder_add(radius=0.04, depth=3.6, location=(0, 0, 0))
     haste = bpy.context.active_object
     haste.data.materials.append(m_ouro)

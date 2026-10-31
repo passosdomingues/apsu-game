@@ -27,7 +27,7 @@
       em cima dos frames — mas os frames em si nunca mudam de pose.
       As funções `swim_cycle_keyframes` e `attack_pose_keyframes`
       abaixo resolvem isso na origem (Blender), gerando poses reais
-      por frame para tools/render_all_2d5_sprites.py capturar.
+      por frame para tools/assets/render_3d_previews.py capturar.
 ============================================================================
 """
 import bpy
@@ -284,7 +284,7 @@ def swim_cycle_keyframes(root_obj, spine_segments, frame_count=8,
               da cauda (muito), como nado real de peixe (anguiliforme).
     frame_count: quantos frames o ciclo completo ocupa (a ferramenta
               de render usa frame_set(1..N) — mantenha compativel com
-              tools/render_all_2d5_sprites.py, hoje N=8).
+              tools/assets/render_3d_previews.py, hoje N=8).
     amp_deg: amplitude MAXIMA (na ponta da cauda) em graus.
     wavelength_segs: quantos segmentos cabem em 1 comprimento de onda
               (controla a defasagem entre segmentos consecutivos).
@@ -434,11 +434,14 @@ def attack_pose_keyframes(weapon_root, torso_obj, style="thrust",
     if style == "thrust":
         d_fwd = [0.0, 0.0, 0.0]
         kf_weapon(f0)                                   # repouso
-        d_fwd[forward_axis] = -0.15 * facing
-        kf_weapon(f1, d_rot=(0, 0, 0), d_loc=tuple(d_fwd))       # carga (recuo)
+        d_fwd[forward_axis] = -0.35 * facing
+        d_arc = [0.0, 0.0, 0.0]
+        d_arc[arc_axis] = math.radians(22) * facing
+        kf_weapon(f1, d_rot=tuple(d_arc), d_loc=tuple(d_fwd))     # prepara a estocada
         kf_squash(f1, 1.08, 0.94, 0.94)
-        d_fwd[forward_axis] = 0.55 * facing
-        kf_weapon(f2, d_rot=(0, 0, 0), d_loc=tuple(d_fwd))       # estocada
+        d_fwd[forward_axis] = 0.95 * facing
+        d_arc[arc_axis] = math.radians(-58) * facing
+        kf_weapon(f2, d_rot=tuple(d_arc), d_loc=tuple(d_fwd))     # estocada visível
         kf_squash(f2, 0.90, 1.08, 1.08)
         kf_weapon(f3)                                    # retorno
         kf_squash(f3, 1.0, 1.0, 1.0)

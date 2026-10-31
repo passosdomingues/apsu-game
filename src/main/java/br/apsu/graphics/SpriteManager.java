@@ -17,23 +17,11 @@ public class SpriteManager {
     /** Frames imutáveis compartilhados por todas as entidades da mesma animação. */
     private final Map<String, List<Image>> sequenceCache = new HashMap<>();
 
-    public record FrameBlend(Image current, Image next, double nextAlpha) {}
-
     public record FrameSeq(List<Image> frames, double fps) {
         public FrameSeq(double fps) { this(new ArrayList<>(), fps); }
         public Image get(double timeSeconds) {
             if (frames.isEmpty()) return null;
             return frames.get((int)(timeSeconds * fps) % frames.size());
-        }
-        /** Transição suave entre frames, evitando cortes visuais em sprites 3D. */
-        public FrameBlend blend(double timeSeconds) {
-            if (frames.isEmpty()) return new FrameBlend(null, null, 0);
-            if (frames.size() == 1) return new FrameBlend(frames.getFirst(), null, 0);
-            double position = timeSeconds * fps;
-            int index = Math.floorMod((int) Math.floor(position), frames.size());
-            double fraction = position - Math.floor(position);
-            double smooth = fraction * fraction * (3.0 - 2.0 * fraction);
-            return new FrameBlend(frames.get(index), frames.get((index + 1) % frames.size()), smooth);
         }
         public boolean isEmpty() { return frames.isEmpty(); }
     }

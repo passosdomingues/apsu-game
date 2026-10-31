@@ -23,7 +23,7 @@ has_cmd() {
 }
 
 # 1. Verificar JDK 21 LTS
-echo -e "${CLR_CYAN}>> [1/5] Checking Java 21 LTS...${CLR_RESET}"
+echo -e "${CLR_CYAN}>> [1/4] Checking Java 21 LTS...${CLR_RESET}"
 JDK21_FOUND=0
 JDK21_PATH=""
 
@@ -76,7 +76,7 @@ else
 fi
 
 # 2. Verificar Apache Maven
-echo -e "${CLR_CYAN}>> [2/5] Checking Apache Maven...${CLR_RESET}"
+echo -e "${CLR_CYAN}>> [2/4] Checking Apache Maven...${CLR_RESET}"
 if has_cmd mvn; then
     echo -e "${CLR_GREEN}[OK] Apache Maven found: $(mvn -v | head -n 1)${CLR_RESET}"
 else
@@ -89,11 +89,11 @@ else
     fi
 fi
 
-# Blender/OpenMPI are only needed when generating assets/maps. The checked-in
+# Blender is only needed when regenerating assets. The checked-in
 # runtime OBJ/MTL resources let a normal `make` run without these large tools.
 if [ "${APSU_RUNTIME_ONLY:-0}" != "1" ] && [ "${APSU_SKIP_BLENDER:-0}" != "1" ]; then
 # 3. Verificar Blender 4.5 LTS
-echo -e "${CLR_CYAN}>> [3/5] Checking Blender 4.5 LTS...${CLR_RESET}"
+echo -e "${CLR_CYAN}>> [3/4] Checking Blender 4.5 LTS...${CLR_RESET}"
 BLENDER_FOUND=0
 BLENDER_PATH=""
 
@@ -130,22 +130,8 @@ fi
 
 fi # Blender generation tools
 
-# 4. Verificar OpenMPI & Ferramentas
-if [ "${APSU_RUNTIME_ONLY:-0}" != "1" ] && [ "${APSU_SKIP_MPI:-0}" != "1" ]; then
-echo -e "${CLR_CYAN}>> [4/5] Checking OpenMPI & Build Tools...${CLR_RESET}"
-if has_cmd mpicc && has_cmd mpirun; then
-    echo -e "${CLR_GREEN}[OK] OpenMPI found at: $(command -v mpirun)${CLR_RESET}"
-else
-    echo -e "${CLR_YELLOW}[WARN] OpenMPI not found. Installing openmpi-bin via apt...${CLR_RESET}"
-    if has_cmd apt-get; then
-        sudo apt-get install -y build-essential openmpi-bin libopenmpi-dev python3 python3-pip -qq || true
-        echo -e "${CLR_GREEN}[OK] OpenMPI installed.${CLR_RESET}"
-    fi
-fi
-fi # OpenMPI tools
-
-# 5. Hardware Diagnostics
-echo -e "${CLR_CYAN}>> [5/5] Hardware Diagnostics...${CLR_RESET}"
+# 4. Hardware Diagnostics
+echo -e "${CLR_CYAN}>> [4/4] Hardware Diagnostics...${CLR_RESET}"
 CPU_CORES=$(nproc 2>/dev/null || echo 4)
 RAM_GB=$(free -g 2>/dev/null | awk '/Mem:/ {print $2}' || echo 8)
 echo -e "${CLR_GREEN}[OK] Hardware Detected: ${CPU_CORES} CPU Threads | ~${RAM_GB}GB RAM${CLR_RESET}"

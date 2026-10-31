@@ -128,7 +128,7 @@ def render_phase(phase):
         scene.render.film_transparent = False
         scene.render.filepath = path
         bpy.ops.render.render(write_still=True)
-        print(f"[BG 2.5D] Fase {phase}: {path} ({hidden} elementos decorativos ocultos)", flush=True)
+        print(f"[PANORAMA 3D] Fase {phase}: {path} ({hidden} elementos decorativos ocultos)", flush=True)
 
     # Export matching transparent planes so the game can apply independent
     # parallax speeds without re-rendering or changing the camera composition.
@@ -140,7 +140,7 @@ def render_phase(phase):
         layer_path = os.path.join(OUTPUT, f"phase-{phase}-{layer.casefold()}.png")
         scene.render.filepath = layer_path
         bpy.ops.render.render(write_still=True)
-        print(f"[BG 2.5D] Fase {phase} / {layer}: {layer_path}", flush=True)
+        print(f"[PANORAMA 3D] Fase {phase} / {layer}: {layer_path}", flush=True)
 
 
 if not os.path.isfile(SOURCE):
@@ -149,4 +149,4 @@ if not os.path.isfile(SOURCE):
 for phase in ([PHASE_ONLY] if PHASE_ONLY is not None else range(1, 6)):
     render_phase(phase)
 
-print("[BG 2.5D] Panoramas renderizados a partir de fase1.blend.")
+print("[PANORAMA 3D] Panoramas derivados do render da cena fase1.blend.")
