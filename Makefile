@@ -35,7 +35,7 @@ else
     SO_NAME       := Linux
     SHELL_SETUP   := bash tools/setup/setup_environment.sh
     
-    JDK21_CANDIDATE := $(shell for d in "$$JAVA_HOME" $$HOME/java/current /opt/java-temurin-21 /usr/lib/jvm/java-21-openjdk-amd64 /usr/lib/jvm/java-21-openjdk $$HOME/.local/jdk-21; do if [ -n "$$d" ] && [ -x "$$d/bin/java" ]; then echo "$$d"; break; fi; done)
+    JDK21_CANDIDATE := $(shell for d in "$$JAVA_HOME" $$HOME/java/current /opt/java-temurin-21 /usr/lib/jvm/java-21-openjdk-amd64 /usr/lib/jvm/java-21-openjdk $$HOME/.local/jdk-21; do if [ -n "$$d" ] && [ -x "$$d/bin/java" ] && "$$d/bin/java" -version 2>&1 | head -n 1 | grep -Eq 'version "21([.]|")'; then echo "$$d"; break; fi; done)
     JAVA_HOME_DIR   ?= $(JDK21_CANDIDATE)
     
     JAVA_CMD        := $(if $(JAVA_HOME_DIR),$(JAVA_HOME_DIR)/bin/java,java)
