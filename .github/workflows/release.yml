@@ -146,7 +146,7 @@ jobs:
                 exit 1
               fi
               inno_log=target/inno-setup.log
-              if ! "$iscc_path" "/DAppVersion=$app_version" \
+              if ! MSYS_NO_PATHCONV=1 "$iscc_path" "/DAppVersion=$app_version" \
                 "/DOutputName=apsu-game-${RELEASE_TAG}-${PLATFORM}" \
                 release/windows-installer.iss >"$inno_log" 2>&1; then
                 while IFS= read -r line; do echo "::error title=Inno Setup::$line"; done < "$inno_log"
