@@ -4,7 +4,7 @@
 # ============================================================
 
 APP_NAME     := apsu-game
-VERSION      := 0.2.0-SNAPSHOT
+VERSION      := 20261031-111014
 MAIN_CLASS   := br.apsu.Launcher
 SRC_DIR      := src/main/java
 RES_DIR      := src/main/resources
@@ -283,7 +283,7 @@ convert-phase-music:
 package: build
 	@echo "$(CLR_CYAN)[PACK ] Building Fat JAR package in target/...$(CLR_RESET)"
 	@$(MVN_CMD) package -q -DskipTests
-	@echo "$(CLR_GREEN)[OK] Executable JAR created: target/apsu-game-1.0.0-jar-with-dependencies.jar$(CLR_RESET)"
+	@echo "$(CLR_GREEN)[OK] Executable JAR created: target/apsu-game-$(VERSION)-jar-with-dependencies.jar$(CLR_RESET)"
 
 ## Constrói a imagem Docker
 docker-build:

@@ -38,10 +38,15 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
         run: |
-          asset=$(find target -maxdepth 1 -name '*-jar-with-dependencies.jar' -print -quit)
-          test -n "$asset"
+          built_asset=$(find target -maxdepth 1 -name '*-jar-with-dependencies.jar' -print -quit)
+          test -n "$built_asset"
+          asset="apsu-game-${RELEASE_TAG}-jar-with-dependencies.jar"
+          cp "$built_asset" "$asset"
           awk '/^## Aprendizados e desafios/{show=1} show{print} /^## Créditos/{exit}' README.md > release-notes.md
           if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            if gh release view "$RELEASE_TAG" --json assets --jq '.assets[].name' | grep -Fxq 'apsu-game-1.0.0-jar-with-dependencies.jar'; then
+              gh release delete-asset "$RELEASE_TAG" 'apsu-game-1.0.0-jar-with-dependencies.jar' --yes
+            fi
             gh release upload "$RELEASE_TAG" "$asset" --clobber
             gh release edit "$RELEASE_TAG" --title "As Águas de Apsu $RELEASE_TAG" --notes-file release-notes.md
           else

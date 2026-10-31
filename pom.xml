@@ -7,7 +7,7 @@
 
     <groupId>br.apsu</groupId>
     <artifactId>apsu-game</artifactId>
-    <version>1.0.0</version>
+    <version>20261031-111014</version>
     <packaging>jar</packaging>
 
     <name>As Águas de Apsu</name>

@@ -33,7 +33,7 @@ jobs:
       - name: Upload Playable Game Artifact (Fat JAR)
         uses: actions/upload-artifact@v4
         with:
-          name: apsu-game-v1.0.0-playable
+          name: apsu-game-${{ github.sha }}-playable
           path: target/*-jar-with-dependencies.jar
           if-no-files-found: warn
           retention-days: 30
