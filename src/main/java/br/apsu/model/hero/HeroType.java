@@ -43,6 +43,7 @@ public enum HeroType {
     private final double maxSpeed, accel, drag, buoy, pwr;
     private final String auraHex, description;
     private final Color auraColor;
+    private final Color auraStrokeColor;
 
     HeroType(String name, String staticSpritePath, String attack1Path, String attack2Path, String swimDir,
              double maxSpeed, double accel, double drag, double buoy, double pwr, String auraHex, String description) {
@@ -58,6 +59,7 @@ public enum HeroType {
         this.pwr = pwr;
         this.auraHex = auraHex;
         this.auraColor = Color.web(auraHex);
+        this.auraStrokeColor = this.auraColor.deriveColor(0, 1, 1, 0.6);
         this.description = description;
     }
 
@@ -73,6 +75,7 @@ public enum HeroType {
     public double getPwr() { return pwr; }
     public String getAuraHex() { return auraHex; }
     public Color getAura() { return auraColor; }
+    public Color getAuraStroke() { return auraStrokeColor; }
     public String getDescription() { return description; }
     public String getAttackDir(String style) {
         return this == GUARDIAO

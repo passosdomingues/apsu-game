@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("Testes de Unidade — HeroEntity")
+@DisplayName("Testes de Unidade - HeroEntity")
 public class HeroEntityTest {
 
     private HeroEntity hero;
@@ -111,5 +111,22 @@ public class HeroEntityTest {
 
         hero.heal(2.0);
         assertEquals(5.0, hero.getHp(), 0.001, "A vida não deve ultrapassar maxHP");
+    }
+
+    @Test
+    @DisplayName("Interpolação de coordenadas do herói entre ticks")
+    void testHeroInterpolation() {
+        double startX = hero.getX();
+        hero.updatePhysics(false, true, false, false, 0, 768, 0);
+
+        double nextX = hero.getX();
+        assertTrue(nextX > startX);
+
+        assertEquals(startX, hero.getInterpolatedX(0.0), 0.0001);
+        assertEquals(nextX, hero.getInterpolatedX(1.0), 0.0001);
+        assertEquals((startX + nextX) * 0.5, hero.getInterpolatedX(0.5), 0.0001);
+
+        hero.snapPrevious();
+        assertEquals(nextX, hero.getInterpolatedX(0.0), 0.0001);
     }
 }

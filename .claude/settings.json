@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "env": {
+    "MAVEN_ARGS": "-B -q",
+    "APSU_HARNESS": "1",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
+  },
+  "permissions": {
+    "defaultMode": "default",
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Edit(src/main/java/**)",
+      "Edit(src/test/java/**)",
+      "Edit(tools/**)",
+      "Edit(personagens/scripts/**)",
+      "Edit(.claude/**)",
+      "Edit(*.md)",
+      "Write(src/main/java/**)",
+      "Write(src/test/java/**)",
+      "Write(tools/**)",
+      "Write(.claude/**)",
+      "Bash(make test)",
+      "Bash(make build)",
+      "Bash(make coverage)",
+      "Bash(make system-info)",
+      "Bash(make perf-summary)",
+      "Bash(make -C .claude:*)",
+      "Bash(mvn test:*)",
+      "Bash(mvn -q test:*)",
+      "Bash(mvn -o test:*)",
+      "Bash(mvn compile:*)",
+      "Bash(mvn -q compile:*)",
+      "Bash(mvn -o -q compile:*)",
+      "Bash(mvn verify:*)",
+      "Bash(APSU_PERF=1 make run)",
+      "Bash(APSU_AUDIO=0 APSU_PERF=1 make run)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(git checkout -b:*)",
+      "Bash(git switch -c:*)",
+      "Bash(git add src/:*)",
+      "Bash(git add tools/:*)",
+      "Bash(git add .claude/:*)",
+      "Bash(git add docs/:*)",
+      "Bash(git commit:*)",
+      "Bash(python3 .claude/tools/:*)",
+      "Bash(python3 .claude/hooks/:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(sed -n:*)",
+      "Bash(nproc)",
+      "Bash(java -version)"
+    ],
+    "ask": [
+      "Bash(make assets:*)",
+      "Bash(make assets-regenerate:*)",
+      "Bash(make assets-procedural:*)",
+      "Bash(make export-runtime-models:*)",
+      "Bash(make export-model:*)",
+      "Bash(make refresh-model:*)",
+      "Bash(make render-backgrounds:*)",
+      "Bash(make audio-assets:*)",
+      "Bash(make generate-characters:*)",
+      "Bash(make package:*)",
+      "Bash(make docker-run:*)",
+      "Bash(git push:*)",
+      "Bash(git merge:*)",
+      "Bash(git rebase:*)",
+      "Bash(git stash:*)",
+      "Bash(blender:*)",
+      "Edit(pom.xml)",
+      "Edit(Makefile)",
+      "Edit(Dockerfile)",
+      "Edit(.github/**)",
+      "Edit(personagens/blends/**)",
+      "Edit(src/main/resources/**)",
+      "Edit(LICENSE)",
+      "Edit(CODEOWNERS)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)",
+      "Read(~/.ssh/**)",
+      "Edit(target/**)",
+      "Write(target/**)",
+      "Edit(.git/**)",
+      "Write(.git/**)",
+      "Edit(src/main/resources/audio/**)",
+      "Edit(docs/audio/SOURCES.md)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git clean -fd:*)",
+      "Bash(git clean -fdx:*)",
+      "Bash(git checkout -- .)",
+      "Bash(git restore .)",
+      "Bash(git add -A)",
+      "Bash(git add .)",
+      "Bash(git commit --no-verify:*)",
+      "Bash(rm -rf /:*)",
+      "Bash(rm -rf ~:*)",
+      "Bash(rm -rf src:*)",
+      "Bash(rm -rf personagens:*)",
+      "Bash(rm -rf assets:*)",
+      "Bash(sudo:*)",
+      "Bash(curl:*)",
+      "Bash(wget:*)",
+      "Bash(chmod -R 777:*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/session_start.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/prompt_context.py\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard_bash.py\"",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard_edit.py\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/hotpath_lint.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/pre_compact.py\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/stop_gate.py\"",
+            "timeout": 300
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/statusline.py\""
+  },
+  "cleanupPeriodDays": 30
+}

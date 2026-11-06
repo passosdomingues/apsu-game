@@ -77,12 +77,13 @@ endif
 ifeq ($(filter $(APSU_PROFILE),performance balanced low),)
     $(error APSU_PROFILE deve ser auto, performance, balanced ou low)
 endif
+APSU_GC_FLAGS ?= -XX:+UseG1GC -XX:MaxGCPauseMillis=5 -Dprism.order=es2,sw -Dprism.vsync=true
 ifeq ($(APSU_PROFILE),performance)
-    APSU_JVM_ARGS ?= -Xms256m -Xmx3g -Dapsu.quality=high
+    APSU_JVM_ARGS ?= -Xms256m -Xmx3g $(APSU_GC_FLAGS) -Dapsu.quality=high
 else ifeq ($(APSU_PROFILE),balanced)
-    APSU_JVM_ARGS ?= -Xms128m -Xmx2g -Dapsu.quality=balanced
+    APSU_JVM_ARGS ?= -Xms128m -Xmx2g $(APSU_GC_FLAGS) -Dapsu.quality=balanced
 else
-    APSU_JVM_ARGS ?= -Xms64m -Xmx1g -Dapsu.quality=low
+    APSU_JVM_ARGS ?= -Xms64m -Xmx1g $(APSU_GC_FLAGS) -Dapsu.quality=low
 endif
 APSU_PERF_ARGS := $(if $(filter 1 true yes,$(APSU_PERF)),-Dapsu.perf=true,)
 APSU_AUDIO_ENABLED := $(if $(filter 1 true yes on,$(APSU_AUDIO)),true,false)

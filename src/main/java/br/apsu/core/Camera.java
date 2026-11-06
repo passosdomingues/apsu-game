@@ -5,21 +5,62 @@ package br.apsu.core;
  */
 public class Camera {
     private double x;
+    private double prevX;
     private final double viewportWidth;
     private final double worldWidth;
     private double shakeIntensity;
     private long shakeStartedAt;
     private long shakeDurationNanos;
+    private boolean initialized = false;
 
     public Camera(double viewportWidth, double worldWidth) {
         this.viewportWidth = viewportWidth;
         this.worldWidth = worldWidth;
         this.x = 0;
+        this.prevX = 0;
+    }
+
+    public void snap(double targetWorldX) {
+        double targetCamX = Math.max(0, Math.min(worldWidth - viewportWidth, targetWorldX - viewportWidth * 0.3));
+        this.x = targetCamX;
+        this.prevX = targetCamX;
+        this.initialized = true;
+    }
+
+    public void snapPrevious() {
+        this.prevX = this.x;
     }
 
     public void update(double targetWorldX) {
-        double targetCamX = targetWorldX - viewportWidth * 0.3;
-        this.x = Math.max(0, Math.min(worldWidth - viewportWidth, targetCamX));
+        update(targetWorldX, 1.0 / 60.0);
+    }
+
+    public void update(double targetWorldX, double dt) {
+        double targetCamX = Math.max(0, Math.min(worldWidth - viewportWidth, targetWorldX - viewportWidth * 0.3));
+        if (!initialized) {
+            snap(targetWorldX);
+            return;
+        }
+        prevX = x;
+        if (dt <= 0) {
+            this.x = targetCamX;
+        } else {
+            double factor = 1.0 - Math.exp(-10.0 * dt);
+            this.x += (targetCamX - this.x) * factor;
+        }
+        this.x = Math.max(0, Math.min(worldWidth - viewportWidth, this.x));
+    }
+
+    public double getInterpolatedX(double alpha) {
+        return prevX + (x - prevX) * alpha;
+    }
+
+    public double getRenderX(double alpha) {
+        return Math.round(getInterpolatedX(alpha));
+    }
+
+    public double getPrevX() {
+        return prevX;
     }
 
     /**
@@ -67,6 +108,7 @@ public class Camera {
     }
 
     public double getX() { return x; }
-    public void setX(double x) { this.x = x; }
+    public void setX(double x) { this.x = x; this.prevX = x; }
     public double toScreenX(double worldX) { return worldX - x; }
+    public double toScreenX(double worldX, double alpha) { return worldX - getInterpolatedX(alpha); }
 }

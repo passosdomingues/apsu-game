@@ -20,17 +20,12 @@ import javafx.scene.text.TextAlignment;
  * Sem emojis — toda indicação visual usa formas desenhadas ou texto ASCII.
  */
 public class UIRenderer {
-    private static final java.util.Map<String, Color> COLOR_CACHE = new java.util.concurrent.ConcurrentHashMap<>();
-    private static final java.util.Map<Long, Color> RGB_CACHE = new java.util.concurrent.ConcurrentHashMap<>();
-
     private static Color color(String web) {
-        return COLOR_CACHE.computeIfAbsent(web, Color::web);
+        return Palette.color(web);
     }
 
     private static Color rgb(int red, int green, int blue, double alpha) {
-        long key = ((long) red << 24) | ((long) green << 16) | ((long) blue << 8)
-            | Math.round(alpha * 255);
-        return RGB_CACHE.computeIfAbsent(key, ignored -> Color.rgb(red, green, blue, alpha));
+        return Palette.rgb(red, green, blue, alpha);
     }
 
     public void drawHUD(GraphicsContext gc, HeroEntity hero, int tablets, String phaseName, Difficulty diff) {
@@ -39,14 +34,14 @@ public class UIRenderer {
 
     public void drawHUD(GraphicsContext gc, HeroEntity hero, int tablets, String phaseName, Difficulty diff,
                         OceanDepthProfile depth) {
-        gc.setFill(rgb(0, 4, 14, 0.88));
+        gc.setFill(Palette.HUD_BG);
         gc.fillRoundRect(8, 8, 440, 136, 12, 12);
-        gc.setStroke(rgb(0, 100, 200, 0.45)); gc.setLineWidth(1.5);
+        gc.setStroke(Palette.HUD_STROKE); gc.setLineWidth(1.5);
         gc.strokeRoundRect(8, 8, 440, 136, 12, 12);
 
         gc.setTextAlign(TextAlignment.LEFT);
-        gc.setFont(Font.font("Serif", FontWeight.BOLD, 14));
-        gc.setFill(color("#80c0f0"));
+        gc.setFont(UiFonts.LABEL_BOLD_14);
+        gc.setFill(Palette.HUD_LABEL);
         gc.fillText("VIDA", 22, 32);
 
         // HP desenhado como barras retangulares — sem emoji
@@ -55,81 +50,85 @@ public class UIRenderer {
         double barTotalW = maxHearts * 24;
         double barX = 65, barY = 20, barH = 14;
         // Fundo
-        gc.setFill(rgb(30, 10, 14, 0.85));
+        gc.setFill(Palette.HUD_HP_BG);
         gc.fillRoundRect(barX, barY, barTotalW, barH, 4, 4);
         // Preenchimento colorido por threshold
-        Color hpColor = hpRatio > 0.6 ? color("#22dd66")
-                      : hpRatio > 0.3 ? color("#ffaa00")
-                      : color("#ff2244");
+        Color hpColor = hpRatio > 0.6 ? Palette.HUD_HP_HIGH
+                      : hpRatio > 0.3 ? Palette.HUD_HP_MED
+                      : Palette.HUD_HP_LOW;
         gc.setFill(hpColor);
         gc.fillRoundRect(barX + 1, barY + 1, (barTotalW - 2) * hpRatio, barH - 2, 3, 3);
         // Divisórias por ponto de vida
-        gc.setStroke(rgb(0, 20, 40, 0.7)); gc.setLineWidth(1);
+        gc.setStroke(Palette.HUD_HP_DIVIDER); gc.setLineWidth(1);
         for (int i = 1; i < maxHearts; i++) {
             double lx = barX + i * 24;
             gc.strokeLine(lx, barY + 1, lx, barY + barH - 1);
         }
         // Borda
-        gc.setStroke(hero.isInvulnerable() ? color("#ff6b6b") : hpColor.deriveColor(0, 1, 1, 0.5));
+        Color borderStroke = hero.isInvulnerable() ? Palette.HUD_HP_INVULN_STROKE
+                           : hpRatio > 0.6 ? Palette.HUD_HP_HIGH_STROKE
+                           : hpRatio > 0.3 ? Palette.HUD_HP_MED_STROKE
+                           : Palette.HUD_HP_LOW_STROKE;
+        gc.setStroke(borderStroke);
         gc.setLineWidth(hero.isInvulnerable() ? 2 : 1);
         gc.strokeRoundRect(barX, barY, barTotalW, barH, 4, 4);
         // Décimos tornam impactos leves visíveis sem arredondá-los para cima.
-        gc.setFont(Font.font("Serif", 11));
-        gc.setFill(color("#c0e0ff"));
+        gc.setFont(UiFonts.TEXT_11);
+        gc.setFill(Palette.HUD_HP_TEXT);
         int hpTenths = (int) Math.round(Math.max(0, hero.getHp()) * 10);
         String hpText = (hpTenths / 10) + "." + (hpTenths % 10) + " / " + (int) Math.round(hero.getMaxHP());
         gc.fillText(hpText,
             barX + barTotalW + 6, barY + 11);
         if (hero.isInvulnerable()) {
-            gc.setFill(color("#ff7777"));
-            gc.setFont(Font.font("Serif", FontWeight.BOLD, 9));
+            gc.setFill(Palette.HUD_DAMAGE_TEXT);
+            gc.setFont(UiFonts.DAMAGE_BOLD_9);
             gc.fillText("DANO", 270, barY + 11);
         }
 
         // Tabuletas
-        gc.setFont(Font.font("Serif", FontWeight.BOLD, 14));
-        gc.setFill(color("#80c0f0"));
+        gc.setFont(UiFonts.LABEL_BOLD_14);
+        gc.setFill(Palette.HUD_LABEL);
         gc.fillText("TABULETAS", 22, 56);
         // Ícones de tabuleta como pequenos quadrados dourados
         for (int i = 0; i < 5; i++) {
             boolean has = i < tablets;
-            gc.setFill(has ? color("#ffd700") : rgb(40, 30, 10, 0.7));
+            gc.setFill(has ? Palette.GOLD : Palette.HUD_TABLET_SLOT);
             gc.fillRoundRect(120 + i * 20, 44, 15, 14, 3, 3);
             if (has) {
-                gc.setStroke(color("#ffe066")); gc.setLineWidth(1);
+                gc.setStroke(Palette.GOLD_LIGHT); gc.setLineWidth(1);
                 gc.strokeRoundRect(120 + i * 20, 44, 15, 14, 3, 3);
             }
         }
 
         // Poder de bolhas
         boolean hasBubble = hero.hasBubblePower();
-        gc.setFont(Font.font("Serif", FontWeight.BOLD, 14));
-        gc.setFill(color("#80c0f0"));
+        gc.setFont(UiFonts.LABEL_BOLD_14);
+        gc.setFill(Palette.HUD_LABEL);
         gc.fillText("PODER", 240, 56);
-        gc.setFill(hasBubble ? color("#40ff88") : color("#ff5555"));
+        gc.setFill(hasBubble ? Palette.HUD_POWER_ACTIVE : Palette.HUD_POWER_LOCKED);
         gc.fillText(hasBubble ? "[ATIVO]" : "[BLOQUEADO]", 292, 56);
 
         // Fase e herói
-        gc.setFont(Font.font("Serif", 13));
-        gc.setFill(color("#4a7090"));
+        gc.setFont(UiFonts.TEXT_13);
+        gc.setFill(Palette.HUD_PHASE_INFO);
         gc.fillText(phaseName + " [" + diff.getLabel() + "]", 22, 80);
         gc.setTextAlign(TextAlignment.RIGHT);
         gc.setFill(hero.getType().getAura());
         gc.fillText(hero.getType().getName(), 438, 80);
         gc.setTextAlign(TextAlignment.LEFT);
 
-        gc.setFont(Font.font("Serif", 10));
-        gc.setFill(color("#72a8c8"));
+        gc.setFont(UiFonts.TEXT_10);
+        gc.setFill(Palette.HUD_DEPTH_INFO);
         gc.fillText(depth.getLabel() + " · " + depth.getDepthMeters() + " m · " + depth.getPressureBar() + " bar",
             22, 98);
 
         if (hasBubble) {
-            gc.setFill(color("#80b8d0")); gc.setFont(Font.font("Serif", 11));
+            gc.setFill(Palette.HUD_BUBBLE_MODE); gc.setFont(UiFonts.TEXT_11);
             gc.fillText(hero.isMultipleShotMode() ? "Bolhas: múltiplas [M]" : "Bolha: direta [M]", 22, 112);
         }
 
-        gc.setFont(Font.font("Serif", 11));
-        gc.setFill(color("#9cc8df"));
+        gc.setFont(UiFonts.TEXT_11);
+        gc.setFill(Palette.HUD_KEYS_HINT);
         gc.fillText("WASD / SETAS: NADAR   ·   E: INTERAGIR   ·   ESPAÇO: BOLHAS", 22, 130);
     }
 
@@ -138,24 +137,24 @@ public class UIRenderer {
         final double mapW = 230, mapH = 70, mapX = canvasWidth - mapW - 18, mapY = 18;
         final double worldWidth = context.getState() == GameContext.State.P5 ? 1366 : 4000;
 
-        gc.setFill(rgb(1, 10, 27, 0.84));
+        gc.setFill(Palette.RADAR_BG);
         gc.fillRoundRect(mapX, mapY, mapW, mapH, 10, 10);
-        gc.setStroke(rgb(70, 185, 255, 0.65)); gc.setLineWidth(1.3);
+        gc.setStroke(Palette.RADAR_STROKE); gc.setLineWidth(1.3);
         gc.strokeRoundRect(mapX, mapY, mapW, mapH, 10, 10);
-        gc.setFill(color("#80c0e0")); gc.setFont(Font.font("Serif", FontWeight.BOLD, 10));
+        gc.setFill(Palette.RADAR_TITLE); gc.setFont(UiFonts.RADAR_BOLD_10);
         gc.fillText("RADAR", mapX + 8, mapY + 13);
 
         for (EnemyEntity enemy : context.getEnemies()) {
             if (!enemy.isAlive()) continue;
-            gc.setFill(color("#ff5c72"));
+            gc.setFill(Palette.RADAR_ENEMY);
             gc.fillOval(worldToMapX(enemy.getWorldX(), worldWidth, mapX, mapW) - 2, mapY + mapH / 2 - 2, 4, 4);
         }
         for (GuardianEntity guardian : context.getGuardians()) {
-            gc.setFill(color("#ffd700"));
+            gc.setFill(Palette.RADAR_GUARDIAN);
             gc.fillOval(worldToMapX(guardian.getWorldX(), worldWidth, mapX, mapW) - 3, mapY + mapH / 2 - 3, 6, 6);
         }
         if (context.getBoss() != null && !context.getBoss().isDead()) {
-            gc.setFill(color("#b050ff"));
+            gc.setFill(Palette.RADAR_BOSS);
             gc.fillOval(worldToMapX(context.getBoss().getX(), worldWidth, mapX, mapW) - 4, mapY + mapH / 2 - 4, 8, 8);
         }
 
@@ -176,32 +175,32 @@ public class UIRenderer {
         double boxW = canvasW * 0.84, boxH = 165;
         double boxX = (canvasW - boxW) / 2, boxY = canvasH - boxH - 25;
 
-        gc.setFill(rgb(4, 12, 28, 0.92));
+        gc.setFill(Palette.DIALOGUE_OVERLAY_BG);
         gc.fillRoundRect(boxX, boxY, boxW, boxH, 18, 18);
-        gc.setStroke(color("#ffd700")); gc.setLineWidth(2.2);
+        gc.setStroke(Palette.GOLD); gc.setLineWidth(2.2);
         gc.strokeRoundRect(boxX, boxY, boxW, boxH, 18, 18);
 
         double textX = boxX + 30;
         gc.setTextAlign(TextAlignment.LEFT);
-        gc.setFont(Font.font("Serif", FontWeight.BOLD, 20));
-        gc.setFill(color("#ffd700"));
+        gc.setFont(UiFonts.TITLE_20);
+        gc.setFill(Palette.GOLD);
         if (name != null) gc.fillText(name, textX, boxY + 32);
 
         if (lines != null && lineIdx < lines.length) {
             String fullText = lines[lineIdx];
             String shown = fullText.substring(0, Math.min(charsShown, fullText.length()));
-            gc.setFont(Font.font("Serif", 19));
+            gc.setFont(UiFonts.TEXT_19);
             gc.setFill(Color.WHITE);
             wrapText(gc, shown, textX, boxY + 64, boxW - 60, 30);
         }
 
         gc.setTextAlign(TextAlignment.CENTER);
-        gc.setFont(Font.font("Serif", FontWeight.BOLD, 13));
-        gc.setFill(color("#80c0e0"));
+        gc.setFont(UiFonts.HINT_BOLD_13);
+        gc.setFill(Palette.DIALOGUE_OVERLAY_HINT);
         gc.fillText("[ E / ESPACO / ENTER: Avancar  |  ESC: Pular ]", canvasW / 2.0, boxY + boxH - 14);
 
         if (lines != null) {
-            gc.setFill(color("#ffd700"));
+            gc.setFill(Palette.GOLD);
             gc.fillText((lineIdx + 1) + " / " + lines.length, canvasW / 2.0 + 280, boxY + boxH - 14);
         }
     }

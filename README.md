@@ -321,6 +321,8 @@ Registrar build/commit, comandos, resultado, ambiente gráfico e fases efetivame
 
 **Verificação da revisão (31/10/2026):** `mvn verify` passou localmente com 80 testes, sem falhas/erros/skips. O workflow de release cria instaladores com Java 21 para Linux x64, macOS Intel/Apple Silicon e Windows x64, além de arquivos portáteis por sistema e checksums. P2 não replica o OBJ de recife/cardume em cada barreira; o naufrágio usa a malha 3D, com eixo de profundidade centrado e um único baú interativo no meio da ruptura do casco. O golfinho abissal aparece na P4; a arena P5 não instancia Enki, inimigos laterais ou correntes, e posiciona o boss ampliado à direita, voltado para a esquerda e dentro da tela. Personagens e props são ajustados à paleta de cada fase pela referência 60/30/10; os cenários permanecem intactos. As capturas por fase em `gameplay/revisao-2026-10-31/` documentam a revisão visual; ainda é necessário medir frame pacing em GPU/dispositivo de referência.
 
+**Fluidez de Nado, Anti-Tremor e Interpolação Subpixel (Sprint 7, 05/11/2026):** implementado debounce e tolerância a repetição de teclas no Linux/X11 (`InputManager` com janela de 25 ms), eliminando o tremor do herói ao segurar teclas; eixos ortogonais normalizados com cancelamento neutro; câmera com amortecimento suave por decaimento exponencial; e interpolação de render subpixel (`alpha = accumulatedNanos / STEP_NANOS`) no Canvas 2D e na camada 3D (`Runtime3DLayer`). A suíte conta com 95 testes unitários e de integração passando 100% verde. Estrutura de pastas reorganizada e consolidada com `.claude/` para governança/skills e `tools/` para scripts de pipeline.
+
 ## Documentação relacionada
 
 - [AGENTS.md](AGENTS.md) — regras locais.
@@ -349,4 +351,4 @@ Para preservar uma cópia identificável do código-fonte, a release anexa um ZI
 
 ## Créditos
 
-Créditos técnicos conforme os responsáveis registrados em [`CODEOWNERS`](CODEOWNERS): [@rafael](https://github.com/rafael) — núcleo do jogo, gameplay, gráficos, ferramentas, build e documentação; [@erik](https://github.com/erik) — áudio; [@wagner](https://github.com/wagner) — modelos e pipeline 3D em `personagens/`; [@marcos](https://github.com/marcos) — assets em `assets/`. As fontes, licenças e créditos específicos das músicas e efeitos estão em [docs/audio/SOURCES.md](docs/audio/SOURCES.md).
+Créditos técnicos conforme os responsáveis registrados em [`CODEOWNERS`](CODEOWNERS): [@passosdomingues](https://github.com/passosdomingues) — núcleo do jogo, gameplay, gráficos, ferramentas, build e documentação; [@erik](https://github.com/erik) — áudio; [@passosdomingues](https://github.com/wagner) — modelos e pipeline 3D em `personagens/`; [@marcos](https://github.com/marcos) — assets em `assets/`. As fontes, licenças e créditos específicos das músicas e efeitos estão em [docs/audio/SOURCES.md](docs/audio/SOURCES.md).

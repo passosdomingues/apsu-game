@@ -27,11 +27,13 @@ java_major() {
   printf '%s' "$version"
 }
 
+JVM_FLAGS=(-XX:+UseG1GC -XX:MaxGCPauseMillis=5 -Dprism.order=es2,sw -Dprism.vsync=true)
+
 system_java="$(command -v java || true)"
 if [[ -n "$system_java" ]]; then
   major="$(java_major "$system_java" || true)"
   if [[ -n "$major" && "$major" -ge 21 ]]; then
-    exec "$system_java" -cp "$release_dir/${jars[0]##*/}:$release_dir/${resources[0]##*/}" br.apsu.Launcher
+    exec "$system_java" "${JVM_FLAGS[@]}" -cp "$release_dir/${jars[0]##*/}:$release_dir/${resources[0]##*/}" br.apsu.Launcher
   fi
 fi
 
@@ -43,7 +45,7 @@ fi
 runtime_java="$(find "$runtime_root" -type f -path '*/bin/java' -print -quit 2>/dev/null || true)"
 runtime_major="$(java_major "$runtime_java" 2>/dev/null || true)"
 if [[ -n "$runtime_java" && -n "$runtime_major" && "$runtime_major" -ge 21 ]]; then
-  exec "$runtime_java" -cp "$release_dir/${jars[0]##*/}:$release_dir/${resources[0]##*/}" br.apsu.Launcher
+  exec "$runtime_java" "${JVM_FLAGS[@]}" -cp "$release_dir/${jars[0]##*/}:$release_dir/${resources[0]##*/}" br.apsu.Launcher
 fi
 
 command -v curl >/dev/null 2>&1 || { echo "Instale curl e tente novamente." >&2; exit 1; }
@@ -60,4 +62,4 @@ if [[ -z "$runtime_java" ]]; then
   echo "Não foi possível localizar o Java 21 baixado." >&2
   exit 1
 fi
-exec "$runtime_java" -cp "$release_dir/${jars[0]##*/}:$release_dir/${resources[0]##*/}" br.apsu.Launcher
+exec "$runtime_java" "${JVM_FLAGS[@]}" -cp "$release_dir/${jars[0]##*/}:$release_dir/${resources[0]##*/}" br.apsu.Launcher

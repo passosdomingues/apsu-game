@@ -43,8 +43,10 @@ public class RenderEngine implements GameRenderer {
         {"#080018", "#150030", "#200050"}
     };
     private boolean reducedEffects = true;
-    private final Map<String, LinearGradient> backgroundGradients = new HashMap<>();
-    private static final Map<String, Color> COLOR_CACHE = new java.util.concurrent.ConcurrentHashMap<>();
+
+    private static Color color(String web) {
+        return Palette.color(web);
+    }
 
     private static final Color MENU_BUBBLE_COLOR = Color.rgb(80, 180, 255);
     private static final Color ABYSS_BUBBLE_COLOR = Color.rgb(80, 160, 255);
@@ -119,7 +121,7 @@ public class RenderEngine implements GameRenderer {
     // B1-FIX — MENU: aspecto estável, sem oscilação de largura
     // =========================================================
     private void drawMenu(GraphicsContext gc, GameContext ctx, double width, double height, double timeSeconds) {
-        drawGradientBackground(gc, width, height, "#040c1e", "#082040", "#0a3058");
+        drawGradientBackground(gc, width, height, Palette.GRADIENT_MENU);
 
         // Bolhas decorativas de fundo
         for (int i = 0; i < 22; i++) {
@@ -134,12 +136,12 @@ public class RenderEngine implements GameRenderer {
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setTextBaseline(VPos.CENTER);
 
-        gc.setFont(Font.font("Serif", FontWeight.BOLD, 64));
-        gc.setFill(Color.rgb(0, 60, 160, 0.28)); gc.fillText("AS AGUAS DE APSU", width / 2.0 + 3, 105);
-        gc.setFill(color("#ffd700")); gc.fillText("AS AGUAS DE APSU", width / 2.0, 102);
+        gc.setFont(UiFonts.TITLE_64);
+        gc.setFill(Palette.BLUE_TITLE_SHADOW); gc.fillText("AS AGUAS DE APSU", width / 2.0 + 3, 105);
+        gc.setFill(Palette.GOLD); gc.fillText("AS AGUAS DE APSU", width / 2.0, 102);
 
-        gc.setFont(Font.font("Serif", FontWeight.BOLD, 22));
-        gc.setFill(color("#70b8d8"));
+        gc.setFont(UiFonts.SUBTITLE_22);
+        gc.setFill(Palette.BLUE_SUBTITLE);
         gc.fillText("A Lenda dos Apkallu", width / 2.0, 150);
 
         // A malha 3D de Adapa aparece na camada sincronizada ao Canvas.
@@ -153,20 +155,20 @@ public class RenderEngine implements GameRenderer {
         lightingEngine.drawBioluminescentHalo(gc, px + pw/2, py + ph/2, pw, hero.getAura());
 
         // Card Glassmorphic de Atributos
-        gc.setFill(Color.rgb(4, 16, 36, 0.88));
+        gc.setFill(Palette.CARD_BG);
         gc.fillRoundRect(px - 35, py + ph + 15, pw + 70, 145, 12, 12);
-        gc.setStroke(color(hero.getAuraHex()).deriveColor(0, 1, 1, 0.6)); gc.setLineWidth(1.5);
+        gc.setStroke(hero.getAuraStroke()); gc.setLineWidth(1.5);
         gc.strokeRoundRect(px - 35, py + ph + 15, pw + 70, 145, 12, 12);
 
         gc.setTextAlign(TextAlignment.LEFT);
-        gc.setFont(Font.font("Serif", FontWeight.BOLD, 14));
-        gc.setFill(color("#ffd700"));
+        gc.setFont(UiFonts.LABEL_BOLD_14);
+        gc.setFill(Palette.GOLD);
         gc.fillText(hero.getName(), px - 25, py + ph + 35);
 
-        drawStatBar(gc, "Velocidade",  hero.getMaxSpeed() / 16.5, px - 25, py + ph + 48,  pw + 50, color("#4db8ff"));
-        drawStatBar(gc, "Agilidade",   hero.getAccel()    / 3.2,  px - 25, py + ph + 72,  pw + 50, color("#44cc88"));
-        drawStatBar(gc, "Resistência", (hero.getDrag() - 0.85) / 0.12, px - 25, py + ph + 96, pw + 50, color("#ffaa44"));
-        drawStatBar(gc, "Poder Bolha", hero.getPwr()      / 1.6,  px - 25, py + ph + 120, pw + 50, color("#e060ff"));
+        drawStatBar(gc, "Velocidade",  hero.getMaxSpeed() / 16.5, px - 25, py + ph + 48,  pw + 50, Palette.STAT_SPEED, Palette.STAT_SPEED_STROKE);
+        drawStatBar(gc, "Agilidade",   hero.getAccel()    / 3.2,  px - 25, py + ph + 72,  pw + 50, Palette.STAT_AGILITY, Palette.STAT_AGILITY_STROKE);
+        drawStatBar(gc, "Resistência", (hero.getDrag() - 0.85) / 0.12, px - 25, py + ph + 96, pw + 50, Palette.STAT_RESIST, Palette.STAT_RESIST_STROKE);
+        drawStatBar(gc, "Poder Bolha", hero.getPwr()      / 1.6,  px - 25, py + ph + 120, pw + 50, Palette.STAT_BUBBLE, Palette.STAT_BUBBLE_STROKE);
 
         // Menu principal: poucas ações visíveis e navegação por teclado explícita.
         gc.setTextAlign(TextAlignment.CENTER);
@@ -175,80 +177,80 @@ public class RenderEngine implements GameRenderer {
         for (int i = 0; i < opts.length; i++) {
             boolean sel = (i == ctx.getMenuSel());
             if (sel) {
-                gc.setFill(Color.rgb(0, 100, 220, 0.32));
+                gc.setFill(Palette.MENU_SELECTED_BG);
                 gc.fillRoundRect(width / 2.0 - 280, ys[i] - 31, 560, 62, 16, 16);
-                gc.setStroke(color("#ffd700")); gc.setLineWidth(2);
+                gc.setStroke(Palette.GOLD); gc.setLineWidth(2);
                 gc.strokeRoundRect(width / 2.0 - 280, ys[i] - 31, 560, 62, 16, 16);
             }
-            gc.setFont(Font.font("Serif", sel ? FontWeight.BOLD : FontWeight.NORMAL, sel ? 28 : 22));
-            gc.setFill(sel ? color("#ffd700") : color("#78b4cc"));
+            gc.setFont(sel ? UiFonts.OPT_SEL_28 : UiFonts.OPT_UNSEL_22);
+            gc.setFill(sel ? Palette.GOLD : Palette.MENU_UNSELECTED);
             gc.fillText(opts[i], width / 2.0, ys[i]);
         }
 
         if (ctx.isDifficultyMenuOpen()) {
             double panelX = width / 2.0 - 235, panelY = 270, panelW = 470, panelH = 320;
-            gc.setFill(Color.rgb(3, 12, 30, 0.97));
+            gc.setFill(Palette.DIFF_PANEL_BG);
             gc.fillRoundRect(panelX, panelY, panelW, panelH, 20, 20);
-            gc.setStroke(color("#4db8ff")); gc.setLineWidth(2);
+            gc.setStroke(Palette.DIFF_PANEL_STROKE); gc.setLineWidth(2);
             gc.strokeRoundRect(panelX, panelY, panelW, panelH, 20, 20);
             gc.setTextAlign(TextAlignment.CENTER);
-            gc.setFont(Font.font("Serif", FontWeight.BOLD, 22)); gc.setFill(color("#ffd700"));
+            gc.setFont(UiFonts.SUBTITLE_22); gc.setFill(Palette.GOLD);
             gc.fillText("ESCOLHA A DIFICULDADE", width / 2.0, panelY + 34);
             Difficulty[] modes = Difficulty.values();
             for (int i = 0; i < modes.length; i++) {
                 double rowY = panelY + 78 + i * 45;
                 boolean selected = i == ctx.getDifficultyMenuSel();
                 if (selected) {
-                    gc.setFill(Color.rgb(0, 100, 220, 0.38));
+                    gc.setFill(Palette.DIFF_ROW_SELECTED_BG);
                     gc.fillRoundRect(panelX + 18, rowY - 19, panelW - 36, 38, 12, 12);
                 }
-                gc.setFont(Font.font("Serif", selected ? FontWeight.BOLD : FontWeight.NORMAL, 19));
-                gc.setFill(selected ? color("#ffffff") : color("#78b4cc"));
+                gc.setFont(selected ? UiFonts.ROW_SEL_19 : UiFonts.ROW_UNSEL_19);
+                gc.setFill(selected ? Color.WHITE : Palette.MENU_UNSELECTED);
                 gc.fillText((selected ? "▶  " : "     ") + modes[i].getLabel(), width / 2.0, rowY);
             }
             gc.setTextAlign(TextAlignment.LEFT);
-            gc.setFont(Font.font("Serif", 12)); gc.setFill(color("#9ac6da"));
+            gc.setFont(UiFonts.TEXT_12); gc.setFill(Palette.DIFF_HINT);
             uiRenderer.wrapText(gc, modes[ctx.getDifficultyMenuSel()].getDescription(),
                 panelX + 24, panelY + 220, panelW - 48, 16);
             gc.setTextAlign(TextAlignment.CENTER);
-            gc.setFont(Font.font("Serif", 13)); gc.setFill(color("#9ac6da"));
+            gc.setFont(UiFonts.TEXT_13); gc.setFill(Palette.DIFF_HINT);
             gc.fillText("↑  ↓  navegar     Enter  confirmar     Esc  voltar", width / 2.0, panelY + panelH - 17);
         } else {
-            gc.setFont(Font.font("Serif", 15)); gc.setFill(color("#a8c9d8"));
+            gc.setFont(UiFonts.HINT_15); gc.setFill(Palette.MENU_HINT);
             gc.fillText("↑  ↓  navegar     Enter  selecionar", width / 2.0, 585);
         }
     }
 
-    private void drawStatBar(GraphicsContext gc, String label, double ratio, double x, double y, double width, Color color) {
-        gc.setFont(Font.font("Serif", 11));
-        gc.setFill(color("#a0c0e0"));
+    private void drawStatBar(GraphicsContext gc, String label, double ratio, double x, double y, double width, Color color, Color stroke) {
+        gc.setFont(UiFonts.TEXT_11);
+        gc.setFill(Palette.STAT_LABEL);
         gc.fillText(label, x, y + 10);
         double barX = x + 70, barW = width - 70, barH = 10;
-        gc.setFill(Color.rgb(8, 24, 48, 0.9));
+        gc.setFill(Palette.STAT_BG);
         gc.fillRoundRect(barX, y + 2, barW, barH, 4, 4);
         gc.setFill(color);
         gc.fillRoundRect(barX, y + 2, barW * Math.max(0.1, Math.min(1.0, ratio)), barH, 4, 4);
-        gc.setStroke(color.deriveColor(0, 1, 1, 0.5)); gc.setLineWidth(1);
+        gc.setStroke(stroke); gc.setLineWidth(1);
         gc.strokeRoundRect(barX, y + 2, barW, barH, 4, 4);
     }
 
     private void drawDialogue(GraphicsContext gc, GameContext ctx, double width, double height, double timeSeconds) {
-        drawGradientBackground(gc, width, height, "#030a14", "#081226", "#0a1e3c");
+        drawGradientBackground(gc, width, height, Palette.GRADIENT_DIALOGUE);
 
-        gc.setFill(Color.rgb(4, 10, 28, 0.94));
+        gc.setFill(Palette.CARD_BG_DIALOGUE);
         gc.fillRoundRect(240, height / 2.0 - 150, width - 310, 295, 22, 22);
-        gc.setStroke(color("#0e3888")); gc.setLineWidth(2);
+        gc.setStroke(Palette.CARD_STROKE_DIALOGUE); gc.setLineWidth(2);
         gc.strokeRoundRect(240, height / 2.0 - 150, width - 310, 295, 22, 22);
         gc.setTextAlign(TextAlignment.LEFT);
-        gc.setFont(Font.font("Serif", FontWeight.BOLD, 20));
-        gc.setFill(color("#60a0e0"));
+        gc.setFont(UiFonts.TITLE_20);
+        gc.setFill(Palette.ENKI_NAME);
         gc.fillText("Enki — Senhor das Águas Primordiais:", 265, height / 2.0 - 118);
-        gc.setFill(Color.WHITE); gc.setFont(Font.font("Serif", 20));
+        gc.setFill(Color.WHITE); gc.setFont(UiFonts.TEXT_20);
         String[] currentDlg = GuardianEntity.ENKI_INTRO_DIALOGUES[
             Math.min(ctx.getDlgPhase(), GuardianEntity.ENKI_INTRO_DIALOGUES.length - 1)];
         if (ctx.getDlgIdx() < currentDlg.length) uiRenderer.wrapText(gc, currentDlg[ctx.getDlgIdx()], 265, height / 2.0 - 76, width - 440, 34);
         gc.setTextAlign(TextAlignment.CENTER);
-        gc.setFill(color("#ffd700")); gc.setFont(Font.font("Serif", 15));
+        gc.setFill(Palette.GOLD); gc.setFont(UiFonts.HINT_15);
         gc.fillText("[ ESPAÇO / E: Avançar  •  ESC: Pular Diálogo ]", width / 2.0 + 80, height / 2.0 + 136);
     }
 
@@ -278,13 +280,22 @@ public class RenderEngine implements GameRenderer {
                 legacyPhaseBackgroundLoaded[index] = true;
             }
             Image legacy = legacyPhaseBackgrounds[index];
-            if (legacy != null) drawParallaxBackground(gc, legacy, ctx.getCamera().getX(), width, height, fallbackFactor);
+            if (legacy != null) drawParallaxBackground(gc, legacy, ctx.getCamera().getInterpolatedX(ctx.getRenderAlpha()), width, height, fallbackFactor);
             return;
         }
-        double cameraX = ctx.getCamera().getX();
+        double alpha = ctx.getRenderAlpha();
+        double cameraX = ctx.getCamera().getInterpolatedX(alpha);
         drawParallaxBackground(gc, background, cameraX, width, height, 0.16);
         drawParallaxBackground(gc, midground, cameraX, width, height, 0.42);
         drawParallaxBackground(gc, foreground, cameraX, width, height, 0.72);
+    }
+
+    private void drawInterpolatedHero(GraphicsContext gc, GameContext ctx, double timeSeconds, boolean useCamera) {
+        double alpha = ctx.getRenderAlpha();
+        HeroEntity hero = ctx.getHero();
+        double hx = useCamera ? ctx.getCamera().toScreenX(hero.getInterpolatedX(alpha), alpha) : hero.getInterpolatedX(alpha);
+        double hy = hero.getInterpolatedY(alpha);
+        drawHero(gc, hx, hy, hero, timeSeconds, ctx.getNanoTime());
     }
 
     // =========================================================
@@ -312,7 +323,7 @@ public class RenderEngine implements GameRenderer {
         }
 
         drawProjectiles(gc, ctx);
-        drawHero(gc, ctx.getCamera().toScreenX(ctx.getHero().getX()), ctx.getHero().getY(), ctx.getHero(), timeSeconds, ctx.getNanoTime());
+        drawInterpolatedHero(gc, ctx, timeSeconds, true);
         ctx.getParticleSystem().render(gc);
 
         uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 1 — Águas Claras", ctx.getDifficulty(),
@@ -326,7 +337,7 @@ public class RenderEngine implements GameRenderer {
     // =========================================================
     private void drawP2(GraphicsContext gc, GameContext ctx, double width, double height, double timeSeconds) {
         drawPhaseBackground(gc, ctx, width, height, 2, 0.40);
-        gc.setFill(Color.rgb(1, 12, 27, 0.34));
+        gc.setFill(Palette.PHASE2_DIM);
         gc.fillRect(0, 0, width, height);
 
         // Galeão e Baú
@@ -337,9 +348,9 @@ public class RenderEngine implements GameRenderer {
             if (open) {
                 lightingEngine.drawBioluminescentHalo(gc, csx + 10, ctx.getChestWY(), 95, Color.GOLD);
             } else if (ctx.canOpenChest()) {
-                gc.setFill(Color.rgb(0, 12, 28, 0.88));
+                gc.setFill(Palette.CHEST_PROMPT_BG);
                 gc.fillRoundRect(csx - 70, ctx.getChestWY() - 62, 140, 24, 8, 8);
-                gc.setFill(color("#ffd700")); gc.setFont(Font.font("Serif", FontWeight.BOLD, 12));
+                gc.setFill(Palette.GOLD); gc.setFont(UiFonts.TEXT_BOLD_12);
                 gc.setTextAlign(TextAlignment.CENTER);
                 gc.fillText("[ E / ESPAÇO: ABRIR BAÚ ]", csx, ctx.getChestWY() - 46);
             }
@@ -357,7 +368,7 @@ public class RenderEngine implements GameRenderer {
         }
 
         drawProjectiles(gc, ctx);
-        drawHero(gc, ctx.getCamera().toScreenX(ctx.getHero().getX()), ctx.getHero().getY(), ctx.getHero(), timeSeconds, ctx.getNanoTime());
+        drawInterpolatedHero(gc, ctx, timeSeconds, true);
         ctx.getParticleSystem().render(gc);
 
         uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 2 — Cavernas de Coral", ctx.getDifficulty(),
@@ -399,7 +410,7 @@ public class RenderEngine implements GameRenderer {
         }
 
         drawProjectiles(gc, ctx);
-        drawHero(gc, ctx.getCamera().toScreenX(ctx.getHero().getX()), ctx.getHero().getY(), ctx.getHero(), timeSeconds, ctx.getNanoTime());
+        drawInterpolatedHero(gc, ctx, timeSeconds, true);
         ctx.getParticleSystem().render(gc);
 
         uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 3 — Correntes Abissais", ctx.getDifficulty(),
@@ -426,7 +437,7 @@ public class RenderEngine implements GameRenderer {
         }
 
         drawProjectiles(gc, ctx);
-        drawHero(gc, ctx.getCamera().toScreenX(ctx.getHero().getX()), ctx.getHero().getY(), ctx.getHero(), timeSeconds, ctx.getNanoTime());
+        drawInterpolatedHero(gc, ctx, timeSeconds, true);
         ctx.getParticleSystem().render(gc);
 
         uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 4 — Abismo Vulcânico", ctx.getDifficulty(),
@@ -450,7 +461,7 @@ public class RenderEngine implements GameRenderer {
         }
 
         drawProjectiles(gc, ctx);
-        drawHero(gc, ctx.getHero().getX(), ctx.getHero().getY(), ctx.getHero(), timeSeconds, ctx.getNanoTime());
+        drawInterpolatedHero(gc, ctx, timeSeconds, false);
         ctx.getParticleSystem().render(gc);
 
         uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 5 — Templo de Apsu", ctx.getDifficulty(),
@@ -507,13 +518,13 @@ public class RenderEngine implements GameRenderer {
             double cueX = boss.getX() + BossEntity.BW / 2.0 - 74;
             if (cueX > width - 320) cueX -= 300;
             double cueY = Math.max(94, boss.getY() - 42);
-            gc.setFill(Color.rgb(8, 16, 28, 0.92));
+            gc.setFill(Palette.BOSS_TELEGRAPH_BG);
             gc.fillRoundRect(cueX, cueY, 148, 26, 8, 8);
-            gc.setStroke(Color.rgb(255, 190, 40, 0.95));
+            gc.setStroke(Palette.BOSS_TELEGRAPH_STROKE);
             gc.setLineWidth(2);
             gc.strokeRoundRect(cueX, cueY, 148, 26, 8, 8);
-            gc.setFill(Color.rgb(255, 210, 90));
-            gc.setFont(Font.font("Serif", FontWeight.BOLD, 12));
+            gc.setFill(Palette.BOSS_TELEGRAPH_TEXT);
+            gc.setFont(UiFonts.TEXT_BOLD_12);
             gc.setTextAlign(TextAlignment.CENTER);
             gc.fillText("ATAQUE · " + boss.getCombatPhase().getLabel(),
                 boss.getX() + BossEntity.BW / 2.0, cueY + 17);
@@ -524,49 +535,52 @@ public class RenderEngine implements GameRenderer {
         double barW = 360;
         double barX = (width - barW) / 2.0;
         double barY = 30;
-        gc.setFill(Color.rgb(20, 0, 0, 0.8));
+        gc.setFill(Palette.BOSS_HP_BG);
         gc.fillRoundRect(barX, barY, barW, 10, 4, 4);
-        gc.setFill(hpRatio > 0.5 ? color("#ff4444") : color("#ff8800"));
+        gc.setFill(hpRatio > 0.5 ? Palette.BOSS_HP_HIGH : Palette.BOSS_HP_LOW);
         gc.fillRoundRect(barX, barY, barW * hpRatio, 10, 4, 4);
-        gc.setStroke(Color.rgb(255, 60, 60, 0.7)); gc.setLineWidth(1.5);
+        gc.setStroke(Palette.BOSS_HP_STROKE); gc.setLineWidth(1.5);
         gc.strokeRoundRect(barX, barY, barW, 10, 4, 4);
-        gc.setFont(Font.font("Serif", FontWeight.BOLD, 11));
-        gc.setFill(color("#ffd27a"));
+        gc.setFont(UiFonts.TEXT_BOLD_11);
+        gc.setFill(Palette.GOLD_BORDER);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.fillText(boss.getCombatPhase().getLabel(), width / 2.0, barY - 5);
     }
 
     private void drawGuardian(GraphicsContext gc, double x, double y, int type, boolean prompt, double timeSeconds) {
         lightingEngine.drawBioluminescentHalo(gc, x + GuardianEntity.GW / 2, y + GuardianEntity.GH / 2,
-            GuardianEntity.GW * 0.9, color("#40e0ff"));
+            GuardianEntity.GW * 0.9, Palette.GUARDIAN_HALO);
         drawShadow(gc, x + GuardianEntity.GW / 2, y + GuardianEntity.GH - 4, GuardianEntity.GW * 0.7, 16);
 
         if (prompt) {
-            gc.setFill(Color.rgb(0, 8, 24, 0.90));
+            gc.setFill(Palette.GUARDIAN_PROMPT_BG);
             gc.fillRoundRect(x + GuardianEntity.GW / 2 - 85, y - 32, 170, 26, 8, 8);
-            gc.setStroke(color("#ffd700")); gc.setLineWidth(1.5);
+            gc.setStroke(Palette.GOLD); gc.setLineWidth(1.5);
             gc.strokeRoundRect(x + GuardianEntity.GW / 2 - 85, y - 32, 170, 26, 8, 8);
-            gc.setFill(color("#ffd700")); gc.setFont(Font.font("Serif", FontWeight.BOLD, 13));
+            gc.setFill(Palette.GOLD); gc.setFont(UiFonts.HINT_BOLD_13);
             gc.setTextAlign(TextAlignment.CENTER); gc.fillText("[ E / ESPAÇO: CONVERSAR ]", x + GuardianEntity.GW / 2, y - 15);
         }
     }
 
     /** O texto instrui a descida; a ruína que marca a rota é uma malha 3D. */
     private void drawPhaseExit(GraphicsContext gc, double worldX, boolean unlocked) {
-        Color signal = unlocked ? color("#9cecff") : color("#d6b77a");
-        gc.setFont(Font.font("Serif", FontWeight.BOLD, 11));
+        Color signal = unlocked ? Palette.EXIT_UNLOCKED : Palette.EXIT_LOCKED;
+        gc.setFont(UiFonts.TEXT_BOLD_11);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setFill(signal);
         gc.fillText(unlocked ? "DESCIDA LIBERADA" : "RUÍNAS ANTIGAS", worldX, 520);
     }
 
-    /** B3-FIX: projéteis renderizados convertendo coordenadas de mundo para tela. */
+    /** B3-FIX: projéteis renderizados convertendo coordenadas de mundo para tela com interpolação. */
     private void drawProjectiles(GraphicsContext gc, GameContext ctx) {
         boolean isP5 = (ctx.getState() == GameContext.State.P5);
+        double alpha = ctx.getRenderAlpha();
         for (Projectile p : ctx.getProjectiles()) {
-            // Converte para coordenadas de tela (para P1-P4 com câmera; P5 já está em tela)
-            double screenX = (isP5 || p.isArena()) ? p.getX() : ctx.getCamera().toScreenX(p.getX());
-            double screenY = p.getY();
+            // Converte para coordenadas de tela interpoladas
+            double px = p.getInterpolatedX(alpha);
+            double py = p.getInterpolatedY(alpha);
+            double screenX = (isP5 || p.isArena()) ? px : ctx.getCamera().toScreenX(px, alpha);
+            double screenY = py;
 
             if (p.getType() == Projectile.Type.HERO_BUBBLE) {
                 double direction = Math.signum(p.getVx());
@@ -593,47 +607,38 @@ public class RenderEngine implements GameRenderer {
         long el = ctx.getNanoTime() - ctx.getAlertTime();
         if (el > 3_800_000_000L) return;
         double alpha = Math.min(1.0, (3_800_000_000L - el) / 700_000_000.0);
-        gc.setFill(Color.rgb(0, 6, 20, alpha * 0.92));
+        gc.setFill(Palette.rgb(0, 6, 20, alpha * 0.92));
         gc.fillRoundRect(width / 2.0 - 410, height - 98, 820, 66, 14, 14);
-        gc.setStroke(color("#ffd700")); gc.setLineWidth(1.5);
+        gc.setStroke(Palette.GOLD); gc.setLineWidth(1.5);
         gc.strokeRoundRect(width / 2.0 - 410, height - 98, 820, 66, 14, 14);
-        gc.setFill(Color.rgb(255, 215, 0, alpha));
-        gc.setFont(Font.font("Serif", FontWeight.BOLD, 18));
+        gc.setFill(Palette.rgb(255, 215, 0, alpha));
+        gc.setFont(UiFonts.ALERT_18);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.fillText(ctx.getAlertMessage(), width / 2.0, height - 60);
     }
 
     private void drawEnd(GraphicsContext gc, GameContext ctx, double width, double height, boolean win) {
-        drawGradientBackground(gc, width, height,
-            win ? "#041408" : "#140408", win ? "#0a2d10" : "#2a0810", win ? "#103a1a" : "#400a16");
+        drawGradientBackground(gc, width, height, win ? Palette.GRADIENT_WIN : Palette.GRADIENT_OVER);
         ctx.getParticleSystem().render(gc);
         gc.setTextAlign(TextAlignment.CENTER); gc.setTextBaseline(VPos.CENTER);
-        gc.setFont(Font.font("Serif", FontWeight.BOLD, 80));
-        gc.setFill(win ? color("#ffd700") : color("#ff2828"));
+        gc.setFont(UiFonts.TITLE_80);
+        gc.setFill(win ? Palette.WIN_GOLD : Palette.OVER_RED);
         gc.fillText(win ? "VITORIA" : "GAME OVER", width / 2.0, 210);
-        gc.setFont(Font.font("Serif", 26));
-        gc.setFill(win ? color("#88ffaa") : color("#ff9090"));
+        gc.setFont(UiFonts.TEXT_26);
+        gc.setFill(win ? Palette.WIN_TEXT : Palette.OVER_TEXT);
         gc.fillText(win ? "Adapa purificou o oceano Apsu!" : "Adapa caiu nas profundezas...", width / 2.0, 320);
-        gc.setFont(Font.font("Serif", FontWeight.BOLD, 22));
-        gc.setFill(color("#ffd700"));
+        gc.setFont(UiFonts.SUBTITLE_22);
+        gc.setFill(Palette.GOLD);
         gc.fillText("Tabuletas: " + ctx.getTabletsCollected() + " / " + ctx.getTotalTablets(), width / 2.0, 390);
-        gc.setFill(color("#80b8d0")); gc.setFont(Font.font("Serif", 16));
+        gc.setFill(Palette.END_HERO); gc.setFont(UiFonts.TEXT_16);
         gc.fillText("Herói: " + ctx.getHeroType().getName() + "  |  Dificuldade: " + ctx.getDifficulty().getLabel(), width / 2.0, 430);
-        gc.setFill(color("#ffd700")); gc.setFont(Font.font("Serif", FontWeight.BOLD, 22));
+        gc.setFill(Palette.GOLD); gc.setFont(UiFonts.SUBTITLE_22);
         gc.fillText("[ ESPAÇO / R / ENTER — Menu Principal ]", width / 2.0, height - 80);
     }
 
-    private void drawGradientBackground(GraphicsContext gc, double width, double height, String top, String mid, String bot) {
-        String key = top + '|' + mid + '|' + bot;
-        LinearGradient gradient = backgroundGradients.computeIfAbsent(key, ignored ->
-            new LinearGradient(0, 0, 0, 1, true, CycleMethod.NO_CYCLE,
-                new Stop(0, color(top)), new Stop(0.5, color(mid)), new Stop(1, color(bot))));
+    private void drawGradientBackground(GraphicsContext gc, double width, double height, LinearGradient gradient) {
         gc.setFill(gradient);
         gc.fillRect(0, 0, width, height);
-    }
-
-    private static Color color(String web) {
-        return COLOR_CACHE.computeIfAbsent(web, Color::web);
     }
 
     private void drawShadow(GraphicsContext gc, double cx, double cy, double rw, double rh) {

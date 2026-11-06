@@ -10,6 +10,7 @@ public class HeroEntity {
 
     private HeroType type;
     private double x, y;
+    private double prevX, prevY;
     private double vx, vy;
     private boolean facingRight = true;
     private double hp, maxHP;
@@ -33,6 +34,8 @@ public class HeroEntity {
     public void resetPosition(double startX, double startY) {
         this.x = startX;
         this.y = startY;
+        this.prevX = startX;
+        this.prevY = startY;
         this.vx = 0;
         this.vy = 0;
         this.facingRight = true;
@@ -49,6 +52,8 @@ public class HeroEntity {
     public void beginPhaseAt(double startX, double startY) {
         x = startX;
         y = startY;
+        prevX = startX;
+        prevY = startY;
         vx = 0;
         vy = 0;
         facingRight = true;
@@ -77,6 +82,9 @@ public class HeroEntity {
                                double minY, double maxY, int phaseDone,
                                double buoyancyMult, double currentFx, double currentFy,
                                long currentNanoTime) {
+        prevX = x;
+        prevY = y;
+
         // O bônus por fase é deliberadamente pequeno: a progressão deve
         // recompensar sem transformar o controle em algo imprevisível.
         double speedMult = (1.0 + phaseDone * 0.025);
@@ -231,4 +239,20 @@ public class HeroEntity {
     public void toggleMultipleShotMode() { multipleShotMode = !multipleShotMode; }
     public long getLastShotTime() { return lastShotTime; }
     public void setLastShotTime(long t) { this.lastShotTime = t; }
+
+    public void snapPrevious() {
+        this.prevX = this.x;
+        this.prevY = this.y;
+    }
+
+    public double getInterpolatedX(double alpha) {
+        return prevX + (x - prevX) * alpha;
+    }
+
+    public double getInterpolatedY(double alpha) {
+        return prevY + (y - prevY) * alpha;
+    }
+
+    public double getPrevX() { return prevX; }
+    public double getPrevY() { return prevY; }
 }

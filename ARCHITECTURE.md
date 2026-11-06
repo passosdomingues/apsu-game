@@ -78,3 +78,38 @@ Este documento detalha os princípios de design, componentes de software e subsi
 - FFmpeg aplica filtro passa-baixa crescente e reflexões mais tardias conforme a profundidade. A trilha troca para o render da nova fase; execução normal continua usando os assets empacotados e não requer FFmpeg.
 
 ---
+
+## 6. Otimizações de Performance e Zero-Alocação (Sprints R01-R05)
+
+- **Tipografia e Cores Imutáveis (`UiFonts` / `Palette`):**
+  - Centralização de 24 instâncias estáticas imutáveis de `Font` em `UiFonts.java`.
+  - Pré-alocação dos gradientes de fundo e strokes em `Palette.java`.
+  - Substituição de `ConcurrentHashMap` por `HashMap` leve dedicado ao thread JavaFX, eliminando ~1.800 alocações/s no caminho quente de `RenderEngine` e `UIRenderer`.
+- **Sistema de Partículas com Pool Estático (`ParticleSystem`):**
+  - Array estático de tamanho fixo `Particle[320]` com compactação in-place (swap-and-pop) sem alocação de coleções nem chamadas a `remove()`.
+  - Paletas alfa estáticas pré-aquecidas, garantindo zero alocação de memória no heap durante rajadas e combate intenso.
+- **Cache de Atores e Materiais 3D (`Runtime3DLayer`):**
+  - Atualização in-place de `PhongMaterial.setDiffuseColor` via `ObjModelLoader.multiply` quando apenas o tint da fase é alterado, evitando destruição e reinserção de nós do Scene Graph (`Group`, `MeshView`) e eliminando o congelamento de transição de fase.
+  - Guards anti-spam para `requestModel()` na Fase 2 e no Menu Principal.
+- **Particionamento Espacial Reciclável (`QuadTree`):**
+  - Retenção estrutural de subárvores pré-alocadas (`nodes[0..3]`) através de ciclos sucessivos de `clear()` e `split()` via flag `hasSplit`.
+  - Eliminação de loops lineares duplicados de detecção de cenário no `GameContext`.
+- **Orquestração e Flags JVM:**
+  - Configuração padrão de G1 Garbage Collector com limite de pausa de 5 ms (`-XX:+UseG1GC -XX:MaxGCPauseMillis=5`).
+  - Pipeline gráfico OpenGL ES2 com VSync habilitado (`-Dprism.order=es2,sw -Dprism.vsync=true`).
+
+---
+
+## 7. Eliminação de Tremor e Loop Fluido de Render (Sprint 7: F01, F02, F04)
+
+- **Anti-Jitter de Entrada no X11 (`InputManager`):**
+  - Janela de tolerância de 25 ms (`RELEASE_GRACE_NANOS = 25_000_000L`) que absorve eventos espúrios de release/press do auto-repeat de teclado do Linux/X11, mantendo o nado contínuo e estável ao segurar as teclas.
+  - Normalização de eixos ortogonais (`axisX()`, `axisY()`) onde comandos de direção opostos simultâneos cancelam-se deterministicamente para neutro (0.0).
+- **Câmera com Amortecimento Crítico (`Camera`):**
+  - Rastreamento amortecido com decaimento exponencial (`blend = 1.0 - Math.exp(-10.0 * dt)`), eliminando o snap instantâneo rígido que propagava micro-vibrações do herói para o cenário inteiro.
+  - Suporte a `snap(targetWorldX)` e `snapPrevious()` para transições de fase e respawns sem interpolação espúria.
+- **Interpolação de Render Subpixel (`GameLoop`, `RenderEngine`, `Runtime3DLayer`, `HeroEntity`, `Projectile`):**
+  - Desacoplamento do passo fixo da simulação (60 Hz) da taxa de atualização do monitor através do fator `alpha = accumulatedNanos / STEP_NANOS`.
+  - Coordenadas interpoladas `lerp(prev, current, alpha)` para herói, projéteis e câmera no Canvas 2D e no Scene Graph 3D (`Runtime3DLayer`), eliminando saltos discretos em monitores de alta frequência (75Hz, 120Hz, 144Hz) e variações de frame pacing.
+
+---

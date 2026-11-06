@@ -53,7 +53,7 @@ public class ApsuGameMain extends Application {
             context.onKey(e.getCode());
         });
 
-        scene.setOnKeyReleased(e -> context.getInputManager().registerKeyRelease(e.getCode()));
+        scene.setOnKeyReleased(e -> context.getInputManager().registerKeyRelease(e.getCode(), System.nanoTime()));
 
         stage.setTitle("As Águas de Apsu");
         stage.setScene(scene);

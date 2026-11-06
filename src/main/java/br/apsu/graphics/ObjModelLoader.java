@@ -303,7 +303,7 @@ final class ObjModelLoader {
 
     private static double clamp(double c) { return Math.max(0, Math.min(1, c)); }
 
-    private static Color multiply(Color source, Color tint) {
+    static Color multiply(Color source, Color tint) {
         return Color.color(clamp(source.getRed() * tint.getRed()),
             clamp(source.getGreen() * tint.getGreen()),
             clamp(source.getBlue() * tint.getBlue()), source.getOpacity());

@@ -70,4 +70,34 @@ public class QuadTreeTest {
         assertTrue(b1.intersects(b2));
         assertFalse(b1.intersects(b3));
     }
+
+    @Test
+    @DisplayName("Reuso de nos-filhos pre-alocados apos clear()")
+    void testChildNodesAreReusedAcrossClears() {
+        for (int i = 0; i < 15; i++) {
+            quadTree.insert(new TestItem(i * 100, i * 20, 40, 40, "Item" + i));
+        }
+        assertTrue(quadTree.hasSplit());
+        QuadTree<TestItem> node0 = quadTree.getNode(0);
+        QuadTree<TestItem> node1 = quadTree.getNode(1);
+        QuadTree<TestItem> node2 = quadTree.getNode(2);
+        QuadTree<TestItem> node3 = quadTree.getNode(3);
+        assertNotNull(node0);
+        assertNotNull(node1);
+        assertNotNull(node2);
+        assertNotNull(node3);
+
+        quadTree.clear();
+        assertFalse(quadTree.hasSplit());
+        assertEquals(0, quadTree.size());
+
+        for (int i = 0; i < 15; i++) {
+            quadTree.insert(new TestItem(i * 100, i * 20, 40, 40, "Item" + i));
+        }
+        assertTrue(quadTree.hasSplit());
+        assertSame(node0, quadTree.getNode(0));
+        assertSame(node1, quadTree.getNode(1));
+        assertSame(node2, quadTree.getNode(2));
+        assertSame(node3, quadTree.getNode(3));
+    }
 }

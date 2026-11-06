@@ -223,7 +223,10 @@
                     <options>
                         <!-- Fullscreen sem borda de aviso -->
                         <!-- Prefere aceleração GPU; software permanece como fallback. -->
+                        <option>-XX:+UseG1GC</option>
+                        <option>-XX:MaxGCPauseMillis=5</option>
                         <option>-Dprism.order=es2,sw,j2d</option>
+                        <option>-Dprism.vsync=true</option>
                     </options>
                 </configuration>
             </plugin>

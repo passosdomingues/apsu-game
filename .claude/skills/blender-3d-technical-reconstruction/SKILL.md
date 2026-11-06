@@ -211,7 +211,7 @@ DEPTH = ...
 
 ---
 
-## SISTEMA DE COORDENADAS — ABSOLUTO
+## SISTEMA DE COORDENADAS - ABSOLUTO
 
 Toda implementação deve seguir as convenções do Blender.
 
@@ -239,7 +239,7 @@ Se for necessário converter coordenadas externas, criar uma conversão explíci
 
 ---
 
-## CAMERA SPACE — ABSOLUTO
+## CAMERA SPACE - ABSOLUTO
 
 A câmera nativa do Blender olha para:
 
@@ -269,7 +269,7 @@ Não utilizar cálculo arbitrário de Euler quando `to_track_quat()` for apropri
 
 ---
 
-## TRANSFORMAÇÕES — ABSOLUTO
+## TRANSFORMAÇÕES - ABSOLUTO
 
 O raciocínio sobre transformações deve respeitar:
 

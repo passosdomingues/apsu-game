@@ -44,6 +44,7 @@ public class QuadTree<T> {
     private final Bounds bounds;
     private final QuadTree<T>[] nodes;
     private final BoundingBoxProvider<T> provider;
+    private boolean hasSplit = false;
 
     @SuppressWarnings("unchecked")
     public QuadTree(int level, Bounds bounds, BoundingBoxProvider<T> provider) {
@@ -56,24 +57,27 @@ public class QuadTree<T> {
 
     public void clear() {
         objects.clear();
+        hasSplit = false;
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {
                 nodes[i].clear();
-                nodes[i] = null;
             }
         }
     }
 
     private void split() {
-        double subWidth = bounds.width / 2.0;
-        double subHeight = bounds.height / 2.0;
-        double x = bounds.x;
-        double y = bounds.y;
+        hasSplit = true;
+        if (nodes[0] == null) {
+            double subWidth = bounds.width / 2.0;
+            double subHeight = bounds.height / 2.0;
+            double x = bounds.x;
+            double y = bounds.y;
 
-        nodes[0] = new QuadTree<>(level + 1, new Bounds(x + subWidth, y, subWidth, subHeight), provider); // NE
-        nodes[1] = new QuadTree<>(level + 1, new Bounds(x, y, subWidth, subHeight), provider);            // NW
-        nodes[2] = new QuadTree<>(level + 1, new Bounds(x, y + subHeight, subWidth, subHeight), provider); // SW
-        nodes[3] = new QuadTree<>(level + 1, new Bounds(x + subWidth, y + subHeight, subWidth, subHeight), provider); // SE
+            nodes[0] = new QuadTree<>(level + 1, new Bounds(x + subWidth, y, subWidth, subHeight), provider); // NE
+            nodes[1] = new QuadTree<>(level + 1, new Bounds(x, y, subWidth, subHeight), provider);            // NW
+            nodes[2] = new QuadTree<>(level + 1, new Bounds(x, y + subHeight, subWidth, subHeight), provider); // SW
+            nodes[3] = new QuadTree<>(level + 1, new Bounds(x + subWidth, y + subHeight, subWidth, subHeight), provider); // SE
+        }
     }
 
     private int getIndex(T item) {
@@ -107,7 +111,7 @@ public class QuadTree<T> {
     }
 
     public void insert(T item) {
-        if (nodes[0] != null) {
+        if (hasSplit && nodes[0] != null) {
             int index = getIndex(item);
             if (index != -1) {
                 nodes[index].insert(item);
@@ -118,7 +122,7 @@ public class QuadTree<T> {
         objects.add(item);
 
         if (objects.size() > MAX_OBJECTS && level < MAX_LEVELS) {
-            if (nodes[0] == null) {
+            if (!hasSplit) {
                 split();
             }
 
@@ -140,7 +144,7 @@ public class QuadTree<T> {
     }
 
     public List<T> retrieve(List<T> returnObjects, double qx, double qy, double qw, double qh) {
-        if (nodes[0] != null) {
+        if (hasSplit && nodes[0] != null) {
             double midX = bounds.x + (bounds.width / 2.0);
             double midY = bounds.y + (bounds.height / 2.0);
 
@@ -194,9 +198,17 @@ public class QuadTree<T> {
         return bounds;
     }
 
+    boolean hasSplit() {
+        return hasSplit;
+    }
+
+    QuadTree<T> getNode(int i) {
+        return nodes[i];
+    }
+
     public int size() {
         int count = objects.size();
-        if (nodes[0] != null) {
+        if (hasSplit && nodes[0] != null) {
             for (QuadTree<T> node : nodes) {
                 count += node.size();
             }

@@ -13,6 +13,8 @@ import javafx.scene.AmbientLight;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.SubScene;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.PhongMaterial;
+import javafx.scene.shape.MeshView;
 import javafx.scene.transform.Rotate;
 
 import java.io.IOException;
@@ -59,15 +61,16 @@ public final class Runtime3DLayer {
     private java.util.List<Actor> nextVisibleActors = new java.util.ArrayList<>();
     private final java.util.Set<String> failedModels = new java.util.HashSet<>();
     private double shakeX, shakeY;
+    private boolean p2ModelsRequested = false;
     private static final String[] ENKI_MODELS = {
         "03_enki_npc", "03_enki_var_celestial", "03_enki_var_eremita"
     };
 
-    private static final class Actor {
+    static final class Actor {
         final String modelName;
         final Group node;
         final double targetWidth, targetHeight;
-        final Color tint;
+        Color tint;
         final Rotate yaw = new Rotate(180, Rotate.Y_AXIS);
         final Rotate pitch = new Rotate(0, Rotate.X_AXIS);
         final Rotate bodyMotion = new Rotate(0, Rotate.Z_AXIS);
@@ -116,7 +119,10 @@ public final class Runtime3DLayer {
         GameContext.State state = context.getState();
         if (state == GameContext.State.MENU) {
             if (!actors.isVisible()) actors.setVisible(true);
-            requestModel("characters/01_adapa_ataque_thrust");
+            if (!modelTemplates.containsKey("characters/01_adapa_ataque_thrust")
+                && !pendingModels.containsKey("characters/01_adapa_ataque_thrust")) {
+                requestModel("characters/01_adapa_ataque_thrust");
+            }
             Actor hero = actor("menu-hero", "characters/01_adapa_heroi", 112, 210);
             if (hero != null) place(hero, VIEW_W * 0.82, 255, 0.0, timeSeconds, 0);
             finishVisibleActors();
@@ -136,18 +142,22 @@ public final class Runtime3DLayer {
             finishVisibleActors();
             return;
         }
-        if (context.getCurrentPhase() == 2) {
+        if (context.getCurrentPhase() == 2 && !p2ModelsRequested) {
             requestModel("scenery/07_navio_naufragado_elemento-cenario");
             requestModel("scenery/06_bau_tesouro_elemento-cenario");
+            p2ModelsRequested = true;
+        } else if (context.getCurrentPhase() != 2) {
+            p2ModelsRequested = false;
         }
 
         // Personagens, inimigos e props usam malhas Blender na camada 3D.
+        double alpha = context.getRenderAlpha();
         int enemyIndex = 0;
         for (EnemyEntity enemy : context.getEnemies()) {
             int id = enemyIndex++;
             if (!enemy.isAlive()) continue;
             EnemyType type = enemy.getType();
-            double screenX = context.getCamera().toScreenX(enemy.getWorldX()) + type.getWidth() / 2.0;
+            double screenX = context.getCamera().toScreenX(enemy.getWorldX(), alpha) + type.getWidth() / 2.0;
             if (!insideViewport(screenX, type.getWidth())) continue;
             Actor enemyActor = actor(id < ENEMY_IDS.length ? ENEMY_IDS[id] : "enemy-" + id,
                 modelName(type.getStaticSprite()), type.getWidth(), type.getHeight());
@@ -167,8 +177,8 @@ public final class Runtime3DLayer {
             heroActor = actor("hero-swim", "characters/01_adapa_heroi", 90, 205);
         }
         if (heroActor != null) {
-            double heroX = context.getCamera().toScreenX(hero.getX()) + HeroEntity.HW / 2.0;
-            double heroY = hero.getY() + HeroEntity.HH / 2.0;
+            double heroX = context.getCamera().toScreenX(hero.getInterpolatedX(alpha), alpha) + HeroEntity.HW / 2.0;
+            double heroY = hero.getInterpolatedY(alpha) + HeroEntity.HH / 2.0;
             double facingSign = hero.isFacingRight() ? 1 : -1;
             double facingYaw = hero.isFacingRight() ? 0 : 180;
             double attackProgress = hero.getAttackProgress(context.getNanoTime());
@@ -177,12 +187,12 @@ public final class Runtime3DLayer {
                 ? -Math.sin(Math.PI * attackProgress) * 3.5 * facingSign
                 : Math.sin(timeSeconds * (3.0 + hero.getCurrentSpeedRatio() * 3.5)) * 0.7);
             place(heroActor, heroX + attackLunge, heroY,
-                hero.getX() / 4000.0, timeSeconds, facingYaw);
+                hero.getInterpolatedX(alpha) / 4000.0, timeSeconds, facingYaw);
         }
 
         int guardianIndex = 0;
         for (GuardianEntity guardian : context.getGuardians()) {
-            double screenX = context.getCamera().toScreenX(guardian.getWorldX()) + GuardianEntity.GW / 2.0;
+            double screenX = context.getCamera().toScreenX(guardian.getWorldX(), alpha) + GuardianEntity.GW / 2.0;
             if (!insideViewport(screenX, GuardianEntity.GW)) { guardianIndex++; continue; }
             String model = modelName(guardian.getSpritePath());
             int id = guardianIndex++;
@@ -227,11 +237,12 @@ public final class Runtime3DLayer {
     }
 
     private void updateScenery(GameContext context, double timeSeconds) {
+        double alpha = context.getRenderAlpha();
         int index = 0;
         for (SceneryElement element : context.getSceneryElements()) {
             String model = sceneryModel(element.getType());
             if (model == null) continue;
-            double screenX = context.getCamera().toScreenX(element.getWorldX());
+            double screenX = context.getCamera().toScreenX(element.getWorldX(), alpha);
             if (screenX < -260 || screenX > VIEW_W + 260) { index++; continue; }
             int elementIndex = index++;
             double propWidth = element.getWidth();
@@ -257,12 +268,12 @@ public final class Runtime3DLayer {
             // broken-midship opening after its replacement mesh is removed.
             double wreckWorldX = context.getChestWX() - WRECK_RENDER_WIDTH * 0.03;
             double wreckWorldY = context.getChestWY() - WRECK_RENDER_WIDTH * 0.05;
-            double wreckX = context.getCamera().toScreenX(wreckWorldX);
+            double wreckX = context.getCamera().toScreenX(wreckWorldX, alpha);
             if (insideViewport(wreckX, WRECK_RENDER_WIDTH)) {
                 Actor wreck = actor("shipwreck", "scenery/07_navio_naufragado_elemento-cenario", WRECK_RENDER_WIDTH, 360);
                 if (wreck != null) place(wreck, wreckX, wreckWorldY, .20, timeSeconds, 0);
             }
-            double chestX = context.getCamera().toScreenX(context.getChestWX());
+            double chestX = context.getCamera().toScreenX(context.getChestWX(), alpha);
             if (insideViewport(chestX, 84)) {
                 Actor chest = actor("chest", "scenery/06_bau_tesouro_elemento-cenario", 84, 66);
                 if (chest != null) place(chest, chestX, context.getChestWY(), .26, timeSeconds, 0);
@@ -270,7 +281,7 @@ public final class Runtime3DLayer {
         }
         // Marco de descida: ruína atlante renderizada como objeto 3D real.
         if (context.getCurrentPhase() >= 1 && context.getCurrentPhase() <= 4) {
-            double exitX = context.getCamera().toScreenX(3900);
+            double exitX = context.getCamera().toScreenX(3900, alpha);
             if (insideViewport(exitX, 300)) {
                 Actor exitMarker = actor("phase-descent", "scenery/09_ruinas_e_colunas_atlantis", 280, 360);
                 if (exitMarker != null) place(exitMarker, exitX, VIEW_H / 2, .8, timeSeconds, 0);
@@ -293,13 +304,34 @@ public final class Runtime3DLayer {
         };
     }
 
-    private Actor actor(String id, String modelName, double targetWidth, double targetHeight) {
+    Actor actor(String id, String modelName, double targetWidth, double targetHeight) {
         if (failedModels.contains(modelName)) return null;
         Color tint = paletteTint(contextPhase(), id);
         Actor current = actorsById.get(id);
         if (current != null && current.modelName.equals(modelName)
-            && current.targetWidth == targetWidth && current.targetHeight == targetHeight
-            && current.tint.equals(tint)) return current;
+            && current.targetWidth == targetWidth && current.targetHeight == targetHeight) {
+            if (current.tint.equals(tint)) {
+                return current;
+            }
+            // Quando apenas o tint muda (ex: transicao de fase ou iluminacao),
+            // atualiza os PhongMaterials in-place sem descartar nem recriar os nos 3D.
+            ObjModelLoader.Model template = modelTemplates.get(modelName);
+            if (template != null) {
+                var templateChildren = template.node().getChildren();
+                var nodeChildren = current.node.getChildren();
+                for (int i = 0; i < nodeChildren.size() && i < templateChildren.size(); i++) {
+                    MeshView targetView = (MeshView) nodeChildren.get(i);
+                    MeshView sourceView = (MeshView) templateChildren.get(i);
+                    PhongMaterial sourceMat = (PhongMaterial) sourceView.getMaterial();
+                    PhongMaterial targetMat = (PhongMaterial) targetView.getMaterial();
+                    if (sourceMat != null && targetMat != null) {
+                        targetMat.setDiffuseColor(ObjModelLoader.multiply(sourceMat.getDiffuseColor(), tint));
+                    }
+                }
+                current.tint = tint;
+                return current;
+            }
+        }
         if (current != null) {
             current.node.setVisible(false);
             (current.modelName.startsWith("scenery/") ? scenery : actors).getChildren().remove(current.node);
@@ -322,12 +354,17 @@ public final class Runtime3DLayer {
         } catch (RuntimeException error) {
             Throwable cause = error instanceof CompletionException && error.getCause() != null
                 ? error.getCause() : error;
-            System.err.println("[3D] Não foi possível carregar " + modelName + ": " + cause.getMessage());
+            System.err.println("[3D] Nao foi possivel carregar " + modelName + ": " + cause.getMessage());
             failedModels.add(modelName);
             actorsById.remove(id);
             return null;
         }
     }
+
+    Actor getActor(String id) { return actorsById.get(id); }
+    Group getActorNode(String id) { Actor a = actorsById.get(id); return a != null ? a.node : null; }
+    Color getActorTint(String id) { Actor a = actorsById.get(id); return a != null ? a.tint : null; }
+    void setActivePhase(int phase) { this.activePhase = phase; }
 
     private int contextPhase() {
         return Math.max(1, Math.min(5, activePhase));

@@ -10,6 +10,7 @@ public class Projectile {
 
     private Type type;
     private double x, y;
+    private double prevX, prevY;
     private double vx, vy;
     private double damage;
     private boolean alive = true;
@@ -23,6 +24,8 @@ public class Projectile {
         this.type = type;
         this.x = x;
         this.y = y;
+        this.prevX = x;
+        this.prevY = y;
         this.vx = vx;
         this.vy = vy;
         this.damage = damage;
@@ -35,13 +38,25 @@ public class Projectile {
     }
 
     public void update() {
+        prevX = x;
+        prevY = y;
         x += vx;
         y += vy;
+    }
+
+    public double getInterpolatedX(double alpha) {
+        return prevX + (x - prevX) * alpha;
+    }
+
+    public double getInterpolatedY(double alpha) {
+        return prevY + (y - prevY) * alpha;
     }
 
     public Type getType() { return type; }
     public double getX() { return x; }
     public double getY() { return y; }
+    public double getPrevX() { return prevX; }
+    public double getPrevY() { return prevY; }
     public double getVx() { return vx; }
     public double getVy() { return vy; }
     public double getDamage() { return damage; }

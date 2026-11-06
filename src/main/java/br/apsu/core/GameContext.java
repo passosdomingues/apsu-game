@@ -65,6 +65,7 @@ public class GameContext {
 
     private final InputManager inputManager = new InputManager();
     private final Camera camera = new Camera(1366, 4000);
+    private double renderAlpha = 1.0;
     private final SaveManager saveManager;
     private final EventBus eventBus;
 
@@ -660,18 +661,6 @@ public class GameContext {
         camera.update(hero.getX());
         hero.setX(Math.max(30, Math.min(4000 - HeroEntity.HW - 30, hero.getX())));
 
-        // Dano contínuo em zonas de lava (leve por segundo)
-        long currentSec = nanoTime / 1_000_000_000L;
-        for (SceneryElement elem : sceneryElements) {
-            if (elem.getType() == SceneryElement.Type.LAVA_POOL && !hero.isInvulnerable()) {
-                if (heroFeetHit(elem)) {
-                    hurtHero(difficulty.getCollisionDamage() * 0.45,
-                        0, -5.0, Color.ORANGERED, 7);
-                    break;
-                }
-            }
-        }
-
         checkGuardians(false);
         checkSceneryCollisions();
         updateEnemies();
@@ -810,7 +799,7 @@ public class GameContext {
 
         for (SceneryElement elem : sceneryElements) {
             if (elem.getType() == SceneryElement.Type.CURRENT) {
-                double ex = (state == State.P5) ? elem.getWorldX() : elem.getWorldX();
+                double ex = elem.getWorldX();
                 if (rectsHit(hero.getX(), hero.getY(), HeroEntity.HW, HeroEntity.HH,
                              ex, elem.getWorldY(), elem.getWidth(), elem.getHeight())) {
                     inCurrent = true;
@@ -1293,4 +1282,6 @@ public class GameContext {
     public boolean isInPressureZone() { return inPressureZone; }
     public double getPressureBuoyMult() { return pressureBuoyMult; }
     public int getCurrentPhase() { return currentPhase; }
+    public double getRenderAlpha() { return renderAlpha; }
+    public void setRenderAlpha(double renderAlpha) { this.renderAlpha = renderAlpha; }
 }

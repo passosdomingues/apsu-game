@@ -1,0 +1,8 @@
+state/*
+!state/.gitkeep
+perf/*.log
+perf/*.jfr
+hooks/__pycache__/
+tools/__pycache__/
+tests/__pycache__/
+settings.local.json

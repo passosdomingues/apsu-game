@@ -67,6 +67,7 @@ public class GameLoop extends AnimationTimer {
                 System.err.printf("[WARN] FPS %.1f: efeitos de iluminação/partículas reduzidos; malhas 3D mantidas.%n", fps);
             }
         }
+        context.getInputManager().tick(now);
         long updateStart = PERF_LOG ? System.nanoTime() : 0;
         int steps;
         if (previousNow < 0) {
@@ -89,6 +90,10 @@ public class GameLoop extends AnimationTimer {
             if (steps == MAX_STEPS_PER_FRAME && accumulatedNanos >= STEP_NANOS) accumulatedNanos = 0;
         }
         if (PERF_LOG) profileUpdateNanos += System.nanoTime() - updateStart;
+
+        double alpha = (previousNow < 0) ? 1.0 : Math.max(0.0, Math.min(1.0, (double) accumulatedNanos / STEP_NANOS));
+        context.setRenderAlpha(alpha);
+
         long renderStart = PERF_LOG ? System.nanoTime() : 0;
         renderer.render(gc, context, width, height);
         if (PERF_LOG) {

@@ -48,6 +48,9 @@ ENV DISPLAY=:0
 
 # Executar o jogo com aceleração GPU/X11 e fallback de software
 ENTRYPOINT ["java", \
+    "-XX:+UseG1GC", \
+    "-XX:MaxGCPauseMillis=5", \
     "-Dprism.order=es2,sw,j2d", \
+    "-Dprism.vsync=true", \
     "-Dprism.verbose=false", \
     "-jar", "apsu-game.jar"]
