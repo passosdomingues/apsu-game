@@ -43,17 +43,17 @@ Fonte de verdade das user stories. Validado por `python3 tools/harness/backlog.p
 
 ## Sprint S0: Estabilização de renderização
 
-### US-007 | Diagnóstico de renderização 3D no início | 3 pts | P0 | S0 | E8 | todo
+### US-007 | Diagnóstico de renderização 3D no início | 3 pts | P0 | S0 | E8 | done
 **Como** time, **quero** que o jogo registre o pipeline gráfico e o suporte a 3D ao iniciar, **para** descobrir em segundos por que os personagens não aparecem.
 - Fonte: playtest no Windows, cenário e HUD renderizam mas herói, NPCs e inimigos não.
 - Depende de: nenhuma
 - Notas técnicas: personagens são malhas OBJ/MTL numa SubScene 3D (Runtime3DLayer); cenário, HUD e partículas são Canvas. Hipótese principal: SCENE3D indisponível ou pipeline Prism em software no Windows. Confirmado em experimento: no pipeline Prism sw, Platform.isSupported(SCENE3D) é falso e uma caixa 3D gera 0 pixels (o 2D aparece normal), enquanto no ES2 (OpenGL, inclusive Mesa em software) a mesma caixa gera 52.900 pixels. No jogo, o pipeline sw reproduz o print do Windows: HUD, aviso de interação e sombras aparecem, sem herói, guardião nem inimigos, e a vida cai por inimigos invisíveis. O JavaFX escreveu 1.240 avisos de SCENE3D em cerca de 60 s. O Makefile não renderiza nada em tempo de execução, só escolhe JDK e opções da JVM.
 
 **Critérios de aceitação**
-- [ ] Dado o início do jogo em qualquer sistema, quando a janela abre, então o console registra uma linha [GFX] com sistema operacional, versão do JavaFX, resultado de SCENE3D e pipeline Prism em uso.
-- [ ] Dado SCENE3D não suportado, quando a fase 1 inicia, então o HUD exibe por 5 s o aviso "Modo 2D: 3D indisponível neste equipamento".
-- [ ] Dado a falha ao carregar qualquer OBJ ou MTL, quando ocorre, então o console registra [GFX] com o caminho do recurso e a causa, sem encerrar o jogo.
-- [ ] Dado make test, quando executado, então um teste cobre a formatação da linha de diagnóstico sem exigir JavaFX.
+- [x] Dado o início do jogo em qualquer sistema, quando a janela abre, então o console registra uma linha [GFX] com sistema operacional, versão do JavaFX, resultado de SCENE3D e pipeline Prism em uso.
+- [x] Dado SCENE3D não suportado, quando a fase 1 inicia, então o HUD exibe por 5 s o aviso "Modo 2D: 3D indisponível neste equipamento".
+- [x] Dado a falha ao carregar qualquer OBJ ou MTL, quando ocorre, então o console registra [GFX] com o caminho do recurso e a causa, sem encerrar o jogo.
+- [x] Dado make test, quando executado, então um teste cobre a formatação da linha de diagnóstico sem exigir JavaFX.
 
 ### US-008 | Fallback 2D para personagens quando o 3D não está disponível | 8 pts | P0 | S0 | E8 | todo
 **Como** jogador, **quero** ver herói, NPCs e inimigos mesmo sem suporte a 3D, **para** jogar em qualquer computador.

@@ -354,7 +354,7 @@ public final class Runtime3DLayer {
         } catch (RuntimeException error) {
             Throwable cause = error instanceof CompletionException && error.getCause() != null
                 ? error.getCause() : error;
-            System.err.println("[3D] Nao foi possivel carregar " + modelName + ": " + cause.getMessage());
+            System.err.println("[GFX] Falha ao carregar " + modelName + ": " + cause.getMessage());
             failedModels.add(modelName);
             actorsById.remove(id);
             return null;

@@ -26,6 +26,7 @@ public class ApsuGameMain extends Application {
 
     @Override
     public void start(Stage stage) {
+        br.apsu.graphics.GraphicsDiagnostics.probeAndLog();
         Canvas canvas = new Canvas(W, H);
         GraphicsContext gc = canvas.getGraphicsContext2D();
         RenderEngine renderer = new RenderEngine();

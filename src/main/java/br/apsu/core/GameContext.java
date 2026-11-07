@@ -278,7 +278,9 @@ public class GameContext {
         currentPhase = 1;
         publishAudioDepth();
         state = State.P1; phaseStartTime = nanoTime; phaseHits = 0; adaptiveDifficulty.beginPhase();
-        if (difficulty == Difficulty.DIFICIL) {
+        if (!br.apsu.graphics.GraphicsDiagnostics.isScene3dSupported()) {
+            showAlert("Modo 2D: 3D indisponível neste equipamento");
+        } else if (difficulty == Difficulty.DIFICIL) {
             showAlert("Fase 1 (DIFÍCIL) — O portal final estará selado até você resgatar a Tabuleta!");
         } else {
             showAlert("Fase 1 — Aguas Claras | Encontre o Guardião Atlante e colete a Tabuleta!");

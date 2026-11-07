@@ -409,4 +409,17 @@ public class GameContextIntegrationTest {
 
         assertTrue(hero.getY() > initialY + 25.0, "Herói deve ter deslizado para baixo no eixo Y livre");
     }
+
+    @Test
+    @DisplayName("Fase 1 exibe aviso de Modo 2D quando SCENE3D estiver indisponível (US-007 AC2)")
+    void startP1Shows2DModeAlertWhenScene3DUnsupported() {
+        try {
+            br.apsu.graphics.GraphicsDiagnostics.setScene3dSupportedForTesting(false);
+            context.startP1();
+            assertEquals("Modo 2D: 3D indisponível neste equipamento", context.getAlertMessage(),
+                "Deve alertar o jogador quando SCENE3D não for suportado pelo pipeline");
+        } finally {
+            br.apsu.graphics.GraphicsDiagnostics.setScene3dSupportedForTesting(null);
+        }
+    }
 }
