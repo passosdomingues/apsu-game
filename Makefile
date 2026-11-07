@@ -358,3 +358,5 @@ help:
 	@echo "  $(CLR_CYAN)BLENDER BINARY  $(CLR_RESET) : $(CLR_WHITE)$(BLENDER_BIN)$(CLR_RESET)"
 	@echo "$(CLR_HEADER)+-----------------------------------------------------------------------+$(CLR_RESET)"
 	@echo ""
+# Alvos auxiliares do harness APSU (tools/harness/harness.mk)
+-include tools/harness/harness.mk

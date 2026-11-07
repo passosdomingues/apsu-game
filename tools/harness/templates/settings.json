@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(make test)",
+      "Bash(make build)",
+      "Bash(make coverage)",
+      "Bash(make system-info)",
+      "Bash(make help)",
+      "Bash(make backlog-lint)",
+      "Bash(make sprint-status)",
+      "Bash(make harness-verify)",
+      "Bash(mvn test:*)",
+      "Bash(mvn -q test:*)",
+      "Bash(mvn -q verify:*)",
+      "Bash(mvn -q -DskipTests compile)",
+      "Bash(python3 tools/harness/backlog.py:*)",
+      "Bash(python3 tools/harness/verify.py)",
+      "Bash(python3 tools/harness/play/ai_play.py:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)"
+    ],
+    "ask": [
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(make assets)",
+      "Bash(make assets-procedural)",
+      "Bash(make assets-regenerate)",
+      "Bash(make generate-characters)",
+      "Bash(make export-runtime-models)",
+      "Bash(make export-model:*)",
+      "Bash(make render-backgrounds)",
+      "Bash(make audio-assets)",
+      "Bash(make docker-run)",
+      "Bash(make clean)",
+      "Bash(make package)"
+    ],
+    "deny": [
+      "Bash(make run)",
+      "Bash(make all)",
+      "Bash(make)",
+      "Bash(mvn javafx:run:*)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git clean:*)",
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Edit(/target/**)",
+      "Write(/target/**)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear",
+        "hooks": [
+          { "type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR/tools/harness/hooks/apsu_hook.py\" session-start", "timeout": 20 }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR/tools/harness/hooks/apsu_hook.py\" pre-bash", "timeout": 15 }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          { "type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR/tools/harness/hooks/apsu_hook.py\" pre-edit", "timeout": 15 }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          { "type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR/tools/harness/hooks/apsu_hook.py\" post-edit", "timeout": 15 }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR/tools/harness/hooks/apsu_hook.py\" stop", "timeout": 960 }
+        ]
+      }
+    ]
+  }
+}

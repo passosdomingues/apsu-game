@@ -35,3 +35,5 @@ __pycache__/
 # Binários Temporários MPI
 mpi/map_gen
 mpi/*.o
+.claude/state/
+.claude/settings.local.json

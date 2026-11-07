@@ -59,7 +59,16 @@
       "Bash(find:*)",
       "Bash(sed -n:*)",
       "Bash(nproc)",
-      "Bash(java -version)"
+      "Bash(java -version)",
+      "Bash(make help)",
+      "Bash(make backlog-lint)",
+      "Bash(make sprint-status)",
+      "Bash(make harness-verify)",
+      "Bash(mvn -q verify:*)",
+      "Bash(mvn -q -DskipTests compile)",
+      "Bash(python3 tools/harness/backlog.py:*)",
+      "Bash(python3 tools/harness/verify.py)",
+      "Bash(python3 tools/harness/play/ai_play.py:*)"
     ],
     "ask": [
       "Bash(make assets:*)",
@@ -85,7 +94,18 @@
       "Edit(personagens/blends/**)",
       "Edit(src/main/resources/**)",
       "Edit(LICENSE)",
-      "Edit(CODEOWNERS)"
+      "Edit(CODEOWNERS)",
+      "Bash(git commit:*)",
+      "Bash(make assets)",
+      "Bash(make assets-procedural)",
+      "Bash(make assets-regenerate)",
+      "Bash(make generate-characters)",
+      "Bash(make export-runtime-models)",
+      "Bash(make render-backgrounds)",
+      "Bash(make audio-assets)",
+      "Bash(make docker-run)",
+      "Bash(make clean)",
+      "Bash(make package)"
     ],
     "deny": [
       "Read(./.env)",
@@ -117,7 +137,14 @@
       "Bash(sudo:*)",
       "Bash(curl:*)",
       "Bash(wget:*)",
-      "Bash(chmod -R 777:*)"
+      "Bash(chmod -R 777:*)",
+      "Bash(make run)",
+      "Bash(make all)",
+      "Bash(make)",
+      "Bash(mvn javafx:run:*)",
+      "Bash(git clean:*)",
+      "Edit(/target/**)",
+      "Write(/target/**)"
     ]
   },
   "hooks": {
@@ -129,6 +156,16 @@
             "type": "command",
             "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/session_start.py\"",
             "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "startup|resume|clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/apsu_hook.py\" session-start",
+            "timeout": 20
           }
         ]
       }
@@ -152,6 +189,11 @@
             "type": "command",
             "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard_bash.py\"",
             "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/apsu_hook.py\" pre-bash",
+            "timeout": 15
           }
         ]
       },
@@ -164,6 +206,16 @@
             "timeout": 5
           }
         ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/apsu_hook.py\" pre-edit",
+            "timeout": 15
+          }
+        ]
       }
     ],
     "PostToolUse": [
@@ -174,6 +226,11 @@
             "type": "command",
             "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/hotpath_lint.py\"",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/apsu_hook.py\" post-edit",
+            "timeout": 15
           }
         ]
       }
@@ -196,6 +253,11 @@
             "type": "command",
             "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/stop_gate.py\"",
             "timeout": 300
+          },
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/apsu_hook.py\" stop",
+            "timeout": 960
           }
         ]
       }
