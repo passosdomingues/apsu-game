@@ -175,18 +175,18 @@ Fonte de verdade das user stories. Validado por `python3 tools/harness/backlog.p
 
 ## Sprint S2: Orientação e cutscenes
 
-### US-010 | Seta de orientação para o objetivo | 5 pts | P0 | S2 | E2 | todo
+### US-010 | Seta de orientação para o objetivo | 5 pts | P0 | S2 | E2 | done
 **Como** jogador, **quero** uma seta apontando para o objetivo atual, **para** nunca ficar sem saber para onde ir.
 - Fonte: feedback, "seta no guardião" e "seta no primeiro guardião".
 - Depende de: nenhuma
 - Notas técnicas: componente novo de HUD (proposta: pacote br.apsu.guidance), lendo a posição do objetivo sem alterar a lógica de GameContext.
 
 **Critérios de aceitação**
-- [ ] Dado a fase 1 antes da primeira conversa, quando o guardião está fora da tela, então uma seta na borda da tela aponta para ele com erro angular menor que 5 graus.
-- [ ] Dado o guardião visível, quando o herói está a mais de 300 unidades dele, então a seta aponta para ele sem cobrir o herói nem o HUD.
-- [ ] Dado a tabuleta recebida, quando a conversa termina, então a seta passa a apontar para a saída da fase.
-- [ ] Dado a seta animada, quando o jogo roda com APSU_PERF=1, então não há aumento de coletas de lixo em relação à base anterior.
-- [ ] Dado a seta desenhada, quando renderizada, então usa apenas o tema claro, sem dark mode.
+- [x] Dado a fase 1 antes da primeira conversa, quando o guardião está fora da tela, então uma seta na borda da tela aponta para ele com erro angular menor que 5 graus.
+- [x] Dado o guardião visível, quando o herói está a mais de 300 unidades dele, então a seta aponta para ele sem cobrir o herói nem o HUD.
+- [x] Dado a tabuleta recebida, quando a conversa termina, então a seta passa a apontar para a saída da fase.
+- [x] Dado a seta animada, quando o jogo roda com APSU_PERF=1, então não há aumento de coletas de lixo em relação à base anterior.
+- [x] Dado a seta desenhada, quando renderizada, então usa apenas o tema claro, sem dark mode.
 
 ### US-011 | Sistema de cutscene de foco de câmera | 8 pts | P0 | S2 | E2 | todo
 **Como** jogador, **quero** cenas curtas que mostrem o que é importante, **para** entender os objetivos sem ler instruções.

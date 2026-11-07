@@ -20,6 +20,12 @@ import javafx.scene.text.TextAlignment;
  * Sem emojis — toda indicação visual usa formas desenhadas ou texto ASCII.
  */
 public class UIRenderer {
+    private final br.apsu.guidance.ObjectiveArrow objectiveArrow = new br.apsu.guidance.ObjectiveArrow();
+
+    public br.apsu.guidance.ObjectiveArrow getObjectiveArrow() {
+        return objectiveArrow;
+    }
+
     private static Color color(String web) {
         return Palette.color(web);
     }
@@ -162,6 +168,10 @@ public class UIRenderer {
         double heroX = worldToMapX(context.getHero().getX(), worldWidth, mapX, mapW);
         gc.fillPolygon(new double[]{heroX - 4, heroX + 4, heroX},
                        new double[]{mapY + mapH / 2 + 5, mapY + mapH / 2 + 5, mapY + mapH / 2 - 5}, 3);
+    }
+
+    public void drawObjectiveArrow(GraphicsContext gc, GameContext context, double canvasWidth, double canvasHeight, double timeSeconds) {
+        objectiveArrow.render(gc, context, canvasWidth, canvasHeight, timeSeconds);
     }
 
     static double worldToMapX(double worldX, double worldWidth, double mapX, double mapWidth) {

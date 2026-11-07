@@ -114,6 +114,8 @@ public class RenderEngine implements GameRenderer {
         if (ctx.isOverlayActive()) {
             uiRenderer.drawDialogueOverlay(gc, width, height, t, ctx.getOverlayName(),
                 ctx.getOverlayLines(), ctx.getOverlayIdx(), ctx.getOverlayCharsShown());
+        } else {
+            uiRenderer.drawObjectiveArrow(gc, ctx, width, height, t);
         }
     }
 
