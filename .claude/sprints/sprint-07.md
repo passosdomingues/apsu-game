@@ -16,10 +16,10 @@ Critérios de aceite:
 - AC4: O log de entrada (flag `APSU_INPUT_TRACE=1`) mostra a contagem de pares release/press ao segurar a seta direita por 3 s.
 
 Tarefas:
-- [ ] F00.1 Rodar `make system-info` e anotar renderer OpenGL (0,5 h)
-- [ ] F00.2 Adicionar log de trace de entrada ligado por `-Dapsu.inputTrace=true` no `Makefile` como `APSU_INPUT_TRACE` (1 h)
-- [ ] F00.3 Capturar os 5 logs de fase e o resumo (2 h)
-- [ ] F00.4 Registrar o hardware usado e comparar com a referência do CLAUDE.md (0,5 h)
+- [x] F00.1 Rodar `make system-info` e anotar renderer OpenGL (0,5 h)
+- [x] F00.2 Adicionar log de trace de entrada ligado por `-Dapsu.inputTrace=true` no `Makefile` como `APSU_INPUT_TRACE` (1 h)
+- [x] F00.3 Capturar os 5 logs de fase e o resumo (2 h)
+- [x] F00.4 Registrar o hardware usado e comparar com a referência do CLAUDE.md (0,5 h)
 
 ### APSU-F01 | Entrada sem tremor no X11 | 3 pts | Rafa
 Como jogador, quero que segurar a seta mantenha o nado constante, para o herói não tremer.
@@ -74,10 +74,10 @@ Critérios de aceite:
 - AC6: Todos os `HeroType` mantêm velocidade máxima, tempo para atingir 90% da máxima e distância de parada iguais ao atual, medidos em teste.
 
 Tarefas:
-- [ ] F03.1 Gerar o teste dourado a partir da implementação atual antes de alterar (1,5 h)
-- [ ] F03.2 Converter `HeroType` e `HeroEntity.updatePhysics(dt)` (3 h)
-- [ ] F03.3 Extrair `stepHero` do `GameContext` para uma classe nova `HeroController` (regra 10) (2 h)
-- [ ] F03.4 Testes AC3 e AC6 (2 h)
+- [x] F03.1 Gerar o teste dourado a partir da implementação atual antes de alterar (1,5 h)
+- [x] F03.2 Converter `HeroType` e `HeroEntity.updatePhysics(dt)` (3 h)
+- [x] F03.3 Extrair `stepHero` do `GameContext` para uma classe nova `HeroController` (regra 10) (2 h)
+- [x] F03.4 Testes AC3 e AC6 (2 h)
 
 ### APSU-F04 | Câmera suave e fundo sem cintilar | 5 pts | Marcos
 Como jogador, quero a câmera e o fundo estáveis, para a tela não tremer ao nadar.
@@ -110,6 +110,6 @@ Critérios de aceite:
 - AC5: Teste JUnit com um obstáculo e entrada constante cobre AC2 e AC3.
 
 Tarefas:
-- [ ] F05.1 Resolver penetração por eixo e zerar velocidade (2 h)
-- [ ] F05.2 Aplicar nos casos MOVING_OBSTACLE, VOLCANIC_ROCK e coral (1 h)
-- [ ] F05.3 Testes AC2 e AC3 (2 h)
+- [x] F05.1 Resolver penetração por eixo e zerar velocidade (2 h)
+- [x] F05.2 Aplicar nos casos MOVING_OBSTACLE, VOLCANIC_ROCK e coral (1 h)
+- [x] F05.3 Testes AC2 e AC3 (2 h)

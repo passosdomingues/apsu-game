@@ -86,6 +86,8 @@ else
     APSU_JVM_ARGS ?= -Xms64m -Xmx1g $(APSU_GC_FLAGS) -Dapsu.quality=low
 endif
 APSU_PERF_ARGS := $(if $(filter 1 true yes,$(APSU_PERF)),-Dapsu.perf=true,)
+APSU_INPUT_TRACE ?= 0
+APSU_INPUT_TRACE_ARGS := $(if $(filter 1 true yes,$(APSU_INPUT_TRACE)),-Dapsu.inputTrace=true,)
 APSU_AUDIO_ENABLED := $(if $(filter 1 true yes on,$(APSU_AUDIO)),true,false)
 APSU_AUDIO_ARGS := -Dapsu.audio.enabled=$(APSU_AUDIO_ENABLED)
 APSU_JFR_THREAD_ARGS := $(if $(filter 1 true yes,$(APSU_JFR_THREAD_STACKS)),$(APSU_COMMA)jdk.ThreadStart#stackTrace=true,)
@@ -184,7 +186,7 @@ run: setup
 	@echo "$(CLR_HEADER)| [RUN  ] LAUNCHING AS AGUAS DE APSU ON $(SO_NAME)                         |$(CLR_RESET)"
 	@echo "$(CLR_HEADER)+-----------------------------------------------------------------------+$(CLR_RESET)"
 	@echo "$(CLR_CYAN)[PERF ] Perfil $(APSU_PROFILE) | $(CPU_CORES) threads | ~$(RAM_GB) GB RAM | GPU: $(APSU_GPU_SELECTED)$(CLR_RESET)"
-	@$(APSU_GPU_ENV) JAVA_TOOL_OPTIONS="$${JAVA_TOOL_OPTIONS:+$$JAVA_TOOL_OPTIONS }$(APSU_JVM_ARGS) $(APSU_AUDIO_ARGS) $(APSU_PERF_ARGS) $(APSU_JFR_ARGS)" $(MVN_CMD) javafx:run
+	@$(APSU_GPU_ENV) JAVA_TOOL_OPTIONS="$${JAVA_TOOL_OPTIONS:+$$JAVA_TOOL_OPTIONS }$(APSU_JVM_ARGS) $(APSU_AUDIO_ARGS) $(APSU_PERF_ARGS) $(APSU_INPUT_TRACE_ARGS) $(APSU_JFR_ARGS)" $(MVN_CMD) javafx:run
 
 ## Mostra o resumo de uma gravação JFR criada com APSU_JFR=1
 perf-summary:

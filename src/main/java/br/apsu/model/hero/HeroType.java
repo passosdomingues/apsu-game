@@ -69,7 +69,9 @@ public enum HeroType {
     public String getAttack2Path() { return attack2Path; }
     public String getSwimDir() { return swimDir; }
     public double getMaxSpeed() { return maxSpeed; }
+    public double getMaxSpeedPerSecond() { return maxSpeed * 60.0; }
     public double getAccel() { return accel; }
+    public double getAccelPerSecondSquared() { return accel * 3600.0; }
     public double getDrag() { return drag; }
     public double getBuoy() { return buoy; }
     public double getPwr() { return pwr; }

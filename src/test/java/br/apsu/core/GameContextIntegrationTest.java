@@ -347,14 +347,66 @@ public class GameContextIntegrationTest {
 
         context.pushHeroOutOfObstacle(rockX, rockY, rockW, rockH);
 
-        // O centro de colisão do herói (hx = hero.getX() + 16, hy = hero.getY() + 32)
+        // O centro de colisão do herói (hx = hero.getX() + 20, hy = hero.getY() + 44)
         // não deve mais sobrepor a rocha [rockX, rockX + rockW] x [rockY, rockY + rockH].
-        double hx = context.getHero().getX() + 24;
-        double hy = context.getHero().getY() + 50;
-        double hw = 24;
-        double hh = 80;
+        double hx = context.getHero().getX() + 20;
+        double hy = context.getHero().getY() + 44;
+        double hw = 28;
+        double hh = 100;
 
         assertFalse(context.rectsHit(hx, hy, hw, hh, rockX, rockY, rockW, rockH),
             "Após o push-out, a caixa de colisão do herói deve estar completamente fora da rocha");
+    }
+
+    @Test
+    @DisplayName("Colisão estável: herói pressionado contra obstáculo não vibra (AC2)")
+    void heroPressedAgainstObstacleDoesNotVibrate() {
+        context.startP2();
+        double rockX = 500, rockY = 200, rockW = 100, rockH = 300;
+        var hero = context.getHero();
+        hero.setX(430);
+        hero.setY(250);
+
+        // Pressionar seta para a direita contra o obstáculo por 180 ticks (3 segundos)
+        double expectedX = rockX - 28 - 20; // ox - hw - 20
+        double maxDeltaAfterContact = 0.0;
+        boolean contacted = false;
+
+        for (int i = 0; i < 180; i++) {
+            hero.updatePhysics(false, true, false, false, 0, 768, 0, 1.0, 0, 0, i * 16_666_666L);
+            context.pushHeroOutOfObstacle(rockX, rockY, rockW, rockH);
+
+            if (Math.abs(hero.getX() - expectedX) < 1.0) {
+                contacted = true;
+                double delta = Math.abs(hero.getX() - expectedX);
+                if (delta > maxDeltaAfterContact) maxDeltaAfterContact = delta;
+            }
+        }
+
+        assertTrue(contacted, "O herói deve ter alcançado o obstáculo");
+        assertTrue(maxDeltaAfterContact <= 0.1,
+            "A variação de posição contra a parede deve ser no máximo 0.1 px (foi " + maxDeltaAfterContact + ")");
+    }
+
+    @Test
+    @DisplayName("Deslizar na parede: herói pressionado contra obstáculo desliza no eixo livre (AC3)")
+    void heroSlidesAlongObstacleWhenSecondAxisPressed() {
+        context.startP2();
+        double rockX = 500, rockY = 0, rockW = 100, rockH = 768;
+        var hero = context.getHero();
+        double expectedX = rockX - 28 - 20;
+        hero.setX(expectedX);
+        hero.setY(150);
+
+        // Pressionar direita (contra a parede) e para baixo (deslizar)
+        double initialY = hero.getY();
+        for (int i = 0; i < 20; i++) {
+            hero.updatePhysics(false, true, false, true, 0, 768, 0, 1.0, 0, 0, i * 16_666_666L);
+            context.pushHeroOutOfObstacle(rockX, rockY, rockW, rockH);
+            assertEquals(expectedX, hero.getX(), 0.01,
+                "Herói deve permanecer encostado na parede no eixo X a cada tick enquanto desliza");
+        }
+
+        assertTrue(hero.getY() > initialY + 25.0, "Herói deve ter deslizado para baixo no eixo Y livre");
     }
 }

@@ -87,4 +87,25 @@ public class InputManagerTest {
         inputManager.registerKeyPress(KeyCode.SPACE);
         assertTrue(inputManager.isInteractPressed());
     }
+
+    @Test
+    @DisplayName("Rastreio de entrada: contagem de pares release/press ao segurar tecla por 3s (AC4)")
+    void testReleasePressPairCountUnderSustainedRepeat() {
+        inputManager.resetTraceCounters();
+        long t0 = 1_000_000_000L;
+        inputManager.registerKeyPress(KeyCode.RIGHT);
+
+        // Segurar a seta direita por 3 s com repetição X11 a cada 30 ms (100 pares release/press)
+        for (int i = 0; i < 100; i++) {
+            long tickTime = t0 + i * 30_000_000L;
+            inputManager.registerKeyRelease(KeyCode.RIGHT, tickTime);
+            inputManager.registerKeyPress(KeyCode.RIGHT);
+            inputManager.tick(tickTime + 16_666_666L);
+        }
+
+        assertEquals(100, inputManager.getReleasePressPairs(),
+            "Deve contabilizar exatamente 100 pares de release/press durante os 3 s");
+        assertTrue(inputManager.isPressed(KeyCode.RIGHT),
+            "A tecla deve se manter pressionada sem jitter durante todo o tempo");
+    }
 }

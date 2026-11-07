@@ -81,14 +81,15 @@ public class HeroEntity {
     public void updatePhysics(boolean left, boolean right, boolean up, boolean down,
                                double minY, double maxY, int phaseDone,
                                double buoyancyMult, double currentFx, double currentFy,
-                               long currentNanoTime) {
+                               long currentNanoTime, double dt) {
         prevX = x;
         prevY = y;
 
+        double dtScale = dt * 60.0;
         // O bônus por fase é deliberadamente pequeno: a progressão deve
         // recompensar sem transformar o controle em algo imprevisível.
         double speedMult = (1.0 + phaseDone * 0.025);
-        double accelPower = type.getAccel() * speedMult;
+        double accelPower = type.getAccel() * speedMult * dtScale;
 
         double ax = 0, ay = 0;
         if (left)  { ax -= accelPower; facingRight = false; }
@@ -99,9 +100,9 @@ public class HeroEntity {
         // Zonas ambientais dão textura ao nado, mas não sequestram o input.
         // Limites estreitos evitam afundamento/subida súbita nas fases 3–5.
         double safeBuoyancy = Math.max(0.68, Math.min(1.18, buoyancyMult));
-        ay -= type.getBuoy() * safeBuoyancy;
-        ax += currentFx * 0.08;
-        ay += currentFy * 0.08;
+        ay -= type.getBuoy() * safeBuoyancy * dtScale;
+        ax += currentFx * 0.08 * dtScale;
+        ay += currentFy * 0.08 * dtScale;
 
         vx += ax;
         vy += ay;
@@ -111,14 +112,14 @@ public class HeroEntity {
         boolean counterX = (left && vx > 0) || (right && vx < 0);
         boolean counterY = (up && vy > 0) || (down && vy < 0);
         if (counterX) {
-            vx *= 0.58;   // era 0.70: virada bem mais afiada
+            vx *= Math.pow(0.58, dtScale);   // era 0.70: virada bem mais afiada
         } else if (!left && !right) {
-            vx *= 0.86;   // era 0.92: para mais rapido ao soltar
+            vx *= Math.pow(0.86, dtScale);   // era 0.92: para mais rapido ao soltar
         }
         if (counterY) {
-            vy *= 0.62;   // era 0.70
+            vy *= Math.pow(0.62, dtScale);   // era 0.70
         } else if (!up && !down) {
-            vy *= 0.88;   // era 0.94
+            vy *= Math.pow(0.88, dtScale);   // era 0.94
         }
 
         // --- FÍSICA DE EMPUXO E ARRASTO REALISTAS (auditoria 2026-08-15) ---
@@ -141,11 +142,11 @@ public class HeroEntity {
         // — defasagem de 1 frame, imperceptível para um termo decorativo.
         double idleBob = Math.sin(tailPhase * 0.4) * type.getBuoy() * safeBuoyancy * 0.45
                           * (1.0 - currentSpeedRatio);
-        vy -= idleBob;
+        vy -= idleBob * dtScale;
 
         double dragCoef = (1.0 - type.getDrag()) / Math.max(1.0, type.getMaxSpeed());
-        vx -= dragCoef * vx * Math.abs(vx);
-        vy -= dragCoef * vy * Math.abs(vy);
+        vx -= dragCoef * vx * Math.abs(vx) * dtScale;
+        vy -= dragCoef * vy * Math.abs(vy) * dtScale;
 
         double currentSpeed = Math.sqrt(vx * vx + vy * vy);
         double maxSpd = type.getMaxSpeed() * speedMult;
@@ -154,12 +155,12 @@ public class HeroEntity {
             vy = (vy / currentSpeed) * maxSpd;
         }
 
-        x += vx;
-        y += vy;
+        x += vx * dtScale;
+        y += vy * dtScale;
         y = Math.max(minY, Math.min(maxY, y));
 
         currentSpeedRatio = Math.min(1.0, currentSpeed / Math.max(1.0, maxSpd));
-        tailPhase += (4.0 + currentSpeedRatio * 8.0) * 0.016;
+        tailPhase += (4.0 + currentSpeedRatio * 8.0) * dt;
 
         if (shooting && currentNanoTime - shootingTime >= (long) (ATTACK_DURATION_SECONDS * 1_000_000_000L)) {
             shooting = false;
@@ -167,8 +168,15 @@ public class HeroEntity {
     }
 
     public void updatePhysics(boolean left, boolean right, boolean up, boolean down,
+                               double minY, double maxY, int phaseDone,
+                               double buoyancyMult, double currentFx, double currentFy,
+                               long currentNanoTime) {
+        updatePhysics(left, right, up, down, minY, maxY, phaseDone, buoyancyMult, currentFx, currentFy, currentNanoTime, 1.0 / 60.0);
+    }
+
+    public void updatePhysics(boolean left, boolean right, boolean up, boolean down,
                                double minY, double maxY, int phaseDone) {
-        updatePhysics(left, right, up, down, minY, maxY, phaseDone, 1.0, 0, 0, System.nanoTime());
+        updatePhysics(left, right, up, down, minY, maxY, phaseDone, 1.0, 0, 0, System.nanoTime(), 1.0 / 60.0);
     }
 
     public void applyGeyserImpulse(double impulseVy) {
@@ -211,7 +219,9 @@ public class HeroEntity {
     public double getY() { return y; }
     public void setY(double y) { this.y = y; }
     public double getVx() { return vx; }
+    public void setVx(double vx) { this.vx = vx; }
     public double getVy() { return vy; }
+    public void setVy(double vy) { this.vy = vy; }
     public boolean isFacingRight() { return facingRight; }
     public double getHp() { return hp; }
     public double getMaxHP() { return maxHP; }

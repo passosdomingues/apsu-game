@@ -12,12 +12,20 @@ import java.util.Set;
  */
 public class InputManager {
     public static final long RELEASE_GRACE_NANOS = 25_000_000L; // 25 ms
+    private static final boolean INPUT_TRACE = Boolean.getBoolean("apsu.inputTrace");
 
     private final Set<KeyCode> activeKeys = new HashSet<>();
     private final Map<KeyCode, Long> pendingReleases = new HashMap<>();
+    private long releasePressPairs = 0;
 
     public void registerKeyPress(KeyCode code) {
         if (code == null) return;
+        if (pendingReleases.containsKey(code)) {
+            releasePressPairs++;
+            if (INPUT_TRACE) {
+                System.out.printf("[INPUT_TRACE] Pares release/press detectados: %d (tecla %s)%n", releasePressPairs, code);
+            }
+        }
         activeKeys.add(code);
         pendingReleases.remove(code);
     }
@@ -81,5 +89,13 @@ public class InputManager {
 
     public Set<KeyCode> getActiveKeys() {
         return activeKeys;
+    }
+
+    public long getReleasePressPairs() {
+        return releasePressPairs;
+    }
+
+    public void resetTraceCounters() {
+        releasePressPairs = 0;
     }
 }

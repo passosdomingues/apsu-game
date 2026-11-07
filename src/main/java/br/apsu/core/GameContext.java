@@ -65,6 +65,7 @@ public class GameContext {
 
     private final InputManager inputManager = new InputManager();
     private final Camera camera = new Camera(1366, 4000);
+    private final HeroController heroController = new HeroController();
     private double renderAlpha = 1.0;
     private final SaveManager saveManager;
     private final EventBus eventBus;
@@ -493,20 +494,29 @@ public class GameContext {
         }
     }
 
+    public void stepHero(double dt) {
+        applyEnvironmentalForces();
+        double minY = (state == State.P1) ? 30.0 : (state == State.P2 ? 60.0 : 20.0);
+        double maxY = 768.0 - HeroEntity.HH - minY;
+        heroController.step(
+            hero,
+            inputManager,
+            minY,
+            maxY,
+            phaseDone,
+            getEffectiveBuoyancy(),
+            inCurrent ? currentFx : 0,
+            inCurrent ? currentFy : 0,
+            nanoTime,
+            dt
+        );
+    }
+
     // =========================================================
     // UPDATE P1
     // =========================================================
     private void updateP1() {
-        applyEnvironmentalForces();
-        hero.updatePhysics(
-            inputManager.isPressed(KeyCode.LEFT, KeyCode.A),
-            inputManager.isPressed(KeyCode.RIGHT, KeyCode.D),
-            inputManager.isPressed(KeyCode.UP, KeyCode.W),
-            inputManager.isPressed(KeyCode.DOWN, KeyCode.S),
-            30, 768 - HeroEntity.HH - 30, phaseDone,
-            getEffectiveBuoyancy(),
-            inCurrent ? currentFx : 0, inCurrent ? currentFy : 0, nanoTime
-        );
+        stepHero(1.0 / 60.0);
 
         if (!overlayActive && inputManager.isPressed(KeyCode.SPACE)) tryShoot();
         camera.update(hero.getX());
@@ -535,16 +545,7 @@ public class GameContext {
     // UPDATE P2 — B3-FIX: bolhas agora funcionam corretamente
     // =========================================================
     private void updateP2() {
-        applyEnvironmentalForces();
-        hero.updatePhysics(
-            inputManager.isPressed(KeyCode.LEFT, KeyCode.A),
-            inputManager.isPressed(KeyCode.RIGHT, KeyCode.D),
-            inputManager.isPressed(KeyCode.UP, KeyCode.W),
-            inputManager.isPressed(KeyCode.DOWN, KeyCode.S),
-            60, 768 - HeroEntity.HH - 60, phaseDone,
-            getEffectiveBuoyancy(),
-            inCurrent ? currentFx : 0, inCurrent ? currentFy : 0, nanoTime
-        );
+        stepHero(1.0 / 60.0);
 
         if (!overlayActive && inputManager.isPressed(KeyCode.SPACE)) tryShoot();
         camera.update(hero.getX());
@@ -609,16 +610,7 @@ public class GameContext {
     // UPDATE P3 — Correntes Abissais
     // =========================================================
     private void updateP3() {
-        applyEnvironmentalForces();
-        hero.updatePhysics(
-            inputManager.isPressed(KeyCode.LEFT, KeyCode.A),
-            inputManager.isPressed(KeyCode.RIGHT, KeyCode.D),
-            inputManager.isPressed(KeyCode.UP, KeyCode.W),
-            inputManager.isPressed(KeyCode.DOWN, KeyCode.S),
-            20, 768 - HeroEntity.HH - 20, phaseDone,
-            getEffectiveBuoyancy(),
-            inCurrent ? currentFx : 0, inCurrent ? currentFy : 0, nanoTime
-        );
+        stepHero(1.0 / 60.0);
 
         if (!overlayActive && inputManager.isPressed(KeyCode.SPACE)) tryShoot();
         camera.update(hero.getX());
@@ -646,16 +638,7 @@ public class GameContext {
     // UPDATE P4 — Abismo Vulcânico
     // =========================================================
     private void updateP4() {
-        applyEnvironmentalForces();
-        hero.updatePhysics(
-            inputManager.isPressed(KeyCode.LEFT, KeyCode.A),
-            inputManager.isPressed(KeyCode.RIGHT, KeyCode.D),
-            inputManager.isPressed(KeyCode.UP, KeyCode.W),
-            inputManager.isPressed(KeyCode.DOWN, KeyCode.S),
-            20, 768 - HeroEntity.HH - 20, phaseDone,
-            getEffectiveBuoyancy(),
-            inCurrent ? currentFx : 0, inCurrent ? currentFy : 0, nanoTime
-        );
+        stepHero(1.0 / 60.0);
 
         if (!overlayActive && inputManager.isPressed(KeyCode.SPACE)) tryShoot();
         camera.update(hero.getX());
@@ -683,16 +666,7 @@ public class GameContext {
     // UPDATE P5 — Templo Final (boss fight)
     // =========================================================
     private void updateP5() {
-        applyEnvironmentalForces();
-        hero.updatePhysics(
-            inputManager.isPressed(KeyCode.LEFT, KeyCode.A),
-            inputManager.isPressed(KeyCode.RIGHT, KeyCode.D),
-            inputManager.isPressed(KeyCode.UP, KeyCode.W),
-            inputManager.isPressed(KeyCode.DOWN, KeyCode.S),
-            20, 768 - HeroEntity.HH - 20, phaseDone,
-            getEffectiveBuoyancy(),
-            inCurrent ? currentFx : 0, inCurrent ? currentFy : 0, nanoTime
-        );
+        stepHero(1.0 / 60.0);
         hero.setX(Math.max(20, Math.min(1366 - HeroEntity.HW - 20, hero.getX())));
 
         checkGuardians(true); // arena sem câmera
@@ -1133,13 +1107,17 @@ public class GameContext {
         double minOverlap = Math.min(Math.min(overlapLeft, overlapRight), Math.min(overlapTop, overlapBottom));
 
         if (minOverlap == overlapLeft) {
-            hero.setX(ox - hw - 20 - 4);
+            hero.setX(ox - hw - 20);
+            if (hero.getVx() > 0) hero.setVx(0);
         } else if (minOverlap == overlapRight) {
-            hero.setX(ox + ow - 20 + 4);
+            hero.setX(ox + ow - 20);
+            if (hero.getVx() < 0) hero.setVx(0);
         } else if (minOverlap == overlapTop) {
-            hero.setY(oy - hh - 44 - 4);
+            hero.setY(oy - hh - 44);
+            if (hero.getVy() > 0) hero.setVy(0);
         } else {
-            hero.setY(oy + oh - 44 + 4);
+            hero.setY(oy + oh - 44);
+            if (hero.getVy() < 0) hero.setVy(0);
         }
     }
 
@@ -1284,4 +1262,5 @@ public class GameContext {
     public int getCurrentPhase() { return currentPhase; }
     public double getRenderAlpha() { return renderAlpha; }
     public void setRenderAlpha(double renderAlpha) { this.renderAlpha = renderAlpha; }
+    public HeroController getHeroController() { return heroController; }
 }
