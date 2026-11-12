@@ -463,4 +463,93 @@ public class GameContextIntegrationTest {
         assertFalse(context.getCutsceneController().isActive(), "Cutscene deve ter terminado");
         assertEquals(initialHeroX, context.getHero().getX(), 1.0, "Herói retoma sem salto de posição");
     }
+
+    @Test
+    @DisplayName("Fase 1 dispara cutscene de foco do primeiro guardiao por 2.0 s (US-012 AC1)")
+    void p1InitialDialogueEndTriggersGuardianCutscene() {
+        context.transitionToPhase(1); // Entra em DIALOGUE da Fase 1
+        assertEquals(GameContext.State.DIALOGUE, context.getState());
+
+        // Conclui o diálogo com ESPAÇO até mudar de fase
+        while (context.getState() == GameContext.State.DIALOGUE) {
+            context.onKey(KeyCode.SPACE);
+        }
+
+        assertEquals(GameContext.State.P1, context.getState());
+        assertTrue(context.getCutsceneController().isActive(),
+            "Cutscene de foco no primeiro guardião deve iniciar após o diálogo inicial");
+        assertEquals("Primeiro Guardiao", context.getCutsceneController().getActiveRequest().label());
+        assertEquals(2.0, context.getCutsceneController().getActiveRequest().holdDurationSeconds(), 0.001);
+
+        double guardianCenterX = context.getGuardians().get(0).getWorldX() + br.apsu.model.guardian.GuardianEntity.GW / 2.0;
+        assertEquals(guardianCenterX, context.getCutsceneController().getActiveRequest().targetWorldX(), 0.001);
+    }
+
+    private void advanceThroughP1IntroDialogue() {
+        context.transitionToPhase(1);
+        while (context.getState() == GameContext.State.DIALOGUE) {
+            context.onKey(KeyCode.SPACE);
+        }
+    }
+
+    @Test
+    @DisplayName("Cutscene do guardião toca uma única vez por partida e redispara após reset (US-012 AC3)")
+    void p1GuardianCutscenePlaysOncePerGameAndReplaysOnReset() {
+        advanceThroughP1IntroDialogue();
+        assertTrue(context.getCutsceneController().isActive());
+
+        // Consome toda a cutscene
+        for (int i = 0; i < 300 && context.getCutsceneController().isActive(); i++) {
+            context.update((i + 1) * 16_666_666L);
+        }
+        assertFalse(context.getCutsceneController().isActive());
+
+        // Avançar novamente diálogo sem reset() não deve redisparar a cutscene
+        advanceThroughP1IntroDialogue();
+        assertFalse(context.getCutsceneController().isActive(),
+            "Cutscene não deve redisparar na mesma partida");
+
+        // Reinicia a partida
+        context.reset();
+        assertFalse(context.getCutsceneController().isActive());
+
+        advanceThroughP1IntroDialogue();
+        assertTrue(context.getCutsceneController().isActive(),
+            "Cutscene deve redisparar uma vez após reset da partida");
+    }
+
+    @Test
+    @DisplayName("Pular a cutscene do guardião conclui foco e mantém seta de orientação visível (US-012 AC2, AC4)")
+    void p1GuardianCutsceneSkipKeepsObjectiveArrowAndHeroImmunity() {
+        advanceThroughP1IntroDialogue();
+        assertTrue(context.getCutsceneController().isActive());
+
+        // Seta de objetivo deve estar apontando para o guardião
+        br.apsu.guidance.ObjectiveTracker.Objective obj = br.apsu.guidance.ObjectiveTracker.resolveCurrentObjective(context);
+        assertNotNull(obj, "Objetivo não deve ser nulo");
+        assertEquals("Conversar com Guardiao", obj.description());
+
+        // Inimigo próximo colidindo não causa dano durante a cutscene (AC4)
+        double initialHeroX = context.getHero().getX();
+        context.getEnemies().clear();
+        context.getEnemies().add(new EnemyEntity(EnemyType.PEIXE, initialHeroX, context.getHero().getY(), 0, 0));
+        double hpBefore = context.getHero().getHp();
+        context.update(16_666_666L);
+        assertEquals(hpBefore, context.getHero().getHp(), 0.001, "Herói imune a dano durante cutscene do guardião");
+
+        // Pula com ESCAPE
+        context.onKey(KeyCode.ESCAPE);
+
+        // Aguarda retorno rápido (<= 0.3 s = ~20 frames)
+        for (int i = 0; i < 25; i++) {
+            context.update((i + 1) * 16_666_666L);
+        }
+        assertFalse(context.getCutsceneController().isActive(), "Cutscene deve finalizar após skip");
+
+        // Após skip, seta continua perfeitamente apontando para o guardião
+        br.apsu.guidance.ObjectiveTracker.Objective objAfter = br.apsu.guidance.ObjectiveTracker.resolveCurrentObjective(context);
+        assertNotNull(objAfter);
+        assertEquals("Conversar com Guardiao", objAfter.description());
+    }
 }
+

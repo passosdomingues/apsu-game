@@ -99,6 +99,7 @@ public class GameContext {
     private int phaseHits = 0;
     private long nanoTime = 0;
     private final AdaptiveDifficulty adaptiveDifficulty = new AdaptiveDifficulty();
+    private boolean p1GuardianCutsceneTriggered = false;
 
     // Mecânicas ambientais ativas
     private boolean inCurrent = false;
@@ -195,7 +196,18 @@ public class GameContext {
     /** Avança para a fase correta após o diálogo. */
     private void advancePhaseFromDialogue() {
         switch (dlgPhase) {
-            case 0 -> startP1();
+            case 0 -> {
+                startP1();
+                if (!p1GuardianCutsceneTriggered && !guardians.isEmpty()) {
+                    p1GuardianCutsceneTriggered = true;
+                    GuardianEntity g = guardians.get(0);
+                    eventBus.publish(new GameEvent(
+                        GameEvent.Type.CUTSCENE_REQUESTED,
+                        new br.apsu.cutscene.CutsceneRequest(g.getWorldX() + GuardianEntity.GW / 2.0, 2.0, "Primeiro Guardiao"),
+                        0, 0
+                    ));
+                }
+            }
             case 1 -> startP2();
             case 2 -> startP3();
             case 3 -> startP4();
@@ -259,6 +271,8 @@ public class GameContext {
         boss = null;
         inCurrent = false;
         inPressureZone = false;
+        p1GuardianCutsceneTriggered = false;
+        cutsceneController.stop();
     }
 
     public void transitionToPhase(int targetPhase) {

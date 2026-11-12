@@ -202,17 +202,17 @@ Fonte de verdade das user stories. Validado por `python3 tools/harness/backlog.p
 - [x] Dado um teste unitário, quando executado com make test, então ele cobre início, fim, pulo e fila sem exigir JavaFX.
 - [x] Dado uma cutscene rodando com APSU_PERF=1, quando medido no perfil balanced, então o frame-time p95 não passa de 16,7 ms.
 
-### US-012 | Câmera aponta para o primeiro guardião | 3 pts | P0 | S2 | E2 | todo
+### US-012 | Câmera aponta para o primeiro guardião | 3 pts | P0 | S2 | E2 | done
 **Como** jogador, **quero** que a câmera mostre o guardião logo no início, **para** saber que preciso ir até ele.
 - Fonte: feedback, "apontar para o guardião pela câmera".
 - Depende de: US-011
 - Notas técnicas: usa o sistema de cutscene da US-011 e a seta da US-010 como reforço.
 
 **Critérios de aceitação**
-- [ ] Dado uma nova partida na fase 1, quando o diálogo inicial do NPC termina, então a câmera foca o guardião por 2,0 s e volta ao herói.
-- [ ] Dado a cutscene ativa, quando o jogador a pula, então o foco termina e a seta da US-010 permanece visível.
-- [ ] Dado a partida reiniciada, quando a fase 1 recomeça, então a cutscene toca novamente uma única vez.
-- [ ] Dado a cutscene tocando, quando inimigos estão próximos, então nenhum deles causa dano durante a cena.
+- [x] Dado uma nova partida na fase 1, quando o diálogo inicial do NPC termina, então a câmera foca o guardião por 2,0 s e volta ao herói.
+- [x] Dado a cutscene ativa, quando o jogador a pula, então o foco termina e a seta da US-010 permanece visível.
+- [x] Dado a partida reiniciada, quando a fase 1 recomeça, então a cutscene toca novamente uma única vez.
+- [x] Dado a cutscene tocando, quando inimigos estão próximos, então nenhum deles causa dano durante a cena.
 
 ### US-013 | Aviso contextual de interação | 3 pts | P1 | S2 | E1 | todo
 **Como** jogador, **quero** ver qual tecla usar perto de algo interativo, **para** não precisar adivinhar.
