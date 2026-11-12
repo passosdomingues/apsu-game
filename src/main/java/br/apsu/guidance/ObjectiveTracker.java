@@ -33,6 +33,11 @@ public final class ObjectiveTracker {
             return null;
         }
 
+        // Fase 2: antes de procurar a tabuleta/portal, se o baú estiver fechado, orienta para o baú (US-021)
+        if (phase == 2 && !context.isChestOpen() && !context.getHero().hasBubblePower()) {
+            return new Objective(context.getChestWX(), context.getChestWY(), "Abrir Bau no Naufragio");
+        }
+
         // Fases 1 a 4: primeiro o guardiao correspondente da fase (se ainda nao contactado e tabuleta nao coletada)
         int requiredTablet = phase;
         if (context.getTabletsCollected() < requiredTablet) {

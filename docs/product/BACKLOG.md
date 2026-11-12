@@ -254,17 +254,17 @@ Fonte de verdade das user stories. Validado por `python3 tools/harness/backlog.p
 - [ ] Dado o tutorial concluído, quando a conversa com o guardião termina, então as dicas somem e não reaparecem na mesma partida.
 - [ ] Dado a partida reiniciada, quando a fase 1 recomeça, então o tutorial recomeça do primeiro passo.
 
-### US-021 | Cutscene do baú no naufrágio | 3 pts | P0 | S3 | E2 | todo
+### US-021 | Cutscene do baú no naufrágio | 3 pts | P0 | S3 | E2 | done
 **Como** jogador, **quero** que a câmera destaque o baú no naufrágio, **para** saber onde despertar o poder das bolhas.
 - Fonte: feedback, "cutscenes mostrando focos de elementos, como o baú no naufrágio".
 - Depende de: US-011
 - Notas técnicas: a fase 2 posiciona o baú por volta de x=1800.
 
 **Critérios de aceitação**
-- [ ] Dado a fase 2 recém-carregada sem o poder das bolhas, quando o herói entra na fase, então a câmera foca o naufrágio e o baú por 2,0 s e retorna ao herói.
-- [ ] Dado a cutscene concluída, quando o controle volta ao jogador, então a seta da US-010 aponta para o baú.
-- [ ] Dado o baú já aberto, quando a fase 2 é revisitada na mesma partida, então a cutscene não toca.
-- [ ] Dado a cutscene tocando, quando o jogador a pula, então o foco termina em até 0,3 s.
+- [x] Dado a fase 2 recém-carregada sem o poder das bolhas, quando o herói entra na fase, então a câmera foca o naufrágio e o baú por 2,0 s e retorna ao herói.
+- [x] Dado a cutscene concluída, quando o controle volta ao jogador, então a seta da US-010 aponta para o baú.
+- [x] Dado o baú já aberto, quando a fase 2 é revisitada na mesma partida, então a cutscene não toca.
+- [x] Dado a cutscene tocando, quando o jogador a pula, então o foco termina em até 0,3 s.
 
 ### US-022 | Desbloqueio do poder das bolhas com destaque no HUD | 3 pts | P1 | S3 | E2 | todo
 **Como** jogador, **quero** perceber claramente quando ganho o poder das bolhas, **para** saber que posso atacar.

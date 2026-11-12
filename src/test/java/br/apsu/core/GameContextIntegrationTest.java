@@ -644,5 +644,44 @@ public class GameContextIntegrationTest {
         assertFalse(guardian.isPromptVisible(),
             "Guardião já contactado nunca deve voltar a exibir aviso de interação (AC4)");
     }
+
+    @Test
+    @DisplayName("US-021: Cutscene foca o baú na Fase 2 se fechado, seta aponta para o baú e skip encerra em <= 0.3s")
+    void phaseTwoChestCutsceneAndObjectiveFlow() {
+        context.reset();
+        context.transitionToPhase(2);
+
+        assertEquals(GameContext.State.DIALOGUE, context.getState());
+        assertEquals(0, context.getProjectiles().size());
+
+        // Conclui diálogo para iniciar Fase 2
+        context.onKey(KeyCode.SPACE);
+
+        assertEquals(GameContext.State.P2, context.getState());
+        assertTrue(context.getCutsceneController().isActive(), "Cutscene do baú deve iniciar na Fase 2");
+        assertEquals("Bau Naufragio", context.getCutsceneController().getActiveRequest().label());
+        assertEquals(context.getChestWX(), context.getCutsceneController().getActiveRequest().targetWorldX(), 0.001);
+
+        // A seta aponta para o baú
+        var obj = br.apsu.guidance.ObjectiveTracker.resolveCurrentObjective(context);
+        assertNotNull(obj);
+        assertEquals(context.getChestWX(), obj.worldX(), 0.001);
+        assertEquals("Abrir Bau no Naufragio", obj.description());
+
+        // Pula cutscene
+        context.onKey(KeyCode.SPACE);
+
+        // Em <= 0.3 s (<= 20 frames a 60fps), o foco termina
+        for (int i = 0; i < 20; i++) {
+            context.update((i + 1) * 16_666_666L);
+        }
+        assertFalse(context.getCutsceneController().isActive(), "Cutscene deve terminar após skip em <= 0.3s");
+
+        // Se a fase 2 for recarregada com o baú já aberto ou poder já obtido, a cutscene não repete
+        context.getHero().setHasBubblePower(true);
+        context.transitionToPhase(2);
+        context.onKey(KeyCode.SPACE);
+        assertFalse(context.getCutsceneController().isActive(), "Cutscene do baú não deve repetir se o poder já foi obtido");
+    }
 }
 

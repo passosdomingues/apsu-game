@@ -101,6 +101,7 @@ public class GameContext {
     private long nanoTime = 0;
     private final AdaptiveDifficulty adaptiveDifficulty = new AdaptiveDifficulty();
     private boolean p1GuardianCutsceneTriggered = false;
+    private boolean p2ChestCutsceneTriggered = false;
 
     // Mecânicas ambientais ativas
     private boolean inCurrent = false;
@@ -209,7 +210,17 @@ public class GameContext {
                     ));
                 }
             }
-            case 1 -> startP2();
+            case 1 -> {
+                startP2();
+                if (!p2ChestCutsceneTriggered && !chestOpen && !hero.hasBubblePower()) {
+                    p2ChestCutsceneTriggered = true;
+                    eventBus.publish(new GameEvent(
+                        GameEvent.Type.CUTSCENE_REQUESTED,
+                        new br.apsu.cutscene.CutsceneRequest(chestWX, 2.0, "Bau Naufragio"),
+                        0, 0
+                    ));
+                }
+            }
             case 2 -> startP3();
             case 3 -> startP4();
             case 4 -> startP5();
@@ -274,6 +285,7 @@ public class GameContext {
         inCurrent = false;
         inPressureZone = false;
         p1GuardianCutsceneTriggered = false;
+        p2ChestCutsceneTriggered = false;
         cutsceneController.stop();
     }
 
