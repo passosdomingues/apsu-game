@@ -66,6 +66,7 @@ public class GameContext {
     private final InputManager inputManager = new InputManager();
     private final Camera camera = new Camera(1366, 4000);
     private final HeroController heroController = new HeroController();
+    private final br.apsu.cutscene.CutsceneController cutsceneController = new br.apsu.cutscene.CutsceneController();
     private double renderAlpha = 1.0;
     private final SaveManager saveManager;
     private final EventBus eventBus;
@@ -121,6 +122,11 @@ public class GameContext {
         this.difficulty = Difficulty.valueOf(saved.difficulty());
         this.phaseDone = Math.max(0, saved.unlockedPhase() - 1);
         this.hero = new HeroEntity(heroType, difficulty.getInitialHP());
+        this.eventBus.subscribe(br.apsu.core.events.GameEvent.Type.CUTSCENE_REQUESTED, event -> {
+            if (event.payload() instanceof br.apsu.cutscene.CutsceneRequest req) {
+                cutsceneController.enqueue(req, camera.getX() + 1366 * 0.3);
+            }
+        });
     }
 
     public void cycleDiff(int dir) {
@@ -135,6 +141,12 @@ public class GameContext {
     }
 
     public void onKey(KeyCode k) {
+        if (cutsceneController.isActive()) {
+            if (k == KeyCode.SPACE || k == KeyCode.ENTER || k == KeyCode.ESCAPE) {
+                cutsceneController.skip(hero.getX());
+                return;
+            }
+        }
         if (overlayActive) {
             if (k == KeyCode.ESCAPE) {
                 overlayActive = false;
@@ -520,8 +532,10 @@ public class GameContext {
     private void updateP1() {
         stepHero(1.0 / 60.0);
 
-        if (!overlayActive && inputManager.isPressed(KeyCode.SPACE)) tryShoot();
-        camera.update(hero.getX());
+        if (!overlayActive && !cutsceneController.isActive() && inputManager.isPressed(KeyCode.SPACE)) tryShoot();
+        double focusX = cutsceneController.update(hero.getX(), 1.0 / 60.0);
+        if (cutsceneController.isActive()) camera.updateFocus(focusX, 1.0 / 60.0);
+        else camera.update(hero.getX());
         hero.setX(Math.max(30, Math.min(4000 - HeroEntity.HW - 30, hero.getX())));
 
         checkGuardians(false);
@@ -549,8 +563,10 @@ public class GameContext {
     private void updateP2() {
         stepHero(1.0 / 60.0);
 
-        if (!overlayActive && inputManager.isPressed(KeyCode.SPACE)) tryShoot();
-        camera.update(hero.getX());
+        if (!overlayActive && !cutsceneController.isActive() && inputManager.isPressed(KeyCode.SPACE)) tryShoot();
+        double focusX = cutsceneController.update(hero.getX(), 1.0 / 60.0);
+        if (cutsceneController.isActive()) camera.updateFocus(focusX, 1.0 / 60.0);
+        else camera.update(hero.getX());
         hero.setX(Math.max(30, Math.min(4000 - HeroEntity.HW - 30, hero.getX())));
 
         // Colisões com coral (coordenadas de mundo)
@@ -614,8 +630,10 @@ public class GameContext {
     private void updateP3() {
         stepHero(1.0 / 60.0);
 
-        if (!overlayActive && inputManager.isPressed(KeyCode.SPACE)) tryShoot();
-        camera.update(hero.getX());
+        if (!overlayActive && !cutsceneController.isActive() && inputManager.isPressed(KeyCode.SPACE)) tryShoot();
+        double focusX = cutsceneController.update(hero.getX(), 1.0 / 60.0);
+        if (cutsceneController.isActive()) camera.updateFocus(focusX, 1.0 / 60.0);
+        else camera.update(hero.getX());
         hero.setX(Math.max(30, Math.min(4000 - HeroEntity.HW - 30, hero.getX())));
 
         checkGuardians(false);
@@ -642,8 +660,10 @@ public class GameContext {
     private void updateP4() {
         stepHero(1.0 / 60.0);
 
-        if (!overlayActive && inputManager.isPressed(KeyCode.SPACE)) tryShoot();
-        camera.update(hero.getX());
+        if (!overlayActive && !cutsceneController.isActive() && inputManager.isPressed(KeyCode.SPACE)) tryShoot();
+        double focusX = cutsceneController.update(hero.getX(), 1.0 / 60.0);
+        if (cutsceneController.isActive()) camera.updateFocus(focusX, 1.0 / 60.0);
+        else camera.update(hero.getX());
         hero.setX(Math.max(30, Math.min(4000 - HeroEntity.HW - 30, hero.getX())));
 
         checkGuardians(false);
@@ -1149,7 +1169,7 @@ public class GameContext {
 
     /** Aplica dano uma única vez e cria separação suficiente para o jogador reagir. */
     private boolean hurtHero(double damage, double knockbackX, double knockbackY, Color color, int shake) {
-        if (hero.isInvulnerable()) return false;
+        if (hero.isInvulnerable() || cutsceneController.isActive()) return false;
         hero.applyDamage(damage, nanoTime);
         hero.applyKnockback(knockbackX, knockbackY);
         camera.applyShake(shake, 150_000_000L, nanoTime);
@@ -1265,4 +1285,5 @@ public class GameContext {
     public double getRenderAlpha() { return renderAlpha; }
     public void setRenderAlpha(double renderAlpha) { this.renderAlpha = renderAlpha; }
     public HeroController getHeroController() { return heroController; }
+    public br.apsu.cutscene.CutsceneController getCutsceneController() { return cutsceneController; }
 }

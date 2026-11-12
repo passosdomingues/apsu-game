@@ -188,19 +188,19 @@ Fonte de verdade das user stories. Validado por `python3 tools/harness/backlog.p
 - [x] Dado a seta animada, quando o jogo roda com APSU_PERF=1, então não há aumento de coletas de lixo em relação à base anterior.
 - [x] Dado a seta desenhada, quando renderizada, então usa apenas o tema claro, sem dark mode.
 
-### US-011 | Sistema de cutscene de foco de câmera | 8 pts | P0 | S2 | E2 | todo
+### US-011 | Sistema de cutscene de foco de câmera | 8 pts | P0 | S2 | E2 | done
 **Como** jogador, **quero** cenas curtas que mostrem o que é importante, **para** entender os objetivos sem ler instruções.
 - Fonte: feedback, "cutscenes mostrando focos de elementos".
 - Depende de: nenhuma
 - Notas técnicas: classes novas em pacote próprio (proposta: br.apsu.cutscene), acionadas pelo EventBus. A Camera ganha apenas um ponto de entrada para foco temporário. Integração mínima em GameContext, com confirmação do harness.
 
 **Critérios de aceitação**
-- [ ] Dado uma cutscene com ponto-alvo e duração, quando ela inicia, então a câmera chega ao alvo em até 0,8 s, mantém o foco e retorna ao herói em até 0,8 s.
-- [ ] Dado uma cutscene em execução, quando o jogador pressiona Espaço, Enter ou Esc, então ela termina e o controle volta ao herói em até 0,3 s.
-- [ ] Dado uma cutscene em execução, quando há inimigos ativos, então o herói não sofre dano durante a cena e retoma sem salto de posição ao final.
-- [ ] Dado duas cutscenes disparadas no mesmo quadro, quando processadas, então são enfileiradas e executadas em ordem, sem sobreposição.
-- [ ] Dado um teste unitário, quando executado com make test, então ele cobre início, fim, pulo e fila sem exigir JavaFX.
-- [ ] Dado uma cutscene rodando com APSU_PERF=1, quando medido no perfil balanced, então o frame-time p95 não passa de 16,7 ms.
+- [x] Dado uma cutscene com ponto-alvo e duração, quando ela inicia, então a câmera chega ao alvo em até 0,8 s, mantém o foco e retorna ao herói em até 0,8 s.
+- [x] Dado uma cutscene em execução, quando o jogador pressiona Espaço, Enter ou Esc, então ela termina e o controle volta ao herói em até 0,3 s.
+- [x] Dado uma cutscene em execução, quando há inimigos ativos, então o herói não sofre dano durante a cena e retoma sem salto de posição ao final.
+- [x] Dado duas cutscenes disparadas no mesmo quadro, quando processadas, então são enfileiradas e executadas em ordem, sem sobreposição.
+- [x] Dado um teste unitário, quando executado com make test, então ele cobre início, fim, pulo e fila sem exigir JavaFX.
+- [x] Dado uma cutscene rodando com APSU_PERF=1, quando medido no perfil balanced, então o frame-time p95 não passa de 16,7 ms.
 
 ### US-012 | Câmera aponta para o primeiro guardião | 3 pts | P0 | S2 | E2 | todo
 **Como** jogador, **quero** que a câmera mostre o guardião logo no início, **para** saber que preciso ir até ele.

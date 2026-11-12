@@ -36,7 +36,15 @@ public class Camera {
     }
 
     public void update(double targetWorldX, double dt) {
-        double targetCamX = Math.max(0, Math.min(worldWidth - viewportWidth, targetWorldX - viewportWidth * 0.3));
+        updateInternal(targetWorldX, dt, viewportWidth * 0.3);
+    }
+
+    public void updateFocus(double targetWorldX, double dt) {
+        updateInternal(targetWorldX, dt, viewportWidth * 0.5);
+    }
+
+    private void updateInternal(double targetWorldX, double dt, double leadOffset) {
+        double targetCamX = Math.max(0, Math.min(worldWidth - viewportWidth, targetWorldX - leadOffset));
         if (!initialized) {
             snap(targetWorldX);
             return;

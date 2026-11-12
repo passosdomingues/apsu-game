@@ -422,4 +422,45 @@ public class GameContextIntegrationTest {
             br.apsu.graphics.GraphicsDiagnostics.setScene3dSupportedForTesting(null);
         }
     }
+
+    @Test
+    @DisplayName("Cutscene via EventBus: câmera foca no alvo e herói não sofre dano durante a cena (US-011 AC3)")
+    void cutsceneCameraFocusAndHeroImmunity() {
+        context.startP1();
+        double initialHeroX = context.getHero().getX();
+        double initialHp = context.getHero().getHp();
+
+        // Dispara cutscene via EventBus
+        eventBus.publish(new br.apsu.core.events.GameEvent(
+            br.apsu.core.events.GameEvent.Type.CUTSCENE_REQUESTED,
+            new br.apsu.cutscene.CutsceneRequest(1800.0, 1.0, "Elemento Importante"),
+            0, 0
+        ));
+
+        assertTrue(context.getCutsceneController().isActive(), "Cutscene deve estar ativa");
+
+        // Spawna um inimigo diretamente em cima do herói
+        EnemyEntity enemy = new EnemyEntity(EnemyType.PEIXE, initialHeroX, context.getHero().getY(), 0, 0);
+        context.getEnemies().clear();
+        context.getEnemies().add(enemy);
+
+        // Roda múltiplos frames durante a cutscene
+        for (int i = 0; i < 30; i++) {
+            context.update((i + 1) * 16_666_666L);
+        }
+
+        assertEquals(initialHp, context.getHero().getHp(), 0.001,
+            "Herói não deve sofrer dano durante a cutscene");
+
+        // Pula com tecla ESPAÇO
+        context.onKey(KeyCode.SPACE);
+
+        // Processa o retorno da câmera (PAN_BACK concluído)
+        for (int i = 30; i < 60; i++) {
+            context.update((i + 1) * 16_666_666L);
+        }
+
+        assertFalse(context.getCutsceneController().isActive(), "Cutscene deve ter terminado");
+        assertEquals(initialHeroX, context.getHero().getX(), 1.0, "Herói retoma sem salto de posição");
+    }
 }
