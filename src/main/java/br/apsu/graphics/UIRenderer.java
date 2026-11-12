@@ -35,11 +35,16 @@ public class UIRenderer {
     }
 
     public void drawHUD(GraphicsContext gc, HeroEntity hero, int tablets, String phaseName, Difficulty diff) {
-        drawHUD(gc, hero, tablets, phaseName, diff, OceanDepthProfile.COASTAL);
+        drawHUD(gc, hero, tablets, phaseName, diff, OceanDepthProfile.COASTAL, 0.0);
     }
 
     public void drawHUD(GraphicsContext gc, HeroEntity hero, int tablets, String phaseName, Difficulty diff,
                         OceanDepthProfile depth) {
+        drawHUD(gc, hero, tablets, phaseName, diff, depth, 0.0);
+    }
+
+    public void drawHUD(GraphicsContext gc, HeroEntity hero, int tablets, String phaseName, Difficulty diff,
+                        OceanDepthProfile depth, double unlockHighlightProgress) {
         gc.setFill(Palette.HUD_BG);
         gc.fillRoundRect(8, 8, 440, 136, 12, 12);
         gc.setStroke(Palette.HUD_STROKE); gc.setLineWidth(1.5);
@@ -106,13 +111,30 @@ public class UIRenderer {
             }
         }
 
-        // Poder de bolhas
+        // Poder de bolhas (US-022: troca poder bloqueado por bolhas com destaque animado)
         boolean hasBubble = hero.hasBubblePower();
         gc.setFont(UiFonts.LABEL_BOLD_14);
         gc.setFill(Palette.HUD_LABEL);
         gc.fillText("PODER", 240, 56);
-        gc.setFill(hasBubble ? Palette.HUD_POWER_ACTIVE : Palette.HUD_POWER_LOCKED);
-        gc.fillText(hasBubble ? "[ATIVO]" : "[BLOQUEADO]", 292, 56);
+
+        if (unlockHighlightProgress > 0.0) {
+            // Destaque animado de 1 a 2s (pulso dourado/verde ciano)
+            double pulse = Math.abs(Math.sin(unlockHighlightProgress * Math.PI * 4));
+            Color highlightColor = Palette.rgb(
+                (int) (64 + (255 - 64) * pulse),
+                (int) (255),
+                (int) (136 + (255 - 136) * (1.0 - pulse)),
+                0.95
+            );
+            gc.setFill(highlightColor);
+            gc.fillText("[BOLHAS!]", 292, 56);
+            gc.setStroke(highlightColor);
+            gc.setLineWidth(1.5 + pulse * 1.5);
+            gc.strokeRoundRect(288, 42, 80, 18, 4, 4);
+        } else {
+            gc.setFill(hasBubble ? Palette.HUD_POWER_ACTIVE : Palette.HUD_POWER_LOCKED);
+            gc.fillText(hasBubble ? "[BOLHAS]" : "[BLOQUEADO]", 292, 56);
+        }
 
         // Fase e herói
         gc.setFont(UiFonts.TEXT_13);

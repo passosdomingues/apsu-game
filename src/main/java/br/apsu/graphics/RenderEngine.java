@@ -373,8 +373,15 @@ public class RenderEngine implements GameRenderer {
         drawInterpolatedHero(gc, ctx, timeSeconds, true);
         ctx.getParticleSystem().render(gc);
 
+        double unlockHighlight = 0.0;
+        if (ctx.isChestOpen() && ctx.getChestTime() > 0) {
+            long elapsed = ctx.getNanoTime() - ctx.getChestTime();
+            if (elapsed < 2_000_000_000L) {
+                unlockHighlight = 1.0 - (elapsed / 2_000_000_000.0);
+            }
+        }
         uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 2 — Cavernas de Coral", ctx.getDifficulty(),
-            OceanDepthProfile.forPhase(ctx.getCurrentPhase()));
+            OceanDepthProfile.forPhase(ctx.getCurrentPhase()), unlockHighlight);
         uiRenderer.drawMinimap(gc, ctx, width);
         drawAlert(gc, ctx, width, height);
     }

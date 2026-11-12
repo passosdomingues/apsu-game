@@ -632,7 +632,8 @@ public class GameContext {
             particleSystem.addBurst(csx, chestWY, Color.GOLD);
             particleSystem.addBurst(csx, chestWY, Color.CYAN);
             playSound(AudioCue.PICKUP);
-            showAlert("Bolhas despertas. Espaço para disparar.");
+            eventBus.publish(new GameEvent(GameEvent.Type.CHEST_OPENED, "Poder das Bolhas Desperto", chestWX, chestWY));
+            showAlert("Espaço para atacar");
         }
 
         updateEnemies();

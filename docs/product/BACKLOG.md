@@ -266,17 +266,17 @@ Fonte de verdade das user stories. Validado por `python3 tools/harness/backlog.p
 - [x] Dado o baú já aberto, quando a fase 2 é revisitada na mesma partida, então a cutscene não toca.
 - [x] Dado a cutscene tocando, quando o jogador a pula, então o foco termina em até 0,3 s.
 
-### US-022 | Desbloqueio do poder das bolhas com destaque no HUD | 3 pts | P1 | S3 | E2 | todo
+### US-022 | Desbloqueio do poder das bolhas com destaque no HUD | 3 pts | P1 | S3 | E2 | done
 **Como** jogador, **quero** perceber claramente quando ganho o poder das bolhas, **para** saber que posso atacar.
 - Fonte: feedback, "intuitividade".
 - Depende de: US-021
 - Notas técnicas: novo evento CHEST_OPENED conforme o contrato de eventos do README (produtor, payload, frequência, consumidor, teste).
 
 **Critérios de aceitação**
-- [ ] Dado o baú aberto, quando a interação conclui, então o HUD troca "poder bloqueado" por "bolhas" com destaque animado de 1 a 2 s.
-- [ ] Dado o poder desbloqueado, quando o jogador chega ao primeiro quadro com controle, então a dica "Espaço para atacar" aparece uma única vez.
-- [ ] Dado o baú aberto, quando a abertura ocorre, então CHEST_OPENED é publicado uma única vez no EventBus e documentado com produtor, payload e consumidor.
-- [ ] Dado o baú já aberto, quando o jogador interage de novo, então nenhum efeito é reaplicado.
+- [x] Dado o baú aberto, quando a interação conclui, então o HUD troca "poder bloqueado" por "bolhas" com destaque animado de 1 a 2 s.
+- [x] Dado o poder desbloqueado, quando o jogador chega ao primeiro quadro com controle, então a dica "Espaço para atacar" aparece uma única vez.
+- [x] Dado o baú aberto, quando a abertura ocorre, então CHEST_OPENED é publicado uma única vez no EventBus e documentado com produtor, payload e consumidor.
+- [x] Dado o baú já aberto, quando o jogador interage de novo, então nenhum efeito é reaplicado.
 
 ### US-023 | Introdução de guardião com foco de câmera | 3 pts | P1 | S3 | E2 | todo
 **Como** jogador, **quero** que a câmera apresente cada guardião das fases 2 a 4, **para** reconhecer rapidamente quem devo procurar.

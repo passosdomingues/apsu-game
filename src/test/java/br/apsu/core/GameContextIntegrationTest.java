@@ -683,5 +683,44 @@ public class GameContextIntegrationTest {
         context.onKey(KeyCode.SPACE);
         assertFalse(context.getCutsceneController().isActive(), "Cutscene do baú não deve repetir se o poder já foi obtido");
     }
+
+    @Test
+    @DisplayName("US-022: Abertura do baú publica CHEST_OPENED, exibe 'Espaço para atacar' uma vez e não reaplica se já aberto")
+    void chestOpenedEventAndAttackHintFlow() {
+        context.startP2();
+
+        List<GameEvent> chestEvents = new ArrayList<>();
+        context.getEventBus().subscribe(GameEvent.Type.CHEST_OPENED, chestEvents::add);
+
+        // Posiciona herói sobre o baú
+        context.getHero().setX(context.getChestWX());
+        context.getHero().setY(context.getChestWY());
+        context.getInputManager().registerKeyPress(KeyCode.E);
+
+        // Atualiza frame
+        context.update(2_000_000_000L);
+
+        assertTrue(context.isChestOpen(), "Baú deve estar aberto");
+        assertTrue(context.getHero().hasBubblePower(), "Poder das bolhas deve estar ativo");
+
+        // Evento publicado exatamente 1 vez com dados de contrato
+        assertEquals(1, chestEvents.size(), "Evento CHEST_OPENED deve ser publicado exatamente uma vez");
+        GameEvent event = chestEvents.get(0);
+        assertEquals(GameEvent.Type.CHEST_OPENED, event.type());
+        assertEquals("Poder das Bolhas Desperto", event.payload());
+        assertEquals(context.getChestWX(), event.worldX(), 0.001);
+        assertEquals(context.getChestWY(), event.worldY(), 0.001);
+
+        // Alerta exibido com a dica
+        assertEquals("Espaço para atacar", context.getAlertMessage(),
+            "A dica 'Espaço para atacar' deve ser exibida ao desbloquear o poder");
+
+        // Segunda interação com baú já aberto não publica novo evento nem reaplica
+        context.update(2_016_666_666L);
+        context.getInputManager().registerKeyPress(KeyCode.E);
+        context.update(2_033_333_333L);
+
+        assertEquals(1, chestEvents.size(), "Nenhum evento adicional deve ser publicado após o baú já estar aberto");
+    }
 }
 
