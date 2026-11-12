@@ -51,6 +51,7 @@ public class GuardianEntity {
     private int type; // 0=Atlante, 1=Coral, 2=Lamassu, 3=Oráculo, 4=Enki
     private double worldX, worldY;
     private boolean contacted = false;
+    private boolean promptVisible = false;
 
     public GuardianEntity(int type, double worldX, double worldY) {
         this.type = type;
@@ -65,5 +66,44 @@ public class GuardianEntity {
     public double getWorldX() { return worldX; }
     public double getWorldY() { return worldY; }
     public boolean isContacted() { return contacted; }
-    public void setContacted(boolean c) { this.contacted = c; }
+    public void setContacted(boolean c) {
+        this.contacted = c;
+        if (c) {
+            this.promptVisible = false;
+        }
+    }
+
+    public boolean isPromptVisible() {
+        return promptVisible && !contacted;
+    }
+
+    public void setPromptVisible(boolean visible) {
+        this.promptVisible = visible && !contacted;
+    }
+
+    /**
+     * Atualiza o estado de exibição do aviso contextual com histerese anti-pisca (US-013).
+     * Distância < 150 unidades ativa o aviso; distância > 180 desativa.
+     */
+    public void updatePromptDistance(double heroCenterX, double heroCenterY) {
+        if (contacted) {
+            promptVisible = false;
+            return;
+        }
+        double targetCenterX = worldX + GW / 2.0;
+        double targetCenterY = worldY + GH / 2.0;
+        double dx = heroCenterX - targetCenterX;
+        double dy = heroCenterY - targetCenterY;
+        double distSq = dx * dx + dy * dy;
+
+        if (promptVisible) {
+            if (distSq > 180.0 * 180.0) {
+                promptVisible = false;
+            }
+        } else {
+            if (distSq <= 150.0 * 150.0) {
+                promptVisible = true;
+            }
+        }
+    }
 }

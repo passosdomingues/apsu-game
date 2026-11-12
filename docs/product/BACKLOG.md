@@ -214,17 +214,17 @@ Fonte de verdade das user stories. Validado por `python3 tools/harness/backlog.p
 - [x] Dado a partida reiniciada, quando a fase 1 recomeça, então a cutscene toca novamente uma única vez.
 - [x] Dado a cutscene tocando, quando inimigos estão próximos, então nenhum deles causa dano durante a cena.
 
-### US-013 | Aviso contextual de interação | 3 pts | P1 | S2 | E1 | todo
+### US-013 | Aviso contextual de interação | 3 pts | P1 | S2 | E1 | done
 **Como** jogador, **quero** ver qual tecla usar perto de algo interativo, **para** não precisar adivinhar.
 - Fonte: feedback, "intuitividade".
 - Depende de: nenhuma
 - Notas técnicas: o diálogo usa Espaço ou Enter. Depois do baú da fase 2, Espaço também dispara bolhas, o que pode confundir a interação.
 
 **Critérios de aceitação**
-- [ ] Dado o herói a menos de 150 unidades de um guardião ou do baú, quando a interação está disponível, então aparece o aviso "Espaço ou Enter para conversar" (ou "interagir" no baú) acima do alvo.
-- [ ] Dado o aviso visível, quando o herói se afasta mais de 180 unidades, então o aviso desaparece, sem piscar na fronteira do raio.
-- [ ] Dado o poder das bolhas desbloqueado, quando o jogador inicia um diálogo com Espaço, então nenhuma bolha é disparada naquele pressionamento.
-- [ ] Dado a conversa já concluída com um guardião, quando o herói volta a se aproximar dele, então o aviso não reaparece.
+- [x] Dado o herói a menos de 150 unidades de um guardião ou do baú, quando a interação está disponível, então aparece o aviso "Espaço ou Enter para conversar" (ou "interagir" no baú) acima do alvo.
+- [x] Dado o aviso visível, quando o herói se afasta mais de 180 unidades, então o aviso desaparece, sem piscar na fronteira do raio.
+- [x] Dado o poder das bolhas desbloqueado, quando o jogador inicia um diálogo com Espaço, então nenhuma bolha é disparada naquele pressionamento.
+- [x] Dado a conversa já concluída com um guardião, quando o herói volta a se aproximar dele, então o aviso não reaparece.
 
 ### US-014 | Objetivo atual dinâmico no HUD | 2 pts | P1 | S2 | E1 | todo
 **Como** jogador, **quero** ver no HUD o que fazer agora, **para** seguir a história sem consultar nada.

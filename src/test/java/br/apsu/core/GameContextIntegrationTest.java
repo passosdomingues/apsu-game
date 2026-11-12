@@ -12,6 +12,7 @@ import br.apsu.model.environment.OceanDepthProfile;
 import br.apsu.model.environment.SceneryElement;
 import br.apsu.model.hero.HeroType;
 import br.apsu.model.hero.HeroEntity;
+import br.apsu.model.guardian.GuardianEntity;
 import javafx.scene.input.KeyCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -550,6 +551,98 @@ public class GameContextIntegrationTest {
         br.apsu.guidance.ObjectiveTracker.Objective objAfter = br.apsu.guidance.ObjectiveTracker.resolveCurrentObjective(context);
         assertNotNull(objAfter);
         assertEquals("Conversar com Guardiao", objAfter.description());
+    }
+
+    @Test
+    @DisplayName("US-013: Aviso contextual de interação com guardião possui histerese anti-pisca (150 in, 180 out)")
+    void guardianInteractionPromptHysteresis() {
+        context.startP1();
+        var guardian = context.getGuardians().get(0);
+        double targetCenterX = guardian.getWorldX() + GuardianEntity.GW / 2.0;
+        double targetCenterY = guardian.getWorldY() + GuardianEntity.GH / 2.0;
+
+        // Herói longe (> 200) -> aviso não visível
+        context.getHero().setX(targetCenterX - 250 - HeroEntity.HW / 2.0);
+        context.getHero().setY(targetCenterY - HeroEntity.HH / 2.0);
+        context.update(16_666_666L);
+        assertFalse(guardian.isPromptVisible(), "Aviso não deve aparecer longe do guardião");
+
+        // Herói aproxima para 140 (< 150) -> aviso aparece
+        context.getHero().setX(targetCenterX - 140 - HeroEntity.HW / 2.0);
+        context.update(33_333_333L);
+        assertTrue(guardian.isPromptVisible(), "Aviso deve aparecer ao entrar no raio de 150 unidades");
+
+        // Herói afasta para 165 (entre 150 e 180 - zona de histerese) -> aviso continua visível sem piscar
+        context.getHero().setX(targetCenterX - 165 - HeroEntity.HW / 2.0);
+        context.update(50_000_000L);
+        assertTrue(guardian.isPromptVisible(), "Aviso deve permanecer ativo na zona de histerese (165 unidades)");
+
+        // Herói afasta para 190 (> 180) -> aviso desaparece
+        context.getHero().setX(targetCenterX - 190 - HeroEntity.HW / 2.0);
+        context.update(66_666_666L);
+        assertFalse(guardian.isPromptVisible(), "Aviso deve sumir ao afastar além de 180 unidades");
+
+        // Retorna para 165 -> ainda não reaparece (precisa cruzar < 150)
+        context.getHero().setX(targetCenterX - 165 - HeroEntity.HW / 2.0);
+        context.update(83_333_333L);
+        assertFalse(guardian.isPromptVisible(), "Aviso não deve reaparecer ao entrar na histerese vindo de fora");
+    }
+
+    @Test
+    @DisplayName("US-013: Aviso contextual do baú possui histerese (150 in, 180 out)")
+    void chestInteractionPromptHysteresis() {
+        context.startP2();
+        double chestX = context.getChestWX();
+        double chestY = context.getChestWY();
+
+        // Herói longe (> 200) -> prompt do baú inativo
+        context.getHero().setX(chestX - 250 - HeroEntity.HW / 2.0);
+        context.getHero().setY(chestY - HeroEntity.HH / 2.0);
+        assertFalse(context.isChestPromptVisible(), "Prompt do baú não deve aparecer a 250 unidades");
+
+        // Herói aproxima para 130 (< 150) -> prompt do baú ativo
+        context.getHero().setX(chestX - 130 - HeroEntity.HW / 2.0);
+        assertTrue(context.isChestPromptVisible(), "Prompt do baú deve aparecer a 130 unidades (< 150)");
+
+        // Herói afasta para 170 (histerese) -> prompt continua ativo
+        context.getHero().setX(chestX - 170 - HeroEntity.HW / 2.0);
+        assertTrue(context.isChestPromptVisible(), "Prompt do baú deve permanecer ativo a 170 unidades");
+
+        // Herói afasta para 195 (> 180) -> prompt desativa
+        context.getHero().setX(chestX - 195 - HeroEntity.HW / 2.0);
+        assertFalse(context.isChestPromptVisible(), "Prompt do baú deve desativar além de 180 unidades");
+    }
+
+    @Test
+    @DisplayName("US-013: Guardião já contactado não exibe mais o aviso e iniciar diálogo com Espaço não solta bolha")
+    void contactedGuardianNeverShowsPromptAndSpaceSuppressesBubble() {
+        context.startP1();
+        var guardian = context.getGuardians().get(0);
+        context.getHero().setHasBubblePower(true);
+        context.getHero().setX(guardian.getWorldX());
+        context.getHero().setY(guardian.getWorldY());
+
+        int initialProjectiles = context.getProjectiles().size();
+
+        // Inicia diálogo com Espaço
+        context.getInputManager().registerKeyPress(KeyCode.SPACE);
+        context.update(100_000_000L);
+
+        // Diálogo deve abrir
+        assertTrue(context.isOverlayActive(), "Diálogo com guardião deve abrir com tecla Espaço");
+        // Nenhuma bolha deve ter sido disparada
+        assertEquals(initialProjectiles, context.getProjectiles().size(),
+            "Iniciar diálogo com Espaço não deve disparar projétil de bolha (AC3)");
+
+        // Conclui diálogo
+        for (int i = 0; i < 64 && context.isOverlayActive(); i++) context.advanceOverlay();
+        assertFalse(context.isOverlayActive());
+        assertTrue(guardian.isContacted());
+
+        // Atualiza frame perto do guardião
+        context.update(150_000_000L);
+        assertFalse(guardian.isPromptVisible(),
+            "Guardião já contactado nunca deve voltar a exibir aviso de interação (AC4)");
     }
 }
 

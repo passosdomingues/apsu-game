@@ -75,6 +75,7 @@ public class GameContext {
     private double chestWX = 1600, chestWY = 768 - 170;
     private boolean chestOpen = false;
     private long chestTime = 0;
+    private boolean chestPromptVisible = false;
 
     // Menu & Diálogos
     private int menuSel = 0; // 0=Difficulty, 1=Start Game
@@ -259,6 +260,7 @@ public class GameContext {
         camera.clearShake();
         backtrackingActive = false;
         chestOpen = false;
+        chestPromptVisible = false;
         enemies.clear();
         projectiles.clear();
         guardians.clear();
@@ -886,13 +888,18 @@ public class GameContext {
 
     /** Verifica interação com guardiões. */
     private void checkGuardians(boolean arenaMode) {
+        double heroCenterX = hero.getX() + HeroEntity.HW / 2.0;
+        double heroCenterY = hero.getY() + HeroEntity.HH / 2.0;
         for (GuardianEntity g : guardians) {
+            g.updatePromptDistance(heroCenterX, heroCenterY);
             double gx = arenaMode ? g.getWorldX() : camera.toScreenX(g.getWorldX());
             double heroScreenX = arenaMode ? hero.getX() : camera.toScreenX(hero.getX());
             if (!g.isContacted() && inputManager.isInteractPressed()
                     && rectsHit(heroScreenX, hero.getY(), HeroEntity.HW, HeroEntity.HH,
                                 gx - 30, g.getWorldY() - 30, GuardianEntity.GW + 60, GuardianEntity.GH + 60)) {
                 g.setContacted(true);
+                // AC3: ao iniciar diálogo com Espaço, consome o disparo para nenhuma bolha sair naquele pressionamento
+                hero.setLastShotTime(nanoTime);
                 final double finalGx = gx;
                 openOverlay(g.getType(), g.getName(), g.getDialogue(), () -> {
                     tabletsCollected++;
@@ -1286,6 +1293,27 @@ public class GameContext {
         return state == State.P2 && !chestOpen
             && rectsHit(hero.getX() - 40, hero.getY() - 40, HeroEntity.HW + 80, HeroEntity.HH + 80,
                 chestWX - 80, chestWY - 70, 160, 140);
+    }
+    public boolean isChestPromptVisible() {
+        if (state != State.P2 || chestOpen) return false;
+        double heroCenterX = hero.getX() + HeroEntity.HW / 2.0;
+        double heroCenterY = hero.getY() + HeroEntity.HH / 2.0;
+        double dx = heroCenterX - chestWX;
+        double dy = heroCenterY - chestWY;
+        double distSq = dx * dx + dy * dy;
+        if (chestPromptVisible) {
+            if (distSq > 180.0 * 180.0) {
+                chestPromptVisible = false;
+            }
+        } else {
+            if (distSq <= 150.0 * 150.0) {
+                chestPromptVisible = true;
+            }
+        }
+        return chestPromptVisible;
+    }
+    public void setChestPromptVisible(boolean visible) {
+        this.chestPromptVisible = visible && state == State.P2 && !chestOpen;
     }
     public double getChestWX() { return chestWX; }
     public double getChestWY() { return chestWY; }

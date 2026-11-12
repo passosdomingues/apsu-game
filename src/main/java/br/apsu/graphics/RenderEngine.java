@@ -315,7 +315,7 @@ public class RenderEngine implements GameRenderer {
         // Cenário
         for (GuardianEntity g : ctx.getGuardians()) {
             double gx = ctx.getCamera().toScreenX(g.getWorldX());
-            drawGuardian(gc, gx, g.getWorldY(), g.getType(), !g.isContacted(), timeSeconds);
+            drawGuardian(gc, gx, g.getWorldY(), g.getType(), g.isPromptVisible(), timeSeconds);
         }
 
         drawPhaseExit(gc, ctx.getCamera().toScreenX(3900), ctx.getTabletsCollected() >= 1);
@@ -349,7 +349,7 @@ public class RenderEngine implements GameRenderer {
 
             if (open) {
                 lightingEngine.drawBioluminescentHalo(gc, csx + 10, ctx.getChestWY(), 95, Color.GOLD);
-            } else if (ctx.canOpenChest()) {
+            } else if (ctx.isChestPromptVisible()) {
                 gc.setFill(Palette.CHEST_PROMPT_BG);
                 gc.fillRoundRect(csx - 70, ctx.getChestWY() - 62, 140, 24, 8, 8);
                 gc.setFill(Palette.GOLD); gc.setFont(UiFonts.TEXT_BOLD_12);
@@ -360,7 +360,7 @@ public class RenderEngine implements GameRenderer {
 
         for (GuardianEntity g : ctx.getGuardians()) {
             double gx = ctx.getCamera().toScreenX(g.getWorldX());
-            drawGuardian(gc, gx, g.getWorldY(), g.getType(), !g.isContacted(), timeSeconds);
+            drawGuardian(gc, gx, g.getWorldY(), g.getType(), g.isPromptVisible(), timeSeconds);
         }
 
         drawPhaseExit(gc, ctx.getCamera().toScreenX(3900), ctx.getTabletsCollected() >= 2);
@@ -402,7 +402,7 @@ public class RenderEngine implements GameRenderer {
 
         for (GuardianEntity g : ctx.getGuardians()) {
             double gx = ctx.getCamera().toScreenX(g.getWorldX());
-            drawGuardian(gc, gx, g.getWorldY(), g.getType(), !g.isContacted(), timeSeconds);
+            drawGuardian(gc, gx, g.getWorldY(), g.getType(), g.isPromptVisible(), timeSeconds);
         }
 
         drawPhaseExit(gc, ctx.getCamera().toScreenX(3900), ctx.getTabletsCollected() >= 3);
@@ -429,7 +429,7 @@ public class RenderEngine implements GameRenderer {
 
         for (GuardianEntity g : ctx.getGuardians()) {
             double gx = ctx.getCamera().toScreenX(g.getWorldX());
-            drawGuardian(gc, gx, g.getWorldY(), g.getType(), !g.isContacted(), timeSeconds);
+            drawGuardian(gc, gx, g.getWorldY(), g.getType(), g.isPromptVisible(), timeSeconds);
         }
 
         drawPhaseExit(gc, ctx.getCamera().toScreenX(3900), ctx.getTabletsCollected() >= 4);
@@ -455,7 +455,7 @@ public class RenderEngine implements GameRenderer {
         drawPhaseBackground(gc, ctx, width, height, 5, 0.24);
 
         for (GuardianEntity g : ctx.getGuardians()) {
-            drawGuardian(gc, g.getWorldX(), g.getWorldY(), g.getType(), !g.isContacted(), timeSeconds);
+            drawGuardian(gc, g.getWorldX(), g.getWorldY(), g.getType(), g.isPromptVisible(), timeSeconds);
         }
 
         if (ctx.getBoss() != null) {
