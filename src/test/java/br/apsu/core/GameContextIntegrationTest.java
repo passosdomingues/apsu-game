@@ -261,6 +261,49 @@ public class GameContextIntegrationTest {
 
         assertFalse(context.isOverlayActive());
         assertEquals(1, context.getTabletsCollected());
+        assertTrue(context.getCutsceneController().isActive());
+        assertEquals("Saida da Fase 1", context.getCutsceneController().getActiveRequest().label());
+        assertEquals(3900.0, context.getCutsceneController().getActiveRequest().targetWorldX(), 0.001);
+        var objective = br.apsu.guidance.ObjectiveTracker.resolveCurrentObjective(context);
+        assertNotNull(objective);
+        assertEquals(3900.0, objective.worldX(), 0.001);
+    }
+
+    @Test
+    @DisplayName("US-024: receber tabuleta nas fases 1 a 4 foca a saída e atualiza o objetivo")
+    void tabletDialogueFocusesPhaseExitAndUpdatesObjective() {
+        assertExitIntroductionForPhase(1, context::startP1, 1_000_000_000L);
+        assertExitIntroductionForPhase(2, context::startP2, 2_000_000_000L);
+        assertExitIntroductionForPhase(3, context::startP3, 3_000_000_000L);
+        assertExitIntroductionForPhase(4, context::startP4, 4_000_000_000L);
+    }
+
+    private void assertExitIntroductionForPhase(int phase, Runnable startPhase, long timestamp) {
+        startPhase.run();
+        if (phase == 2) context.getHero().setHasBubblePower(true);
+        GuardianEntity guardian = context.getGuardians().get(0);
+        context.getHero().setX(guardian.getWorldX());
+        context.getHero().setY(guardian.getWorldY());
+        context.getInputManager().registerKeyPress(KeyCode.E);
+        context.update(timestamp);
+        assertTrue(context.isOverlayActive(), "O diálogo do guardião da fase " + phase + " deve abrir");
+
+        // Limpa a apresentação de chegada antes de validar o foco da saída.
+        context.getCutsceneController().stop();
+        for (int frame = 0; frame < 64 && context.isOverlayActive(); frame++) context.advanceOverlay();
+
+        assertEquals(phase, context.getTabletsCollected());
+        assertTrue(context.getCutsceneController().isActive(), "A saída deve ser apresentada após a tabuleta");
+        assertEquals("Saida da Fase " + phase, context.getCutsceneController().getActiveRequest().label());
+        assertEquals(3900.0, context.getCutsceneController().getActiveRequest().targetWorldX(), 0.001);
+        var objective = br.apsu.guidance.ObjectiveTracker.resolveCurrentObjective(context);
+        assertNotNull(objective);
+        assertEquals(3900.0, objective.worldX(), 0.001);
+        assertEquals("Alcancando o Portal", objective.description());
+
+        context.onKey(KeyCode.ESCAPE);
+        for (int frame = 1; frame <= 18; frame++) context.update(timestamp + frame * 16_666_666L);
+        assertFalse(context.getCutsceneController().isActive(), "Pular deve devolver o foco em até 0,3 s");
     }
 
     @Test
@@ -551,6 +594,50 @@ public class GameContextIntegrationTest {
         br.apsu.guidance.ObjectiveTracker.Objective objAfter = br.apsu.guidance.ObjectiveTracker.resolveCurrentObjective(context);
         assertNotNull(objAfter);
         assertEquals("Conversar com Guardiao", objAfter.description());
+    }
+
+    @Test
+    @DisplayName("US-023: guardiões das fases 2 a 4 são apresentados uma vez, com foco pulável e aviso normal")
+    void laterPhaseGuardiansAreIntroducedOnceWhenApproached() {
+        assertGuardianIntroduction(2, context::startP2, 1_000_000_000L);
+        assertGuardianIntroduction(3, context::startP3, 2_000_000_000L);
+        assertGuardianIntroduction(4, context::startP4, 3_000_000_000L);
+    }
+
+    private void assertGuardianIntroduction(int phase, Runnable startPhase, long firstTimestamp) {
+        startPhase.run();
+        GuardianEntity guardian = context.getGuardians().get(0);
+        double guardianCenterX = guardian.getWorldX() + GuardianEntity.GW / 2.0;
+        double guardianCenterY = guardian.getWorldY() + GuardianEntity.GH / 2.0;
+
+        context.getHero().setX(guardianCenterX - 800.01 - HeroEntity.HW / 2.0);
+        context.getHero().setY(guardianCenterY - HeroEntity.HH / 2.0);
+        context.update(firstTimestamp);
+        assertFalse(context.getCutsceneController().isActive(), "O foco não deve iniciar além de 800 unidades");
+
+        context.getHero().setX(guardianCenterX - 790 - HeroEntity.HW / 2.0);
+        context.update(firstTimestamp + 16_666_666L);
+
+        assertTrue(context.getCutsceneController().isActive(), "Fase " + phase + " deve iniciar o foco a até 800 unidades");
+        assertEquals(guardian.getName(), context.getCutsceneController().getActiveRequest().label());
+        assertEquals(1.5, context.getCutsceneController().getActiveRequest().holdDurationSeconds(), 0.001);
+        assertEquals(guardianCenterX, context.getCutsceneController().getActiveRequest().targetWorldX(), 0.001);
+
+        context.onKey(KeyCode.ESCAPE);
+        for (int tick = 1; tick <= 18; tick++) {
+            context.update(firstTimestamp + (tick + 1) * 16_666_666L);
+        }
+        assertFalse(context.getCutsceneController().isActive(), "Pulo deve encerrar o foco em até 0,3 s");
+
+        context.getHero().setX(guardianCenterX - 850 - HeroEntity.HW / 2.0);
+        context.update(firstTimestamp + 20 * 16_666_666L);
+
+        // O aviso contextual de interação continua funcionando quando o herói chega perto.
+        context.getHero().setX(guardianCenterX - 100 - HeroEntity.HW / 2.0);
+        context.getHero().setY(guardianCenterY - HeroEntity.HH / 2.0);
+        context.update(firstTimestamp + 21 * 16_666_666L);
+        assertTrue(guardian.isPromptVisible(), "O aviso de interação deve aparecer após a apresentação");
+        assertFalse(context.getCutsceneController().isActive(), "A apresentação não deve repetir na mesma fase");
     }
 
     @Test

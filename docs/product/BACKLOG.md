@@ -278,28 +278,28 @@ Fonte de verdade das user stories. Validado por `python3 tools/harness/backlog.p
 - [x] Dado o baú aberto, quando a abertura ocorre, então CHEST_OPENED é publicado uma única vez no EventBus e documentado com produtor, payload e consumidor.
 - [x] Dado o baú já aberto, quando o jogador interage de novo, então nenhum efeito é reaplicado.
 
-### US-023 | Introdução de guardião com foco de câmera | 3 pts | P1 | S3 | E2 | todo
+### US-023 | Introdução de guardião com foco de câmera | 3 pts | P1 | S3 | E2 | doing
 **Como** jogador, **quero** que a câmera apresente cada guardião das fases 2 a 4, **para** reconhecer rapidamente quem devo procurar.
 - Fonte: feedback, "cutscenes mostrando focos de elementos".
 - Depende de: US-011
 - Notas técnicas: reutiliza a cutscene da US-011 e o aviso da US-013.
 
 **Critérios de aceitação**
-- [ ] Dado as fases 2 a 4, quando o guardião chega a 800 unidades do herói pela primeira vez, então a câmera o foca por 1,5 s.
-- [ ] Dado a cutscene concluída, quando o herói se aproxima, então o aviso da US-013 funciona normalmente.
-- [ ] Dado o guardião já apresentado, quando o herói volta a passar perto, então a cutscene não repete.
-- [ ] Dado a cutscene tocando, quando o jogador a pula, então o foco termina em até 0,3 s.
+- [x] Dado as fases 2 a 4, quando o guardião chega a 800 unidades do herói pela primeira vez, então a câmera o foca por 1,5 s.
+- [x] Dado a cutscene concluída, quando o herói se aproxima, então o aviso da US-013 funciona normalmente.
+- [x] Dado o guardião já apresentado, quando o herói volta a passar perto, então a cutscene não repete.
+- [x] Dado a cutscene tocando, quando o jogador a pula, então o foco termina em até 0,3 s.
 
-### US-024 | Cutscene de abertura da saída após a tabuleta | 2 pts | P2 | S3 | E2 | todo
+### US-024 | Cutscene de abertura da saída após a tabuleta | 2 pts | P2 | S3 | E2 | doing
 **Como** jogador, **quero** ver onde fica a saída depois de pegar a tabuleta, **para** seguir sem procurar.
 - Fonte: feedback, "seta no guardião" e cutscenes.
 - Depende de: US-011
 - Notas técnicas: o objetivo passa de conversar para sair, tratado também pelo HUD na US-014.
 
 **Critérios de aceitação**
-- [ ] Dado a tabuleta recebida nas fases 1 a 4, quando o diálogo termina, então a câmera mostra a saída por 1,5 s e a seta passa a apontá-la.
-- [ ] Dado a cutscene tocando, quando o jogador a pula, então o foco termina em até 0,3 s.
-- [ ] Dado a cutscene já exibida na fase, quando o herói permanece na fase, então ela não repete.
+- [x] Dado a tabuleta recebida nas fases 1 a 4, quando o diálogo termina, então a câmera mostra a saída por 1,5 s e a seta passa a apontá-la.
+- [x] Dado a cutscene tocando, quando o jogador a pula, então o foco termina em até 0,3 s.
+- [x] Dado a cutscene já exibida na fase, quando o herói permanece na fase, então ela não repete.
 
 ### US-025 | Reescrita do diálogo inicial do NPC | 2 pts | P1 | S3 | E1 | todo
 **Como** jogador, **quero** um diálogo inicial curto e claro, **para** entender a missão em menos de 20 segundos.

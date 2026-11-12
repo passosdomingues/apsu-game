@@ -3,6 +3,8 @@ package br.apsu.core;
 import br.apsu.core.events.EventBus;
 import br.apsu.core.events.GameEvent;
 import br.apsu.audio.AudioCue;
+import br.apsu.cutscene.GuardianIntroductionController;
+import br.apsu.cutscene.PhaseExitIntroductionController;
 import br.apsu.core.spatial.QuadTree;
 import br.apsu.model.boss.BossEntity;
 import br.apsu.model.enemy.EnemyEntity;
@@ -67,6 +69,8 @@ public class GameContext {
     private final Camera camera = new Camera(1366, 4000);
     private final HeroController heroController = new HeroController();
     private final br.apsu.cutscene.CutsceneController cutsceneController = new br.apsu.cutscene.CutsceneController();
+    private final GuardianIntroductionController guardianIntroductionController = new GuardianIntroductionController();
+    private final PhaseExitIntroductionController phaseExitIntroductionController = new PhaseExitIntroductionController();
     private double renderAlpha = 1.0;
     private final SaveManager saveManager;
     private final EventBus eventBus;
@@ -286,6 +290,8 @@ public class GameContext {
         inPressureZone = false;
         p1GuardianCutsceneTriggered = false;
         p2ChestCutsceneTriggered = false;
+        guardianIntroductionController.reset();
+        phaseExitIntroductionController.reset();
         cutsceneController.stop();
     }
 
@@ -592,6 +598,7 @@ public class GameContext {
         stepHero(1.0 / 60.0);
 
         if (!overlayActive && !cutsceneController.isActive() && inputManager.isPressed(KeyCode.SPACE)) tryShoot();
+        checkGuardianIntroduction(2);
         double focusX = cutsceneController.update(hero.getX(), 1.0 / 60.0);
         if (cutsceneController.isActive()) camera.updateFocus(focusX, 1.0 / 60.0);
         else camera.update(hero.getX());
@@ -660,6 +667,7 @@ public class GameContext {
         stepHero(1.0 / 60.0);
 
         if (!overlayActive && !cutsceneController.isActive() && inputManager.isPressed(KeyCode.SPACE)) tryShoot();
+        checkGuardianIntroduction(3);
         double focusX = cutsceneController.update(hero.getX(), 1.0 / 60.0);
         if (cutsceneController.isActive()) camera.updateFocus(focusX, 1.0 / 60.0);
         else camera.update(hero.getX());
@@ -690,6 +698,7 @@ public class GameContext {
         stepHero(1.0 / 60.0);
 
         if (!overlayActive && !cutsceneController.isActive() && inputManager.isPressed(KeyCode.SPACE)) tryShoot();
+        checkGuardianIntroduction(4);
         double focusX = cutsceneController.update(hero.getX(), 1.0 / 60.0);
         if (cutsceneController.isActive()) camera.updateFocus(focusX, 1.0 / 60.0);
         else camera.update(hero.getX());
@@ -899,6 +908,25 @@ public class GameContext {
         }
     }
 
+    /** Agenda a apresentação única do guardião ao jogador que se aproxima. */
+    private void checkGuardianIntroduction(int phase) {
+        if (guardians.isEmpty()) return;
+        GuardianEntity guardian = guardians.get(0);
+        br.apsu.cutscene.CutsceneRequest request = guardianIntroductionController.check(
+            phase,
+            hero.getX() + HeroEntity.HW / 2.0,
+            hero.getY() + HeroEntity.HH / 2.0,
+            guardian
+        );
+        if (request == null) return;
+        eventBus.publish(new GameEvent(
+            GameEvent.Type.CUTSCENE_REQUESTED,
+            request,
+            guardian.getWorldX(),
+            guardian.getWorldY()
+        ));
+    }
+
     /** Verifica interação com guardiões. */
     private void checkGuardians(boolean arenaMode) {
         double heroCenterX = hero.getX() + HeroEntity.HW / 2.0;
@@ -919,6 +947,8 @@ public class GameContext {
                     hero.heal(2.0);
                     particleSystem.addBurst(finalGx + GuardianEntity.GW/2, g.getWorldY() + GuardianEntity.GH/2, Color.GOLD);
                     particleSystem.addBurst(finalGx + GuardianEntity.GW/2, g.getWorldY() + GuardianEntity.GH/2, Color.LIMEGREEN);
+                    GameEvent exitFocus = phaseExitIntroductionController.tabletCollected(currentPhase);
+                    if (exitFocus != null) eventBus.publish(exitFocus);
                     playSound(AudioCue.PICKUP);
                     showAlert("Tabuleta " + tabletsCollected + "/" + TOTAL_TABLETS + " recebida! +2 de vida restaurada!");
                     persistProgress();
