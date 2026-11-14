@@ -136,18 +136,18 @@ Fonte de verdade das user stories. Validado por `python3 tools/harness/backlog.p
 - [x] Dado a saída bloqueada, quando o herói a alcança, então nenhuma transição ocorre e o estado da fase permanece inalterado.
 - [x] Dado a tabuleta coletada, quando o herói alcança a saída, então a transição ocorre uma única vez e nenhuma mensagem de bloqueio aparece.
 
-### US-004 | Testes de regressão da progressão por fase | 5 pts | P0 | S1 | E8 | todo
+### US-004 | Testes de regressão da progressão por fase | 5 pts | P0 | S1 | E8 | done
 **Como** time, **quero** testes automatizados das regras de progressão, **para** não quebrar a jornada das cinco fases ao mexer em intuitividade.
 - Fonte: README (progressão, baú, chefe apenas na fase 5, partida nova limpa o estado).
 - Depende de: nenhuma
 - Notas técnicas: estender a suíte JUnit existente, sem depender de display gráfico.
 
 **Critérios de aceitação**
-- [ ] Dado as fases 1 a 4, quando a saída é alcançada sem tabuleta, então a transição não ocorre; com tabuleta, ocorre uma única vez.
-- [ ] Dado a fase 2, quando o baú é aberto duas vezes, então o poder das bolhas é liberado uma única vez.
-- [ ] Dado qualquer fase de 1 a 4, quando o contexto é montado, então não existe Kullullû; na fase 5, existe exatamente um.
-- [ ] Dado uma partida reiniciada após a fase 5, quando a nova partida começa, então vida, tabuletas, poder das bolhas e entidades estão no estado inicial.
-- [ ] Dado make test, quando executado em máquina sem display, então os novos testes passam.
+- [x] Dado as fases 1 a 4, quando a saída é alcançada sem tabuleta, então a transição não ocorre; com tabuleta, ocorre uma única vez.
+- [x] Dado a fase 2, quando o baú é aberto duas vezes, então o poder das bolhas é liberado uma única vez.
+- [x] Dado qualquer fase de 1 a 4, quando o contexto é montado, então não existe Kullullû; na fase 5, existe exatamente um.
+- [x] Dado uma partida reiniciada após a fase 5, quando a nova partida começa, então vida, tabuletas, poder das bolhas e entidades estão no estado inicial.
+- [x] Dado make test, quando executado em máquina sem display, então os novos testes passam.
 
 ### US-005 | Adoção do harness e linha de base | 2 pts | P1 | S1 | E9 | todo
 **Como** time, **quero** instalar o harness sem alterar o fluxo atual, **para** ganhar guardrails mantendo o Makefile e o AGENTS.md.

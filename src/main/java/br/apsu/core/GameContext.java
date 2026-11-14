@@ -277,6 +277,7 @@ public class GameContext {
     public void reset() {
         hero.setMaxHP(difficulty.getInitialHP());
         hero.heal(difficulty.getInitialHP());
+        hero.setHasBubblePower(false);
         hero.resetPosition(100, 768 / 2.0 - HeroEntity.HH / 2.0);
         tabletsCollected = 0;
         camera.setX(0);
@@ -316,6 +317,7 @@ public class GameContext {
     // FASE 1 — Águas Claras (introdução, enguia corrigida)
     // =========================================================
     public void startP1() {
+        boss = null;
         enemies.clear(); projectiles.clear(); guardians.clear(); sceneryElements.clear();
         camera.setX(0); hero.beginPhaseAt(100, 768 / 2.0);
         double spd = 1.0;
@@ -347,6 +349,7 @@ public class GameContext {
     // FASE 2 — Cavernas de Coral (bolhas desbloqueadas aqui)
     // =========================================================
     public void startP2() {
+        boss = null;
         enemies.clear(); projectiles.clear(); guardians.clear(); sceneryElements.clear();
         camera.setX(0); hero.beginPhaseAt(100, 768 / 2.0);
         double spd = 1.0;
@@ -397,6 +400,7 @@ public class GameContext {
     // FASE 3 — Correntes Abissais (nova mecânica principal)
     // =========================================================
     public void startP3() {
+        boss = null;
         enemies.clear(); projectiles.clear(); guardians.clear(); sceneryElements.clear();
         camera.setX(0); hero.beginPhaseAt(100, 768 / 2.0);
         double spd = 1.0;
@@ -438,6 +442,7 @@ public class GameContext {
     // FASE 4 — Abismo Vulcânico (novos inimigos + lava)
     // =========================================================
     public void startP4() {
+        boss = null;
         enemies.clear(); projectiles.clear(); guardians.clear(); sceneryElements.clear();
         camera.setX(0); hero.beginPhaseAt(100, 768 / 2.0);
         double spd = 1.0;
