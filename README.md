@@ -212,7 +212,7 @@ Decompor cada fase em personagens (herói, NPC, inimigo, miniboss/boss), arquite
 
 Efeitos curtos usam um único `AudioClip` PCM compartilhado por cue e não sobrepõem uma reprodução do mesmo efeito; a profundidade ajusta o volume. Isso evita carregar cinco cópias de cada efeito e reduz a criação de players concorrentes. Trilhas de fase e boss usam `MediaPlayer` em loop com WAV PCM 16-bit/44,1 kHz; o player espera a faixa ficar pronta, usa volume-base de 55% (atenuado pela profundidade) e tenta a faixa original se a versão gerada estiver ausente ou falhar. Falhas de inicialização/reprodução são registradas no console como `[AUDIO]`.
 
-Tipos declarados em `GameEvent.Type`: `SOUND_REQUESTED`, `HERO_DAMAGED`, `HERO_SHOT`, `ENEMY_DEFEATED`, `TABLET_COLLECTED`, `BOSS_DEFEATED`, `BOSS_PHASE_CHANGED`, `OCEAN_DEPTH_CHANGED`, `BOSS_MUSIC_CHANGED`, `CUTSCENE_REQUESTED`, `CHEST_OPENED`. A integração atualmente publicada/consumida no áudio inclui pedido de cue, mudança de profundidade, modo de faixa do boss e mudança de fase do boss. Declarar um enum sem produtor/consumidor não torna o comportamento implementado. Eventos adicionais só entram com produtor, payload, frequência, consumidor e teste definidos. O core não deve conhecer caminho/arquivo WAV nem middleware.
+Tipos declarados em `GameEvent.Type`: `SOUND_REQUESTED`, `HERO_DAMAGED`, `HERO_SHOT`, `ENEMY_DEFEATED`, `TABLET_COLLECTED`, `BOSS_DEFEATED`, `BOSS_PHASE_CHANGED`, `OCEAN_DEPTH_CHANGED`, `BOSS_MUSIC_CHANGED`, `CUTSCENE_REQUESTED`, `CHEST_OPENED`, `ECHO_PINGED`. A integração atualmente publicada/consumida no áudio inclui pedido de cue, mudança de profundidade, modo de faixa do boss e mudança de fase do boss. Declarar um enum sem produtor/consumidor não torna o comportamento implementado. Eventos adicionais só entram com produtor, payload, frequência, consumidor e teste definidos. O core não deve conhecer caminho/arquivo WAV nem middleware.
 
 ### Matriz de eventos de áudio
 
@@ -223,6 +223,7 @@ Tipos declarados em `GameEvent.Type`: `SOUND_REQUESTED`, `HERO_DAMAGED`, `HERO_S
 | `DIALOGUE_ADVANCE` | Avançar fala sem mascarar texto/voz | Implementado |
 | `PICKUP` | Recompensa clara para baú/tabuleta/item | Implementado; diferenciar tipos pendente |
 | `ATTACK` | Disparo de bolha, resposta imediata | Implementado |
+| `ECHO_PING` | Pulso de ecolocalização com resposta auditiva | Implementado; emitido via `ECHO_PINGED` no início do eco |
 | `ENEMY_DAMAGED`, `ENEMY_DEFEATED` | Impacto seguido de derrota em inimigo de vida única | Ambos publicados no acerto fatal; impacto usa fonte sintetizada pelo FFmpeg, substituível |
 | `HERO_DAMAGED` | Comunicar dano com prioridade | Implementado |
 | `BOSS_DAMAGED`, `BOSS_PHASE`, `VICTORY` | Impacto, nova fase e resolução | Implementado parcialmente; telegraph/morte dedicados pendentes |
@@ -235,6 +236,13 @@ Tipos declarados em `GameEvent.Type`: `SOUND_REQUESTED`, `HERO_DAMAGED`, `HERO_S
 | `BOSS_INTRO/ATTACK/STAGGER/DEFEATED` | Identidade, telegraph e resolução do boss | Modo musical/fase implementados; cues dedicados pendentes |
 
 São sugestões de catálogo; só adicionar se a mecânica existir. Para cada evento aprovado, registrar produtor, payload, instante, cooldown/repetição, prioridade, posição espacial, consumidor de áudio/VFX/UI e teste. Um evento pode alimentar vários consumidores.
+
+- `ECHO_PINGED`: publicado quando o eco é ativado com sucesso pela tecla Q.
+  - Produtor: `GameContext.onKey` (fases P1 a P5)
+  - Payload: `EchoPayload` (duração 4.0 s, cooldown 8.0 s)
+  - Cooldown: 8.0 s (nenhum evento disparado durante a recarga)
+  - Consumidor: `AudioEventSubscriber` (dispara `AudioCue.ECHO_PING`) e telemetria de gameplay
+  - Teste: `EchoAudioEventTest`
 
 ### Música e composição por fase
 

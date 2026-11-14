@@ -145,6 +145,7 @@ final class JavaFxAudioOutput implements AudioOutput {
             case BOSS_DAMAGED, BOSS_PHASE -> "boss-hit";
             case HERO_DAMAGED -> "hurt";
             case VICTORY -> "victory";
+            case ECHO_PING -> "echo-ping";
         };
     }
 
@@ -161,6 +162,7 @@ final class JavaFxAudioOutput implements AudioOutput {
             case BOSS_PHASE -> 0.24;
             case HERO_DAMAGED -> 0.38;
             case VICTORY -> 0.30;
+            case ECHO_PING -> 0.26;
         };
     }
 

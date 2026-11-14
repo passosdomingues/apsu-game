@@ -365,16 +365,16 @@ Fonte de verdade das user stories. Validado por `python3 tools/harness/backlog.p
 - [x] Dado a fase 1, quando passam 20 s sem o jogador usar o eco, então a dica "Q: eco" aparece uma única vez.
 - [x] Dado o ícone e a dica, quando renderizados, então usam apenas o tema claro.
 
-### US-034 | Evento semântico e som do eco | 2 pts | P2 | S4 | E3 | todo
+### US-034 | Evento semântico e som do eco | 2 pts | P2 | S4 | E3 | done
 **Como** jogador, **quero** ouvir o eco, **para** sentir o efeito da habilidade.
 - Fonte: contrato de eventos e áudio do README.
 - Depende de: US-030
 - Notas técnicas: o core publica evento e AudioCue semântico; o nome do WAV fica em JavaFxAudioOutput. Fontes provisórias geradas por make audio-assets.
 
 **Critérios de aceitação**
-- [ ] Dado o eco ativado, quando ele inicia, então ECHO_PINGED é publicado uma única vez, com produtor, payload, cooldown e consumidor documentados.
-- [ ] Dado o AudioCue ECHO_PING, quando resolvido, então o arquivo de áudio é referenciado apenas no adaptador JavaFxAudioOutput.
-- [ ] Dado a recarga em andamento, quando Q é pressionado, então nenhum ECHO_PINGED é publicado.
+- [x] Dado o eco ativado, quando ele inicia, então ECHO_PINGED é publicado uma única vez, com produtor, payload, cooldown e consumidor documentados.
+- [x] Dado o AudioCue ECHO_PING, quando resolvido, então o arquivo de áudio é referenciado apenas no adaptador JavaFxAudioOutput.
+- [x] Dado a recarga em andamento, quando Q é pressionado, então nenhum ECHO_PINGED é publicado.
 
 ## Sprint S5: Combate e chefe
 

@@ -13,6 +13,7 @@ public record GameEvent(Type type, Object payload, double worldX, double worldY)
         OCEAN_DEPTH_CHANGED,
         BOSS_MUSIC_CHANGED,
         CUTSCENE_REQUESTED,
-        CHEST_OPENED
+        CHEST_OPENED,
+        ECHO_PINGED
     }
 }

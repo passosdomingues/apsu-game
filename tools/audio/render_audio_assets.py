@@ -17,7 +17,7 @@ PROFILES = {
     "hadal-trench": (3200, "92|184", "0.22|0.11", 0.16, 0.160),
 }
 AUDIO_SOURCES = ("apsu-theme", "shoot", "collect", "hurt", "boss-hit", "victory",
-                 "menu-navigate", "menu-confirm", "enemy-damaged")
+                 "menu-navigate", "menu-confirm", "enemy-damaged", "echo-ping")
 DEPTH_RENDER_SOURCES = ("apsu-theme",)
 SOURCE_DIR = AUDIO / "sources"
 
@@ -28,6 +28,7 @@ def create_missing_cue_sources(ffmpeg: str) -> None:
         "menu-navigate": ("sine=frequency=880:duration=0.09", "afade=t=out:st=0.035:d=0.055,highpass=f=250,volume=0.35"),
         "menu-confirm": ("sine=frequency=660:duration=0.19", "afade=t=out:st=0.10:d=0.09,highpass=f=180,volume=0.48"),
         "enemy-damaged": ("anoisesrc=color=pink:duration=0.14:amplitude=0.7", "lowpass=f=1800,highpass=f=140,afade=t=out:st=0.035:d=0.105,volume=0.52"),
+        "echo-ping": ("sine=frequency=1250:duration=0.35", "afade=t=out:st=0.04:d=0.31,highpass=f=300,volume=0.45"),
     }
     for name, (source, filters) in cues.items():
         output = AUDIO / f"{name}.wav"

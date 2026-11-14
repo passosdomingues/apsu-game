@@ -200,7 +200,16 @@ public class GameContext {
                     hero.toggleMultipleShotMode();
                     playSound(AudioCue.MENU_CONFIRM);
                 } else if (k == KeyCode.Q) {
-                    echoController.trigger();
+                    if (echoController.trigger()) {
+                        eventBus.publish(new GameEvent(
+                            GameEvent.Type.ECHO_PINGED,
+                            new br.apsu.echo.EchoPayload(
+                                br.apsu.echo.EchoController.ECHO_DURATION_SECONDS,
+                                br.apsu.echo.EchoController.COOLDOWN_DURATION_SECONDS
+                            ),
+                            hero.getX(), hero.getY()
+                        ));
+                    }
                 }
             }
             case WIN, OVER -> {

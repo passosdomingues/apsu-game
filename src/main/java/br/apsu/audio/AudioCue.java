@@ -12,5 +12,6 @@ public enum AudioCue {
     BOSS_DAMAGED,
     BOSS_PHASE,
     HERO_DAMAGED,
-    VICTORY
+    VICTORY,
+    ECHO_PING
 }

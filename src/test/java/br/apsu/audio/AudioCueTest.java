@@ -11,7 +11,7 @@ class AudioCueTest {
     @Test
     void everySemanticCueHasAnAdapterMappingAndUsableGain() {
         Set<String> assets = Set.of("shoot", "collect", "hurt", "boss-hit", "victory",
-            "menu-navigate", "menu-confirm", "enemy-damaged");
+            "menu-navigate", "menu-confirm", "enemy-damaged", "echo-ping");
         for (AudioCue cue : AudioCue.values()) {
             assertTrue(JavaFxAudioOutput.gain(cue) > 0 && JavaFxAudioOutput.gain(cue) <= 1, cue.name());
             assertTrue(assets.contains(JavaFxAudioOutput.asset(cue)), cue.name());

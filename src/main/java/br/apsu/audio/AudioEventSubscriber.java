@@ -19,6 +19,8 @@ public final class AudioEventSubscriber {
             event -> audioManager.playSound(AudioCue.BOSS_PHASE));
         AutoCloseable bossMusic = eventBus.subscribe(GameEvent.Type.BOSS_MUSIC_CHANGED,
             event -> audioManager.setBossMode(Boolean.TRUE.equals(event.payload())));
-        return () -> { sounds.close(); depth.close(); bossPhases.close(); bossMusic.close(); };
+        AutoCloseable echoPing = eventBus.subscribe(GameEvent.Type.ECHO_PINGED,
+            event -> audioManager.playSound(AudioCue.ECHO_PING));
+        return () -> { sounds.close(); depth.close(); bossPhases.close(); bossMusic.close(); echoPing.close(); };
     }
 }
