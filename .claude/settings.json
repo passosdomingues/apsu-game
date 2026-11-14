@@ -166,6 +166,11 @@
             "type": "command",
             "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/apsu_hook.py\" session-start",
             "timeout": 20
+          },
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/tools/harness/hooks/apsu_hook.py\" session-start",
+            "timeout": 20
           }
         ]
       }
@@ -194,6 +199,11 @@
             "type": "command",
             "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/apsu_hook.py\" pre-bash",
             "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/tools/harness/hooks/apsu_hook.py\" pre-bash",
+            "timeout": 15
           }
         ]
       },
@@ -214,6 +224,11 @@
             "type": "command",
             "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/apsu_hook.py\" pre-edit",
             "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/tools/harness/hooks/apsu_hook.py\" pre-edit",
+            "timeout": 15
           }
         ]
       }
@@ -230,6 +245,11 @@
           {
             "type": "command",
             "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/apsu_hook.py\" post-edit",
+            "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/tools/harness/hooks/apsu_hook.py\" post-edit",
             "timeout": 15
           }
         ]
@@ -257,6 +277,11 @@
           {
             "type": "command",
             "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/apsu_hook.py\" stop",
+            "timeout": 960
+          },
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/tools/harness/hooks/apsu_hook.py\" stop",
             "timeout": 960
           }
         ]

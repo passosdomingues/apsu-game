@@ -149,17 +149,17 @@ Fonte de verdade das user stories. Validado por `python3 tools/harness/backlog.p
 - [x] Dado uma partida reiniciada após a fase 5, quando a nova partida começa, então vida, tabuletas, poder das bolhas e entidades estão no estado inicial.
 - [x] Dado make test, quando executado em máquina sem display, então os novos testes passam.
 
-### US-005 | Adoção do harness e linha de base | 2 pts | P1 | S1 | E9 | todo
+### US-005 | Adoção do harness e linha de base | 2 pts | P1 | S1 | E9 | done
 **Como** time, **quero** instalar o harness sem alterar o fluxo atual, **para** ganhar guardrails mantendo o Makefile e o AGENTS.md.
 - Fonte: pedido do time.
 - Depende de: nenhuma
 - Notas técnicas: instalação por `python3 tools/harness/install.py`, idempotente.
 
 **Critérios de aceitação**
-- [ ] Dado o repositório após a instalação, quando install.py é executado uma segunda vez, então nenhum arquivo é alterado.
-- [ ] Dado python3 tools/harness/verify.py, quando executado, então termina com código 0 e lista todas as verificações aprovadas.
-- [ ] Dado make test antes e depois da instalação, quando os resultados são comparados, então o número de testes e o resultado são idênticos.
-- [ ] Dado git status após a instalação, quando revisado, então aparecem apenas arquivos do harness, uma linha no Makefile, um bloco em DEVELOPMENT.md e entradas em .gitignore.
+- [x] Dado o repositório após a instalação, quando install.py é executado uma segunda vez, então nenhum arquivo é alterado.
+- [x] Dado python3 tools/harness/verify.py, quando executado, então termina com código 0 e lista todas as verificações aprovadas.
+- [x] Dado make test antes e depois da instalação, quando os resultados são comparados, então o número de testes e o resultado são idênticos.
+- [x] Dado git status após a instalação, quando revisado, então aparecem apenas arquivos do harness, uma linha no Makefile, um bloco em DEVELOPMENT.md e entradas em .gitignore.
 
 ### US-006 | Modelo de coral de colisão dedicado e leve | 3 pts | P1 | S1 | E5 | todo
 **Como** jogador, **quero** corais de colisão com forma legível, **para** prever por onde posso passar.
