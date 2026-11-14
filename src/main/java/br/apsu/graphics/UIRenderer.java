@@ -35,22 +35,38 @@ public class UIRenderer {
         return Palette.rgb(red, green, blue, alpha);
     }
 
+    // Tema claro para indicador do eco e dica (US-033)
+    public static final Color ECHO_LIGHT_BG = Color.rgb(240, 246, 252, 0.95);
+    public static final Color ECHO_LIGHT_STROKE = Color.rgb(120, 180, 240, 0.90);
+    public static final Color ECHO_LIGHT_TEXT = Color.rgb(10, 30, 60);
+    public static final Color ECHO_LIGHT_PROGRESS_BG = Color.rgb(215, 230, 248, 0.90);
+    public static final Color ECHO_LIGHT_PROGRESS_FILL = Color.rgb(40, 140, 230, 0.90);
+    public static final Color ECHO_HINT_BG = Color.rgb(248, 250, 255, 0.95);
+    public static final Color ECHO_HINT_STROKE = Color.rgb(140, 195, 255, 0.90);
+    public static final Color ECHO_HINT_TEXT = Color.rgb(15, 45, 80);
+
     public void drawHUD(GraphicsContext gc, HeroEntity hero, int tablets, String phaseName, Difficulty diff) {
-        drawHUD(gc, hero, tablets, phaseName, diff, OceanDepthProfile.COASTAL, 0.0, null);
+        drawHUD(gc, hero, tablets, phaseName, diff, OceanDepthProfile.COASTAL, 0.0, null, null);
     }
 
     public void drawHUD(GraphicsContext gc, HeroEntity hero, int tablets, String phaseName, Difficulty diff,
                         OceanDepthProfile depth) {
-        drawHUD(gc, hero, tablets, phaseName, diff, depth, 0.0, null);
+        drawHUD(gc, hero, tablets, phaseName, diff, depth, 0.0, null, null);
     }
 
     public void drawHUD(GraphicsContext gc, HeroEntity hero, int tablets, String phaseName, Difficulty diff,
                         OceanDepthProfile depth, double unlockHighlightProgress) {
-        drawHUD(gc, hero, tablets, phaseName, diff, depth, unlockHighlightProgress, null);
+        drawHUD(gc, hero, tablets, phaseName, diff, depth, unlockHighlightProgress, null, null);
     }
 
     public void drawHUD(GraphicsContext gc, HeroEntity hero, int tablets, String phaseName, Difficulty diff,
                         OceanDepthProfile depth, double unlockHighlightProgress, String objectiveText) {
+        drawHUD(gc, hero, tablets, phaseName, diff, depth, unlockHighlightProgress, objectiveText, null);
+    }
+
+    public void drawHUD(GraphicsContext gc, HeroEntity hero, int tablets, String phaseName, Difficulty diff,
+                        OceanDepthProfile depth, double unlockHighlightProgress, String objectiveText,
+                        br.apsu.echo.EchoController echo) {
         boolean hasObjective = objectiveText != null && !objectiveText.isEmpty();
         double hudH = hasObjective ? 154 : 136;
         gc.setFill(Palette.HUD_BG);
@@ -102,6 +118,11 @@ public class UIRenderer {
             gc.setFill(Palette.HUD_DAMAGE_TEXT);
             gc.setFont(UiFonts.DAMAGE_BOLD_9);
             gc.fillText("DANO", 270, barY + 11);
+        }
+
+        // US-033: Indicador de recarga do eco e dica de tecla (tema claro) abaixo da barra de vida
+        if (echo != null) {
+            drawEchoIndicator(gc, echo, barX, barY + barH + 3);
         }
 
         // Tabuletas
@@ -228,6 +249,71 @@ public class UIRenderer {
 
     public boolean isGuardianVisibleOnMinimap(int guardianIndex, GameContext context) {
         return context != null && guardianIndex >= 0 && guardianIndex < context.getGuardians().size();
+    }
+
+    /**
+     * Desenha o indicador de recarga do eco com icone 'Q' e progresso (US-033).
+     * Usa exclusivamente o tema claro para contraste e legibilidade.
+     */
+    public void drawEchoIndicator(GraphicsContext gc, br.apsu.echo.EchoController echo, double x, double y) {
+        if (echo == null) return;
+
+        boolean onCooldown = echo.isOnCooldown();
+        double progress = echo.getCooldownProgress();
+        double alpha = onCooldown ? 0.45 : 1.0;
+
+        gc.save();
+        gc.setGlobalAlpha(alpha);
+
+        // Icone 'Q' no tema claro
+        double iconW = 18, iconH = 14;
+        gc.setFill(ECHO_LIGHT_BG);
+        gc.fillRoundRect(x, y, iconW, iconH, 3, 3);
+        gc.setStroke(ECHO_LIGHT_STROKE);
+        gc.setLineWidth(1.0);
+        gc.strokeRoundRect(x, y, iconW, iconH, 3, 3);
+
+        gc.setFill(ECHO_LIGHT_TEXT);
+        gc.setFont(UiFonts.RADAR_BOLD_10);
+        gc.setTextAlign(TextAlignment.CENTER);
+        gc.setTextBaseline(VPos.CENTER);
+        gc.fillText("Q", x + iconW / 2.0, y + iconH / 2.0);
+
+        // Se em recarga: exibe progresso de 0 a 100%
+        if (onCooldown) {
+            int pct = (int) Math.round(progress * 100.0);
+            gc.setFont(UiFonts.TEXT_10);
+            gc.setTextAlign(TextAlignment.LEFT);
+            gc.setTextBaseline(VPos.CENTER);
+            gc.fillText(pct + "%", x + iconW + 4, y + iconH / 2.0);
+        }
+
+        // Se dica ativa: "Q: eco"
+        if (echo.isHintVisible()) {
+            double hintX = x + (onCooldown ? iconW + 38 : iconW + 6);
+            drawEchoHint(gc, hintX, y);
+        }
+
+        gc.restore();
+    }
+
+    /**
+     * Desenha a dica de tecla no tema claro (US-033).
+     */
+    public void drawEchoHint(GraphicsContext gc, double x, double y) {
+        double hintW = 52, hintH = 14;
+        gc.setGlobalAlpha(1.0);
+        gc.setFill(ECHO_HINT_BG);
+        gc.fillRoundRect(x, y, hintW, hintH, 3, 3);
+        gc.setStroke(ECHO_HINT_STROKE);
+        gc.setLineWidth(1.0);
+        gc.strokeRoundRect(x, y, hintW, hintH, 3, 3);
+
+        gc.setFill(ECHO_HINT_TEXT);
+        gc.setFont(UiFonts.TEXT_10);
+        gc.setTextAlign(TextAlignment.CENTER);
+        gc.setTextBaseline(VPos.CENTER);
+        gc.fillText("Q: eco", x + hintW / 2.0, y + hintH / 2.0);
     }
 
     public void drawObjectiveArrow(GraphicsContext gc, GameContext context, double canvasWidth, double canvasHeight, double timeSeconds) {

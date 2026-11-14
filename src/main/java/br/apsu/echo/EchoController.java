@@ -27,6 +27,12 @@ public final class EchoController {
     private double cooldownTimer = 0.0;
     private boolean pauseHighlightRequested = false;
 
+    // US-033: Dica de tecla na Fase 1 apos 20s sem uso
+    private double phase1NoEchoTimer = 0.0;
+    private boolean hintTriggeredOnce = false;
+    private boolean hintVisible = false;
+    private boolean usedEcho = false;
+
     public EchoController() {
         reset();
     }
@@ -39,6 +45,10 @@ public final class EchoController {
         this.activeTimer = 0.0;
         this.cooldownTimer = 0.0;
         this.pauseHighlightRequested = false;
+        this.phase1NoEchoTimer = 0.0;
+        this.hintTriggeredOnce = false;
+        this.hintVisible = false;
+        this.usedEcho = false;
     }
 
     /**
@@ -52,6 +62,8 @@ public final class EchoController {
             activeTimer = ECHO_DURATION_SECONDS;
             cooldownTimer = 0.0;
             pauseHighlightRequested = false;
+            usedEcho = true;
+            hintVisible = false;
             return true;
         } else if (state == State.COOLDOWN) {
             // AC3: Quando em recarga e Q e pressionado, destaca o indicador de recarga
@@ -66,6 +78,14 @@ public final class EchoController {
      * Deve ser chamado apenas quando a simulacao do jogo esta rodando (nao pausado).
      */
     public void update(double dt) {
+        update(dt, false);
+    }
+
+    /**
+     * Atualiza os contadores com base no delta de tempo dt em segundos e flag de Fase 1.
+     * Deve ser chamado apenas quando a simulacao do jogo esta rodando (nao pausado).
+     */
+    public void update(double dt, boolean isPhase1) {
         if (dt <= 0.0) return;
 
         if (state == State.ACTIVE) {
@@ -81,6 +101,16 @@ public final class EchoController {
                 cooldownTimer = 0.0;
                 state = State.READY;
                 pauseHighlightRequested = false;
+            }
+        }
+
+        // US-033 AC3: Dado a fase 1, quando passam 20 s sem o jogador usar o eco,
+        // entao a dica "Q: eco" aparece uma unica vez.
+        if (isPhase1 && !usedEcho && !hintTriggeredOnce) {
+            phase1NoEchoTimer += dt;
+            if (phase1NoEchoTimer >= 20.0) {
+                hintVisible = true;
+                hintTriggeredOnce = true;
             }
         }
     }
@@ -126,5 +156,25 @@ public final class EchoController {
 
     public void clearCooldownHighlight() {
         this.pauseHighlightRequested = false;
+    }
+
+    public boolean isHintVisible() {
+        return hintVisible;
+    }
+
+    public void dismissHint() {
+        this.hintVisible = false;
+    }
+
+    public boolean wasHintTriggeredOnce() {
+        return hintTriggeredOnce;
+    }
+
+    public double getPhase1NoEchoTimer() {
+        return phase1NoEchoTimer;
+    }
+
+    public boolean hasUsedEcho() {
+        return usedEcho;
     }
 }

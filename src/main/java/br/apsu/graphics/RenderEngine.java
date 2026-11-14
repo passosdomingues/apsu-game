@@ -343,7 +343,7 @@ public class RenderEngine implements GameRenderer {
         ObjectiveTracker.Objective objP1 = ObjectiveTracker.resolveCurrentObjective(ctx);
         String objTextP1 = objP1 != null ? objP1.description() : null;
         uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 1 — Águas Claras", ctx.getDifficulty(),
-            OceanDepthProfile.forPhase(ctx.getCurrentPhase()), 0.0, objTextP1);
+            OceanDepthProfile.forPhase(ctx.getCurrentPhase()), 0.0, objTextP1, ctx.getEchoController());
         uiRenderer.drawMinimap(gc, ctx, width);
         drawAlert(gc, ctx, width, height);
     }
@@ -408,7 +408,7 @@ public class RenderEngine implements GameRenderer {
         ObjectiveTracker.Objective objP2 = ObjectiveTracker.resolveCurrentObjective(ctx);
         String objTextP2 = objP2 != null ? objP2.description() : null;
         uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 2 — Cavernas de Coral", ctx.getDifficulty(),
-            OceanDepthProfile.forPhase(ctx.getCurrentPhase()), unlockHighlight, objTextP2);
+            OceanDepthProfile.forPhase(ctx.getCurrentPhase()), unlockHighlight, objTextP2, ctx.getEchoController());
         uiRenderer.drawMinimap(gc, ctx, width);
         drawAlert(gc, ctx, width, height);
     }
@@ -453,7 +453,7 @@ public class RenderEngine implements GameRenderer {
         ObjectiveTracker.Objective objP3 = ObjectiveTracker.resolveCurrentObjective(ctx);
         String objTextP3 = objP3 != null ? objP3.description() : null;
         uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 3 — Correntes Abissais", ctx.getDifficulty(),
-            OceanDepthProfile.forPhase(ctx.getCurrentPhase()), 0.0, objTextP3);
+            OceanDepthProfile.forPhase(ctx.getCurrentPhase()), 0.0, objTextP3, ctx.getEchoController());
         uiRenderer.drawMinimap(gc, ctx, width);
         drawAlert(gc, ctx, width, height);
     }
@@ -483,7 +483,7 @@ public class RenderEngine implements GameRenderer {
         ObjectiveTracker.Objective objP4 = ObjectiveTracker.resolveCurrentObjective(ctx);
         String objTextP4 = objP4 != null ? objP4.description() : null;
         uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 4 — Abismo Vulcânico", ctx.getDifficulty(),
-            OceanDepthProfile.forPhase(ctx.getCurrentPhase()), 0.0, objTextP4);
+            OceanDepthProfile.forPhase(ctx.getCurrentPhase()), 0.0, objTextP4, ctx.getEchoController());
         uiRenderer.drawMinimap(gc, ctx, width);
         drawAlert(gc, ctx, width, height);
     }
@@ -510,7 +510,7 @@ public class RenderEngine implements GameRenderer {
         ObjectiveTracker.Objective objP5 = ObjectiveTracker.resolveCurrentObjective(ctx);
         String objTextP5 = objP5 != null ? objP5.description() : null;
         uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 5 — Templo de Apsu", ctx.getDifficulty(),
-            OceanDepthProfile.forPhase(ctx.getCurrentPhase()), 0.0, objTextP5);
+            OceanDepthProfile.forPhase(ctx.getCurrentPhase()), 0.0, objTextP5, ctx.getEchoController());
         uiRenderer.drawMinimap(gc, ctx, width);
         drawAlert(gc, ctx, width, height);
     }

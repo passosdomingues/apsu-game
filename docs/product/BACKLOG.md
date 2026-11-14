@@ -353,17 +353,17 @@ Fonte de verdade das user stories. Validado por `python3 tools/harness/backlog.p
 - [x] Dado o eco encerrado, quando passam 3,0 s, então os inimigos somem do GPS.
 - [x] Dado a fase 5, quando o eco está inativo, então o chefe continua visível no GPS por ser o objetivo.
 
-### US-033 | Indicador de recarga e dica de tecla | 3 pts | P1 | S4 | E3 | todo
+### US-033 | Indicador de recarga e dica de tecla | 3 pts | P1 | S4 | E3 | done
 **Como** jogador, **quero** ver quando o eco está pronto e qual tecla usar, **para** usá-lo sem tentativa e erro.
 - Fonte: feedback, "no teclado, ser intuitivo".
 - Depende de: US-030
 - Notas técnicas: o HUD do canto superior esquerdo já abriga vida, poder, objetivo e fase.
 
 **Critérios de aceitação**
-- [ ] Dado o HUD, quando o eco está disponível, então um ícone com a letra Q aparece abaixo da barra de vida.
-- [ ] Dado a recarga em andamento, quando o HUD é desenhado, então o ícone mostra progresso de 0 a 100% e aparece esmaecido.
-- [ ] Dado a fase 1, quando passam 20 s sem o jogador usar o eco, então a dica "Q: eco" aparece uma única vez.
-- [ ] Dado o ícone e a dica, quando renderizados, então usam apenas o tema claro.
+- [x] Dado o HUD, quando o eco está disponível, então um ícone com a letra Q aparece abaixo da barra de vida.
+- [x] Dado a recarga em andamento, quando o HUD é desenhado, então o ícone mostra progresso de 0 a 100% e aparece esmaecido.
+- [x] Dado a fase 1, quando passam 20 s sem o jogador usar o eco, então a dica "Q: eco" aparece uma única vez.
+- [x] Dado o ícone e a dica, quando renderizados, então usam apenas o tema claro.
 
 ### US-034 | Evento semântico e som do eco | 2 pts | P2 | S4 | E3 | todo
 **Como** jogador, **quero** ouvir o eco, **para** sentir o efeito da habilidade.

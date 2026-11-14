@@ -551,7 +551,7 @@ public class GameContext {
 
         double hpBeforeUpdate = hero.getHp();
         if (state == State.P1 || state == State.P2 || state == State.P3 || state == State.P4 || state == State.P5) {
-            echoController.update(1.0 / 60.0);
+            echoController.update(1.0 / 60.0, state == State.P1);
             echoWaveRenderer.update(this, 1.0 / 60.0);
         }
         switch (state) {
