@@ -64,6 +64,12 @@ public final class GraphicsDiagnostics {
     }
 
     public static boolean isScene3dSupported() {
+        // Opcao -Dapsu.render=2d forca o modo 2D Canvas (US-008)
+        String renderMode = System.getProperty("apsu.render");
+        if ("2d".equalsIgnoreCase(renderMode)) {
+            return false;
+        }
+
         if (scene3dSupported == null) {
             try {
                 scene3dSupported = javafx.application.Platform.isSupported(javafx.application.ConditionalFeature.SCENE3D);

@@ -55,19 +55,19 @@ Fonte de verdade das user stories. Validado por `python3 tools/harness/backlog.p
 - [x] Dado a falha ao carregar qualquer OBJ ou MTL, quando ocorre, então o console registra [GFX] com o caminho do recurso e a causa, sem encerrar o jogo.
 - [x] Dado make test, quando executado, então um teste cobre a formatação da linha de diagnóstico sem exigir JavaFX.
 
-### US-008 | Fallback 2D para personagens quando o 3D não está disponível | 8 pts | P0 | S0 | E8 | todo
+### US-008 | Fallback 2D para personagens quando o 3D não está disponível | 8 pts | P0 | S0 | E8 | done
 **Como** jogador, **quero** ver herói, NPCs e inimigos mesmo sem suporte a 3D, **para** jogar em qualquer computador.
 - Fonte: playtest no Windows.
 - Depende de: US-007
 - Notas técnicas: o README informa que há sprites PNG para os personagens e o runtime tem SpriteManager. O fallback desenha esses sprites no Canvas quando SCENE3D falta ou o carregamento 3D falha. Implementar em classe nova, sem engordar RenderEngine.
 
 **Critérios de aceitação**
-- [ ] Dado SCENE3D indisponível, quando a fase 1 inicia, então herói, guardião e inimigos aparecem como sprites no Canvas, na mesma posição e com escala até 10% diferente da versão 3D.
-- [ ] Dado o fallback ativo, quando há colisão, dano ou diálogo, então o comportamento é idêntico ao do modo 3D, coberto pelos mesmos testes.
-- [ ] Dado o 3D disponível, quando o jogo inicia, então o fallback não é usado e o modo 3D permanece idêntico ao atual.
-- [ ] Dado a opção -Dapsu.render=2d, quando o jogo inicia, então o fallback é forçado, permitindo testá-lo em qualquer máquina.
-- [ ] Dado um personagem sem sprite correspondente, quando make test é executado, então um teste falha apontando o asset faltante.
-- [ ] Dado o fallback ativo, quando medido com APSU_PERF=1 na mesma máquina, então o frame-time p95 não é pior que o do modo 3D.
+- [x] Dado SCENE3D indisponível, quando a fase 1 inicia, então herói, guardião e inimigos aparecem como sprites no Canvas, na mesma posição e com escala até 10% diferente da versão 3D.
+- [x] Dado o fallback ativo, quando há colisão, dano ou diálogo, então o comportamento é idêntico ao do modo 3D, coberto pelos mesmos testes.
+- [x] Dado o 3D disponível, quando o jogo inicia, então o fallback não é usado e o modo 3D permanece idêntico ao atual.
+- [x] Dado a opção -Dapsu.render=2d, quando o jogo inicia, então o fallback é forçado, permitindo testá-lo em qualquer máquina.
+- [x] Dado um personagem sem sprite correspondente, quando make test é executado, então um teste falha apontando o asset faltante.
+- [x] Dado o fallback ativo, quando medido com APSU_PERF=1 na mesma máquina, então o frame-time p95 não é pior que o do modo 3D.
 
 ### US-009 | Modo híbrido adaptativo entre 3D e Canvas 2D | 5 pts | P1 | S0 | E8 | todo
 **Como** jogador com notebook sem GPU dedicada, **quero** que o jogo misture 3D e 2D conforme o desempenho, **para** jogar com fluidez sem perder os personagens.

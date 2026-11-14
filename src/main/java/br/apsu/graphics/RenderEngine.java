@@ -518,6 +518,11 @@ public class RenderEngine implements GameRenderer {
         drawShadow(gc, centerX, centerY + targetH * 0.44, targetW * 0.48, 10);
         lightingEngine.drawBioluminescentHalo(gc, centerX, centerY,
             targetW * 0.32, hero.getType().getAura());
+
+        // US-008: Fallback 2D para heroi no Canvas quando Scene3D indisponivel ou forçado
+        if (!GraphicsDiagnostics.isScene3dSupported()) {
+            Character2DFallbackRenderer.renderHero(gc, null, hero, x, y, timeSeconds);
+        }
     }
 
     // =========================================================
@@ -534,6 +539,11 @@ public class RenderEngine implements GameRenderer {
         double eh = eType.getHeight();
 
         drawShadow(gc, x + ew / 2, y + eh - 2, ew * 0.65, 9);
+
+        // US-008: Fallback 2D para inimigos no Canvas
+        if (!GraphicsDiagnostics.isScene3dSupported()) {
+            Character2DFallbackRenderer.renderEnemy(gc, enemy, x, y);
+        }
     }
 
     // =========================================================
@@ -542,6 +552,11 @@ public class RenderEngine implements GameRenderer {
     private void drawBoss(GraphicsContext gc, BossEntity boss, double timeSeconds, double width) {
         drawShadow(gc, boss.getX() + BossEntity.BW / 2, boss.getY() + BossEntity.BH - 5,
             BossEntity.RENDER_W * 0.10, 16);
+
+        // US-008: Fallback 2D para Boss no Canvas
+        if (!GraphicsDiagnostics.isScene3dSupported()) {
+            Character2DFallbackRenderer.renderBoss(gc, boss, timeSeconds);
+        }
 
         // Aviso de transição fica preso acima do boss; não desenha aura/anel
         // pulsante em volta do modelo, que confundia o sinal de ataque.
@@ -582,6 +597,12 @@ public class RenderEngine implements GameRenderer {
         lightingEngine.drawBioluminescentHalo(gc, x + GuardianEntity.GW / 2, y + GuardianEntity.GH / 2,
             GuardianEntity.GW * 0.9, Palette.GUARDIAN_HALO);
         drawShadow(gc, x + GuardianEntity.GW / 2, y + GuardianEntity.GH - 4, GuardianEntity.GW * 0.7, 16);
+
+        // US-008: Fallback 2D para guardiao no Canvas
+        if (!GraphicsDiagnostics.isScene3dSupported()) {
+            GuardianEntity dummy = new GuardianEntity(type, x, y);
+            Character2DFallbackRenderer.renderGuardian(gc, dummy, x, y);
+        }
 
         if (prompt) {
             gc.setFill(Palette.GUARDIAN_PROMPT_BG);
