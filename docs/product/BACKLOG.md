@@ -315,19 +315,19 @@ Fonte de verdade das user stories. Validado por `python3 tools/harness/backlog.p
 
 ## Sprint S4: Ecolocalização
 
-### US-030 | Habilidade de ecolocalização temporária | 8 pts | P0 | S4 | E3 | todo
+### US-030 | Habilidade de ecolocalização temporária | 8 pts | P0 | S4 | E3 | done
 **Como** jogador, **quero** acionar um radar de ecolocalização por tecla, **para** ver perigos e guardiões só quando preciso.
 - Fonte: feedback, "radar ser temporário como uma habilidade de ecolocalização quando teclar e no teclado, ser intuitivo".
 - Depende de: nenhuma
 - Notas técnicas: tecla padrão Q (não conflita com WASD, setas, Espaço, Enter, E e F). Duração 4,0 s e recarga 8,0 s em constantes nomeadas. Classe nova (proposta: br.apsu.echo) acionada via InputManager.
 
 **Critérios de aceitação**
-- [ ] Dado o herói em qualquer fase, quando o jogador pressiona Q fora de recarga, então o eco ativa por 4,0 s.
-- [ ] Dado o eco ativo, quando o tempo acaba, então ele desativa e a recarga de 8,0 s começa.
-- [ ] Dado o eco em recarga, quando Q é pressionado, então nada é ativado e o indicador de recarga fica destacado.
-- [ ] Dado uma nova partida, quando a fase 1 começa, então o eco já está disponível.
-- [ ] Dado o jogo pausado, quando os contadores do eco estão ativos, então eles também pausam e retomam ao sair da pausa.
-- [ ] Dado um teste unitário, quando executado com make test, então ele cobre ativação, expiração, recarga e pausa.
+- [x] Dado o herói em qualquer fase, quando o jogador pressiona Q fora de recarga, então o eco ativa por 4,0 s.
+- [x] Dado o eco ativo, quando o tempo acaba, então ele desativa e a recarga de 8,0 s começa.
+- [x] Dado o eco em recarga, quando Q é pressionado, então nada é ativado e o indicador de recarga fica destacado.
+- [x] Dado uma nova partida, quando a fase 1 começa, então o eco já está disponível.
+- [x] Dado o jogo pausado, quando os contadores do eco estão ativos, então eles também pausam e retomam ao sair da pausa.
+- [x] Dado um teste unitário, quando executado com make test, então ele cobre ativação, expiração, recarga e pausa.
 
 ### US-031 | Onda visual do eco | 5 pts | P1 | S4 | E3 | todo
 **Como** jogador, **quero** ver uma onda se expandindo a partir do herói, **para** perceber que o eco está revelando o ambiente.

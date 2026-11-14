@@ -74,6 +74,7 @@ public class GameContext {
     private final GuardianIntroductionController guardianIntroductionController = new GuardianIntroductionController();
     private final PhaseExitIntroductionController phaseExitIntroductionController = new PhaseExitIntroductionController();
     private final TutorialController tutorialController = new TutorialController();
+    private final br.apsu.echo.EchoController echoController = new br.apsu.echo.EchoController();
     private double renderAlpha = 1.0;
     private final SaveManager saveManager;
     private final EventBus eventBus;
@@ -197,6 +198,8 @@ public class GameContext {
                 } else if (k == KeyCode.M && hero.hasBubblePower()) {
                     hero.toggleMultipleShotMode();
                     playSound(AudioCue.MENU_CONFIRM);
+                } else if (k == KeyCode.Q) {
+                    echoController.trigger();
                 }
             }
             case WIN, OVER -> {
@@ -304,6 +307,7 @@ public class GameContext {
         phaseExitIntroductionController.reset();
         tutorialController.reset();
         cutsceneController.stop();
+        echoController.reset();
     }
 
     public void transitionToPhase(int targetPhase) {
@@ -544,6 +548,9 @@ public class GameContext {
         }
 
         double hpBeforeUpdate = hero.getHp();
+        if (state == State.P1 || state == State.P2 || state == State.P3 || state == State.P4 || state == State.P5) {
+            echoController.update(1.0 / 60.0);
+        }
         switch (state) {
             case P1 -> updateP1();
             case P2 -> updateP2();
@@ -1421,4 +1428,5 @@ public class GameContext {
     public HeroController getHeroController() { return heroController; }
     public br.apsu.cutscene.CutsceneController getCutsceneController() { return cutsceneController; }
     public TutorialController getTutorialController() { return tutorialController; }
+    public br.apsu.echo.EchoController getEchoController() { return echoController; }
 }
