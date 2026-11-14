@@ -301,17 +301,17 @@ Fonte de verdade das user stories. Validado por `python3 tools/harness/backlog.p
 - [x] Dado a cutscene tocando, quando o jogador a pula, então o foco termina em até 0,3 s.
 - [x] Dado a cutscene já exibida na fase, quando o herói permanece na fase, então ela não repete.
 
-### US-025 | Reescrita do diálogo inicial do NPC | 2 pts | P1 | S3 | E1 | todo
+### US-025 | Reescrita do diálogo inicial do NPC | 2 pts | P1 | S3 | E1 | done
 **Como** jogador, **quero** um diálogo inicial curto e claro, **para** entender a missão em menos de 20 segundos.
 - Fonte: feedback, "intuitividade".
 - Depende de: nenhuma
 - Notas técnicas: o NPC inicial explica hoje a missão de encontrar os guardiões e recuperar as cinco tabuletas sagradas.
 
 **Critérios de aceitação**
-- [ ] Dado o diálogo inicial, quando lido do início ao fim, então tem no máximo 4 caixas de texto de até 120 caracteres cada.
-- [ ] Dado o conteúdo, quando revisado, então menciona explicitamente encontrar os guardiões, recuperar as cinco tabuletas sagradas e a tecla de interação.
-- [ ] Dado o jogador avançando com Espaço ou Enter, quando pressiona a tecla, então cada caixa avança uma única vez por pressionamento.
-- [ ] Dado o texto revisado, quando verificado, então não contém emojis nem travessões longos.
+- [x] Dado o diálogo inicial, quando lido do início ao fim, então tem no máximo 4 caixas de texto de até 120 caracteres cada.
+- [x] Dado o conteúdo, quando revisado, então menciona explicitamente encontrar os guardiões, recuperar as cinco tabuletas sagradas e a tecla de interação.
+- [x] Dado o jogador avançando com Espaço ou Enter, quando pressiona a tecla, então cada caixa avança uma única vez por pressionamento.
+- [x] Dado o texto revisado, quando verificado, então não contém emojis nem travessões longos.
 
 ## Sprint S4: Ecolocalização
 

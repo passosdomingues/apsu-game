@@ -24,12 +24,21 @@ public class GuardianEntityTest {
         g0.setContacted(true);
         assertTrue(g0.isContacted());
 
-        assertEquals(1, g0.getDialogue().length,
-            "Cada interação deve orientar o jogador com uma única fala curta");
-        assertTrue(g0.getDialogue()[0].length() <= 60);
+        assertEquals(3, g0.getDialogue().length,
+            "Fase 1 possui 3 falas curtas instruindo a missao (US-025)");
+        for (String line : g0.getDialogue()) {
+            assertTrue(line.length() <= 120, "Cada caixa deve ter ate 120 caracteres");
+        }
+        String fullDialogue = String.join(" ", g0.getDialogue());
+        assertTrue(fullDialogue.contains("guardiões"), "Deve mencionar encontrar os guardioes");
+        assertTrue(fullDialogue.contains("cinco tabuletas sagradas"), "Deve mencionar recuperar as cinco tabuletas sagradas");
+        assertTrue(fullDialogue.contains("pressione E"), "Deve mencionar a tecla de interacao E");
+
         for (String[] intro : GuardianEntity.ENKI_INTRO_DIALOGUES) {
-            assertEquals(1, intro.length, "A introdução da fase deve caber em uma fala");
-            assertTrue(intro[0].length() <= 60, "A fala deve ser curta e acionável");
+            assertTrue(intro.length <= 4, "A introducao deve ter no maximo 4 caixas");
+            for (String line : intro) {
+                assertTrue(line.length() <= 120, "Cada fala de introducao deve ter ate 120 caracteres");
+            }
         }
     }
 }

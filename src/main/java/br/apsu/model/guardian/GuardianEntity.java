@@ -15,8 +15,12 @@ public class GuardianEntity {
     };
 
     public static final String[][] DIALOGUES = {
-        // Fase 1 — Águas Claras
-        { "A tabuleta está adiante. Siga as ruínas." },
+        // Fase 1 — Águas Claras (US-025: diálogo inicial revisado, curto, místico e objetivo)
+        {
+            "Adapa, as profundezas acordaram. Encontre os guardiões e recupere as cinco tabuletas sagradas.",
+            "Aproxime-se e pressione E para interagir e receber cada tabuleta sagrada.",
+            "A primeira tabuleta sagrada está comigo. Pegue-a e siga as ruínas até o portal."
+        },
 
         // Fase 2 — Cavernas de Coral
         { "O naufrágio está adiante. O baú guarda a tabuleta." },
@@ -33,7 +37,10 @@ public class GuardianEntity {
 
     /** Falas de Enki nas vinhetas entre menu/fases; guardiões falam ao encontrá-los na fase. */
     public static final String[][] ENKI_INTRO_DIALOGUES = {
-        {"Encontre o Guardião Atlante. Recupere a tabuleta."},
+        {
+            "Adapa, o abismo despertou. Encontre os guardiões e recupere as cinco tabuletas sagradas.",
+            "Pressione E perto de cada guardião para interagir e receber a tabuleta."
+        },
         {"Procure o naufrágio. Abra o baú com E."},
         {"Siga as correntes até o guardião."},
         {"Desvie da lava. Busque a última tabuleta."},
