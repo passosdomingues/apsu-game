@@ -50,6 +50,7 @@ public class GameContext {
     private int phaseDone = 0;
     private int tabletsCollected = 0;
     private boolean backtrackingActive = false;
+    private long lastBlockedExitAlertNanos = -10_000_000_000L;
     private static final int TOTAL_TABLETS = 5;
 
     private final List<EnemyEntity> enemies = new ArrayList<>();
@@ -281,6 +282,7 @@ public class GameContext {
         camera.setX(0);
         camera.clearShake();
         backtrackingActive = false;
+        lastBlockedExitAlertNanos = -10_000_000_000L;
         chestOpen = false;
         chestPromptVisible = false;
         enemies.clear();
@@ -597,11 +599,13 @@ public class GameContext {
             if (tabletsCollected >= 1) {
                 phaseDone = Math.max(phaseDone, 1);
                 transitionToPhase(2);
-            } else if (difficulty == Difficulty.DIFICIL && !backtrackingActive) {
-                backtrackingActive = true;
-                enemies.add(new EnemyEntity(EnemyType.PEIXE,  1500, 768 * .40, 1.8, 50));
-                enemies.add(new EnemyEntity(EnemyType.MEDUSA, 2200, 768 * .60, 2.0, 70));
-                showAlert("Barreira Selada! Retroceda para encontrar o Guardiao escondido!");
+            } else {
+                if (difficulty == Difficulty.DIFICIL && !backtrackingActive) {
+                    backtrackingActive = true;
+                    enemies.add(new EnemyEntity(EnemyType.PEIXE,  1500, 768 * .40, 1.8, 50));
+                    enemies.add(new EnemyEntity(EnemyType.MEDUSA, 2200, 768 * .60, 2.0, 70));
+                }
+                notifyExitBlocked(1, "Portal selado! Converse com o Guardiao Atlante para obter a Tabuleta!");
             }
         }
     }
@@ -666,11 +670,13 @@ public class GameContext {
             if (tabletsCollected >= 2) {
                 phaseDone = Math.max(phaseDone, 2);
                 transitionToPhase(3);
-            } else if (difficulty == Difficulty.DIFICIL && !backtrackingActive) {
-                backtrackingActive = true;
-                enemies.add(new EnemyEntity(EnemyType.ENGUIA,    1400, 768 * .50, 2.0, 60));
-                enemies.add(new EnemyEntity(EnemyType.CARANGUEJO, 2500, 768 * .35, 2.2, 80));
-                showAlert("Barreira Selada! Retroceda para encontrar o Guardiao nas cavernas!");
+            } else {
+                if (difficulty == Difficulty.DIFICIL && !backtrackingActive) {
+                    backtrackingActive = true;
+                    enemies.add(new EnemyEntity(EnemyType.ENGUIA,    1400, 768 * .50, 2.0, 60));
+                    enemies.add(new EnemyEntity(EnemyType.CARANGUEJO, 2500, 768 * .35, 2.2, 80));
+                }
+                notifyExitBlocked(2, "Portal selado! Converse com o Guardiao nas cavernas para obter a Tabuleta!");
             }
         }
     }
@@ -698,10 +704,12 @@ public class GameContext {
             if (tabletsCollected >= 3) {
                 phaseDone = Math.max(phaseDone, 3);
                 transitionToPhase(4);
-            } else if (difficulty == Difficulty.DIFICIL && !backtrackingActive) {
-                backtrackingActive = true;
-                enemies.add(new EnemyEntity(EnemyType.ENGUIA, 2000, 768 * .40, 2.2, 80));
-                showAlert("Barreira de Correntes! Encontre o Lamassu Aquatico antes de avancar!");
+            } else {
+                if (difficulty == Difficulty.DIFICIL && !backtrackingActive) {
+                    backtrackingActive = true;
+                    enemies.add(new EnemyEntity(EnemyType.ENGUIA, 2000, 768 * .40, 2.2, 80));
+                }
+                notifyExitBlocked(3, "Barreira de Correntes! Converse com o Lamassu Aquatico para obter a Tabuleta!");
             }
         }
     }
@@ -729,10 +737,12 @@ public class GameContext {
             if (tabletsCollected >= 4) {
                 phaseDone = Math.max(phaseDone, 4);
                 transitionToPhase(5);
-            } else if (difficulty == Difficulty.DIFICIL && !backtrackingActive) {
-                backtrackingActive = true;
-                enemies.add(new EnemyEntity(EnemyType.ARRAIAO, 1800, 768 * .45, 2.5, 90));
-                showAlert(" Selado pelas chamas! Encontre o Oraculo das Correntes primeiro!");
+            } else {
+                if (difficulty == Difficulty.DIFICIL && !backtrackingActive) {
+                    backtrackingActive = true;
+                    enemies.add(new EnemyEntity(EnemyType.ARRAIAO, 1800, 768 * .45, 2.5, 90));
+                }
+                notifyExitBlocked(4, "Selado pelas chamas! Converse com o Oraculo das Correntes para obter a Tabuleta!");
             }
         }
     }
@@ -1280,6 +1290,16 @@ public class GameContext {
     public void showAlert(String msg) {
         this.alertMessage = msg;
         this.alertTime = nanoTime;
+    }
+
+    public void notifyExitBlocked(int requiredTablets, String customObjective) {
+        if (nanoTime - lastBlockedExitAlertNanos >= 5_000_000_000L) {
+            lastBlockedExitAlertNanos = nanoTime;
+            String msg = (customObjective != null && !customObjective.isBlank())
+                ? customObjective
+                : "Portal selado! Converse com o guardiao para obter a Tabuleta (" + tabletsCollected + "/" + requiredTablets + ")!";
+            showAlert(msg);
+        }
     }
 
     /** Salva progresso sem permitir que um erro de disco interrompa a partida. */

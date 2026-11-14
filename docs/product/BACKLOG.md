@@ -124,17 +124,17 @@ Fonte de verdade das user stories. Validado por `python3 tools/harness/backlog.p
 - [x] Dado o chefe em qualquer das suas fases de combate, quando há contato, então o dano é aplicado mesmo que o chefe não esteja atacando.
 - [x] Dado um teste unitário, quando executado com make test, então ele cobre contato único, contato contínuo e contato durante a invulnerabilidade.
 
-### US-003 | Feedback de saída bloqueada | 3 pts | P0 | S1 | E2 | todo
+### US-003 | Feedback de saída bloqueada | 3 pts | P0 | S1 | E2 | done
 **Como** jogador, **quero** saber por que não consigo sair da fase ao chegar ao portal, **para** voltar e conversar com o guardião.
 - Fonte: feedback, "chegou no portal, e não conversou".
 - Depende de: nenhuma
 - Notas técnicas: o runtime já exige a tabuleta nas fases 1 a 4 para a transição. Falta comunicar o motivo ao jogador.
 
 **Critérios de aceitação**
-- [ ] Dado uma fase de 1 a 4 sem a tabuleta, quando o herói alcança a saída, então o HUD mostra por pelo menos 3 s uma mensagem curta com o objetivo pendente.
-- [ ] Dado a mensagem de bloqueio exibida, quando o herói permanece na saída, então a mensagem não se repete mais de uma vez a cada 5 s.
-- [ ] Dado a saída bloqueada, quando o herói a alcança, então nenhuma transição ocorre e o estado da fase permanece inalterado.
-- [ ] Dado a tabuleta coletada, quando o herói alcança a saída, então a transição ocorre uma única vez e nenhuma mensagem de bloqueio aparece.
+- [x] Dado uma fase de 1 a 4 sem a tabuleta, quando o herói alcança a saída, então o HUD mostra por pelo menos 3 s uma mensagem curta com o objetivo pendente.
+- [x] Dado a mensagem de bloqueio exibida, quando o herói permanece na saída, então a mensagem não se repete mais de uma vez a cada 5 s.
+- [x] Dado a saída bloqueada, quando o herói a alcança, então nenhuma transição ocorre e o estado da fase permanece inalterado.
+- [x] Dado a tabuleta coletada, quando o herói alcança a saída, então a transição ocorre uma única vez e nenhuma mensagem de bloqueio aparece.
 
 ### US-004 | Testes de regressão da progressão por fase | 5 pts | P0 | S1 | E8 | todo
 **Como** time, **quero** testes automatizados das regras de progressão, **para** não quebrar a jornada das cinco fases ao mexer em intuitividade.
