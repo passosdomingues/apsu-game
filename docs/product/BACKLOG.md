@@ -341,17 +341,17 @@ Fonte de verdade das user stories. Validado por `python3 tools/harness/backlog.p
 - [x] Dado o destaque desenhado, quando renderizado, então não cobre o herói nem o HUD.
 - [x] Dado o eco ativo na fase mais pesada, quando medido com APSU_PERF=1 no perfil balanced, então o frame-time p95 não passa de 16,7 ms.
 
-### US-032 | GPS passivo e revelação de inimigos pelo eco | 3 pts | P1 | S4 | E3 | todo
+### US-032 | GPS passivo e revelação de inimigos pelo eco | 3 pts | P1 | S4 | E3 | done
 **Como** jogador, **quero** que o GPS só mostre inimigos quando uso o eco, **para** que o radar seja uma habilidade e não uma muleta.
 - Fonte: feedback, "radar ser temporário".
 - Depende de: US-030
 - Notas técnicas: o GPS atual mostra herói (triângulo), guardiões (amarelo) e inimigos (vermelho) o tempo todo.
 
 **Critérios de aceitação**
-- [ ] Dado o eco inativo, quando o GPS é desenhado, então mostra apenas o herói e os guardiões.
-- [ ] Dado o eco ativo, quando o GPS é desenhado, então os inimigos dentro do raio do eco aparecem em vermelho.
-- [ ] Dado o eco encerrado, quando passam 3,0 s, então os inimigos somem do GPS.
-- [ ] Dado a fase 5, quando o eco está inativo, então o chefe continua visível no GPS por ser o objetivo.
+- [x] Dado o eco inativo, quando o GPS é desenhado, então mostra apenas o herói e os guardiões.
+- [x] Dado o eco ativo, quando o GPS é desenhado, então os inimigos dentro do raio do eco aparecem em vermelho.
+- [x] Dado o eco encerrado, quando passam 3,0 s, então os inimigos somem do GPS.
+- [x] Dado a fase 5, quando o eco está inativo, então o chefe continua visível no GPS por ser o objetivo.
 
 ### US-033 | Indicador de recarga e dica de tecla | 3 pts | P1 | S4 | E3 | todo
 **Como** jogador, **quero** ver quando o eco está pronto e qual tecla usar, **para** usá-lo sem tentativa e erro.

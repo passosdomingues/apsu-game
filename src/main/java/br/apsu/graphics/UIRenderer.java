@@ -14,6 +14,7 @@ import javafx.scene.paint.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
+import java.util.List;
 
 /**
  * Renderizador desacoplado de UI, HUD, diálogos glassmorphism e radar.
@@ -188,8 +189,14 @@ public class UIRenderer {
         gc.setFill(Palette.RADAR_TITLE); gc.setFont(UiFonts.RADAR_BOLD_10);
         gc.fillText("RADAR", mapX + 8, mapY + 13);
 
-        for (EnemyEntity enemy : context.getEnemies()) {
+        List<EnemyEntity> enemies = context.getEnemies();
+        for (int i = 0; i < enemies.size(); i++) {
+            EnemyEntity enemy = enemies.get(i);
             if (!enemy.isAlive()) continue;
+            // US-032: Inimigos so aparecem no GPS se revelados pelo eco
+            if (!isEnemyVisibleOnMinimap(i, context)) {
+                continue;
+            }
             gc.setFill(Palette.RADAR_ENEMY);
             gc.fillOval(worldToMapX(enemy.getWorldX(), worldWidth, mapX, mapW) - 2, mapY + mapH / 2 - 2, 4, 4);
         }
@@ -206,6 +213,21 @@ public class UIRenderer {
         double heroX = worldToMapX(context.getHero().getX(), worldWidth, mapX, mapW);
         gc.fillPolygon(new double[]{heroX - 4, heroX + 4, heroX},
                        new double[]{mapY + mapH / 2 + 5, mapY + mapH / 2 + 5, mapY + mapH / 2 - 5}, 3);
+    }
+
+    public boolean isEnemyVisibleOnMinimap(int enemyIndex, GameContext context) {
+        if (context == null || enemyIndex < 0 || enemyIndex >= context.getEnemies().size()) return false;
+        EnemyEntity enemy = context.getEnemies().get(enemyIndex);
+        if (!enemy.isAlive()) return false;
+        return context.getEchoWaveRenderer() != null && context.getEchoWaveRenderer().isEnemyHighlighted(enemyIndex);
+    }
+
+    public boolean isBossVisibleOnMinimap(GameContext context) {
+        return context != null && context.getBoss() != null && !context.getBoss().isDead();
+    }
+
+    public boolean isGuardianVisibleOnMinimap(int guardianIndex, GameContext context) {
+        return context != null && guardianIndex >= 0 && guardianIndex < context.getGuardians().size();
     }
 
     public void drawObjectiveArrow(GraphicsContext gc, GameContext context, double canvasWidth, double canvasHeight, double timeSeconds) {
