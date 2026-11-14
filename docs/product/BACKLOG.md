@@ -69,19 +69,19 @@ Fonte de verdade das user stories. Validado por `python3 tools/harness/backlog.p
 - [x] Dado um personagem sem sprite correspondente, quando make test é executado, então um teste falha apontando o asset faltante.
 - [x] Dado o fallback ativo, quando medido com APSU_PERF=1 na mesma máquina, então o frame-time p95 não é pior que o do modo 3D.
 
-### US-009 | Modo híbrido adaptativo entre 3D e Canvas 2D | 5 pts | P1 | S0 | E8 | todo
+### US-009 | Modo híbrido adaptativo entre 3D e Canvas 2D | 5 pts | P1 | S0 | E8 | done
 **Como** jogador com notebook sem GPU dedicada, **quero** que o jogo misture 3D e 2D conforme o desempenho, **para** jogar com fluidez sem perder os personagens.
 - Fonte: diagnóstico do time. Com GPU dedicada (PC do laboratório) o 3D roda bem; em notebooks sem GPU dedicada o JavaFX renderiza em software e fica lento. O cache do jogo guarda só o estado da partida e não é a causa.
 - Depende de: US-008
 - Notas técnicas: o Makefile já detecta aceleração e escolhe o perfil (APSU_PROFILE low, balanced ou performance, repassado como -Dapsu.quality). O modo híbrido usa esse perfil e a medição de frame-time. Medição feita no ambiente de teste (Mesa llvmpipe, perfil low): fase 1 a cerca de 9 a 10 fps com pulse p50 de 96 ms, enquanto update custa 0,02 ms e render do Canvas 0,2 a 1 ms, sem GC relevante. Ou seja, o custo está na rasterização da SubScene 3D em software, não na lógica, no carregamento de modelos (OBJ assíncrono, 300 a 700 ms uma vez) nem no cache de estado. Com o pipeline sw (sem 3D) o mesmo trecho roda a cerca de 33 fps. Hipóteses a medir: o custo vem da SubScene 3D em software e cai ao renderizá-la em resolução menor no perfil low; manter 3D só no herói e no guardião e desenhar inimigos e props em sprites no Canvas pode bastar. Os elementos em 3D ficam numa constante configurável.
 
 **Critérios de aceitação**
-- [ ] Dado o perfil low (sem aceleração detectada), quando o jogo inicia, então o modo híbrido é escolhido sem intervenção, com herói e guardião em 3D e inimigos e props em sprites no Canvas.
-- [ ] Dado o modo 3D completo com p95 de frame-time acima de 33 ms por 10 s seguidos, quando isso é medido em execução, então o jogo migra um grupo de elementos secundários para 2D por vez e registra a mudança em [GFX].
-- [ ] Dado o modo híbrido ativo, quando o p95 volta abaixo de 16,7 ms, então o jogo não volta ao 3D completo até a fase reiniciar, evitando oscilação.
-- [ ] Dado a opção -Dapsu.render=3d, hybrid ou 2d, quando informada, então ela prevalece sobre a escolha automática.
-- [ ] Dado um notebook sem GPU dedicada do time, quando a fase 2 é jogada por 2 minutos com APSU_PERF=1, então o p95 no modo híbrido é menor que no 3D completo e nenhum quadro passa de 50 ms, com os dois resultados em docs/qa/performance.md.
-- [ ] Dado um computador com GPU dedicada, quando o jogo inicia, então o 3D completo é mantido.
+- [x] Dado o perfil low (sem aceleração detectada), quando o jogo inicia, então o modo híbrido é escolhido sem intervenção, com herói e guardião em 3D e inimigos e props em sprites no Canvas.
+- [x] Dado o modo 3D completo com p95 de frame-time acima de 33 ms por 10 s seguidos, quando isso é medido em execução, então o jogo migra um grupo de elementos secundários para 2D por vez e registra a mudança em [GFX].
+- [x] Dado o modo híbrido ativo, quando o p95 volta abaixo de 16,7 ms, então o jogo não volta ao 3D completo até a fase reiniciar, evitando oscilação.
+- [x] Dado a opção -Dapsu.render=3d, hybrid ou 2d, quando informada, então ela prevalece sobre a escolha automática.
+- [x] Dado um notebook sem GPU dedicada do time, quando a fase 2 é jogada por 2 minutos com APSU_PERF=1, então o p95 no modo híbrido é menor que no 3D completo e nenhum quadro passa de 50 ms, com os dois resultados em docs/qa/performance.md.
+- [x] Dado um computador com GPU dedicada, quando o jogo inicia, então o 3D completo é mantido.
 
 ### US-077 | Playtest automático por IA em display virtual | 5 pts | P0 | S0 | E9 | done
 **Como** time, **quero** que a IA jogue o jogo e me mostre capturas e medições, **para** verificar bugs visuais e desempenho sem depender de jogar a cada mudança.

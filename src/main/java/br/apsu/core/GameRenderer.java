@@ -6,5 +6,6 @@ import javafx.scene.canvas.GraphicsContext;
 public interface GameRenderer {
     boolean isReducedEffects();
     void setReducedEffects(boolean reducedEffects);
+    default void recordFrameSample(FrameMetrics.Sample sample) {}
     void render(GraphicsContext graphics, GameContext context, double width, double height);
 }

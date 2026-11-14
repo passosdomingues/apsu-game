@@ -31,6 +31,7 @@ public class RenderEngine implements GameRenderer {
 
     private final SpriteManager spriteManager = SpriteManager.getInstance();
     private final Runtime3DLayer runtime3DLayer = new Runtime3DLayer();
+    private final AdaptiveRenderController adaptiveController = new AdaptiveRenderController();
     private final LightingEngine lightingEngine = new LightingEngine();
     private final UIRenderer uiRenderer = new UIRenderer();
     private final Image[][] phaseBackgroundLayers = new Image[5][3];
@@ -86,12 +87,20 @@ public class RenderEngine implements GameRenderer {
     }
 
     public boolean isReducedEffects() { return reducedEffects; }
+    @Override
+    public void recordFrameSample(br.apsu.core.FrameMetrics.Sample sample) {
+        adaptiveController.recordSample(sample);
+    }
+
     public javafx.scene.Node get3DView() { return runtime3DLayer.view(); }
     public void setViewportScale(double scale) { runtime3DLayer.setViewportScale(scale); }
+    public AdaptiveRenderController getAdaptiveRenderController() { return adaptiveController; }
 
     public void render(GraphicsContext gc, GameContext ctx, double width, double height) {
         gc.clearRect(0, 0, width, height);
         double t = ctx.getNanoTime() / 1_000_000_000.0;
+        adaptiveController.onPhaseChanged(ctx.getCurrentPhase());
+        runtime3DLayer.setSecondaryElementsDisabled(adaptiveController.isSecondaryIn2D());
         double shakeX = ctx.getCamera().getShakeX(ctx.getNanoTime());
         double shakeY = ctx.getCamera().getShakeY(ctx.getNanoTime());
         runtime3DLayer.update(ctx, t, shakeX, shakeY);
@@ -519,8 +528,8 @@ public class RenderEngine implements GameRenderer {
         lightingEngine.drawBioluminescentHalo(gc, centerX, centerY,
             targetW * 0.32, hero.getType().getAura());
 
-        // US-008: Fallback 2D para heroi no Canvas quando Scene3D indisponivel ou forçado
-        if (!GraphicsDiagnostics.isScene3dSupported()) {
+        // US-008 / US-009: Fallback 2D para heroi no Canvas quando Scene3D indisponivel ou forcado em 2D
+        if (!adaptiveController.isHeroIn3D()) {
             Character2DFallbackRenderer.renderHero(gc, null, hero, x, y, timeSeconds);
         }
     }
@@ -540,8 +549,8 @@ public class RenderEngine implements GameRenderer {
 
         drawShadow(gc, x + ew / 2, y + eh - 2, ew * 0.65, 9);
 
-        // US-008: Fallback 2D para inimigos no Canvas
-        if (!GraphicsDiagnostics.isScene3dSupported()) {
+        // US-008 / US-009: Fallback 2D para inimigos no Canvas quando 2D completo ou modo hibrido
+        if (adaptiveController.isSecondaryIn2D()) {
             Character2DFallbackRenderer.renderEnemy(gc, enemy, x, y);
         }
     }
@@ -553,8 +562,8 @@ public class RenderEngine implements GameRenderer {
         drawShadow(gc, boss.getX() + BossEntity.BW / 2, boss.getY() + BossEntity.BH - 5,
             BossEntity.RENDER_W * 0.10, 16);
 
-        // US-008: Fallback 2D para Boss no Canvas
-        if (!GraphicsDiagnostics.isScene3dSupported()) {
+        // US-008 / US-009: Fallback 2D para Boss no Canvas quando 2D completo ou modo hibrido
+        if (adaptiveController.isSecondaryIn2D()) {
             Character2DFallbackRenderer.renderBoss(gc, boss, timeSeconds);
         }
 
@@ -598,8 +607,8 @@ public class RenderEngine implements GameRenderer {
             GuardianEntity.GW * 0.9, Palette.GUARDIAN_HALO);
         drawShadow(gc, x + GuardianEntity.GW / 2, y + GuardianEntity.GH - 4, GuardianEntity.GW * 0.7, 16);
 
-        // US-008: Fallback 2D para guardiao no Canvas
-        if (!GraphicsDiagnostics.isScene3dSupported()) {
+        // US-008 / US-009: Fallback 2D para guardiao no Canvas quando Scene3D indisponivel ou 2D completo
+        if (!adaptiveController.isGuardianIn3D()) {
             GuardianEntity dummy = new GuardianEntity(type, x, y);
             Character2DFallbackRenderer.renderGuardian(gc, dummy, x, y);
         }

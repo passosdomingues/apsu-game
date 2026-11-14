@@ -66,6 +66,7 @@ public class GameLoop extends AnimationTimer {
                 context.getParticleSystem().setReducedEffects(true);
                 System.err.printf("[WARN] FPS %.1f: efeitos de iluminação/partículas reduzidos; malhas 3D mantidas.%n", fps);
             }
+            renderer.recordFrameSample(frameMetrics.getLastSample());
         }
         context.getInputManager().tick(now);
         long updateStart = PERF_LOG ? System.nanoTime() : 0;

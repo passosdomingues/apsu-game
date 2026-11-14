@@ -62,6 +62,7 @@ public final class Runtime3DLayer {
     private final java.util.Set<String> failedModels = new java.util.HashSet<>();
     private double shakeX, shakeY;
     private boolean p2ModelsRequested = false;
+    private boolean secondaryElementsDisabled = false;
     private static final String[] ENKI_MODELS = {
         "03_enki_npc", "03_enki_var_celestial", "03_enki_var_eremita"
     };
@@ -109,6 +110,14 @@ public final class Runtime3DLayer {
         view.setScaleY(scale);
     }
 
+    public void setSecondaryElementsDisabled(boolean disabled) {
+        this.secondaryElementsDisabled = disabled;
+    }
+
+    public boolean isSecondaryElementsDisabled() {
+        return this.secondaryElementsDisabled;
+    }
+
     public void update(GameContext context, double timeSeconds, double shakeX, double shakeY) {
         this.shakeX = shakeX;
         this.shakeY = shakeY;
@@ -153,18 +162,20 @@ public final class Runtime3DLayer {
         // Personagens, inimigos e props usam malhas Blender na camada 3D.
         double alpha = context.getRenderAlpha();
         int enemyIndex = 0;
-        for (EnemyEntity enemy : context.getEnemies()) {
-            int id = enemyIndex++;
-            if (!enemy.isAlive()) continue;
-            EnemyType type = enemy.getType();
-            double screenX = context.getCamera().toScreenX(enemy.getWorldX(), alpha) + type.getWidth() / 2.0;
-            if (!insideViewport(screenX, type.getWidth())) continue;
-            Actor enemyActor = actor(id < ENEMY_IDS.length ? ENEMY_IDS[id] : "enemy-" + id,
-                modelName(type.getStaticSprite()), type.getWidth(), type.getHeight());
-            if (enemyActor != null) place(enemyActor,
-                screenX,
-                enemy.getCurrentY() + type.getHeight() / 2.0,
-                enemy.getWorldX() / 4000.0, timeSeconds, 54);
+        if (!secondaryElementsDisabled) {
+            for (EnemyEntity enemy : context.getEnemies()) {
+                int id = enemyIndex++;
+                if (!enemy.isAlive()) continue;
+                EnemyType type = enemy.getType();
+                double screenX = context.getCamera().toScreenX(enemy.getWorldX(), alpha) + type.getWidth() / 2.0;
+                if (!insideViewport(screenX, type.getWidth())) continue;
+                Actor enemyActor = actor(id < ENEMY_IDS.length ? ENEMY_IDS[id] : "enemy-" + id,
+                    modelName(type.getStaticSprite()), type.getWidth(), type.getHeight());
+                if (enemyActor != null) place(enemyActor,
+                    screenX,
+                    enemy.getCurrentY() + type.getHeight() / 2.0,
+                    enemy.getWorldX() / 4000.0, timeSeconds, 54);
+            }
         }
 
         HeroEntity hero = context.getHero();
@@ -208,7 +219,7 @@ public final class Runtime3DLayer {
         }
 
         BossEntity boss = context.getBoss();
-        if (state == GameContext.State.P5 && boss != null) {
+        if (state == GameContext.State.P5 && boss != null && !secondaryElementsDisabled) {
             Actor bossActor = actor("boss", "characters/02_kullullu_boss", BossEntity.RENDER_W, BossEntity.RENDER_H);
             if (bossActor != null) {
                 // The Blender export includes a long spear and asymmetric
@@ -222,7 +233,9 @@ public final class Runtime3DLayer {
             }
         }
 
-        updateScenery(context, timeSeconds);
+        if (!secondaryElementsDisabled) {
+            updateScenery(context, timeSeconds);
+        }
         finishVisibleActors();
     }
 
