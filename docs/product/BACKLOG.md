@@ -111,18 +111,18 @@ Fonte de verdade das user stories. Validado por `python3 tools/harness/backlog.p
 - [x] Dado um teste automatizado da fase 2, quando executado com make test, então ele falha se existir hitbox de coral sem visual associado.
 - [x] Dado APSU_PERF=1 make run na fase 2, quando comparado com a medição anterior à mudança, então o frame-time médio varia no máximo 5%.
 
-### US-002 | Dano por contato do Kullullû | 3 pts | P0 | S1 | E4 | todo
+### US-002 | Dano por contato do Kullullû | 3 pts | P0 | S1 | E4 | done
 **Como** jogador, **quero** sofrer dano ao encostar no chefe, **para** entender que ele é perigoso sem esperar por um ataque.
 - Fonte: feedback, "o boss tem que dar dano só de encostar".
 - Depende de: nenhuma
 - Notas técnicas: o Kullullû existe apenas na fase 5. Usar a QuadTree e a mecânica de dano atuais; a invulnerabilidade segue a regra já existente de dano ao herói.
 
 **Critérios de aceitação**
-- [ ] Dado a fase 5 com o chefe vivo, quando a caixa do herói intersecta a do Kullullû, então o herói perde vida e o evento HERO_DAMAGED é publicado uma única vez.
-- [ ] Dado o herói em invulnerabilidade após o dano, quando o contato continua, então nenhum dano adicional é aplicado até o fim do período de 1,0 s.
-- [ ] Dado o valor do dano de contato do chefe, quando comparado ao de um inimigo comum, então ele é maior ou igual a este e menor que 25% da vida máxima do herói, em constante nomeada.
-- [ ] Dado o chefe em qualquer das suas fases de combate, quando há contato, então o dano é aplicado mesmo que o chefe não esteja atacando.
-- [ ] Dado um teste unitário, quando executado com make test, então ele cobre contato único, contato contínuo e contato durante a invulnerabilidade.
+- [x] Dado a fase 5 com o chefe vivo, quando a caixa do herói intersecta a do Kullullû, então o herói perde vida e o evento HERO_DAMAGED é publicado uma única vez.
+- [x] Dado o herói em invulnerabilidade após o dano, quando o contato continua, então nenhum dano adicional é aplicado até o fim do período de 1,0 s.
+- [x] Dado o valor do dano de contato do chefe, quando comparado ao de um inimigo comum, então ele é maior ou igual a este e menor que 25% da vida máxima do herói, em constante nomeada.
+- [x] Dado o chefe em qualquer das suas fases de combate, quando há contato, então o dano é aplicado mesmo que o chefe não esteja atacando.
+- [x] Dado um teste unitário, quando executado com make test, então ele cobre contato único, contato contínuo e contato durante a invulnerabilidade.
 
 ### US-003 | Feedback de saída bloqueada | 3 pts | P0 | S1 | E2 | todo
 **Como** jogador, **quero** saber por que não consigo sair da fase ao chegar ao portal, **para** voltar e conversar com o guardião.

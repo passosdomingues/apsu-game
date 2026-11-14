@@ -760,7 +760,7 @@ public class GameContext {
                 showAlert("ATENCAO: " + boss.getCombatPhase().getLabel() + " — Kullullû muda de padrão!");
             }
 
-            // Colisão Direta Herói <-> Boss
+            // Colisão Direta Herói <-> Boss (US-002: dano de contato com Kullullû)
             if (!hero.isInvulnerable() && heroHits(boss.getX() + 18, boss.getY() + 18,
                                                     BossEntity.BW - 36, BossEntity.BH - 36)) {
                 // BUGFIX 2026-08-15: P5 é arena fixa (sem scroll de câmera) — hero.getX()
@@ -768,9 +768,9 @@ public class GameContext {
                 // offset residual deixado pela Fase 4 (camera.setX nunca é resetado ao
                 // entrar em P5), jogando a partícula pra fora da tela.
                 double direction = hero.getX() + HeroEntity.HW / 2 < boss.getX() + BossEntity.BW / 2 ? -1 : 1;
-                // O contato direto deve retirar ao menos meio ponto no Fácil,
-                // para que o HUD e o jogador percebam imediatamente o impacto.
-                hurtHero(difficulty.getCollisionDamage(), direction * 5.5, -3.0, Color.PURPLE, 8);
+                // US-002: Dano por contato direto do chefe (maior ou igual ao inimigo comum e < 25% do HP max)
+                double contactDmg = Math.max(difficulty.getCollisionDamage(), BossEntity.CONTACT_DAMAGE);
+                hurtHero(contactDmg, direction * 5.5, -3.0, Color.PURPLE, 8);
             }
 
             // Cada estágio tem um padrão próprio. Durante os 0,5 s do
@@ -1263,6 +1263,7 @@ public class GameContext {
         double screenX = state == State.P5 ? hero.getX() : camera.toScreenX(hero.getX());
         particleSystem.addBurst(screenX + HeroEntity.HW / 2, hero.getY() + HeroEntity.HH / 2, color);
         playSound(AudioCue.HERO_DAMAGED);
+        eventBus.publish(new GameEvent(GameEvent.Type.HERO_DAMAGED, effectiveDamage, screenX, hero.getY()));
         if (hero.getHp() <= 0) {
             if (state == State.P5) publishBossMusic(false);
             state = State.OVER;

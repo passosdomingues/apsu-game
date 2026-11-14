@@ -74,4 +74,13 @@ public class BossEntityTest {
         assertTrue(Math.abs(boss.getY() + BossEntity.BH / 2.0 - centerAtRest) <= 28,
             "A animação de espera não deve empurrar o boss para fora do centro da arena");
     }
+
+    @Test
+    @DisplayName("US-002: Constante de dano de contato do Boss")
+    void testBossContactDamageConstant() {
+        // Dano de contato >= dano de colisão do inimigo comum (0.5 no facil) e < 25% do HP max do heroi (ex: 5.0 * 0.25 = 1.25)
+        assertTrue(BossEntity.CONTACT_DAMAGE >= 0.5, "Dano de contato deve ser maior ou igual a um inimigo comum");
+        assertTrue(BossEntity.CONTACT_DAMAGE < 1.25, "Dano de contato deve ser menor que 25% do HP maximo do heroi");
+        assertEquals(1.0, BossEntity.CONTACT_DAMAGE, 0.001);
+    }
 }

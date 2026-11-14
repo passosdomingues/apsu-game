@@ -878,5 +878,37 @@ public class GameContextIntegrationTest {
         context.startP1();
         assertTrue(context.getTutorialController().isActive(), "Reiniciar jogo deve restaurar tutorial ativo");
     }
+
+    @Test
+    @DisplayName("US-002: Dano por contato com Kullullû (contato único, contínuo e invulnerabilidade)")
+    void testBossContactDamageAndInvulnerability() {
+        context.startP5();
+        assertNotNull(context.getBoss());
+        assertFalse(context.getBoss().isDead());
+
+        java.util.concurrent.atomic.AtomicInteger damagedEvents = new java.util.concurrent.atomic.AtomicInteger(0);
+        context.getEventBus().subscribe(br.apsu.core.events.GameEvent.Type.HERO_DAMAGED, e -> damagedEvents.incrementAndGet());
+
+        // 1. Contato único com o Boss
+        context.getHero().setX(context.getBoss().getX() + 20);
+        context.getHero().setY(context.getBoss().getY() + 20);
+        double hpBefore = context.getHero().getHp();
+
+        context.update(1_000_000_000L); // 1 tick de contato
+        assertTrue(context.getHero().getHp() < hpBefore, "Herói deve sofrer dano por contato com o Boss");
+        assertTrue(context.getHero().isInvulnerable(), "Herói deve ficar invulnerável após o dano");
+        assertEquals(1, damagedEvents.get(), "Evento HERO_DAMAGED publicado exatamente uma vez no contato");
+
+        // 2. Contato contínuo durante o período de invulnerabilidade (nenhum dano extra aplicado)
+        double hpDuringInvuln = context.getHero().getHp();
+        context.update(1_500_000_000L); // 0.5s depois (ainda invulnerável)
+        assertEquals(hpDuringInvuln, context.getHero().getHp(), "Nenhum dano adicional deve ser aplicado durante invulnerabilidade");
+        assertEquals(1, damagedEvents.get(), "Nenhum evento adicional emitido durante invulnerabilidade");
+
+        // 3. Após fim da invulnerabilidade (1.25s), novo dano é aplicado
+        context.update(2_300_000_000L); // 1.3s após o primeiro dano
+        assertTrue(context.getHero().getHp() < hpDuringInvuln, "Novo dano deve ser aplicado após o fim da invulnerabilidade");
+        assertEquals(2, damagedEvents.get(), "Novo evento HERO_DAMAGED emitido após expiração da invulnerabilidade");
+    }
 }
 

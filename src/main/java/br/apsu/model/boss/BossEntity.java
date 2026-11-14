@@ -17,6 +17,8 @@ public class BossEntity {
     }
 
     public static final long TELEGRAPH_NANOS = 500_000_000L;
+    /** Dano fixo por contato fisico direto com Kullullu (US-002). */
+    public static final double CONTACT_DAMAGE = 1.0;
     /** Hitbox gameplay do boss; o render 3D mantém proporção maior que o herói. */
     public static final double BW = 260, BH = 400;
     public static final double RENDER_W = 3800, RENDER_H = 4600;
