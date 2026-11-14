@@ -278,7 +278,7 @@ Fonte de verdade das user stories. Validado por `python3 tools/harness/backlog.p
 - [x] Dado o baú aberto, quando a abertura ocorre, então CHEST_OPENED é publicado uma única vez no EventBus e documentado com produtor, payload e consumidor.
 - [x] Dado o baú já aberto, quando o jogador interage de novo, então nenhum efeito é reaplicado.
 
-### US-023 | Introdução de guardião com foco de câmera | 3 pts | P1 | S3 | E2 | doing
+### US-023 | Introdução de guardião com foco de câmera | 3 pts | P1 | S3 | E2 | done
 **Como** jogador, **quero** que a câmera apresente cada guardião das fases 2 a 4, **para** reconhecer rapidamente quem devo procurar.
 - Fonte: feedback, "cutscenes mostrando focos de elementos".
 - Depende de: US-011
@@ -290,7 +290,7 @@ Fonte de verdade das user stories. Validado por `python3 tools/harness/backlog.p
 - [x] Dado o guardião já apresentado, quando o herói volta a passar perto, então a cutscene não repete.
 - [x] Dado a cutscene tocando, quando o jogador a pula, então o foco termina em até 0,3 s.
 
-### US-024 | Cutscene de abertura da saída após a tabuleta | 2 pts | P2 | S3 | E2 | doing
+### US-024 | Cutscene de abertura da saída após a tabuleta | 2 pts | P2 | S3 | E2 | done
 **Como** jogador, **quero** ver onde fica a saída depois de pegar a tabuleta, **para** seguir sem procurar.
 - Fonte: feedback, "seta no guardião" e cutscenes.
 - Depende de: US-011
