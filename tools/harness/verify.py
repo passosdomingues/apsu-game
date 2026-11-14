@@ -48,6 +48,7 @@ def main():
         "tools/harness/backlog.py", "tools/harness/harness.mk", "AGENTS.md",
         "tools/harness/play/ai_play.py", "tools/harness/play/scenarios/smoke_p1.json",
         "docs/product/BACKLOG.md", "docs/product/SPRINTS.md", "docs/product/DEFINITION_OF_DONE.md",
+        "tools/harness/fsm.py", "tools/harness/seed.py", "tools/harness/core_checksums.sha256",
     ]
     for rel in required:
         check(f"arquivo {rel}", (ROOT / rel).exists())
