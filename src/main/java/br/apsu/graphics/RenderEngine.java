@@ -336,6 +336,7 @@ public class RenderEngine implements GameRenderer {
         }
 
         drawProjectiles(gc, ctx);
+        ctx.getEchoWaveRenderer().render(gc, ctx, width, height);
         drawInterpolatedHero(gc, ctx, timeSeconds, true);
         ctx.getParticleSystem().render(gc);
 
@@ -393,6 +394,7 @@ public class RenderEngine implements GameRenderer {
         }
 
         drawProjectiles(gc, ctx);
+        ctx.getEchoWaveRenderer().render(gc, ctx, width, height);
         drawInterpolatedHero(gc, ctx, timeSeconds, true);
         ctx.getParticleSystem().render(gc);
 
@@ -444,6 +446,7 @@ public class RenderEngine implements GameRenderer {
         }
 
         drawProjectiles(gc, ctx);
+        ctx.getEchoWaveRenderer().render(gc, ctx, width, height);
         drawInterpolatedHero(gc, ctx, timeSeconds, true);
         ctx.getParticleSystem().render(gc);
 
@@ -473,6 +476,7 @@ public class RenderEngine implements GameRenderer {
         }
 
         drawProjectiles(gc, ctx);
+        ctx.getEchoWaveRenderer().render(gc, ctx, width, height);
         drawInterpolatedHero(gc, ctx, timeSeconds, true);
         ctx.getParticleSystem().render(gc);
 
@@ -499,6 +503,7 @@ public class RenderEngine implements GameRenderer {
         }
 
         drawProjectiles(gc, ctx);
+        ctx.getEchoWaveRenderer().render(gc, ctx, width, height);
         drawInterpolatedHero(gc, ctx, timeSeconds, false);
         ctx.getParticleSystem().render(gc);
 

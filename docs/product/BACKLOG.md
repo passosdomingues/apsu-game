@@ -329,17 +329,17 @@ Fonte de verdade das user stories. Validado por `python3 tools/harness/backlog.p
 - [x] Dado o jogo pausado, quando os contadores do eco estão ativos, então eles também pausam e retomam ao sair da pausa.
 - [x] Dado um teste unitário, quando executado com make test, então ele cobre ativação, expiração, recarga e pausa.
 
-### US-031 | Onda visual do eco | 5 pts | P1 | S4 | E3 | todo
+### US-031 | Onda visual do eco | 5 pts | P1 | S4 | E3 | done
 **Como** jogador, **quero** ver uma onda se expandindo a partir do herói, **para** perceber que o eco está revelando o ambiente.
 - Fonte: feedback, radar como ecolocalização.
 - Depende de: US-030
 - Notas técnicas: desenho imperativo no Canvas, sem alocação por quadro.
 
 **Critérios de aceitação**
-- [ ] Dado o eco ativado, quando ele inicia, então um anel se expande do herói até o raio de 600 unidades em 1,0 s.
-- [ ] Dado o anel alcançando guardiões, inimigos e obstáculos fixos, quando eles são atingidos, então cada um é destacado por 3,0 s em cor distinta (amarelo, vermelho e branco), coerente com o GPS.
-- [ ] Dado o destaque desenhado, quando renderizado, então não cobre o herói nem o HUD.
-- [ ] Dado o eco ativo na fase mais pesada, quando medido com APSU_PERF=1 no perfil balanced, então o frame-time p95 não passa de 16,7 ms.
+- [x] Dado o eco ativado, quando ele inicia, então um anel se expande do herói até o raio de 600 unidades em 1,0 s.
+- [x] Dado o anel alcançando guardiões, inimigos e obstáculos fixos, quando eles são atingidos, então cada um é destacado por 3,0 s em cor distinta (amarelo, vermelho e branco), coerente com o GPS.
+- [x] Dado o destaque desenhado, quando renderizado, então não cobre o herói nem o HUD.
+- [x] Dado o eco ativo na fase mais pesada, quando medido com APSU_PERF=1 no perfil balanced, então o frame-time p95 não passa de 16,7 ms.
 
 ### US-032 | GPS passivo e revelação de inimigos pelo eco | 3 pts | P1 | S4 | E3 | todo
 **Como** jogador, **quero** que o GPS só mostre inimigos quando uso o eco, **para** que o radar seja uma habilidade e não uma muleta.

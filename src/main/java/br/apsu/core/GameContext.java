@@ -75,6 +75,7 @@ public class GameContext {
     private final PhaseExitIntroductionController phaseExitIntroductionController = new PhaseExitIntroductionController();
     private final TutorialController tutorialController = new TutorialController();
     private final br.apsu.echo.EchoController echoController = new br.apsu.echo.EchoController();
+    private final br.apsu.echo.EchoWaveRenderer echoWaveRenderer = new br.apsu.echo.EchoWaveRenderer();
     private double renderAlpha = 1.0;
     private final SaveManager saveManager;
     private final EventBus eventBus;
@@ -308,6 +309,7 @@ public class GameContext {
         tutorialController.reset();
         cutsceneController.stop();
         echoController.reset();
+        echoWaveRenderer.reset();
     }
 
     public void transitionToPhase(int targetPhase) {
@@ -550,6 +552,7 @@ public class GameContext {
         double hpBeforeUpdate = hero.getHp();
         if (state == State.P1 || state == State.P2 || state == State.P3 || state == State.P4 || state == State.P5) {
             echoController.update(1.0 / 60.0);
+            echoWaveRenderer.update(this, 1.0 / 60.0);
         }
         switch (state) {
             case P1 -> updateP1();
@@ -1429,4 +1432,5 @@ public class GameContext {
     public br.apsu.cutscene.CutsceneController getCutsceneController() { return cutsceneController; }
     public TutorialController getTutorialController() { return tutorialController; }
     public br.apsu.echo.EchoController getEchoController() { return echoController; }
+    public br.apsu.echo.EchoWaveRenderer getEchoWaveRenderer() { return echoWaveRenderer; }
 }
