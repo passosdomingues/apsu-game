@@ -98,18 +98,18 @@ Fonte de verdade das user stories. Validado por `python3 tools/harness/backlog.p
 
 ## Sprint S1: Bloqueadores e base de testes
 
-### US-001 | Corrigir obstáculos de coral invisíveis na fase 2 | 5 pts | P0 | S1 | E5 | todo
+### US-001 | Corrigir obstáculos de coral invisíveis na fase 2 | 5 pts | P0 | S1 | E5 | done
 **Como** jogador, **quero** ver cada estalactite e estalagmite da fase 2, **para** desviar deles sem sofrer colisões inexplicáveis.
 - Fonte: playtest, "bug na fase 2, estalactite e estalagmite invisível".
 - Depende de: nenhuma
 - Notas técnicas: causa raiz confirmada por leitura do código e por jogo automático. GameContext cria os seis pares de CORAL (colisão e dano em updateP2), mas Runtime3DLayer.sceneryModel devolve null para CORAL de propósito (o único OBJ de recife era um conjunto completo) e é o único código que desenha cenário. Resultado: obstáculos que machucam e nunca são desenhados, em qualquer pipeline. Caminho recomendado: desenhar cada coral em Canvas, de forma procedural a partir da própria caixa de colisão (estalactite pendurada no topo, estalagmite subindo do fundo), em classe nova, o que funciona também sem 3D. O modelo 3D dedicado fica para a US-006. Preferir classe nova a editar GameContext (regra 10).
 
 **Critérios de aceitação**
-- [ ] Dado a fase 2 iniciada, quando o jogo carrega os seis pares de coral, então cada hitbox registrada na QuadTree possui um elemento visual associado na mesma posição.
-- [ ] Dado um par de coral na tela, quando a caixa de colisão é comparada com a malha desenhada, então a diferença de limites é de no máximo 8 px em x e em y.
-- [ ] Dado o herói colidindo com um coral, quando o contato ocorre, então o coral atingido está visível no quadro do contato, confirmado em playtest dos seis pares.
-- [ ] Dado um teste automatizado da fase 2, quando executado com make test, então ele falha se existir hitbox de coral sem visual associado.
-- [ ] Dado APSU_PERF=1 make run na fase 2, quando comparado com a medição anterior à mudança, então o frame-time médio varia no máximo 5%.
+- [x] Dado a fase 2 iniciada, quando o jogo carrega os seis pares de coral, então cada hitbox registrada na QuadTree possui um elemento visual associado na mesma posição.
+- [x] Dado um par de coral na tela, quando a caixa de colisão é comparada com a malha desenhada, então a diferença de limites é de no máximo 8 px em x e em y.
+- [x] Dado o herói colidindo com um coral, quando o contato ocorre, então o coral atingido está visível no quadro do contato, confirmado em playtest dos seis pares.
+- [x] Dado um teste automatizado da fase 2, quando executado com make test, então ele falha se existir hitbox de coral sem visual associado.
+- [x] Dado APSU_PERF=1 make run na fase 2, quando comparado com a medição anterior à mudança, então o frame-time médio varia no máximo 5%.
 
 ### US-002 | Dano por contato do Kullullû | 3 pts | P0 | S1 | E4 | todo
 **Como** jogador, **quero** sofrer dano ao encostar no chefe, **para** entender que ele é perigoso sem esperar por um ataque.

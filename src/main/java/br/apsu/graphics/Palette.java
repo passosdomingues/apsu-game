@@ -80,6 +80,13 @@ public final class Palette {
     public static final Color HUD_OBJECTIVE_LABEL = color("#60a8d8");
     public static final Color HUD_OBJECTIVE_TEXT = color("#ffe066");
 
+    // Cores de corais e estalactites/estalagmites da Fase 2 (US-001)
+    public static final Color CORAL_BASE = color("#c85a53");
+    public static final Color CORAL_LIGHT = color("#e27d75");
+    public static final Color CORAL_SHADOW = color("#85302c");
+    public static final Color CORAL_TIP = color("#ffad9f");
+    public static final Color CORAL_GLOW = Color.rgb(226, 125, 117, 0.25);
+
     // Radar
     public static final Color RADAR_BG = Color.rgb(1, 10, 27, 0.84);
     public static final Color RADAR_STROKE = Color.rgb(70, 185, 255, 0.65);
