@@ -161,17 +161,17 @@ Fonte de verdade das user stories. Validado por `python3 tools/harness/backlog.p
 - [x] Dado make test antes e depois da instalação, quando os resultados são comparados, então o número de testes e o resultado são idênticos.
 - [x] Dado git status após a instalação, quando revisado, então aparecem apenas arquivos do harness, uma linha no Makefile, um bloco em DEVELOPMENT.md e entradas em .gitignore.
 
-### US-006 | Modelo de coral de colisão dedicado e leve | 3 pts | P1 | S1 | E5 | todo
+### US-006 | Modelo de coral de colisão dedicado e leve | 3 pts | P1 | S1 | E5 | done
 **Como** jogador, **quero** corais de colisão com forma legível, **para** prever por onde posso passar.
 - Fonte: README, pendência "modelo de coral de colisão dedicado e leve".
 - Depende de: US-001
 - Notas técnicas: o desenho em Canvas da US-001 já resolve a visibilidade; este modelo 3D é o acabamento. O modelo atual de recife mistura cardume e vários materiais. Exportar com `make export-model MODEL=...`.
 
 **Critérios de aceitação**
-- [ ] Dado o novo modelo de coral, quando exportado, então ele usa no máximo 1 material e no máximo 2.000 triângulos.
-- [ ] Dado os seis pares de coral da fase 2, quando renderizados, então todos usam o novo modelo com escala entre 0,9 e 1,1.
-- [ ] Dado a silhueta do coral sobre o panorama da fase 2, quando revisada em playtest, então os seis pares são distinguíveis do fundo.
-- [ ] Dado o modelo antigo fora de uso, quando a mudança é revisada, então nenhum arquivo de asset foi excluído (regra 08).
+- [x] Dado o novo modelo de coral, quando exportado, então ele usa no máximo 1 material e no máximo 2.000 triângulos.
+- [x] Dado os seis pares de coral da fase 2, quando renderizados, então todos usam o novo modelo com escala entre 0,9 e 1,1.
+- [x] Dado a silhueta do coral sobre o panorama da fase 2, quando revisada em playtest, então os seis pares são distinguíveis do fundo.
+- [x] Dado o modelo antigo fora de uso, quando a mudança é revisada, então nenhum arquivo de asset foi excluído (regra 08).
 
 ## Sprint S2: Orientação e cutscenes
 

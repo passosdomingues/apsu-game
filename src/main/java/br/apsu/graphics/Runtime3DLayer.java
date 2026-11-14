@@ -260,7 +260,13 @@ public final class Runtime3DLayer {
             int elementIndex = index++;
             double propWidth = element.getWidth();
             double propHeight = element.getHeight();
-            if (element.getType() == SceneryElement.Type.CURRENT
+            double roll = 0;
+            if (element.getType() == SceneryElement.Type.CORAL) {
+                boolean isStalactite = element.getWorldY() <= 1.0;
+                roll = isStalactite ? 180 : 0;
+                propWidth = element.getWidth();
+                propHeight = element.getHeight();
+            } else if (element.getType() == SceneryElement.Type.CURRENT
                 || element.getType() == SceneryElement.Type.PRESSURE_ZONE) {
                 propWidth = Math.max(150, element.getWidth() * 0.9);
                 propHeight = Math.max(320, element.getHeight() * 0.85);
@@ -271,9 +277,12 @@ public final class Runtime3DLayer {
             String id = elementIndex < SCENERY_IDS.length ? SCENERY_IDS[elementIndex] : "scenery-" + elementIndex;
             Actor prop = actor(id, "scenery/" + model,
                 Math.max(48, propWidth), Math.max(48, propHeight));
-            if (prop != null) place(prop, screenX + element.getWidth() / 2,
-                element.getWorldY() + element.getHeight() / 2,
-                element.getWorldX() / 4000.0, timeSeconds, 0);
+            if (prop != null) {
+                prop.bodyMotion.setAngle(roll);
+                place(prop, screenX + element.getWidth() / 2,
+                    element.getWorldY() + element.getHeight() / 2,
+                    element.getWorldX() / 4000.0, timeSeconds, 0);
+            }
         }
         if (context.getCurrentPhase() == 2) {
             // The mesh's original built-in chest sits about 3% right and 5%
@@ -307,7 +316,7 @@ public final class Runtime3DLayer {
             // The only available reef OBJ is a complete reef-and-school set,
             // not an individual coral obstacle. Repeating it at each collision
             // column scattered full set pieces across the whole phase.
-            case CORAL -> null;
+            case CORAL -> "15_coral_colisao_3d";
             case CURRENT, PRESSURE_ZONE -> "16_corrente_abissal_3d";
             case MOVING_OBSTACLE -> "13_obstaculo_abissal";
             case GEYSER -> "14_geiser_hidrotermal_3d";

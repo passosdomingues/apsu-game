@@ -24,8 +24,8 @@ class Runtime3DLayerTest {
     @Test
     @DisplayName("Cenários de recife e obstáculos mapeiam os modelos corretos")
     void fullReefSchoolSetIsNotRepeatedForEachCoralCollisionColumn() {
-        assertNull(Runtime3DLayer.sceneryModel(SceneryElement.Type.CORAL),
-            "O OBJ contem a composicao completa do recife e do cardume, nao uma peca de coral reutilizavel");
+        assertEquals("15_coral_colisao_3d", Runtime3DLayer.sceneryModel(SceneryElement.Type.CORAL),
+            "O modelo dedicado e leve de coral 3D e utilizado para CORAL");
         assertEquals("16_corrente_abissal_3d",
             Runtime3DLayer.sceneryModel(SceneryElement.Type.CURRENT));
         assertEquals("14_geiser_hidrotermal_3d",
