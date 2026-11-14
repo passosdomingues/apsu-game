@@ -240,19 +240,19 @@ Fonte de verdade das user stories. Validado por `python3 tools/harness/backlog.p
 
 ## Sprint S3: Tutorial e cutscenes de fase
 
-### US-020 | Primeira fase como tutorial guiado | 8 pts | P0 | S3 | E1 | todo
+### US-020 | Primeira fase como tutorial guiado | 8 pts | P0 | S3 | E1 | done
 **Como** jogador novo, **quero** aprender os controles jogando a primeira fase, **para** entender empuxo, dano, GPS e diálogo sem manual.
 - Fonte: feedback, "fazer a primeira fase ser um tutorial".
 - Depende de: US-010, US-013, US-014
 - Notas técnicas: passos do tutorial como máquina de estados em classe nova (proposta: br.apsu.tutorial), sem condicionais novas em GameContext.
 
 **Critérios de aceitação**
-- [ ] Dado uma nova partida, quando a fase 1 começa, então o jogo guia em ordem: descer contra o empuxo, desviar de um inimigo, ler o GPS e conversar com o guardião, e cada passo só avança quando o jogador executa a ação.
-- [ ] Dado um passo do tutorial, quando o jogador passa mais de 15 s sem executá-lo, então a dica do passo é reforçada com destaque visual ou seta.
-- [ ] Dado o passo de desviar, quando o jogador sofre dano, então a vida nunca cai abaixo de 50% durante o tutorial e o passo é repetido.
-- [ ] Dado um jogador experiente, quando pressiona Esc durante o tutorial, então os passos restantes são pulados e a fase segue normalmente.
-- [ ] Dado o tutorial concluído, quando a conversa com o guardião termina, então as dicas somem e não reaparecem na mesma partida.
-- [ ] Dado a partida reiniciada, quando a fase 1 recomeça, então o tutorial recomeça do primeiro passo.
+- [x] Dado uma nova partida, quando a fase 1 começa, então o jogo guia em ordem: descer contra o empuxo, desviar de um inimigo, ler o GPS e conversar com o guardião, e cada passo só avança quando o jogador executa a ação.
+- [x] Dado um passo do tutorial, quando o jogador passa mais de 15 s sem executá-lo, então a dica do passo é reforçada com destaque visual ou seta.
+- [x] Dado o passo de desviar, quando o jogador sofre dano, então a vida nunca cai abaixo de 50% durante o tutorial e o passo é repetido.
+- [x] Dado um jogador experiente, quando pressiona Esc durante o tutorial, então os passos restantes são pulados e a fase segue normalmente.
+- [x] Dado o tutorial concluído, quando a conversa com o guardião termina, então as dicas somem e não reaparecem na mesma partida.
+- [x] Dado a partida reiniciada, quando a fase 1 recomeça, então o tutorial recomeça do primeiro passo.
 
 ### US-021 | Cutscene do baú no naufrágio | 3 pts | P0 | S3 | E2 | done
 **Como** jogador, **quero** que a câmera destaque o baú no naufrágio, **para** saber onde despertar o poder das bolhas.

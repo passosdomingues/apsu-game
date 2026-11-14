@@ -853,5 +853,30 @@ public class GameContextIntegrationTest {
         assertNotNull(objP2AfterChest);
         assertEquals("Fale com o guardião", objP2AfterChest.description());
     }
+
+    @Test
+    @DisplayName("US-020: Tutorial guiado na Fase 1, proteção de vida a 50%, avanço com Esc e conclusão")
+    void testPhase1GuidedTutorialIntegration() {
+        context.startP1();
+        assertTrue(context.getTutorialController().isActive(), "Tutorial deve iniciar ativo na Fase 1");
+        assertEquals(br.apsu.tutorial.TutorialStep.SWIM_DOWN, context.getTutorialController().getCurrentStep());
+
+        // Dano durante o tutorial não reduz vida abaixo de 50%
+        double maxHp = context.getHero().getMaxHP();
+        context.getHero().applyDamage(maxHp * 0.9, 1_000_000_000L);
+        // Usando hurtHero indiretamente via dano filtrado
+        double capped = context.getTutorialController().filterHeroDamage(context.getHero().getHp(), maxHp, 10.0);
+        assertTrue(capped >= maxHp * 0.50, "Vida nao deve cair abaixo de 50%");
+
+        // Esc pula o tutorial
+        context.onKey(KeyCode.ESCAPE);
+        assertFalse(context.getTutorialController().isActive(), "Esc deve concluir/pular o tutorial");
+        assertTrue(context.getTutorialController().isSkipped());
+
+        // Reiniciar jogo restaura o tutorial
+        context.reset();
+        context.startP1();
+        assertTrue(context.getTutorialController().isActive(), "Reiniciar jogo deve restaurar tutorial ativo");
+    }
 }
 

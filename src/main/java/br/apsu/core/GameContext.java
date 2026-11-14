@@ -5,6 +5,7 @@ import br.apsu.core.events.GameEvent;
 import br.apsu.audio.AudioCue;
 import br.apsu.cutscene.GuardianIntroductionController;
 import br.apsu.cutscene.PhaseExitIntroductionController;
+import br.apsu.tutorial.TutorialController;
 import br.apsu.core.spatial.QuadTree;
 import br.apsu.model.boss.BossEntity;
 import br.apsu.model.enemy.EnemyEntity;
@@ -71,6 +72,7 @@ public class GameContext {
     private final br.apsu.cutscene.CutsceneController cutsceneController = new br.apsu.cutscene.CutsceneController();
     private final GuardianIntroductionController guardianIntroductionController = new GuardianIntroductionController();
     private final PhaseExitIntroductionController phaseExitIntroductionController = new PhaseExitIntroductionController();
+    private final TutorialController tutorialController = new TutorialController();
     private double renderAlpha = 1.0;
     private final SaveManager saveManager;
     private final EventBus eventBus;
@@ -184,6 +186,11 @@ public class GameContext {
             }
             case P1, P2, P3, P4, P5 -> {
                 if (k == KeyCode.ESCAPE) {
+                    if (state == State.P1 && tutorialController.isActive()) {
+                        tutorialController.skip();
+                        showAlert("Tutorial pulado! Siga para encontrar o guardião.");
+                        return;
+                    }
                     if (state == State.P5) publishBossMusic(false);
                     state = State.MENU;
                 } else if (k == KeyCode.M && hero.hasBubblePower()) {
@@ -292,6 +299,7 @@ public class GameContext {
         p2ChestCutsceneTriggered = false;
         guardianIntroductionController.reset();
         phaseExitIntroductionController.reset();
+        tutorialController.reset();
         cutsceneController.stop();
     }
 
@@ -577,6 +585,13 @@ public class GameContext {
         updateEnemies();
         updateProjectiles();
         checkEnemyCollisions();
+
+        if (tutorialController.isActive()) {
+            boolean downInput = inputManager.isPressed(KeyCode.DOWN) || inputManager.isPressed(KeyCode.S);
+            boolean nearEnemy = !enemies.isEmpty() && Math.abs(enemies.get(0).getWorldX() - hero.getX()) < 300;
+            boolean guardianContacted = !guardians.isEmpty() && guardians.get(0).isContacted();
+            tutorialController.update(1.0 / 60.0, hero.getX(), hero.getY(), downInput, nearEnemy, guardianContacted);
+        }
 
         if (hero.getX() > 4000 - 200) {
             if (tabletsCollected >= 1) {
@@ -945,6 +960,9 @@ public class GameContext {
                 openOverlay(g.getType(), g.getName(), g.getDialogue(), () -> {
                     tabletsCollected++;
                     hero.heal(2.0);
+                    if (currentPhase == 1) {
+                        tutorialController.onGuardianContacted();
+                    }
                     particleSystem.addBurst(finalGx + GuardianEntity.GW/2, g.getWorldY() + GuardianEntity.GH/2, Color.GOLD);
                     particleSystem.addBurst(finalGx + GuardianEntity.GW/2, g.getWorldY() + GuardianEntity.GH/2, Color.LIMEGREEN);
                     GameEvent exitFocus = phaseExitIntroductionController.tabletCollected(currentPhase);
@@ -1234,7 +1252,12 @@ public class GameContext {
     /** Aplica dano uma única vez e cria separação suficiente para o jogador reagir. */
     private boolean hurtHero(double damage, double knockbackX, double knockbackY, Color color, int shake) {
         if (hero.isInvulnerable() || cutsceneController.isActive()) return false;
-        hero.applyDamage(damage, nanoTime);
+        double effectiveDamage = damage;
+        if (tutorialController.isActive()) {
+            double cappedHp = tutorialController.filterHeroDamage(hero.getHp(), hero.getMaxHP(), damage);
+            effectiveDamage = hero.getHp() - cappedHp;
+        }
+        hero.applyDamage(effectiveDamage, nanoTime);
         hero.applyKnockback(knockbackX, knockbackY);
         camera.applyShake(shake, 150_000_000L, nanoTime);
         double screenX = state == State.P5 ? hero.getX() : camera.toScreenX(hero.getX());
@@ -1371,4 +1394,5 @@ public class GameContext {
     public void setRenderAlpha(double renderAlpha) { this.renderAlpha = renderAlpha; }
     public HeroController getHeroController() { return heroController; }
     public br.apsu.cutscene.CutsceneController getCutsceneController() { return cutsceneController; }
+    public TutorialController getTutorialController() { return tutorialController; }
 }

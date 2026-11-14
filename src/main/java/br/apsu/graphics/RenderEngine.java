@@ -623,10 +623,21 @@ public class RenderEngine implements GameRenderer {
     }
 
     private void drawAlert(GraphicsContext gc, GameContext ctx, double width, double height) {
-        if (ctx.getAlertMessage().isEmpty()) return;
-        long el = ctx.getNanoTime() - ctx.getAlertTime();
-        if (el > 3_800_000_000L) return;
-        double alpha = Math.min(1.0, (3_800_000_000L - el) / 700_000_000.0);
+        String msg = ctx.getAlertMessage();
+        if (msg.isEmpty() && ctx.getState() == GameContext.State.P1
+                && ctx.getTutorialController() != null && ctx.getTutorialController().isActive()) {
+            msg = ctx.getTutorialController().getCurrentInstruction();
+        }
+        if (msg == null || msg.isEmpty()) return;
+
+        boolean isTutorialHint = ctx.getAlertMessage().isEmpty();
+        double alpha = 1.0;
+        if (!isTutorialHint) {
+            long el = ctx.getNanoTime() - ctx.getAlertTime();
+            if (el > 3_800_000_000L) return;
+            alpha = Math.min(1.0, (3_800_000_000L - el) / 700_000_000.0);
+        }
+
         gc.setFill(Palette.rgb(0, 6, 20, alpha * 0.92));
         gc.fillRoundRect(width / 2.0 - 410, height - 98, 820, 66, 14, 14);
         gc.setStroke(Palette.GOLD); gc.setLineWidth(1.5);
@@ -634,7 +645,7 @@ public class RenderEngine implements GameRenderer {
         gc.setFill(Palette.rgb(255, 215, 0, alpha));
         gc.setFont(UiFonts.ALERT_18);
         gc.setTextAlign(TextAlignment.CENTER);
-        gc.fillText(ctx.getAlertMessage(), width / 2.0, height - 60);
+        gc.fillText(msg, width / 2.0, height - 60);
     }
 
     private void drawEnd(GraphicsContext gc, GameContext ctx, double width, double height, boolean win) {
