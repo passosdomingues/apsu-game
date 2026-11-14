@@ -28,6 +28,8 @@ class UIRendererTest {
         hero.setHasBubblePower(true);
         assertDoesNotThrow(() -> renderer.drawHUD(graphics, hero, 5, "Fossa", Difficulty.DIFICIL,
             OceanDepthProfile.HADAL_TRENCH));
+        assertDoesNotThrow(() -> renderer.drawHUD(graphics, hero, 1, "Fase 1", Difficulty.FACIL,
+            OceanDepthProfile.COASTAL, 0.5, "Fale com o guardião"));
         assertDoesNotThrow(() -> renderer.drawMinimap(graphics, context, 1366));
         context.startP5();
         assertDoesNotThrow(() -> renderer.drawMinimap(graphics, context, 1366));

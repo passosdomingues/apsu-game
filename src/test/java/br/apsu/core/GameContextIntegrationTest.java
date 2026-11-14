@@ -299,7 +299,7 @@ public class GameContextIntegrationTest {
         var objective = br.apsu.guidance.ObjectiveTracker.resolveCurrentObjective(context);
         assertNotNull(objective);
         assertEquals(3900.0, objective.worldX(), 0.001);
-        assertEquals("Alcancando o Portal", objective.description());
+        assertEquals("Siga para o portal", objective.description());
 
         context.onKey(KeyCode.ESCAPE);
         for (int frame = 1; frame <= 18; frame++) context.update(timestamp + frame * 16_666_666L);
@@ -571,7 +571,7 @@ public class GameContextIntegrationTest {
         // Seta de objetivo deve estar apontando para o guardião
         br.apsu.guidance.ObjectiveTracker.Objective obj = br.apsu.guidance.ObjectiveTracker.resolveCurrentObjective(context);
         assertNotNull(obj, "Objetivo não deve ser nulo");
-        assertEquals("Conversar com Guardiao", obj.description());
+        assertEquals("Fale com o guardião", obj.description());
 
         // Inimigo próximo colidindo não causa dano durante a cutscene (AC4)
         double initialHeroX = context.getHero().getX();
@@ -593,7 +593,7 @@ public class GameContextIntegrationTest {
         // Após skip, seta continua perfeitamente apontando para o guardião
         br.apsu.guidance.ObjectiveTracker.Objective objAfter = br.apsu.guidance.ObjectiveTracker.resolveCurrentObjective(context);
         assertNotNull(objAfter);
-        assertEquals("Conversar com Guardiao", objAfter.description());
+        assertEquals("Fale com o guardião", objAfter.description());
     }
 
     @Test
@@ -753,7 +753,7 @@ public class GameContextIntegrationTest {
         var obj = br.apsu.guidance.ObjectiveTracker.resolveCurrentObjective(context);
         assertNotNull(obj);
         assertEquals(context.getChestWX(), obj.worldX(), 0.001);
-        assertEquals("Abrir Bau no Naufragio", obj.description());
+        assertEquals("Encontre o naufrágio e abra o baú", obj.description());
 
         // Pula cutscene
         context.onKey(KeyCode.SPACE);
@@ -808,6 +808,50 @@ public class GameContextIntegrationTest {
         context.update(2_033_333_333L);
 
         assertEquals(1, chestEvents.size(), "Nenhum evento adicional deve ser publicado após o baú já estar aberto");
+    }
+
+    @Test
+    @DisplayName("US-014: Objetivo atual dinâmico no HUD transiciona corretamente entre as fases e eventos")
+    void dynamicHudObjectiveTransitions() {
+        context.reset();
+
+        // 1. Fase 1 antes da conversa -> "Fale com o guardião"
+        context.startP1();
+        var obj1 = br.apsu.guidance.ObjectiveTracker.resolveCurrentObjective(context);
+        assertNotNull(obj1);
+        assertEquals("Fale com o guardião", obj1.description());
+
+        // 2. Conclui conversa e recebe tabuleta -> muda para "Siga para o portal" em até 1s
+        var guardian = context.getGuardians().get(0);
+        context.getHero().setX(guardian.getWorldX());
+        context.getHero().setY(guardian.getWorldY());
+        context.getInputManager().registerKeyPress(KeyCode.E);
+        context.update(1_000_000_000L);
+        context.onKey(KeyCode.ESCAPE); // fecha diálogo e coleta tabuleta
+
+        assertEquals(1, context.getTabletsCollected());
+        var objAfterTablet = br.apsu.guidance.ObjectiveTracker.resolveCurrentObjective(context);
+        assertNotNull(objAfterTablet);
+        assertEquals("Siga para o portal", objAfterTablet.description());
+
+        // 3. Fase 2 com o poder das bolhas bloqueado -> "Encontre o naufrágio e abra o baú"
+        context.startP2();
+        assertFalse(context.getHero().hasBubblePower());
+        assertFalse(context.isChestOpen());
+        var objP2 = br.apsu.guidance.ObjectiveTracker.resolveCurrentObjective(context);
+        assertNotNull(objP2);
+        assertEquals("Encontre o naufrágio e abra o baú", objP2.description());
+
+        // Ao abrir o baú, objetivo da fase 2 passa para o guardião da fase 2 ("Fale com o guardião")
+        context.getHero().setX(context.getChestWX());
+        context.getHero().setY(context.getChestWY());
+        context.getInputManager().registerKeyPress(KeyCode.E);
+        context.update(2_000_000_000L);
+        assertTrue(context.isChestOpen());
+
+        var objP2AfterChest = br.apsu.guidance.ObjectiveTracker.resolveCurrentObjective(context);
+        assertNotNull(objP2AfterChest);
+        assertEquals("Fale com o guardião", objP2AfterChest.description());
     }
 }
 

@@ -35,20 +35,27 @@ public class UIRenderer {
     }
 
     public void drawHUD(GraphicsContext gc, HeroEntity hero, int tablets, String phaseName, Difficulty diff) {
-        drawHUD(gc, hero, tablets, phaseName, diff, OceanDepthProfile.COASTAL, 0.0);
+        drawHUD(gc, hero, tablets, phaseName, diff, OceanDepthProfile.COASTAL, 0.0, null);
     }
 
     public void drawHUD(GraphicsContext gc, HeroEntity hero, int tablets, String phaseName, Difficulty diff,
                         OceanDepthProfile depth) {
-        drawHUD(gc, hero, tablets, phaseName, diff, depth, 0.0);
+        drawHUD(gc, hero, tablets, phaseName, diff, depth, 0.0, null);
     }
 
     public void drawHUD(GraphicsContext gc, HeroEntity hero, int tablets, String phaseName, Difficulty diff,
                         OceanDepthProfile depth, double unlockHighlightProgress) {
+        drawHUD(gc, hero, tablets, phaseName, diff, depth, unlockHighlightProgress, null);
+    }
+
+    public void drawHUD(GraphicsContext gc, HeroEntity hero, int tablets, String phaseName, Difficulty diff,
+                        OceanDepthProfile depth, double unlockHighlightProgress, String objectiveText) {
+        boolean hasObjective = objectiveText != null && !objectiveText.isEmpty();
+        double hudH = hasObjective ? 154 : 136;
         gc.setFill(Palette.HUD_BG);
-        gc.fillRoundRect(8, 8, 440, 136, 12, 12);
+        gc.fillRoundRect(8, 8, 440, hudH, 12, 12);
         gc.setStroke(Palette.HUD_STROKE); gc.setLineWidth(1.5);
-        gc.strokeRoundRect(8, 8, 440, 136, 12, 12);
+        gc.strokeRoundRect(8, 8, 440, hudH, 12, 12);
 
         gc.setTextAlign(TextAlignment.LEFT);
         gc.setFont(UiFonts.LABEL_BOLD_14);
@@ -158,6 +165,15 @@ public class UIRenderer {
         gc.setFont(UiFonts.TEXT_11);
         gc.setFill(Palette.HUD_KEYS_HINT);
         gc.fillText("WASD / SETAS: NADAR   ·   E: INTERAGIR   ·   ESPAÇO: BOLHAS", 22, 130);
+
+        if (hasObjective) {
+            gc.setFont(UiFonts.TEXT_BOLD_11);
+            gc.setFill(Palette.HUD_OBJECTIVE_LABEL);
+            gc.fillText("OBJETIVO:", 22, 147);
+            gc.setFont(UiFonts.TEXT_11);
+            gc.setFill(Palette.HUD_OBJECTIVE_TEXT);
+            gc.fillText(objectiveText, 90, 147);
+        }
     }
 
     /** Radar compacto: posição de inimigos e guardiões sem revelar detalhes. */

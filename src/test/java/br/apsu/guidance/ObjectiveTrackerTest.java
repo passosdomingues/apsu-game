@@ -40,6 +40,7 @@ class ObjectiveTrackerTest {
         ObjectiveTracker.Objective obj = ObjectiveTracker.resolveCurrentObjective(context);
 
         assertNotNull(obj);
+        assertEquals("Fale com o guardião", obj.description());
         GuardianEntity g = context.getGuardians().get(0);
         assertEquals(g.getWorldX() + GuardianEntity.GW / 2.0, obj.worldX(), 1.0);
         assertEquals(g.getWorldY() + GuardianEntity.GH / 2.0, obj.worldY(), 1.0);
@@ -59,7 +60,21 @@ class ObjectiveTrackerTest {
         assertEquals(1, context.getTabletsCollected(), "Tabuleta deve ter sido coletada na conversa");
         ObjectiveTracker.Objective obj = ObjectiveTracker.resolveCurrentObjective(context);
         assertNotNull(obj);
+        assertEquals("Siga para o portal", obj.description());
         assertEquals(3900.0, obj.worldX(), 1.0, "Deve apontar para o portal de saída a 3900 px");
+    }
+
+    @Test
+    @DisplayName("Fase 2 com o poder das bolhas bloqueado orienta a abrir o baú (US-014 AC3)")
+    void phase2LockedPowerPointsToChest() {
+        context.startP2();
+        assertFalse(context.getHero().hasBubblePower());
+        assertFalse(context.isChestOpen());
+
+        ObjectiveTracker.Objective obj = ObjectiveTracker.resolveCurrentObjective(context);
+        assertNotNull(obj);
+        assertEquals("Encontre o naufrágio e abra o baú", obj.description());
+        assertEquals(context.getChestWX(), obj.worldX(), 1.0);
     }
 
     @Test

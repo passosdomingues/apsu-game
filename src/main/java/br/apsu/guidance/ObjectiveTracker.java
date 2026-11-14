@@ -35,7 +35,7 @@ public final class ObjectiveTracker {
 
         // Fase 2: antes de procurar a tabuleta/portal, se o baú estiver fechado, orienta para o baú (US-021)
         if (phase == 2 && !context.isChestOpen() && !context.getHero().hasBubblePower()) {
-            return new Objective(context.getChestWX(), context.getChestWY(), "Abrir Bau no Naufragio");
+            return new Objective(context.getChestWX(), context.getChestWY(), "Encontre o naufrágio e abra o baú");
         }
 
         // Fases 1 a 4: primeiro o guardiao correspondente da fase (se ainda nao contactado e tabuleta nao coletada)
@@ -44,12 +44,12 @@ public final class ObjectiveTracker {
             for (GuardianEntity g : context.getGuardians()) {
                 if (!g.isContacted()) {
                     return new Objective(g.getWorldX() + GuardianEntity.GW / 2.0,
-                        g.getWorldY() + GuardianEntity.GH / 2.0, "Conversar com Guardiao");
+                        g.getWorldY() + GuardianEntity.GH / 2.0, "Fale com o guardião");
                 }
             }
         }
 
         // Tabuleta recebida ou guardiao contactado: objetivo passa a ser a saida do portal (x = 3900)
-        return new Objective(3900.0, 768 / 2.0, "Alcancando o Portal");
+        return new Objective(3900.0, 768 / 2.0, "Siga para o portal");
     }
 }

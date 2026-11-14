@@ -10,6 +10,7 @@ import br.apsu.model.environment.OceanDepthProfile;
 import br.apsu.model.guardian.GuardianEntity;
 import br.apsu.model.hero.HeroEntity;
 import br.apsu.model.hero.HeroType;
+import br.apsu.guidance.ObjectiveTracker;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -328,8 +329,10 @@ public class RenderEngine implements GameRenderer {
         drawInterpolatedHero(gc, ctx, timeSeconds, true);
         ctx.getParticleSystem().render(gc);
 
+        ObjectiveTracker.Objective objP1 = ObjectiveTracker.resolveCurrentObjective(ctx);
+        String objTextP1 = objP1 != null ? objP1.description() : null;
         uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 1 — Águas Claras", ctx.getDifficulty(),
-            OceanDepthProfile.forPhase(ctx.getCurrentPhase()));
+            OceanDepthProfile.forPhase(ctx.getCurrentPhase()), 0.0, objTextP1);
         uiRenderer.drawMinimap(gc, ctx, width);
         drawAlert(gc, ctx, width, height);
     }
@@ -380,8 +383,10 @@ public class RenderEngine implements GameRenderer {
                 unlockHighlight = 1.0 - (elapsed / 2_000_000_000.0);
             }
         }
+        ObjectiveTracker.Objective objP2 = ObjectiveTracker.resolveCurrentObjective(ctx);
+        String objTextP2 = objP2 != null ? objP2.description() : null;
         uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 2 — Cavernas de Coral", ctx.getDifficulty(),
-            OceanDepthProfile.forPhase(ctx.getCurrentPhase()), unlockHighlight);
+            OceanDepthProfile.forPhase(ctx.getCurrentPhase()), unlockHighlight, objTextP2);
         uiRenderer.drawMinimap(gc, ctx, width);
         drawAlert(gc, ctx, width, height);
     }
@@ -422,8 +427,10 @@ public class RenderEngine implements GameRenderer {
         drawInterpolatedHero(gc, ctx, timeSeconds, true);
         ctx.getParticleSystem().render(gc);
 
+        ObjectiveTracker.Objective objP3 = ObjectiveTracker.resolveCurrentObjective(ctx);
+        String objTextP3 = objP3 != null ? objP3.description() : null;
         uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 3 — Correntes Abissais", ctx.getDifficulty(),
-            OceanDepthProfile.forPhase(ctx.getCurrentPhase()));
+            OceanDepthProfile.forPhase(ctx.getCurrentPhase()), 0.0, objTextP3);
         uiRenderer.drawMinimap(gc, ctx, width);
         drawAlert(gc, ctx, width, height);
     }
@@ -449,8 +456,10 @@ public class RenderEngine implements GameRenderer {
         drawInterpolatedHero(gc, ctx, timeSeconds, true);
         ctx.getParticleSystem().render(gc);
 
+        ObjectiveTracker.Objective objP4 = ObjectiveTracker.resolveCurrentObjective(ctx);
+        String objTextP4 = objP4 != null ? objP4.description() : null;
         uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 4 — Abismo Vulcânico", ctx.getDifficulty(),
-            OceanDepthProfile.forPhase(ctx.getCurrentPhase()));
+            OceanDepthProfile.forPhase(ctx.getCurrentPhase()), 0.0, objTextP4);
         uiRenderer.drawMinimap(gc, ctx, width);
         drawAlert(gc, ctx, width, height);
     }
@@ -473,8 +482,10 @@ public class RenderEngine implements GameRenderer {
         drawInterpolatedHero(gc, ctx, timeSeconds, false);
         ctx.getParticleSystem().render(gc);
 
+        ObjectiveTracker.Objective objP5 = ObjectiveTracker.resolveCurrentObjective(ctx);
+        String objTextP5 = objP5 != null ? objP5.description() : null;
         uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 5 — Templo de Apsu", ctx.getDifficulty(),
-            OceanDepthProfile.forPhase(ctx.getCurrentPhase()));
+            OceanDepthProfile.forPhase(ctx.getCurrentPhase()), 0.0, objTextP5);
         uiRenderer.drawMinimap(gc, ctx, width);
         drawAlert(gc, ctx, width, height);
     }

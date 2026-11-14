@@ -77,6 +77,8 @@ public final class Palette {
     public static final Color HUD_DEPTH_INFO = color("#72a8c8");
     public static final Color HUD_BUBBLE_MODE = color("#80b8d0");
     public static final Color HUD_KEYS_HINT = color("#9cc8df");
+    public static final Color HUD_OBJECTIVE_LABEL = color("#60a8d8");
+    public static final Color HUD_OBJECTIVE_TEXT = color("#ffe066");
 
     // Radar
     public static final Color RADAR_BG = Color.rgb(1, 10, 27, 0.84);

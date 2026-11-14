@@ -226,17 +226,17 @@ Fonte de verdade das user stories. Validado por `python3 tools/harness/backlog.p
 - [x] Dado o poder das bolhas desbloqueado, quando o jogador inicia um diálogo com Espaço, então nenhuma bolha é disparada naquele pressionamento.
 - [x] Dado a conversa já concluída com um guardião, quando o herói volta a se aproximar dele, então o aviso não reaparece.
 
-### US-014 | Objetivo atual dinâmico no HUD | 2 pts | P1 | S2 | E1 | todo
+### US-014 | Objetivo atual dinâmico no HUD | 2 pts | P1 | S2 | E1 | done
 **Como** jogador, **quero** ver no HUD o que fazer agora, **para** seguir a história sem consultar nada.
 - Fonte: feedback, "intuitividade".
 - Depende de: nenhuma
 - Notas técnicas: o HUD já mostra objetivo de coleta no canto superior esquerdo.
 
 **Critérios de aceitação**
-- [ ] Dado a fase 1 antes da conversa, quando o HUD é desenhado, então o objetivo mostra "Fale com o guardião".
-- [ ] Dado a tabuleta recebida, quando a conversa termina, então o objetivo muda para "Siga para o portal" em até 1 s.
-- [ ] Dado a fase 2 com o poder das bolhas bloqueado, quando o HUD é desenhado, então o objetivo mostra "Encontre o naufrágio e abra o baú".
-- [ ] Dado qualquer texto de objetivo, quando renderizado em 1366x768, então ele cabe no HUD sem sobrepor a barra de vida.
+- [x] Dado a fase 1 antes da conversa, quando o HUD é desenhado, então o objetivo mostra "Fale com o guardião".
+- [x] Dado a tabuleta recebida, quando a conversa termina, então o objetivo muda para "Siga para o portal" em até 1 s.
+- [x] Dado a fase 2 com o poder das bolhas bloqueado, quando o HUD é desenhado, então o objetivo mostra "Encontre o naufrágio e abra o baú".
+- [x] Dado qualquer texto de objetivo, quando renderizado em 1366x768, então ele cabe no HUD sem sobrepor a barra de vida.
 
 ## Sprint S3: Tutorial e cutscenes de fase
 
