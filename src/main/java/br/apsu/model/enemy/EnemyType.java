@@ -45,6 +45,9 @@ public enum EnemyType {
         "sprites/inimigos/13_golfinho_do_mal_inimigo.png",
         "sprites/inimigos/13_golfinho_do_mal_inimigo");
 
+    /** Dano fixo por contato fisico com o Leviata Menor (sub-boss da Fase 4 - US-040). */
+    public static final double LEVIATHAN_CONTACT_DAMAGE = 1.0;
+
     private final int id;
     private final double width, height;
     private final String staticSprite, animDir;

@@ -1126,12 +1126,22 @@ public class GameContext {
     private void checkEnemyCollisions() {
         if (hero.isInvulnerable()) return;
         nearbyEnemiesBuffer.clear();
-        enemyQuadTree.retrieve(nearbyEnemiesBuffer, hero.getX() - 20, hero.getY() - 20, HeroEntity.HW + 40, HeroEntity.HH + 40);
+        enemyQuadTree.retrieve(nearbyEnemiesBuffer, hero.getX() - 200, hero.getY() - 160, HeroEntity.HW + 400, HeroEntity.HH + 320);
 
         for (EnemyEntity e : nearbyEnemiesBuffer) {
             if (!e.isAlive()) continue;
             // B3-FIX: coordenadas de mundo para colisão consistente
             if (heroHitsEnemy(e)) {
+                if (e.getType() == EnemyType.LEVIATA) {
+                    // US-040: Dano por contato direto com o Leviata Menor (sub-boss da Fase 4)
+                    double direction = hero.getX() + HeroEntity.HW / 2 < e.getWorldX() + e.getType().getWidth() / 2 ? -1 : 1;
+                    double contactDmg = Math.max(difficulty.getCollisionDamage() * 0.60, EnemyType.LEVIATHAN_CONTACT_DAMAGE);
+                    hurtHero(contactDmg, direction * 5.5, -3.0, Color.web("#ff3b30"), 8);
+                    if (hero.getHp() <= 0) {
+                        state = State.OVER;
+                    }
+                    return;
+                }
                 e.setAlive(false);
                 adaptiveDifficulty.recordEnemyDefeated();
                 double direction = hero.getX() + HeroEntity.HW / 2 < e.getWorldX() + e.getType().getWidth() / 2 ? -1 : 1;
@@ -1278,7 +1288,12 @@ public class GameContext {
     private boolean heroHitsEnemy(EnemyEntity enemy) {
         double width = enemy.getType().getWidth();
         double height = enemy.getType().getHeight();
-        // Inimigo precisa sobrepor 55% central do corpo — evita dano à distância
+        if (enemy.getType() == EnemyType.LEVIATA) {
+            // US-040: Intersecao de caixas delimitadoras para o Leviata Menor (sub-boss)
+            return rectsHit(hero.getX(), hero.getY(), HeroEntity.HW, HeroEntity.HH,
+                            enemy.getWorldX(), enemy.getCurrentY(), width, height);
+        }
+        // Inimigo comum precisa sobrepor 55% central do corpo — evita dano à distância
         return heroHits(enemy.getWorldX() + width * 0.225, enemy.getCurrentY() + height * 0.225,
             width * 0.55, height * 0.55);
     }

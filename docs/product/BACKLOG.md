@@ -378,16 +378,16 @@ Fonte de verdade das user stories. Validado por `python3 tools/harness/backlog.p
 
 ## Sprint S5: Combate e chefe
 
-### US-040 | Dano por contato do Leviatã Menor | 3 pts | P1 | S5 | E4 | todo
+### US-040 | Dano por contato do Leviatã Menor | 3 pts | P1 | S5 | E4 | done
 **Como** jogador, **quero** sofrer dano ao encostar no Leviatã Menor, **para** tratá-lo como ameaça desde o primeiro contato.
 - Fonte: feedback, "o boss tem que dar dano só de encostar", estendido ao sub-chefe da fase 4.
 - Depende de: nenhuma
 - Notas técnicas: reutilizar o mecanismo da US-002.
 
 **Critérios de aceitação**
-- [ ] Dado a fase 4, quando a caixa do herói intersecta a do Leviatã Menor, então o herói perde vida e HERO_DAMAGED é publicado uma única vez.
-- [ ] Dado o herói invulnerável, quando o contato continua, então nenhum dano adicional é aplicado até o fim de 1,0 s.
-- [ ] Dado o valor do dano de contato, quando revisado, então está em constante nomeada e é maior ou igual ao de um inimigo comum da fase 4.
+- [x] Dado a fase 4, quando a caixa do herói intersecta a do Leviatã Menor, então o herói perde vida e HERO_DAMAGED é publicado uma única vez.
+- [x] Dado o herói invulnerável, quando o contato continua, então nenhum dano adicional é aplicado até o fim de 1,0 s.
+- [x] Dado o valor do dano de contato, quando revisado, então está em constante nomeada e é maior ou igual ao de um inimigo comum da fase 4.
 
 ### US-041 | Telegraph dos ataques do Kullullû | 8 pts | P1 | S5 | E4 | todo
 **Como** jogador, **quero** um aviso visual antes de cada ataque do chefe, **para** reagir com justiça e aprender os padrões.
