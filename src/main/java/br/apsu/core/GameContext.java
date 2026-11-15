@@ -807,8 +807,8 @@ public class GameContext {
                 hurtHero(contactDmg, direction * 5.5, -3.0, Color.PURPLE, 8);
             }
 
-            // Cada estágio tem um padrão próprio. Durante os 0,5 s do
-            // telegrafo o jogador recebe uma janela clara para reposicionar.
+            // Cada estágio tem um padrão próprio. Durante os 0,75 s do
+            // telegrafo de ataque (US-041), o jogador recebe uma janela clara para reposicionar.
             long baseInterval = (difficulty == Difficulty.FACIL ? 1_800_000_000L : (difficulty == Difficulty.MEDIO ? 1_200_000_000L : 850_000_000L));
             double phaseTempo = switch (boss.getCombatPhase()) {
                 case OBSIDIANA_FRIA -> 1.0;
@@ -817,35 +817,14 @@ public class GameContext {
             };
             long bullInterval = Math.max(MIN_BOSS_ATTACK_INTERVAL_NANOS,
                 (long)(baseInterval * phaseTempo / (getThreatMultiplier() * BossEntity.SPD_MULT[boss.getVariant()])));
-            if (!boss.isTelegraphing(nanoTime) && nanoTime - boss.getLastShotTime() > bullInterval) {
-                boss.setLastShotTime(nanoTime);
-                double bfx = boss.getX();
-                double bfy = boss.getY() + BossEntity.BH / 2;
-                double tx = hero.getX() + HeroEntity.HW/2 - bfx, ty = hero.getY() + HeroEntity.HH/2 - bfy;
-                double baseAngle = Math.atan2(ty, tx);
-                double spread = BossEntity.SPREAD[boss.getVariant()];
-                double spd = (difficulty == Difficulty.FACIL ? 4.5 : 7.0) * getThreatMultiplier() * BossEntity.SPD_MULT[boss.getVariant()];
-                switch (boss.getCombatPhase()) {
-                    case OBSIDIANA_FRIA -> fireBossFan(bfx, bfy, baseAngle, spread,
-                        difficulty == Difficulty.FACIL ? 3 : (difficulty == Difficulty.MEDIO ? 4 : 5), spd);
-                    case FUSAO_VULCANICA -> {
-                        // Onda circular: força leitura espacial, não só reflexo.
-                        int count = difficulty == Difficulty.FACIL ? 6 : 8;
-                        for (int i = 0; i < count; i++) {
-                            double angle = (Math.PI * 2 * i) / count;
-                            projectiles.add(new Projectile(Projectile.Type.BOSS_BULLET, bfx, bfy,
-                                Math.cos(angle) * spd * 0.78, Math.sin(angle) * spd * 0.78, 0.6, true));
-                        }
-                    }
-                    case FURIA_DE_APSU -> {
-                        // Meteoros de lava caem de pontos alternados do teto.
-                        int count = difficulty == Difficulty.FACIL ? 3 : 5;
-                        for (int i = 0; i < count; i++) {
-                            double meteorX = 260 + Math.floorMod(nanoTime / 100_000_000L + i * 193L, 820L);
-                            projectiles.add(new Projectile(Projectile.Type.BOSS_BULLET, meteorX, -12,
-                                Math.sin(i * 2.1) * 1.4, spd * 1.22, 0.7, true));
-                        }
-                    }
+
+            // US-041: Telegraph dos ataques do chefe (0,6 a 1,0 s antes de disparar projeteis/dano)
+            if (!boss.isTelegraphing(nanoTime)) {
+                if (boss.isAttackReadyToFire(nanoTime)) {
+                    fireBossAttack();
+                    boss.finishAttackTelegraph(nanoTime);
+                } else if (!boss.isAttackTelegraphing(nanoTime) && nanoTime - boss.getLastShotTime() > bullInterval) {
+                    boss.startAttackTelegraph(nanoTime, hero.getX() + HeroEntity.HW / 2.0, hero.getY() + HeroEntity.HH / 2.0);
                 }
             }
         }
@@ -855,6 +834,39 @@ public class GameContext {
         checkEnemyCollisions();
         checkSceneryCollisionsArena();
         updateProjectiles();
+    }
+
+    private void fireBossAttack() {
+        double bfx = boss.getX();
+        double bfy = boss.getY() + BossEntity.BH / 2.0;
+        double tx = boss.getAttackTargetX() - bfx;
+        double ty = boss.getAttackTargetY() - bfy;
+        double baseAngle = Math.atan2(ty, tx);
+        double spread = BossEntity.SPREAD[boss.getVariant()];
+        double spd = (difficulty == Difficulty.FACIL ? 4.5 : 7.0) * getThreatMultiplier() * BossEntity.SPD_MULT[boss.getVariant()];
+
+        switch (boss.getCombatPhase()) {
+            case OBSIDIANA_FRIA -> fireBossFan(bfx, bfy, baseAngle, spread,
+                difficulty == Difficulty.FACIL ? 3 : (difficulty == Difficulty.MEDIO ? 4 : 5), spd);
+            case FUSAO_VULCANICA -> {
+                // Onda circular: forca leitura espacial, nao so reflexo.
+                int count = difficulty == Difficulty.FACIL ? 6 : 8;
+                for (int i = 0; i < count; i++) {
+                    double angle = (Math.PI * 2 * i) / count;
+                    projectiles.add(new Projectile(Projectile.Type.BOSS_BULLET, bfx, bfy,
+                        Math.cos(angle) * spd * 0.78, Math.sin(angle) * spd * 0.78, 0.6, true));
+                }
+            }
+            case FURIA_DE_APSU -> {
+                // Meteoros de lava caem das colunas de aviso telegrafadas no teto.
+                int count = difficulty == Difficulty.FACIL ? 3 : 5;
+                for (int i = 0; i < count; i++) {
+                    double meteorX = 260 + Math.floorMod(boss.getAttackSeed() / 100_000_000L + i * 193L, 820L);
+                    projectiles.add(new Projectile(Projectile.Type.BOSS_BULLET, meteorX, -12,
+                        Math.sin(i * 2.1) * 1.4, spd * 1.22, 0.7, true));
+                }
+            }
+        }
     }
 
     private void fireBossFan(double x, double y, double baseAngle, double spread, int count, double speed) {

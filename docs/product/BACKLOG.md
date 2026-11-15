@@ -389,19 +389,19 @@ Fonte de verdade das user stories. Validado por `python3 tools/harness/backlog.p
 - [x] Dado o herói invulnerável, quando o contato continua, então nenhum dano adicional é aplicado até o fim de 1,0 s.
 - [x] Dado o valor do dano de contato, quando revisado, então está em constante nomeada e é maior ou igual ao de um inimigo comum da fase 4.
 
-### US-041 | Telegraph dos ataques do Kullullû | 8 pts | P1 | S5 | E4 | todo
+### US-041 | Telegraph dos ataques do Kullullû | 8 pts | P1 | S5 | E4 | done
 **Como** jogador, **quero** um aviso visual antes de cada ataque do chefe, **para** reagir com justiça e aprender os padrões.
 - Fonte: README, pendência "telegraphs" do chefe.
 - Depende de: US-002
 - Notas técnicas: um sinal por padrão de ataque, documentado na matriz de assets do README.
 
 **Critérios de aceitação**
-- [ ] Dado cada padrão de ataque do chefe, quando o ataque está prestes a ocorrer, então um sinal visual dedicado aparece de 0,6 a 1,0 s antes do dano.
-- [ ] Dado o sinal visível, quando o tempo de aviso não terminou, então o ataque ainda não causa dano.
-- [ ] Dado os padrões das fases de combate, quando comparados, então cada um tem sinal distinto em forma ou cor, listado em documento.
-- [ ] Dado o sinal desenhado, quando renderizado, então não cobre o herói nem o HUD.
-- [ ] Dado um teste unitário, quando executado com make test, então ele valida a janela de 0,6 a 1,0 s entre sinal e dano.
-- [ ] Dado a arena com sinais ativos, quando medida com APSU_PERF=1 no perfil balanced, então o frame-time p95 não passa de 16,7 ms.
+- [x] Dado cada padrão de ataque do chefe, quando o ataque está prestes a ocorrer, então um sinal visual dedicado aparece de 0,6 a 1,0 s antes do dano.
+- [x] Dado o sinal visível, quando o tempo de aviso não terminou, então o ataque ainda não causa dano.
+- [x] Dado os padrões das fases de combate, quando comparados, então cada um tem sinal distinto em forma ou cor, listado em documento.
+- [x] Dado o sinal desenhado, quando renderizado, então não cobre o herói nem o HUD.
+- [x] Dado um teste unitário, quando executado com make test, então ele valida a janela de 0,6 a 1,0 s entre sinal e dano.
+- [x] Dado a arena com sinais ativos, quando medida com APSU_PERF=1 no perfil balanced, então o frame-time p95 não passa de 16,7 ms.
 
 ### US-042 | Invulnerabilidade com feedback sem retângulo | 3 pts | P1 | S5 | E6 | todo
 **Como** jogador, **quero** perceber o dano e a invulnerabilidade sem poluição visual, **para** ler a silhueta do herói durante o combate.

@@ -195,8 +195,15 @@ Decompor cada fase em personagens (herói, NPC, inimigo, miniboss/boss), arquite
 | Peixe, enguia, medusa, caranguejo | Inimigos comuns | P1–P3 | Sim | Sim, runtime | Preview opcional | Não usado no gameplay | Malhas estáticas; animação pendente | Genérico | Acerto/derrota genéricos | Gameplay integrado |
 | Golfinho abissal | Inimigo especial | P2–P3 | Sim | Sim | Sim | Sim | Runtime pendente | Genérico | Genérico | Spawn/colisão implementados |
 | Arraia, Leviatã, polvo | Criaturas/sub-boss | P4 | Sim | Sim | Sim | Sim | Estados runtime incompletos | Genérico | Genérico | Gameplay existe; telegraph/escala pendentes |
-| Lula vampira e Kullullû | Inimigo e boss | P5 | Sim, variantes do boss | Sim | Sim | Sim | Fases do boss são lógicas; visual parcial | Genérico | Hit/fase/vitória | Combate integrado; cues/estados dedicados pendentes |
+| Lula vampira e Kullullû | Inimigo e boss | P5 | Sim, variantes do boss | Sim | Sim | Sim | Fases do boss lógicas; telegraphs US-041 integrados | Sinais próprios por fase | Hit/fase/vitória | Combate e telegraphs 0,75 s integrados; cues áudio pendentes |
 | Recife, cardume, naufrágio, baú | Ambiente/interativo | P2 | Sim | Sim | Sim | Sim | Quadros existem; loop runtime não confirmado | Pickup genérico | Pickup genérico | Recife/navio/baú posicionados; baú interativo |
+
+#### Telegraphs dos Ataques de Kullullu (US-041)
+
+Janela de aviso antecipado de 0,75 s (entre 0,6 s e 1,0 s) antes de cada disparo, sem cobrir o heroi nem o HUD:
+- **Obsidiana Fria (Fase 1 do Boss):** Cone / leque de mira direcional na cor ciano glacial (`#00f0ff` / `Palette.TELEGRAPH_OBSIDIANA_LINE`). Indica a abertura e trajetoria do leque frontal de bolhas.
+- **Fusao Vulcanica (Fase 2 do Boss):** Aneis concentricos de choque em expansao omnidirecional na cor laranja magma (`#ff6600` / `Palette.TELEGRAPH_FUSAO_STROKE`), com 8 raios radiais indicando os angulos de disparo.
+- **Furia de Apsu (Fase 3 do Boss):** Colunas verticais translucidas de perigo na cor vermelho carmesim (`#ff2200` / `Palette.TELEGRAPH_FURIA_STROKE`) com marcadores triangulares no topo (`#ffc832`), indicando exatamente onde os meteoros de lava cairao do teto.
 | Correntes, pressão, obstáculos | Gameplay/ambiente | P3–P5 | Sim | Sim | Sim | Parcial | Oscilação/física lógica; visual parcial | Indicadores pendentes | Cues ambientais pendentes | Forças/colisões integradas |
 | Gêiser, lava, rocha vulcânica | Hazards | P1–P4 | Sim | Sim | Sim | Sim | Ciclo/telegraph visual pendente | Genérico/parcial | Cues próprios pendentes | Dano/impulso conforme tipo |
 | Panoramas e marco de descida | Fundo/transição | P1–P5 | Sim | `fase1.blend` e ruínas Atlantes | PNGs renderizados de cenas 3D | Ruínas/colunas como sprite ou malha 3D | Sinal visual discreto de fase liberada | Não específico | Transição pendente | Sem portal; panorama integrado, não é geometria navegável |

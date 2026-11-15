@@ -17,6 +17,8 @@ public class BossEntity {
     }
 
     public static final long TELEGRAPH_NANOS = 500_000_000L;
+    /** Janela de aviso visual (telegrafo) antes de disparar o ataque (US-041: 0.6s a 1.0s). */
+    public static final long ATTACK_TELEGRAPH_NANOS = 750_000_000L;
     /** Dano fixo por contato fisico direto com Kullullu (US-002). */
     public static final double CONTACT_DAMAGE = 1.0;
     /** Hitbox gameplay do boss; o render 3D mantém proporção maior que o herói. */
@@ -32,6 +34,14 @@ public class BossEntity {
     private long lastShotTime;
     private CombatPhase combatPhase = CombatPhase.OBSIDIANA_FRIA;
     private long telegraphUntil;
+
+    // Estado de telegrafo de ataque (US-041)
+    private boolean attackTelegraphing = false;
+    private long attackTelegraphStart = 0;
+    private long attackTelegraphUntil = 0;
+    private double attackTargetX = 0;
+    private double attackTargetY = 0;
+    private long attackSeed = 0;
 
     public BossEntity(int variant, double startX, double startY) {
         this.variant = variant;
@@ -62,6 +72,7 @@ public class BossEntity {
         if (next == combatPhase) return false;
         combatPhase = next;
         telegraphUntil = now + TELEGRAPH_NANOS;
+        clearAttackTelegraph();
         return true;
     }
 
@@ -92,4 +103,47 @@ public class BossEntity {
     public CombatPhase getCombatPhase() { return combatPhase; }
     public boolean isTelegraphing(long now) { return now < telegraphUntil; }
     public long getTelegraphUntil() { return telegraphUntil; }
+
+    // Metodos de telegrafo de ataque (US-041)
+    public void startAttackTelegraph(long now, double targetX, double targetY) {
+        this.attackTelegraphing = true;
+        this.attackTelegraphStart = now;
+        this.attackTelegraphUntil = now + ATTACK_TELEGRAPH_NANOS;
+        this.attackTargetX = targetX;
+        this.attackTargetY = targetY;
+        this.attackSeed = now;
+    }
+
+    public boolean isAttackTelegraphing(long now) {
+        return attackTelegraphing && now < attackTelegraphUntil;
+    }
+
+    public boolean isAttackReadyToFire(long now) {
+        return attackTelegraphing && now >= attackTelegraphUntil;
+    }
+
+    public void finishAttackTelegraph(long now) {
+        this.attackTelegraphing = false;
+        this.attackTelegraphStart = 0;
+        this.attackTelegraphUntil = 0;
+        this.lastShotTime = now;
+    }
+
+    public void clearAttackTelegraph() {
+        this.attackTelegraphing = false;
+        this.attackTelegraphStart = 0;
+        this.attackTelegraphUntil = 0;
+    }
+
+    public double getAttackTelegraphProgress(long now) {
+        if (!attackTelegraphing || attackTelegraphUntil <= attackTelegraphStart) return 0.0;
+        if (now >= attackTelegraphUntil) return 1.0;
+        return Math.max(0.0, Math.min(1.0, (double) (now - attackTelegraphStart) / (attackTelegraphUntil - attackTelegraphStart)));
+    }
+
+    public double getAttackTargetX() { return attackTargetX; }
+    public double getAttackTargetY() { return attackTargetY; }
+    public long getAttackSeed() { return attackSeed; }
+    public long getAttackTelegraphStart() { return attackTelegraphStart; }
+    public long getAttackTelegraphUntil() { return attackTelegraphUntil; }
 }

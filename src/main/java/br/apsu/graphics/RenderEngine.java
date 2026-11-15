@@ -34,6 +34,7 @@ public class RenderEngine implements GameRenderer {
     private final AdaptiveRenderController adaptiveController = new AdaptiveRenderController();
     private final LightingEngine lightingEngine = new LightingEngine();
     private final UIRenderer uiRenderer = new UIRenderer();
+    private final BossTelegraphRenderer bossTelegraphRenderer = new BossTelegraphRenderer();
     private final Image[][] phaseBackgroundLayers = new Image[5][3];
     private final Image[] legacyPhaseBackgrounds = new Image[5];
     private final boolean[] legacyPhaseBackgroundLoaded = new boolean[5];
@@ -95,6 +96,7 @@ public class RenderEngine implements GameRenderer {
     public javafx.scene.Node get3DView() { return runtime3DLayer.view(); }
     public void setViewportScale(double scale) { runtime3DLayer.setViewportScale(scale); }
     public AdaptiveRenderController getAdaptiveRenderController() { return adaptiveController; }
+    public BossTelegraphRenderer getBossTelegraphRenderer() { return bossTelegraphRenderer; }
 
     public void render(GraphicsContext gc, GameContext ctx, double width, double height) {
         gc.clearRect(0, 0, width, height);
@@ -499,6 +501,7 @@ public class RenderEngine implements GameRenderer {
         }
 
         if (ctx.getBoss() != null) {
+            bossTelegraphRenderer.render(gc, ctx.getBoss(), width, height, ctx.getNanoTime());
             drawBoss(gc, ctx.getBoss(), timeSeconds, width);
         }
 

@@ -105,6 +105,14 @@ public final class Palette {
     public static final Color BOSS_TELEGRAPH_BG = Color.rgb(8, 16, 28, 0.92);
     public static final Color BOSS_TELEGRAPH_STROKE = Color.rgb(255, 190, 40, 0.95);
     public static final Color BOSS_TELEGRAPH_TEXT = Color.rgb(255, 210, 90);
+    // Telegraph dos Ataques do Kullullu (US-041)
+    public static final Color TELEGRAPH_OBSIDIANA_LINE = Color.rgb(0, 240, 255, 0.75);
+    public static final Color TELEGRAPH_OBSIDIANA_FILL = Color.rgb(0, 240, 255, 0.18);
+    public static final Color TELEGRAPH_FUSAO_STROKE = Color.rgb(255, 120, 20, 0.85);
+    public static final Color TELEGRAPH_FUSAO_FILL = Color.rgb(255, 90, 0, 0.15);
+    public static final Color TELEGRAPH_FURIA_STROKE = Color.rgb(255, 40, 40, 0.85);
+    public static final Color TELEGRAPH_FURIA_FILL = Color.rgb(255, 30, 30, 0.20);
+    public static final Color TELEGRAPH_FURIA_MARKER = Color.rgb(255, 200, 50, 0.90);
     public static final Color BOSS_HP_BG = Color.rgb(20, 0, 0, 0.8);
     public static final Color BOSS_HP_STROKE = Color.rgb(255, 60, 60, 0.7);
     public static final Color BOSS_HP_HIGH = color("#ff4444");
