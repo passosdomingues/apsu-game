@@ -292,6 +292,11 @@ for root, _dirs, files in os.walk(blend_root):
         os.makedirs(target_dir, exist_ok=True)
         target = os.path.join(target_dir, name + ".obj")
         bpy.ops.wm.open_mainfile(filepath=source)
+        if bpy.context.mode != 'OBJECT':
+            bpy.ops.object.mode_set(mode='OBJECT')
+        for obj in bpy.context.scene.objects:
+            obj.hide_select = False
+            obj.hide_viewport = False
         scene = bpy.context.scene
         attack_pose = name.endswith("_ataque_thrust")
         scene.frame_set(scene.frame_start + 5 if attack_pose else scene.frame_start)

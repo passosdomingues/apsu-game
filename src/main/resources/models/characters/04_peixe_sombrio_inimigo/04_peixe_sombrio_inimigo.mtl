@@ -1,7 +1,17 @@
 # Blender 4.5.5 LTS MTL File: '04_peixe_sombrio_inimigo.blend'
 # www.blender.org
 
-newmtl Material.007
+newmtl Materiais.001
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 79.899994 79.899994 79.899994
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/000_01.png
+
+newmtl Material_0.001
 Ns 250.000000
 Ka 1.000000 1.000000 1.000000
 Ks 0.500000 0.500000 0.500000
@@ -10,56 +20,3 @@ Ni 1.500000
 d 1.000000
 illum 2
 map_Kd textures/000_00.png
-
-newmtl Material.008
-Ns 250.000000
-Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 1.000000
-illum 2
-map_Kd textures/000_01.png
-
-newmtl Material.009
-Ns 250.000000
-Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
-Ke 91.699997 91.699997 91.699997
-Ni 1.500000
-d 1.000000
-illum 2
-map_Kd textures/000_02.png
-
-newmtl Material.010
-Ns 360.000000
-Ka 1.000000 1.000000 1.000000
-Kd 0.800000 0.800000 0.800000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.000000
-d 1.000000
-illum 2
-
-map_Kd textures/000_03.png
-newmtl Material.011
-Ns 250.000000
-Ka 0.413613 0.413613 0.413613
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 1.000000
-illum 3
-map_Kd textures/000_04.png
-
-newmtl Material.012
-Ns 250.000000
-Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 1.000000
-illum 2
-map_Kd textures/001_00.png
-map_refl ../../../../../../personagens/blends/04_peixe_sombrio_inimigo/LOU pir_TT_checker_512x512_COLOR_GRID_OcclusionRoughnessMetallic.png
-map_Bump -bm 1.000000 ../../../../../../personagens/blends/04_peixe_sombrio_inimigo/LOU pir_TT_checker_512x512_COLOR_GRID_Normal.png

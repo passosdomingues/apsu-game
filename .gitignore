@@ -37,3 +37,6 @@ mpi/map_gen
 mpi/*.o
 .claude/state/
 .claude/settings.local.json
+
+# Zips de modelos recebidos externamente
+personagens/blends/*.zip
