@@ -6,7 +6,7 @@ on:
       tag:
         description: Existing Git tag to publish
         required: true
-        default: v20261031-111014
+        default: v20261118-205700
         type: string
   push:
     tags: ['v*']

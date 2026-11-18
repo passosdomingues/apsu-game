@@ -4,7 +4,7 @@
 # ============================================================
 
 APP_NAME     := apsu-game
-VERSION      := 20261031-111014
+VERSION      := 20261118-205700
 MAIN_CLASS   := br.apsu.Launcher
 SRC_DIR      := src/main/java
 RES_DIR      := src/main/resources
