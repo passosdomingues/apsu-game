@@ -224,14 +224,12 @@ public final class Runtime3DLayer {
         if (state == GameContext.State.P5 && boss != null && !secondaryElementsDisabled) {
             Actor bossActor = actor("boss", "characters/02_kullullu_boss", BossEntity.RENDER_W, BossEntity.RENDER_H);
             if (bossActor != null) {
-                // The Blender export includes a long spear and asymmetric
-                // depth. After turning the boss left, its body centroid is
-                // -15.5% of model width in X and +50.5% in screen Y from bounds
-                // center; keep the body, hitbox and HUD on one screen anchor.
+                // Novo OBJ: centroide horizontal em ~0% do width, vertical em ~18% do height.
+                // Offsets recalibrados para alinhar corpo do boss com hitbox BW/BH.
                 double bodyX = boss.getX() + BossEntity.BW / 2.0;
                 double bodyY = boss.getY() + BossEntity.BH / 2.0;
-                place(bossActor, bodyX - BossEntity.RENDER_W * -0.155,
-                    bodyY - BossEntity.RENDER_W * 0.505, 0.5, timeSeconds, 90);
+                place(bossActor, bodyX,
+                    bodyY - BossEntity.RENDER_H * 0.18, 0.5, timeSeconds, 90);
             }
         }
 
@@ -263,12 +261,7 @@ public final class Runtime3DLayer {
             double propWidth = element.getWidth();
             double propHeight = element.getHeight();
             double roll = 0;
-            if (element.getType() == SceneryElement.Type.CORAL) {
-                boolean isStalactite = element.getWorldY() <= 1.0;
-                roll = isStalactite ? 180 : 0;
-                propWidth = element.getWidth();
-                propHeight = element.getHeight();
-            } else if (element.getType() == SceneryElement.Type.CURRENT
+            if (element.getType() == SceneryElement.Type.CURRENT
                 || element.getType() == SceneryElement.Type.PRESSURE_ZONE) {
                 propWidth = Math.max(150, element.getWidth() * 0.9);
                 propHeight = Math.max(320, element.getHeight() * 0.85);
@@ -307,18 +300,14 @@ public final class Runtime3DLayer {
         if (context.getCurrentPhase() >= 1 && context.getCurrentPhase() <= 4) {
             double exitX = context.getCamera().toScreenX(3900, alpha);
             if (insideViewport(exitX, 300)) {
-                Actor exitMarker = actor("phase-descent", "scenery/09_ruinas_e_colunas_atlantis", 280, 360);
-                if (exitMarker != null) place(exitMarker, exitX, VIEW_H / 2, .8, timeSeconds, 0);
+                Actor exitMarker = actor("phase-descent", "scenery/09_ruinas_e_colunas_atlantis", 420, 520);
+                if (exitMarker != null) place(exitMarker, exitX, VIEW_H * 0.6, .8, timeSeconds, 30, 15);
             }
         }
     }
 
     static String sceneryModel(SceneryElement.Type type) {
         return switch (type) {
-            // The only available reef OBJ is a complete reef-and-school set,
-            // not an individual coral obstacle. Repeating it at each collision
-            // column scattered full set pieces across the whole phase.
-            case CORAL -> "15_coral_colisao_3d";
             case CURRENT, PRESSURE_ZONE -> "16_corrente_abissal_3d";
             case MOVING_OBSTACLE -> "13_obstaculo_abissal";
             case GEYSER -> "14_geiser_hidrotermal_3d";

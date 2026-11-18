@@ -3,8 +3,6 @@ Renders 2D sprite sheets (8 frames, 256x256 PNG, transparent) and exports
 OBJ/MTL runtime models for:
   - 02_kullullu_boss       (boss atualizado)
   - 11_arraiao_abissal     (arraiao abissal atualizado)
-  - 12_boto-do-mal         -> 12_boto_do_mal_inimigo
-  - 13_golfinho-do-mal     -> 13_golfinho_do_mal_inimigo
 
 Uso:
   /opt/blender-4.5.5-lts/blender --background --python tools/assets/render_new_chars.py
@@ -27,10 +25,6 @@ JOBS = [
      "02_kullullu_boss", True),
     (os.path.join(BLEND_ROOT, "11_arraiao_abissal", "11_arraiao_abissal.blend"),
      "11_arraiao_abissal", False),
-    (os.path.join(BLEND_ROOT, "12_boto-do-mal", "boto do mal.blend"),
-     "12_boto_do_mal_inimigo", False),
-    (os.path.join(BLEND_ROOT, "13_golfinho-do-mal", "golfinho do mal.blend"),
-     "13_golfinho_do_mal_inimigo", False),
 ]
 
 

@@ -29,12 +29,12 @@ class SceneryElementTest {
 
     @Test
     void staticElementsStayPutAndCanBeDeactivated() {
-        SceneryElement coral = new SceneryElement(SceneryElement.Type.CORAL, 5, 6, 7, 8);
-        coral.updatePosition(99);
-        assertEquals(5, coral.getWorldX());
-        assertEquals(6, coral.getWorldY());
-        assertTrue(coral.isActive());
-        coral.setActive(false);
-        assertFalse(coral.isActive());
+        SceneryElement geyser = new SceneryElement(SceneryElement.Type.GEYSER, 5, 6, 7, 8);
+        geyser.updatePosition(99);
+        assertEquals(5, geyser.getWorldX());
+        assertEquals(6, geyser.getWorldY());
+        assertTrue(geyser.isActive());
+        geyser.setActive(false);
+        assertFalse(geyser.isActive());
     }
 }

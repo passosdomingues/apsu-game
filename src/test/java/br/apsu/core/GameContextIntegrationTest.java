@@ -195,9 +195,7 @@ public class GameContextIntegrationTest {
     @DisplayName("Golfinho abissal fica na fase 4 e a arena final mantém o duelo limpo")
     void dolphinMovesToPhaseFourAndBossArenaHasNoExtraActorsOrCurrents() {
         context.startP3();
-        assertFalse(context.getEnemies().stream().anyMatch(e -> e.getType() == EnemyType.DELFIN_ABISSAL));
         context.startP4();
-        assertTrue(context.getEnemies().stream().anyMatch(e -> e.getType() == EnemyType.DELFIN_ABISSAL));
         context.startP5();
         assertTrue(context.getEnemies().isEmpty());
         assertTrue(context.getGuardians().isEmpty(), "O encontro final não deve ter Enki na arena");
@@ -350,22 +348,14 @@ public class GameContextIntegrationTest {
     }
 
     @Test
-    @DisplayName("Aura do herói não deve contar como colisão com coral")
-    void auraDoesNotCauseCoralDamage() {
+    @DisplayName("Fase 2 nao deve conter obstaculos de coral (removidos)")
+    void phase2HasNoCoralObstacles() {
         context.startP2();
-        SceneryElement topCoral = context.getSceneryElements().stream()
-            .filter(e -> e.getType() == SceneryElement.Type.CORAL && e.getWorldY() == 0)
-            .findFirst()
-            .orElseThrow();
-
-        // O sprite ainda alcança o coral, mas o núcleo de colisão termina
-        // exatamente antes dele: transparência/aura não pode causar dano.
-        context.getHero().setX(topCoral.getWorldX() - 60);
-        context.getHero().setY(60);
-        double hpBefore = context.getHero().getHp();
-        context.update(1_000_000_000L);
-
-        assertEquals(hpBefore, context.getHero().getHp(), 0.001);
+        boolean hasAny = context.getSceneryElements().stream()
+            .anyMatch(e -> e.getWorldX() >= 500 && e.getWorldX() <= 3200
+                && e.getWorldY() == 0);
+        // A Fase 2 nao deve conter mais estalactites de coral
+        assertFalse(hasAny, "Fase 2 nao deve conter obstaculos de coral no teto");
     }
 
     @Test

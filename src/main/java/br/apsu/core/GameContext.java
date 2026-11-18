@@ -378,7 +378,6 @@ public class GameContext {
         enemies.add(new EnemyEntity(EnemyType.ENGUIA,     2350, 768 * .30, spd * 1.1, 75));
         // Sala final (3600-3800px): guarda antes do portal
         enemies.add(new EnemyEntity(EnemyType.CARANGUEJO, 3600, 768 * .48, spd,       45));
-        enemies.add(new EnemyEntity(EnemyType.DELFIN_ABISSAL, 2850, 768 * .42, spd * 1.05, 58));
 
         double gX = (difficulty == Difficulty.DIFICIL) ? 600 : 1400;
         guardians.add(new GuardianEntity(1, gX, 768 - GuardianEntity.GH - 60));
@@ -387,23 +386,6 @@ public class GameContext {
         sceneryElements.add(new SceneryElement(SceneryElement.Type.GEYSER, 3200, 768 - 200, 70, 200));
 
         // === REDESIGN: 6 colunas de coral com padrão em S suave e legível ===
-        // O gap percorre um arco gentil: centro → topo → centro → base → centro → topo → base
-        // O jogador lê o padrão e antecipa. Salas abertas (~500px) entre colunas pares.
-        // Coluna:      0     1     2     3     4     5
-        double[] cxArr = {500, 1000, 1520, 2100, 2650, 3200};
-        // gapY = Y onde começa o espaço livre (centro do canal)
-        double[] gapY  = {284, 180,  320,  140,  360,  200};
-        final double gapH = 420; // espaço livre generoso: 420px para o herói (corpo de 80px)
-        for (int i = 0; i < cxArr.length; i++) {
-            double topH = gapY[i];
-            double botY = topH + gapH;
-            double botH = 768 - botY;
-            // Coral superior (só se houver espaço mínimo de 30px)
-            if (topH > 30) sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, cxArr[i], 0, 95, topH));
-            // Coral inferior
-            if (botH > 30) sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, cxArr[i], botY, 95, botH));
-        }
-
         chestWX = 1800; chestWY = 768 - 170; // baú na sala aberta entre corais 2 e 3
         currentPhase = 2;
         publishAudioDepth();
@@ -470,8 +452,7 @@ public class GameContext {
         enemies.add(new EnemyEntity(EnemyType.MEDUSA,     1900, 768 * .55, spd * 1.2, 90));
         // === LEVIATÃ: 600px de espaço exclusivo (2400-3000px), isolado como sub-boss ===
         enemies.add(new EnemyEntity(EnemyType.LEVIATA,   2650, 768 * .38, spd * 1.3, 130));
-        // Ato 3: golfinho abissal migrado de P3, seguido pelo polvo final
-        enemies.add(new EnemyEntity(EnemyType.DELFIN_ABISSAL, 3400, 768 * .48, spd * 1.1, 72));
+        // Ato 3: polvo abissal no trecho final
         enemies.add(new EnemyEntity(EnemyType.POLVO_ABISSAL, 3700, 768 * .58, spd * .82, 75));
 
         double gX = (difficulty == Difficulty.DIFICIL) ? 500 : 1000;
@@ -646,20 +627,6 @@ public class GameContext {
         if (cutsceneController.isActive()) camera.updateFocus(focusX, 1.0 / 60.0);
         else camera.update(hero.getX());
         hero.setX(Math.max(30, Math.min(4000 - HeroEntity.HW - 30, hero.getX())));
-
-        // Colisões com coral (coordenadas de mundo)
-        for (SceneryElement elem : sceneryElements) {
-            if (elem.getType() == SceneryElement.Type.CORAL) {
-                if (heroHitsHazard(elem, 10, 0)) {
-                    pushHeroOutOfObstacle(elem.getWorldX() + 10, elem.getWorldY(), elem.getWidth() - 20, elem.getHeight());
-                    if (!hero.isInvulnerable()) {
-                        boolean topCoral = elem.getWorldY() == 0;
-                        hurtHero(difficulty.getCollisionDamage() * 0.65,
-                            0, topCoral ? 5.5 : -5.5, Color.ORANGERED, 7);
-                    }
-                }
-            }
-        }
 
         // Gêiseres com impulso vertical real (B3-adjacente: mesmo sistema)
         for (SceneryElement elem : sceneryElements) {
@@ -952,7 +919,7 @@ public class GameContext {
                         }
                     }
                 }
-                default -> {} // CORAL já tratado no updateP2
+                default -> {} // outros tipos sem colisão especial
             }
         }
     }

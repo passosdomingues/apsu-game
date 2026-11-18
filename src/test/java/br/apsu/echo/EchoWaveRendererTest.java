@@ -91,8 +91,8 @@ class EchoWaveRendererTest {
         context.getEnemies().add(new EnemyEntity(EnemyType.PEIXE, 1300, 496, 1.0, 0));
         // Inimigo distante a ~800 unidades (fora do raio de 600)
         context.getEnemies().add(new EnemyEntity(EnemyType.PEIXE, 1900, 496, 1.0, 0));
-        // Obstaculo de cenario a ~250 unidades
-        context.getSceneryElements().add(new SceneryElement(SceneryElement.Type.CORAL, 1250, 450, 80, 100));
+        // Obstaculo de cenario a ~250 unidades (corrente, nao coral removido)
+        context.getSceneryElements().add(new SceneryElement(SceneryElement.Type.CURRENT, 1250, 450, 80, 100));
 
         // Aciona eco e avanca 0.6 s (raio = 360 unidades)
         context.getEchoController().trigger();

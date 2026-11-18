@@ -7,7 +7,6 @@ import br.apsu.model.enemy.EnemyEntity;
 import br.apsu.model.environment.Difficulty;
 import br.apsu.model.environment.Projectile;
 import br.apsu.model.environment.OceanDepthProfile;
-import br.apsu.model.environment.SceneryElement;
 import br.apsu.model.guardian.GuardianEntity;
 import br.apsu.model.hero.HeroEntity;
 import br.apsu.model.hero.HeroType;
@@ -357,16 +356,6 @@ public class RenderEngine implements GameRenderer {
         drawPhaseBackground(gc, ctx, width, height, 2, 0.40);
         gc.setFill(Palette.PHASE2_DIM);
         gc.fillRect(0, 0, width, height);
-
-        // Obstaculos de coral visiveis da Fase 2 (US-001)
-        for (SceneryElement elem : ctx.getSceneryElements()) {
-            if (elem.getType() == SceneryElement.Type.CORAL) {
-                double sx = ctx.getCamera().toScreenX(elem.getWorldX());
-                if (sx > -elem.getWidth() && sx < width + elem.getWidth()) {
-                    CoralRenderer.renderCoral(gc, elem, sx, height);
-                }
-            }
-        }
 
         // Galeão e Baú
         double csx = ctx.getCamera().toScreenX(ctx.getChestWX());

@@ -31,19 +31,9 @@ public enum EnemyType {
         "sprites/inimigos/12_leviata_menor.png",
         "sprites/inimigos/12_leviata_menor"),
 
-    /** Boto do Mal (substitui delfim antigo com malha/sprite refinados) */
-    DELFIN_ABISSAL(6, 170, 95,
-        "sprites/inimigos/12_boto_do_mal_inimigo.png",
-        "sprites/inimigos/12_boto_do_mal_inimigo"),
-
     POLVO_ABISSAL(7, 142, 150,
         "sprites/inimigos/19_polvo_abissal_inimigo.png",
-        "sprites/inimigos/19_polvo_abissal_inimigo"),
-
-    /** Golfinho do Mal (substitui lula antiga com malha/sprite refinados) */
-    LULA_VAMPIRA(8, 160, 90,
-        "sprites/inimigos/13_golfinho_do_mal_inimigo.png",
-        "sprites/inimigos/13_golfinho_do_mal_inimigo");
+        "sprites/inimigos/19_polvo_abissal_inimigo");
 
     /** Dano fixo por contato fisico com o Leviata Menor (sub-boss da Fase 4 - US-040). */
     public static final double LEVIATHAN_CONTACT_DAMAGE = 1.0;

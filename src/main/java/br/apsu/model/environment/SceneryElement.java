@@ -6,7 +6,6 @@ package br.apsu.model.environment;
  */
 public class SceneryElement {
     public enum Type {
-        CORAL,
         GEYSER,
         CHEST,
         SHIPWRECK,
