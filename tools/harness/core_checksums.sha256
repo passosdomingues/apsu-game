@@ -1,5 +1,0 @@
-# SHA-256 do nucleo protegido do harness APSU
-549a4aa1e9c0bca4361a6fee0c4ea3ffd3ca5467dd3defd2068387086e764862  AGENTS.md
-89f04a75a4016054738b1c043cd2d3b7dbeddb6287af2424eec4be9de945d5d3  tools/harness/verify.py
-35ec3c74d41102994dea50079cf4e502ec0cfb5e68dda4bd50875ca31c8b369b  tools/harness/hooks/apsu_hook.py
-fac7b849c29cabd508adad86221ebfec4329cbb6a749d07729733dffaf9685b1  tools/harness/fsm.py

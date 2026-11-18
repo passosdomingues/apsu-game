@@ -1,5 +1,5 @@
 # ============================================================
-# .gitignore — As Águas de Apsu (apsu-game)
+# .gitignore - As Águas de Apsu (apsu-game)
 # ============================================================
 
 # Artefatos de Compilação Java / Maven
@@ -35,8 +35,8 @@ __pycache__/
 # Binários Temporários MPI
 mpi/map_gen
 mpi/*.o
-.claude/state/
-.claude/settings.local.json
+# Claude e Agentes de Harness (omitidos do repositorio)
+.claude/
 
 # Zips de modelos recebidos externamente
 personagens/blends/*.zip

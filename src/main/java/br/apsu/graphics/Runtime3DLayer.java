@@ -222,14 +222,11 @@ public final class Runtime3DLayer {
 
         BossEntity boss = context.getBoss();
         if (state == GameContext.State.P5 && boss != null && !secondaryElementsDisabled) {
-            Actor bossActor = actor("boss", "characters/02_kullullu_boss", BossEntity.RENDER_W, BossEntity.RENDER_H);
+            Actor bossActor = actor("boss", "characters/02_kullullu_boss", 360, 520);
             if (bossActor != null) {
-                // Novo OBJ: centroide horizontal em ~0% do width, vertical em ~18% do height.
-                // Offsets recalibrados para alinhar corpo do boss com hitbox BW/BH.
                 double bodyX = boss.getX() + BossEntity.BW / 2.0;
                 double bodyY = boss.getY() + BossEntity.BH / 2.0;
-                place(bossActor, bodyX,
-                    bodyY - BossEntity.RENDER_H * 0.18, 0.5, timeSeconds, 90);
+                place(bossActor, bodyX, bodyY, 0.5, timeSeconds, 90);
             }
         }
 
@@ -296,12 +293,15 @@ public final class Runtime3DLayer {
                 if (chest != null) place(chest, chestX, context.getChestWY(), .26, timeSeconds, 0);
             }
         }
-        // Marco de descida: ruína atlante renderizada como objeto 3D real.
+        // Marco de descida: portal atlante renderizado como objeto 3D circular.
         if (context.getCurrentPhase() >= 1 && context.getCurrentPhase() <= 4) {
             double exitX = context.getCamera().toScreenX(3900, alpha);
-            if (insideViewport(exitX, 300)) {
-                Actor exitMarker = actor("phase-descent", "scenery/09_ruinas_e_colunas_atlantis", 420, 520);
-                if (exitMarker != null) place(exitMarker, exitX, VIEW_H * 0.6, .8, timeSeconds, 30, 15);
+            if (insideViewport(exitX, 260)) {
+                Actor exitMarker = actor("phase-descent", "scenery/15_portal_atlantica_3d", 220, 220);
+                if (exitMarker != null) {
+                    exitMarker.bodyMotion.setAngle(timeSeconds * 30.0);
+                    place(exitMarker, exitX, VIEW_H / 2.0, .8, timeSeconds, 0, 0);
+                }
             }
         }
     }

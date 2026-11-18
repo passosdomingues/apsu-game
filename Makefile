@@ -120,7 +120,7 @@ CLR_DIM    := \033[2;37m
 CLR_RED    := \033[1;31m
 CLR_RESET  := \033[0m
 
-.PHONY: all setup setup-assets audio-assets convert-phase-music copy-blends clean-blender-backups test coverage build run perf-summary system-info stop generate-characters generate-geyser-model generate-lava-pool-model generate-abyssal-enemies export-runtime-models export-model render-model-sprites refresh-model refresh-adapa-models refresh-adapa-sprites render-sprites render-3d-previews render-backgrounds assets assets-procedural assets-regenerate package docker-build docker-run clean help
+.PHONY: all setup setup-assets audio-assets convert-phase-music clean-blender-backups test coverage build run perf-summary system-info stop generate-characters generate-geyser-model generate-lava-pool-model generate-abyssal-enemies export-runtime-models export-model render-model-sprites refresh-model refresh-adapa-models refresh-adapa-sprites render-sprites render-3d-previews render-backgrounds assets assets-procedural assets-regenerate package docker-build docker-run clean help
 
 # Target padrão
 all: setup run
@@ -136,25 +136,6 @@ setup:
 setup-assets:
 	@echo "$(CLR_CYAN)[SETUP] Checking asset-generation dependencies...$(CLR_RESET)"
 	@$(if $(filter 1,$(IS_WINDOWS)),$(SHELL_SETUP),$(SHELL_SETUP))
-
-## Organiza e copia os modelos 3D .blend para assets/
-copy-blends:
-	@echo "$(CLR_CYAN)[ASSETS] Organizing 3D .blend models in assets/...$(CLR_RESET)"
-	@mkdir -p assets/characters/adapa assets/characters/kullullu assets/characters/enki \
-	         assets/characters/inimigos assets/characters/guardioes assets/scenery
-	@rm -f assets/characters/adapa.blend
-	@cp -f personagens/blends/01_adapa_heroi/*.blend assets/characters/adapa/ 2>/dev/null || true
-	@cp -f personagens/blends/02_kullullu_boss/*.blend assets/characters/kullullu/ 2>/dev/null || true
-	@cp -f personagens/blends/03_enki_npc/*.blend assets/characters/enki/ 2>/dev/null || true
-	@cp -f personagens/blends/04_peixe_sombrio_inimigo/*.blend assets/characters/inimigos/ 2>/dev/null || true
-	@cp -f personagens/blends/05_guardiao_atlante_npc/*.blend assets/characters/guardioes/ 2>/dev/null || true
-	@cp -f personagens/blends/06_*/*.blend assets/scenery/ 2>/dev/null || true
-	@cp -f personagens/blends/07_*/*.blend assets/scenery/ 2>/dev/null || true
-	@cp -f personagens/blends/08_*/*.blend assets/scenery/ 2>/dev/null || true
-	@cp -f personagens/blends/09_*/*.blend assets/scenery/ 2>/dev/null || true
-	@cp -f personagens/blends/10_*/*.blend assets/scenery/ 2>/dev/null || true
-	@cp -f personagens/blends/11_*/*.blend assets/characters/inimigos/ 2>/dev/null || true
-	@echo "$(CLR_GREEN)[OK] 3D .blend models organized successfully.$(CLR_RESET)"
 
 ## Remove backups .blend1
 clean-blender-backups:
@@ -262,15 +243,16 @@ render-backgrounds: setup-assets
 	@echo "$(CLR_GREEN)[OK] Phase panoramas written to src/main/resources/backgrounds/.$(CLR_RESET)"
 
 ## Gera recursos runtime a partir das fontes existentes sem sobrescrever .blend
-assets: export-runtime-models render-backgrounds audio-assets copy-blends
+## Regenera os recursos de runtime (malhas OBJ, fundos e audio) a partir das fontes
+assets: export-runtime-models render-backgrounds audio-assets
 	@echo "$(CLR_GREEN)[OK] Runtime 3D meshes, phase backgrounds, and audio updated.$(CLR_RESET)"
 
 ## Regenera apenas os modelos procedurais de hazards/fauna e atualiza recursos runtime
-assets-procedural: generate-geyser-model generate-lava-pool-model generate-abyssal-enemies export-runtime-models copy-blends
+assets-procedural: generate-geyser-model generate-lava-pool-model generate-abyssal-enemies export-runtime-models
 	@echo "$(CLR_GREEN)[OK] Procedural Blender models and runtime assets regenerated.$(CLR_RESET)"
 
 ## Regenera fontes .blend e depois reconstrói todos os recursos (pode sobrescrever fontes)
-assets-regenerate: generate-characters generate-geyser-model generate-lava-pool-model generate-abyssal-enemies export-runtime-models render-backgrounds audio-assets copy-blends clean-blender-backups
+assets-regenerate: generate-characters generate-geyser-model generate-lava-pool-model generate-abyssal-enemies export-runtime-models render-backgrounds audio-assets clean-blender-backups
 	@echo "$(CLR_GREEN)[OK] Regenerated Blender sources and runtime assets.$(CLR_RESET)"
 
 ## Renderiza variantes acústicas de profundidade a partir dos WAVs-fonte com FFmpeg
@@ -346,7 +328,6 @@ help:
 	@echo "  $(CLR_CYAN)make render-sprites$(CLR_RESET)        Compatibility alias: export runtime 3D meshes"
 	@echo "  $(CLR_CYAN)make render-3d-previews$(CLR_RESET)   Create review-only Blender renders outside runtime assets"
 	@echo "  $(CLR_CYAN)make generate-abyssal-enemies$(CLR_RESET) Generate dolphin, octopus and squid models"
-	@echo "  $(CLR_CYAN)make copy-blends$(CLR_RESET)           Organize .blend 3D models into assets/"
 	@echo "  $(CLR_CYAN)make package$(CLR_RESET)               Build app JAR and shared game resources"
 	@echo "  $(CLR_YELLOW)make docker-run$(CLR_RESET)           Run inside Docker container (Linux)"
 	@echo "  $(CLR_RED)make clean$(CLR_RESET)                Clean build artifacts and release RAM"
@@ -358,5 +339,5 @@ help:
 	@echo "  $(CLR_CYAN)BLENDER BINARY  $(CLR_RESET) : $(CLR_WHITE)$(BLENDER_BIN)$(CLR_RESET)"
 	@echo "$(CLR_HEADER)+-----------------------------------------------------------------------+$(CLR_RESET)"
 	@echo ""
-# Alvos auxiliares do harness APSU (tools/harness/harness.mk)
--include tools/harness/harness.mk
+# Alvos auxiliares do harness APSU (.claude/harness/harness.mk)
+-include .claude/harness/harness.mk

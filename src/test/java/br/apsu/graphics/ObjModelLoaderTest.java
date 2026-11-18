@@ -16,7 +16,7 @@ class ObjModelLoaderTest {
             "characters/01_adapa_heroi",
             "02_kullullu_boss",
             "scenery/07_navio_naufragado_elemento-cenario",
-            "18_delfim_abissal_inimigo",
+            "11_arraiao_abissal",
             "scenery/17_piscina_lava_3d"
         }) {
             ObjModelLoader.Model model = ObjModelLoader.load(modelName, 200, 300,
@@ -82,6 +82,7 @@ class ObjModelLoaderTest {
             assertFalse(obj.contains("o corpo_bau"));
             assertFalse(obj.contains("o Topo_bau"));
             assertFalse(obj.contains("o Cube.001"));
+            assertFalse(obj.contains("o Mesh_0"));
         }
         assertNotNull(ObjModelLoader.class.getResource(
             "/models/scenery/06_bau_tesouro_elemento-cenario/06_bau_tesouro_elemento-cenario.obj"),
@@ -90,7 +91,7 @@ class ObjModelLoaderTest {
 
     @Test
     void modelInstancesShareMeshesInsteadOfRebuildingGeometry() throws Exception {
-        ObjModelLoader.Model template = ObjModelLoader.load("18_delfim_abissal_inimigo", 1, 1,
+        ObjModelLoader.Model template = ObjModelLoader.load("11_arraiao_abissal", 1, 1,
             (material, path) -> {});
         ObjModelLoader.Model first = ObjModelLoader.instance(template, 100, 120, javafx.scene.paint.Color.rgb(255, 225, 200));
         ObjModelLoader.Model second = ObjModelLoader.instance(template, 160, 90);

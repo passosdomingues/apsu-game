@@ -93,29 +93,6 @@ def save(name):
     bpy.ops.wm.save_as_mainfile(filepath=os.path.join(destination, name + ".blend"))
 
 
-def make_dolphin():
-    clear()
-    slate = material("abyssal dolphin blue-black skin", (.035,.12,.20), .08, .16)
-    belly = material("cold pale underbelly", (.28,.43,.48), .10)
-    finmat = material("indigo fins", (.055,.12,.25), .08, .12)
-    scar = material("bioluminescent scars", (.16,.82,.88), 1.1)
-    eye = material("hostile magenta eye", (1,.025,.14), 2.0)
-    # Body is aligned horizontally; the tapered rostrum points toward +X.
-    sphere("sleek_dolphin_torso", (0,0,0), (1.05,.43,.42), slate, (0,0,0))
-    sphere("dolphin_belly", (.05,-.018,-.20), (.79,.39,.22), belly)
-    sphere("long_predatory_rostrum", (.91,-.01,-.035), (.55,.22,.20), slate, (0,.13,0))
-    fin("curved_dorsal_fin", [(-.42,0,.31),(-.16,0,.86),(.23,0,.30)], finmat)
-    fin("left_pectoral_fin", [(-.05,-.25,-.05),(.63,-.33,-.56),(.35,-.16,.02)], finmat)
-    fin("right_pectoral_fin", [(-.05,.25,-.05),(.63,.33,-.56),(.35,.16,.02)], finmat)
-    fin("tail_fluke_left", [(-.83,0,0),(-1.42,0,.45),(-1.16,0,-.05)], finmat)
-    fin("tail_fluke_right", [(-.83,0,0),(-1.42,0,-.45),(-1.16,0,.05)], finmat)
-    sphere("eye_socket", (.52,-.39,.035), (.14,.06,.14), finmat)
-    sphere("glowing_malicious_eye", (.55,-.445,.04), (.073,.025,.074), eye, subdivisions=1)
-    for i in range(3):
-        sphere("glowing_lateral_stripe", (-.45+i*.20,-.425,.1-i*.055), (.07,.018,.018), scar, subdivisions=1)
-    save("18_delfim_abissal_inimigo")
-
-
 def make_octopus():
     clear()
     skin = material("octopus midnight mantle", (.08,.035,.19), .13, .12)
@@ -146,28 +123,5 @@ def make_octopus():
     save("19_polvo_abissal_inimigo")
 
 
-def make_vampire_squid():
-    clear()
-    mantle = material("vampire squid dark burgundy", (.105,.025,.12), .12, .16)
-    web = material("scarlet webbing", (.39,.045,.12), .25)
-    glow = material("violet photophores", (.25,.035,.9), 1.6)
-    eye = material("cold cyan eye", (.045,.9,1), 2.1)
-    sphere("vampire_squid_mantle", (0,0,.12), (.72,.48,.56), mantle)
-    sphere("mantle_cape", (-.1,0,-.12), (.82,.50,.25), web)
-    sphere("mouth", (.51,-.11,-.05), (.22,.20,.24), mantle)
-    for side in (-1,1):
-        sphere("eye_socket", (.36,side*.37,.24), (.20,.10,.19), mantle)
-        sphere("glowing_cyan_eye", (.42,side*.445,.25), (.09,.035,.10), eye, subdivisions=1)
-        # Two broad webbed arms frame six short trailing arms.
-        tentacle("vampire_cape_arm", [(-.25,side*.20,-.02),(-.72,side*.52,-.48),(-1.05,side*.62,-.18)], .13, web)
-        for i in range(3):
-            x = -.18 - i*.08
-            tentacle("trailing_luminous_arm", [(x,side*.2,-.12),(x-.16,side*.42,-.56),(x-.40,side*(.52+i*.08),-.80)], .047, mantle)
-            sphere("photophore", (x-.39,side*(.51+i*.08),-.79), (.07,.055,.07), glow, subdivisions=1)
-    save("20_lula_vampira_inimigo")
-
-
-make_dolphin()
 make_octopus()
-make_vampire_squid()
-print("[3D] Golfinho predador, polvo abissal e lula vampira gerados.")
+print("[3D] Polvo abissal gerado.")

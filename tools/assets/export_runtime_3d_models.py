@@ -193,7 +193,7 @@ def strip_ship_chest_from_runtime(obj_path):
     """Leave the wreck's broken hull and use the game's single interactive chest."""
     if os.path.basename(obj_path) != "07_navio_naufragado_elemento-cenario.obj":
         return
-    hidden_objects = {"corpo_bau", "Cube.001", "Topo_bau"}
+    hidden_objects = {"corpo_bau", "Cube.001", "Topo_bau", "Mesh_0"}
     with open(obj_path, "r", encoding="utf-8") as source:
         lines = source.readlines()
     result = []
@@ -278,7 +278,7 @@ for root, _dirs, files in os.walk(blend_root):
         is_scenery = any(key in name.lower() for key in (
             "bau_tesouro", "navio_naufragado", "recifes_e_cardume",
             "ruinas_e_colunas", "obstaculo_abissal", "obstaculo_vulcanico",
-            "corrente_abissal", "geiser",
+            "corrente_abissal", "geiser", "portal",
             "piscina_lava",
         ))
         if not is_character and not is_scenery:
