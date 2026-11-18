@@ -197,6 +197,8 @@ public final class Runtime3DLayer {
             heroActor.bodyMotion.setAngle(attacking
                 ? -Math.sin(Math.PI * attackProgress) * 3.5 * facingSign
                 : Math.sin(timeSeconds * (3.0 + hero.getCurrentSpeedRatio() * 3.5)) * 0.7);
+            // US-042: variacao de opacidade da malha 3D durante invulnerabilidade (sem retangulo)
+            heroActor.node.setOpacity(hero.getRenderOpacity(context.getNanoTime()));
             place(heroActor, heroX + attackLunge, heroY,
                 hero.getInterpolatedX(alpha) / 4000.0, timeSeconds, facingYaw);
         }

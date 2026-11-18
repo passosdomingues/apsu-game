@@ -13,6 +13,8 @@ public class ParticleSystem {
     private static final int MAX_PARTICLES_HIGH = 320;
     private static final int MAX_PARTICLES_REDUCED = 140;
     private static final int ALPHA_STEPS = 32;
+    /** Taxa de decaimento por frame: garante duracao maxima de 0,5 s a 60 FPS (US-042). */
+    public static final double ALPHA_DECAY = 0.035;
 
     public static class Particle {
         double x, y;
@@ -107,7 +109,7 @@ public class ParticleSystem {
             Particle p = pool[i];
             p.x += p.vx;
             p.y += p.vy;
-            p.alpha -= 0.025;
+            p.alpha -= ALPHA_DECAY;
             if (p.alpha > 0) {
                 if (i != alive) {
                     Particle temp = pool[alive];

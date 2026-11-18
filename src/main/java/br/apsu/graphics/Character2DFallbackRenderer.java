@@ -40,6 +40,9 @@ public final class Character2DFallbackRenderer {
         double drawY = y + HeroEntity.HH / 2.0 - targetH / 2.0;
 
         gc.save();
+        // US-042: variacao de opacidade no fallback 2D durante invulnerabilidade
+        long now = ctx != null ? ctx.getNanoTime() : (long)(timeSeconds * 1_000_000_000L);
+        gc.setGlobalAlpha(hero.getRenderOpacity(now));
         if (!facingRight) {
             // Inverte horizontalmente para olhar para a esquerda
             gc.translate(drawX + targetW, drawY);

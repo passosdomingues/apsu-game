@@ -189,6 +189,9 @@ public class HeroEntity {
         if (Math.abs(impulseY) > 0.05) vy = impulseY;
     }
 
+    /** Duracao da janela de invulnerabilidade temporaria apos dano (US-042: 1,0 s). */
+    public static final long INVULNERABILITY_NANOS = 1_000_000_000L;
+
     public void applyDamage(double damage, long nanoTime) {
         if (invulnerable) return;
         hp = Math.max(0, hp - damage);
@@ -201,9 +204,24 @@ public class HeroEntity {
     }
 
     public void checkInvulnerability(long nanoTime) {
-        if (invulnerable && (nanoTime - invulnerableTime > 1_250_000_000L)) {
+        if (invulnerable && (nanoTime - invulnerableTime > INVULNERABILITY_NANOS)) {
             invulnerable = false;
         }
+    }
+
+    /**
+     * Retorna a opacidade de renderizacao do heroi (US-042).
+     * Pisca por variacao de opacidade durante a janela de invulnerabilidade (1,0 s)
+     * e retorna a 100% de opacidade imediatamente apos o fim do periodo.
+     */
+    public double getRenderOpacity(long currentNanoTime) {
+        if (!invulnerable) return 1.0;
+        long elapsed = currentNanoTime - invulnerableTime;
+        if (elapsed < 0 || elapsed >= INVULNERABILITY_NANOS) {
+            return 1.0;
+        }
+        // Alterna entre 0.25 e 0.85 a cada ~70 ms sem nenhum contorno retangular
+        return ((elapsed / 70_000_000L) % 2 == 0) ? 0.25 : 0.85;
     }
 
     public void triggerShooting(long nanoTime) {

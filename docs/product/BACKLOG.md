@@ -403,16 +403,16 @@ Fonte de verdade das user stories. Validado por `python3 tools/harness/backlog.p
 - [x] Dado um teste unitário, quando executado com make test, então ele valida a janela de 0,6 a 1,0 s entre sinal e dano.
 - [x] Dado a arena com sinais ativos, quando medida com APSU_PERF=1 no perfil balanced, então o frame-time p95 não passa de 16,7 ms.
 
-### US-042 | Invulnerabilidade com feedback sem retângulo | 3 pts | P1 | S5 | E6 | todo
+### US-042 | Invulnerabilidade com feedback sem retângulo | 3 pts | P1 | S5 | E6 | done
 **Como** jogador, **quero** perceber o dano e a invulnerabilidade sem poluição visual, **para** ler a silhueta do herói durante o combate.
 - Fonte: ARCHITECTURE.md, "não desenhar contornos retangulares intermitentes sobre a silhueta durante dano".
 - Depende de: US-002
 - Notas técnicas: a animação de sangue já existe e continua.
 
 **Critérios de aceitação**
-- [ ] Dado dano ao herói, quando a invulnerabilidade inicia, então o herói pisca por 1,0 s por variação de opacidade da malha, sem retângulo desenhado.
-- [ ] Dado a animação de sangue, quando ocorre, então dura no máximo 0,5 s e não cobre o HUD.
-- [ ] Dado o fim da invulnerabilidade, quando o período termina, então a opacidade do herói volta a 100%.
+- [x] Dado dano ao herói, quando a invulnerabilidade inicia, então o herói pisca por 1,0 s por variação de opacidade da malha, sem retângulo desenhado.
+- [x] Dado a animação de sangue, quando ocorre, então dura no máximo 0,5 s e não cobre o HUD.
+- [x] Dado o fim da invulnerabilidade, quando o período termina, então a opacidade do herói volta a 100%.
 
 ### US-043 | Eventos de áudio do chefe | 5 pts | P2 | S5 | E6 | todo
 **Como** jogador, **quero** ouvir a introdução, os ataques, o atordoamento e a derrota do chefe, **para** sentir o peso do combate.
