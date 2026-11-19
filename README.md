@@ -11,15 +11,18 @@ Mergulhe nas profundezas do oceano primordial da mitologia suméria. Controle **
 <table>
   <tr>
     <td align="center"><img src="docs/evolucao/gameplay/revisao-2026-10-31/menu.png" width="320" alt="Menu"/><br/><sub>Menu Principal</sub></td>
+    <td align="center"><img src="docs/evolucao/gameplay/revisao-2026-10-31/dialogue.png" width="320" alt="Diálogo"/><br/><sub>Prólogo — Enki e Adapa</sub></td>
+  </tr>
+  <tr>
     <td align="center"><img src="docs/evolucao/gameplay/revisao-2026-10-31/p1.png" width="320" alt="Fase 1"/><br/><sub>Fase 1 — Águas Claras</sub></td>
-  </tr>
-  <tr>
     <td align="center"><img src="docs/evolucao/gameplay/revisao-2026-10-31/p2.png" width="320" alt="Fase 2"/><br/><sub>Fase 2 — Cavernas de Coral</sub></td>
-    <td align="center"><img src="docs/evolucao/gameplay/revisao-2026-10-31/p3.png" width="320" alt="Fase 3"/><br/><sub>Fase 3 — Correntes Abissais</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/evolucao/gameplay/revisao-2026-10-31/p5.png" width="320" alt="Boss"/><br/><sub>Fase 5 — Templo de Apsu (Boss)</sub></td>
-    <td align="center"><img src="docs/evolucao/gameplay/revisao-2026-10-31/dialogue.png" width="320" alt="Diálogo"/><br/><sub>Diálogo com Enki</sub></td>
+    <td align="center"><img src="docs/evolucao/gameplay/revisao-2026-10-31/p3.png" width="320" alt="Fase 3"/><br/><sub>Fase 3 — Correntes Abissais</sub></td>
+    <td align="center"><img src="docs/evolucao/gameplay/revisao-2026-10-31/p4.png" width="320" alt="Fase 4"/><br/><sub>Fase 4 — Abismo Vulcânico</sub></td>
+  </tr>
+  <tr>
+    <td align="center" colspan="2"><img src="docs/evolucao/gameplay/revisao-2026-10-31/p5.png" width="480" alt="Boss"/><br/><sub>Fase 5 — Templo de Apsu · Duelo contra Kullullu</sub></td>
   </tr>
 </table>
 
@@ -29,22 +32,23 @@ Mergulhe nas profundezas do oceano primordial da mitologia suméria. Controle **
 
 ### Instaladores Prontos
 
-Baixe e instale diretamente — sem dependências extras:
+Baixe e instale diretamente — Java já vem incluído, sem dependências extras:
 
 | Plataforma | Formato |
 |---|---|
-| Linux | `.deb` |
-| macOS | `.dmg` |
-| Windows 10/11 | `.exe` |
+| Linux (Ubuntu/Debian x64) | `.deb` |
+| macOS Apple Silicon (M1–M4) | `.dmg` |
+| macOS Intel | `.dmg` |
+| Windows 10/11 x64 | `.exe` |
 
 👉 **[Releases no GitHub](https://github.com/passosdomingues/apsu-game/releases)**
 
 ### Compilar do Código-Fonte
 
-Requer **Java 21+** e **Maven 3.9+** (ou `make`):
+Requer **Java 21+** e **Maven 3.9+**:
 
 ```bash
-# Via Make (recomendado)
+# Via Make (recomendado — verifica ambiente automaticamente)
 make run
 
 # Via Maven
@@ -62,7 +66,7 @@ mvn javafx:run
 | Ecolocalização | `Q` ou `Shift` esquerdo |
 | Pausa / Menu | `ESC` |
 
-> O disparo de bolhas é desbloqueado ao interagir com o baú na **Fase 2**.
+> O disparo de bolhas é desbloqueado ao interagir com o baú sagrado na **Fase 2**.
 
 ---
 
@@ -80,16 +84,26 @@ mvn javafx:run
 
 ## Personagens
 
+**Herói e aliados**
+
 <table>
   <tr>
-    <td align="center"><img src="tools/personagens/renders/01_adapa_heroi.png" height="140" alt="Adapa"/><br/><b>Adapa</b><br/><sub>Herói</sub></td>
-    <td align="center"><img src="tools/personagens/renders/02_kullullu_boss.png" height="140" alt="Kullullu"/><br/><b>Kullullu</b><br/><sub>Boss Final</sub></td>
-    <td align="center"><img src="tools/personagens/renders/03_enki_npc.png" height="140" alt="Enki"/><br/><b>Enki</b><br/><sub>NPC Guia</sub></td>
+    <td align="center"><img src="tools/personagens/renders/01_adapa_heroi.png" height="150" alt="Adapa"/><br/><b>Adapa</b><br/><sub>Herói</sub></td>
+    <td align="center"><img src="tools/personagens/renders/03_enki_npc.png" height="150" alt="Enki"/><br/><b>Enki</b><br/><sub>Deus Guia</sub></td>
+    <td align="center"><img src="tools/personagens/renders/05_guardiao_atlante_npc.png" height="150" alt="Guardião Atlante"/><br/><b>Guardião Atlante</b><br/><sub>NPC</sub></td>
+    <td align="center"><img src="tools/personagens/renders/05_guardiao_lamassu_aquatico.png" height="150" alt="Lamassu"/><br/><b>Lamassu Aquático</b><br/><sub>NPC</sub></td>
   </tr>
+</table>
+
+**Inimigos e chefes**
+
+<table>
   <tr>
-    <td align="center"><img src="tools/personagens/renders/04_peixe_sombrio_inimigo.png" height="120" alt="Peixe Sombrio"/><br/><sub>Peixe Sombrio</sub></td>
-    <td align="center"><img src="tools/personagens/renders/04_inimigo_medusa_eletrica.png" height="120" alt="Medusa Elétrica"/><br/><sub>Medusa Elétrica</sub></td>
-    <td align="center"><img src="tools/personagens/renders/12_leviata_menor.png" height="120" alt="Leviatã Menor"/><br/><sub>Leviatã Menor</sub></td>
+    <td align="center"><img src="tools/personagens/renders/02_kullullu_boss.png" height="150" alt="Kullullu"/><br/><b>Kullullu</b><br/><sub>Boss Final</sub></td>
+    <td align="center"><img src="tools/personagens/renders/12_leviata_menor.png" height="150" alt="Leviatã Menor"/><br/><b>Leviatã Menor</b><br/><sub>Sub-chefe</sub></td>
+    <td align="center"><img src="tools/personagens/renders/04_peixe_sombrio_inimigo.png" height="150" alt="Peixe Sombrio"/><br/><b>Peixe Sombrio</b><br/><sub>Inimigo</sub></td>
+    <td align="center"><img src="tools/personagens/renders/04_inimigo_medusa_eletrica.png" height="150" alt="Medusa Elétrica"/><br/><b>Medusa Elétrica</b><br/><sub>Inimigo</sub></td>
+    <td align="center"><img src="tools/personagens/renders/11_arraiao_abissal.png" height="150" alt="Arraiâo Abissal"/><br/><b>Arraiâo Abissal</b><br/><sub>Inimigo</sub></td>
   </tr>
 </table>
 
@@ -101,16 +115,16 @@ mvn javafx:run
 |---|---|
 | Linguagem | Java 21 (LTS) |
 | UI / Gráficos | JavaFX 21 — Canvas 2D + SubScene 3D |
-| Modelos 3D | Blender 4.5 → OBJ/MTL exportados via scripts `bpy` |
+| Modelos 3D | Blender 4.5 → OBJ/MTL via scripts `bpy` |
 | Build | Apache Maven 3.9 + GNU Make |
 | Testes | JUnit 5 — 197 testes, 100% aprovados |
 | CI/CD | GitHub Actions — build, testes e release automáticos |
-| Containerização | Docker (imagem de desenvolvimento) |
+| Containerização | Docker (ambiente de desenvolvimento) |
 | Áudio | JavaFX MediaPlayer + trilha original FLAC/MP3 |
 
 **Destaques da engine:**
 - Renderização híbrida 2D/3D com degradê automático de qualidade (zero-alloc a 60 FPS)
-- Sistema de ecolocalização: ondas de pulso acústico revelam o ambiente no escuro
+- Sistema de ecolocalização: ondas de pulso acústico revelam segredos no escuro
 - Bioluminescência dinâmica sincronizada com a mecânica de flutuabilidade
 
 ---
@@ -128,9 +142,9 @@ Revisão de código por área definida em [CODEOWNERS](CODEOWNERS).
 
 ---
 
-## Documentação
+## Documentação Técnica
 
-Documentação técnica completa disponível em [`docs/`](docs/):
+Disponível em [`docs/`](docs/):
 
 - [Arquitetura e Desenvolvimento](docs/ARQUITETURA_E_DESENVOLVIMENTO.md)
 - [Pipeline 3D](docs/PIPELINE_3D.md)
