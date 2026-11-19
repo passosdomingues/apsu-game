@@ -125,14 +125,16 @@ mvn javafx:run
 
 ---
 
-## Equipe
+## Equipe e Contribuições
 
-| Área | Responsável |
-|---|---|
-| ⚙️ Mecânica, Física e Engine | **Rafael** (`@passosdomingues`) |
-| 🎵 Trilha Sonora e Composição Musical | **Erik Alexandre** |
-| 🧊 Modelos 3D dos Personagens | **Wagner** |
-| 🌊 Modelos 3D e Arte dos Cenários | **Marcos** |
+| Integrante | Papel | Contribuições Principais |
+|---|---|---|
+| ⚙️ **Rafael Passos Domingues** (`@passosdomingues`) | **Product Owner** · Engine Lead | Mecânica de jogo, simulação física de fluidos, arquitetura do motor JavaFX, pipeline gráfico híbrido 2.5D/3D, otimizações zero-allocation e automação CI/CD multiplataforma |
+| 🌊 **Marcos Felipe dos Reis Bento** | **Scrum Master** · Cenógrafo 3D | Modelagem procedural dos cenários 3D das 5 fases no Blender, progressão visual profundidade-escuridão por nível do mar, arte dos fundos multicamada e easter eggs (Boto, Golfinho) |
+| 🛠️ **Carlos Eduardo Pereira dos Santos** | **Quality Assurance** | Verificação de requisitos de jogabilidade, cobertura de testes, garantia de qualidade e integração de sistemas |
+| 🧊 **Wagner Donizete Gonçalves** | Modelador 3D | Modelagem geométrica de todos os personagens: Adapa, chefe Kullullû, Enki, criaturas marinhas, inimigos e guardiões (Blender → OBJ/MTL) |
+| 🎵 **Érik Alexandre Vieira Peres** | Compositor | Trilha sonora original, paisagens sonoras subaquáticas adaptativas por fase e efeitos de áudio 3D |
+| 📜 **Cawe dos Reis Barbosa Domiciano** | Narrativo · Designer de Fases | Pesquisa mitológica mesopotâmica (Apkallu/Apsu), inspiração e paleta de profundidade de cada fase (cada nível do mar mais escuro), conceito dos easter eggs Boto e Golfinho e modelagem de inimigos que cometam atrocidades |
 
 Revisão de código por área definida em [CODEOWNERS](CODEOWNERS).
 

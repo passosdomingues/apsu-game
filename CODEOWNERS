@@ -1,8 +1,16 @@
 # CODEOWNERS — As Águas de Apsu (`apsu-game`)
 # Define os responsáveis por revisão de cada área do projeto.
-# Veja a seção "Equipe" do README para a correspondência completa.
+# Veja a seção "Equipe e Contribuições" do README para a correspondência completa.
+#
+# Equipe:
+#   Rafael Passos Domingues   — Product Owner, Engine Lead (Mecânica, Física, Gráficos, CI/CD)
+#   Marcos Felipe dos Reis Bento — Scrum Master, Cenógrafo 3D (Fases, Easter Eggs, Paleta de Profundidade)
+#   Carlos Eduardo Pereira dos Santos — Quality Assurance (Testes, Verificação, Integração)
+#   Wagner Donizete Gonçalves  — Modelador 3D (Personagens, Criaturas, Inimigos)
+#   Érik Alexandre Vieira Peres — Compositor (Trilha Sonora, Áudio 3D)
+#   Cawe dos Reis Barbosa Domiciano — Narrativo/Designer (Mitologia, Fases, Easter Eggs, Inimigos)
 
-# Rafael — Mecânica, Física e Engine em Geral
+# Rafael Passos Domingues — Product Owner · Mecânica, Física, Engine, Pipeline Gráfico e CI/CD
 /src/main/java/br/apsu/core/**        @passosdomingues
 /src/main/java/br/apsu/graphics/**    @passosdomingues
 /src/main/java/br/apsu/model/**       @passosdomingues
@@ -15,18 +23,26 @@
 /.github/**                           @passosdomingues
 /docs/**                              @passosdomingues
 
-# Erik Alexandre — Trilha Sonora e Composição Musical
+# Érik Alexandre Vieira Peres — Trilha Sonora Original e Áudio 3D Adaptativo
 /src/main/java/br/apsu/audio/**       @passosdomingues
 /src/main/resources/audio/**          @passosdomingues
 
-# Wagner — Modelos 3D dos Personagens (Blender → OBJ/MTL)
+# Wagner Donizete Gonçalves — Modelos 3D dos Personagens (Blender → OBJ/MTL)
 /tools/personagens/**                 @passosdomingues
 /src/main/resources/models/characters/** @passosdomingues
 
-# Marcos — Modelos 3D e Arte dos Cenários
+# Marcos Felipe dos Reis Bento — Scrum Master · Cenários 3D, Progressão Visual e Easter Eggs
 /src/main/resources/models/scenery/** @passosdomingues
 /src/main/resources/sprites/scenery/** @passosdomingues
+/src/main/resources/backgrounds/**    @passosdomingues
 /tools/assets/generate_phase_backgrounds.py @passosdomingues
+
+# Carlos Eduardo Pereira dos Santos — QA · Verificação de Requisitos e Testes
+/src/main/java/br/apsu/guidance/**   @passosdomingues
+/src/main/java/br/apsu/collision/**  @passosdomingues
+
+# Cawe dos Reis Barbosa Domiciano — Narrativo · Mitologia, Design de Fases e Inimigos
+/src/main/resources/dialogues/**     @passosdomingues
 
 # Build e infra compartilhados
 /tools/**                             @passosdomingues
