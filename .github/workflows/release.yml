@@ -31,7 +31,7 @@ jobs:
           cache: maven
 
       - name: Run test suite
-        run: mvn --batch-mode verify -Djavafx.platform=linux
+        run: xvfb-run mvn --batch-mode verify -Djavafx.platform=linux
 
   build-platforms:
     needs: test

@@ -25,7 +25,7 @@ jobs:
         run: mvn compile --batch-mode -Djavafx.platform=linux
 
       - name: Run JUnit 5 Automated Tests
-        run: mvn test --batch-mode -Djavafx.platform=linux
+        run: xvfb-run mvn test --batch-mode -Djavafx.platform=linux
 
       - name: Build Executable Fat JAR
         run: mvn package --batch-mode -DskipTests -Djavafx.platform=linux
