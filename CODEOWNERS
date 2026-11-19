@@ -24,22 +24,22 @@
 /docs/**                              @passosdomingues
 
 # Érik Alexandre Vieira Peres — Trilha Sonora Original e Áudio 3D Adaptativo
-/src/main/java/br/apsu/audio/**       @passosdomingues
-/src/main/resources/audio/**          @passosdomingues
+/src/main/java/br/apsu/audio/**       @erikperes000
+/src/main/resources/audio/**          @erikperes000
 
 # Wagner Donizete Gonçalves — Modelos 3D dos Personagens (Blender → OBJ/MTL)
 /tools/personagens/**                 @passosdomingues
 /src/main/resources/models/characters/** @passosdomingues
 
 # Marcos Felipe dos Reis Bento — Scrum Master · Cenários 3D, Progressão Visual e Easter Eggs
-/src/main/resources/models/scenery/** @passosdomingues
-/src/main/resources/sprites/scenery/** @passosdomingues
-/src/main/resources/backgrounds/**    @passosdomingues
-/tools/assets/generate_phase_backgrounds.py @passosdomingues
+/src/main/resources/models/scenery/** @MarcosBento06
+/src/main/resources/sprites/scenery/** @MarcosBento06
+/src/main/resources/backgrounds/**    @MarcosBento06
+/tools/assets/generate_phase_backgrounds.py @MarcosBento06
 
 # Carlos Eduardo Pereira dos Santos — QA · Verificação de Requisitos e Testes
-/src/main/java/br/apsu/guidance/**   @passosdomingues
-/src/main/java/br/apsu/collision/**  @passosdomingues
+/src/main/java/br/apsu/guidance/**   @pereira-devcarlos
+/src/main/java/br/apsu/collision/**  @pereira-devcarlos
 
 # Cawe dos Reis Barbosa Domiciano — Narrativo · Mitologia, Design de Fases e Inimigos
 /src/main/resources/dialogues/**     @passosdomingues

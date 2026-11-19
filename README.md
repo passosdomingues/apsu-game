@@ -10,18 +10,28 @@ Mergulhe nas profundezas do oceano primordial da mitologia suméria. Controle **
 
 <table>
   <tr>
-    <td align="center"><img src="docs/evolucao/gameplay/v20261118/01_menu_principal.png" width="340" alt="Menu Principal"/><br/><sub>Menu Principal — Arcade Neon</sub></td>
+    <td align="center"><img src="docs/evolucao/gameplay/v20261118/01_menu_principal.png" width="340" alt="Menu Principal"/><br/><sub>Menu Principal</sub></td>
     <td align="center"><img src="docs/evolucao/gameplay/v20261118/02_fase_1_aguas_claras.png" width="340" alt="Fase 1"/><br/><sub>Fase 1 — Águas Claras</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/evolucao/gameplay/v20261118/03_fase_2_cavernas_coral.png" width="340" alt="Fase 2"/><br/><sub>Fase 2 — Cavernas de Coral & Naufrágio</sub></td>
-    <td align="center"><img src="docs/evolucao/gameplay/v20261118/04_fase_3_correntes_abissais.png" width="340" alt="Fase 3"/><br/><sub>Fase 3 — Correntes Abissais</sub></td>
+    <td align="center"><img src="docs/evolucao/gameplay/v20261118/03_fase_2_cavernas_coral_navio.png" width="340" alt="Fase 2 — Navio e Baú"/><br/><sub>Fase 2 — Cavernas de Coral: Navio Naufragado &amp; Baú</sub></td>
+    <td align="center"><img src="docs/evolucao/gameplay/v20261118/03_fase_2_dialogo_enki.png" width="340" alt="Fase 2 — Diálogo Enki"/><br/><sub>Fase 2 — Diálogo com Enki</sub></td>
   </tr>
   <tr>
+    <td align="center"><img src="docs/evolucao/gameplay/v20261118/04_fase_3_correntes_abissais.png" width="340" alt="Fase 3"/><br/><sub>Fase 3 — Correntes Abissais</sub></td>
     <td align="center"><img src="docs/evolucao/gameplay/v20261118/05_fase_4_abismo_vulcanico.png" width="340" alt="Fase 4"/><br/><sub>Fase 4 — Abismo Vulcânico</sub></td>
-    <td align="center"><img src="docs/evolucao/gameplay/v20261118/06_fase_5_templo_apsu_boss.png" width="340" alt="Fase 5"/><br/><sub>Fase 5 — Templo de Apsu (Boss Kullullu)</sub></td>
+  </tr>
+  <tr>
+    <td align="center" colspan="2"><img src="docs/evolucao/gameplay/v20261118/06_fase_5_templo_apsu_boss.png" width="700" alt="Fase 5 — Boss"/><br/><sub>Fase 5 — Templo de Apsu: Boss Kullullu</sub></td>
   </tr>
 </table>
+
+### Adapa — Herói Atualizado (render 3D)
+
+<div align="center">
+  <img src="docs/evolucao/gameplay/v20261118/09_adapa_heroi_render.png" height="300" alt="Adapa — novo render 3D"/>
+  <br/><sub>Adapa, o Apkallu — modelagem 3D por Wagner Donizete Gonçalves</sub>
+</div>
 
 ---
 
