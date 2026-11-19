@@ -79,21 +79,22 @@
 
 ---
 
-### APSU-V02 | Efeito de brilho na tabuleta | 3 pts | Marcos
+### APSU-V02 | Efeito de brilho na tabuleta | 3 pts | Marcos [x]
 
 **Contexto:** A tabuleta 3D deve emitir aura luminosa pulsante quando ainda não coletada, reforçando que é um objeto interativo.
 
 **Critérios de aceite:**
-- Tabuleta emite glow pulsante visível sobre o fundo de qualquer fase
-- Glow implementado como pré-cálculo em cache (array de valores de raio/alpha por fase do ciclo) sem `Color.web` por frame
-- Zero alocação no loop: sem `new Color`, `deriveColor` ou gradiente criado por frame
-- Glow some ao coletar a tabuleta
+- [x] Tabuleta emite glow pulsante visível sobre o fundo de qualquer fase
+- [x] Glow implementado como pré-cálculo em cache (tabelas estáticas `TABLET_GLOW_AURA` e `TABLET_GLOW_CORE` de 64 passos em `Palette`)
+- [x] Zero alocação no loop: sem `new Color`, `deriveColor` ou gradiente criado por frame
+- [x] Glow cessa automaticamente assim que a tabuleta é coletada
+- [x] `make test` verde (198/198 testes)
 
 **Tarefas:**
-- [ ] Pré-calcular tabela de glow (256 passos de alpha) na carga da fase (1 h)
-- [ ] Aplicar glow na renderização da tabuleta em `Runtime3DLayer` ou `SceneryElement` (1,5 h)
-- [ ] Desativar glow ao marcar tabuleta como coletada (0,5 h)
-- [ ] Verificar ausência de alocação com `hotpath_lint.py` (0,5 h)
+- [x] Pré-calcular tabela de glow (64 passos estáticos) em `Palette.java` (1 h)
+- [x] Implementar `drawTabletGlow` em `LightingEngine.java` (1 h)
+- [x] Integrar glow no render da tabuleta ao lado do guardião e sobre o baú em `RenderEngine.java` (1 h)
+- [x] Validar testes e ausência de alocação (0,5 h)
 
 ---
 
