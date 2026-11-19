@@ -91,8 +91,15 @@ class PhaseProgressionRegressionTest {
             context.getHero().setY(300);
             context.update((phase * 10L + 5L) * 1_000_000_000L);
 
-            // Transicao ocorre exatamente uma vez (passa para o dialogo da proxima fase)
-            assertEquals(GameContext.State.DIALOGUE, context.getState());
+            // Transicao ocorre diretamente para a proxima fase (sem tela azul intermediaria)
+            GameContext.State expectedState = switch (phase) {
+                case 1 -> GameContext.State.P2;
+                case 2 -> GameContext.State.P3;
+                case 3 -> GameContext.State.P4;
+                case 4 -> GameContext.State.P5;
+                default -> GameContext.State.P1;
+            };
+            assertEquals(expectedState, context.getState());
             assertEquals(phase, context.getDlgPhase(), "Transicao iniciada para a proxima fase (dlgPhase=" + phase + ")");
         }
     }

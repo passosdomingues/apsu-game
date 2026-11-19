@@ -78,13 +78,18 @@ class ObjectiveTrackerTest {
     }
 
     @Test
-    @DisplayName("Fase 5 aponta para o Kullullû")
-    void phase5PointsToBoss() {
+    @DisplayName("Fase 5 não possui seta de orientação no Boss Kullullû")
+    void phase5HasNoObjectiveArrow() {
         context.startP5();
         ObjectiveTracker.Objective obj = ObjectiveTracker.resolveCurrentObjective(context);
+        assertNull(obj, "Arena do boss não deve possuir seta de objetivo");
+    }
 
-        assertNotNull(obj);
-        assertEquals("Derrotar Kullullu", obj.description());
-        assertEquals(context.getBoss().getX(), obj.worldX(), 1.0);
+    @Test
+    @DisplayName("Fase 3 antes da tabuleta não possui seta de guardião (apenas na fase 1)")
+    void phase3BeforeTabletHasNoGuardianArrow() {
+        context.startP3();
+        ObjectiveTracker.Objective obj = ObjectiveTracker.resolveCurrentObjective(context);
+        assertNull(obj, "Fase 3 permite exploração livre sem seta no guardião");
     }
 }

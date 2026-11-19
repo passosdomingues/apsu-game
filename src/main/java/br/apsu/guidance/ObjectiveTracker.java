@@ -26,21 +26,12 @@ public final class ObjectiveTracker {
 
         int phase = context.getCurrentPhase();
         if (phase == 5) {
-            // Na fase 5, o objetivo e o chefe Kullullu
-            if (context.getBoss() != null && !context.getBoss().isDead()) {
-                return new Objective(context.getBoss().getX(), context.getBoss().getY(), "Derrotar Kullullu");
-            }
+            // Na arena do boss, não há seta de orientação
             return null;
         }
 
-        // Fase 2: antes de procurar a tabuleta/portal, se o baú estiver fechado, orienta para o baú (US-021)
-        if (phase == 2 && !context.isChestOpen() && !context.getHero().hasBubblePower()) {
-            return new Objective(context.getChestWX(), context.getChestWY(), "Encontre o naufrágio e abra o baú");
-        }
-
-        // Fases 1 a 4: primeiro o guardiao correspondente da fase (se ainda nao contactado e tabuleta nao coletada)
-        int requiredTablet = phase;
-        if (context.getTabletsCollected() < requiredTablet) {
+        // Fase 1: seta orienta o jogador até o primeiro guardião (Enki)
+        if (phase == 1 && context.getTabletsCollected() < 1) {
             for (GuardianEntity g : context.getGuardians()) {
                 if (!g.isContacted()) {
                     return new Objective(g.getWorldX() + GuardianEntity.GW / 2.0,
@@ -49,7 +40,17 @@ public final class ObjectiveTracker {
             }
         }
 
-        // Tabuleta recebida ou guardiao contactado: objetivo passa a ser a saida do portal (x = 3900)
-        return new Objective(3900.0, 768 / 2.0, "Siga para o portal");
+        // Fase 2: antes de procurar a saída, orienta para o baú no galeão naufragado se fechado
+        if (phase == 2 && !context.isChestOpen() && !context.getHero().hasBubblePower()) {
+            return new Objective(context.getChestWX(), context.getChestWY(), "Encontre o naufrágio e abra o baú");
+        }
+
+        // Nas fases 1 a 4: uma vez obtida a tabuleta da fase, orienta para o portal de descida (x = 3900)
+        if (context.getTabletsCollected() >= phase) {
+            return new Objective(3900.0, 768 / 2.0, "Siga para o portal");
+        }
+
+        // Fases 2 a 4 antes da tabuleta: sem seta no guardião, permitindo exploração orgânica
+        return null;
     }
 }

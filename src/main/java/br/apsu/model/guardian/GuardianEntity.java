@@ -7,32 +7,32 @@ public class GuardianEntity {
     public static final double GW = 110, GH = 185;
 
     public static final String[] NAMES = {
-        "Guardião Atlante",
-        "Guardião de Coral Vivo",
-        "Lamassu Aquático",
-        "Oráculo das Chamas Abissais",
+        "Enki — Sábio das Águas",
+        "Enki — Guardião Celestial",
+        "Enki — Eremita Abissal",
+        "Enki — Guia do Abismo",
         "Enki — Senhor das Profundezas"
     };
 
     public static final String[][] DIALOGUES = {
-        // Fase 1 — Águas Claras (US-025: diálogo inicial revisado, curto, místico e objetivo)
+        // Fase 1 — Águas Claras
         {
-            "Adapa, as profundezas acordaram. Encontre os guardiões e recupere as cinco tabuletas sagradas.",
-            "Aproxime-se e pressione E para interagir e receber cada tabuleta sagrada.",
-            "A primeira tabuleta sagrada está comigo. Pegue-a e siga as ruínas até o portal."
+            "Adapa, meu filho. As profundezas de Apsu acordaram em desarmonia.",
+            "Aproxime-se e pressione E para receber a primeira tabuleta sagrada.",
+            "Recupere as tabuletas e siga pelas ruínas até o portal da próxima câmara."
         },
 
         // Fase 2 — Cavernas de Coral
-        { "O naufrágio está adiante. O baú guarda a tabuleta." },
+        { "O galeão naufragado repousa adiante. Abra o antigo baú com E para libertar o poder das bolhas." },
 
         // Fase 3 — Correntes Abissais
-        { "As correntes apontam o caminho. Recupere a tabuleta." },
+        { "As correntes apontam o fluxo sagrado. Domine a força das águas e alcance a próxima tabuleta." },
 
         // Fase 4 — Abismo Vulcânico
-        { "Desvie da lava. A última tabuleta está adiante." },
+        { "Cuidado com o magma submarino. A última tabuleta está diante de você. O confronto se aproxima." },
 
-        // Fase 5 — Templo Final de Apsu (Enki aparece em pessoa)
-        { "Kullullû bloqueia o templo. Use suas bolhas e evite os ataques." }
+        // Fase 5 — Templo Final de Apsu (Enki orienta para a batalha final)
+        { "Kullullû bloqueia o coração de Apsu. Use suas bolhas místicas e desvie de seus ataques colossais!" }
     };
 
     /** Falas de Enki nas vinhetas entre menu/fases; guardiões falam ao encontrá-los na fase. */
@@ -48,11 +48,11 @@ public class GuardianEntity {
     };
 
     public static final String[] SPRITE_PATHS = {
-        "sprites/guardioes/05_guardiao_atlante_npc.png",
-        "sprites/guardioes/05_guardiao_coral_vivo.png",
-        "sprites/guardioes/05_guardiao_lamassu_aquatico.png",
-        "sprites/guardioes/05_guardiao_oraculo_correntes.png",
-        "sprites/enki/03_enki_npc.png"   // Enki em pessoa no Templo Final
+        "sprites/enki/03_enki_npc.png",
+        "sprites/enki/03_enki_var_celestial.png",
+        "sprites/enki/03_enki_var_eremita.png",
+        "sprites/enki/03_enki_var_celestial.png",
+        "sprites/enki/03_enki_npc.png"
     };
 
     private int type; // 0=Atlante, 1=Coral, 2=Lamassu, 3=Oráculo, 4=Enki

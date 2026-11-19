@@ -16,9 +16,9 @@ public class GuardianEntityTest {
         GuardianEntity g1 = new GuardianEntity(1, 1200, 600);
         GuardianEntity g2 = new GuardianEntity(2, 200, 300);
 
-        assertEquals("Guardião Atlante", g0.getName());
-        assertEquals("Guardião de Coral Vivo", g1.getName());
-        assertEquals("Lamassu Aquático", g2.getName());
+        assertEquals("Enki — Sábio das Águas", g0.getName());
+        assertEquals("Enki — Guardião Celestial", g1.getName());
+        assertEquals("Enki — Eremita Abissal", g2.getName());
 
         assertFalse(g0.isContacted());
         g0.setContacted(true);
@@ -30,8 +30,7 @@ public class GuardianEntityTest {
             assertTrue(line.length() <= 120, "Cada caixa deve ter ate 120 caracteres");
         }
         String fullDialogue = String.join(" ", g0.getDialogue());
-        assertTrue(fullDialogue.contains("guardiões"), "Deve mencionar encontrar os guardioes");
-        assertTrue(fullDialogue.contains("cinco tabuletas sagradas"), "Deve mencionar recuperar as cinco tabuletas sagradas");
+        assertTrue(fullDialogue.contains("tabuleta"), "Deve mencionar tabuleta sagrada");
         assertTrue(fullDialogue.contains("pressione E"), "Deve mencionar a tecla de interacao E");
 
         for (String[] intro : GuardianEntity.ENKI_INTRO_DIALOGUES) {

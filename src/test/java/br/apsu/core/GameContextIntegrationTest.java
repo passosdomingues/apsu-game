@@ -47,11 +47,8 @@ public class GameContextIntegrationTest {
         assertEquals(GameContext.State.MENU, context.getState());
 
         context.transitionToPhase(1);
-        assertEquals(GameContext.State.DIALOGUE, context.getState());
-        assertEquals(0, context.getDlgPhase());
-
-        context.startP1();
         assertEquals(GameContext.State.P1, context.getState());
+        assertEquals(0, context.getDlgPhase());
         assertTrue(context.getEnemies().size() > 0);
         assertEquals(1, context.getGuardians().size());
 
@@ -501,17 +498,10 @@ public class GameContextIntegrationTest {
     @Test
     @DisplayName("Fase 1 dispara cutscene de foco do primeiro guardiao por 2.0 s (US-012 AC1)")
     void p1InitialDialogueEndTriggersGuardianCutscene() {
-        context.transitionToPhase(1); // Entra em DIALOGUE da Fase 1
-        assertEquals(GameContext.State.DIALOGUE, context.getState());
-
-        // Conclui o diálogo com ESPAÇO até mudar de fase
-        while (context.getState() == GameContext.State.DIALOGUE) {
-            context.onKey(KeyCode.SPACE);
-        }
-
+        context.transitionToPhase(1); // Entra diretamente na Fase 1 sem tela de diálogo intermediária
         assertEquals(GameContext.State.P1, context.getState());
         assertTrue(context.getCutsceneController().isActive(),
-            "Cutscene de foco no primeiro guardião deve iniciar após o diálogo inicial");
+            "Cutscene de foco no primeiro guardião deve iniciar na entrada da Fase 1");
         assertEquals("Primeiro Guardiao", context.getCutsceneController().getActiveRequest().label());
         assertEquals(2.0, context.getCutsceneController().getActiveRequest().holdDurationSeconds(), 0.001);
 
@@ -521,9 +511,6 @@ public class GameContextIntegrationTest {
 
     private void advanceThroughP1IntroDialogue() {
         context.transitionToPhase(1);
-        while (context.getState() == GameContext.State.DIALOGUE) {
-            context.onKey(KeyCode.SPACE);
-        }
     }
 
     @Test
@@ -728,13 +715,8 @@ public class GameContextIntegrationTest {
         context.reset();
         context.transitionToPhase(2);
 
-        assertEquals(GameContext.State.DIALOGUE, context.getState());
-        assertEquals(0, context.getProjectiles().size());
-
-        // Conclui diálogo para iniciar Fase 2
-        context.onKey(KeyCode.SPACE);
-
         assertEquals(GameContext.State.P2, context.getState());
+        assertEquals(0, context.getProjectiles().size());
         assertTrue(context.getCutsceneController().isActive(), "Cutscene do baú deve iniciar na Fase 2");
         assertEquals("Bau Naufragio", context.getCutsceneController().getActiveRequest().label());
         assertEquals(context.getChestWX(), context.getCutsceneController().getActiveRequest().targetWorldX(), 0.001);
@@ -839,9 +821,9 @@ public class GameContextIntegrationTest {
         context.update(2_000_000_000L);
         assertTrue(context.isChestOpen());
 
+        // Ao abrir o baú, a fase 2 não possui seta no guardião (apenas na fase 1)
         var objP2AfterChest = br.apsu.guidance.ObjectiveTracker.resolveCurrentObjective(context);
-        assertNotNull(objP2AfterChest);
-        assertEquals("Fale com o guardião", objP2AfterChest.description());
+        assertNull(objP2AfterChest, "Fase 2 não possui seta para o guardião");
     }
 
     @Test

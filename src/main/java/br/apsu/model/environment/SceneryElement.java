@@ -19,7 +19,9 @@ public class SceneryElement {
         /** Rocha/coluna vulcânica: causa dano por calor ao contato. */
         VOLCANIC_ROCK,
         /** Zona de lava: dano contínuo enquanto dentro. */
-        LAVA_POOL
+        LAVA_POOL,
+        /** Recifes e colunas de coral 3D no cenário marinho. */
+        CORAL
     }
 
     private Type type;

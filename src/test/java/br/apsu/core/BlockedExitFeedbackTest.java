@@ -142,8 +142,8 @@ class BlockedExitFeedbackTest {
         context.getHero().setX(3850);
         context.update(2_000_000_000L);
 
-        // Deve transicionar para a fase 2 (passando pelo diálogo da fase 2)
-        assertEquals(GameContext.State.DIALOGUE, context.getState());
+        // Deve transicionar diretamente para a Fase 2 (sem tela de diálogo redundante)
+        assertEquals(GameContext.State.P2, context.getState());
         assertEquals(1, context.getDlgPhase(), "Transicao engatilhada para a Fase 2 (dlgPhase=1)");
         assertFalse(context.getAlertMessage().contains("selado") || context.getAlertMessage().contains("Selado"),
             "Nao deve exibir alerta de saida bloqueada quando a tabuleta foi coletada");

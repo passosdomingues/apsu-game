@@ -210,14 +210,45 @@ public final class Runtime3DLayer {
             String model = modelName(guardian.getSpritePath());
             int id = guardianIndex++;
             int type = guardian.getType();
-            double targetWidth = type == 0 ? 145 : type == 4 ? 120 : 125;
-            double targetHeight = type == 0 ? 230 : type == 4 ? 210 : 200;
+            // Escala caprichada para os Enkis como guardiões no lugar dos antigos
+            double targetWidth = 160;
+            double targetHeight = 280;
             Actor npc = actor(id < GUARDIAN_IDS.length ? GUARDIAN_IDS[id] : "guardian-" + id,
                 model, targetWidth, targetHeight);
             if (npc != null) place(npc,
                 screenX,
                 guardian.getWorldY() + GuardianEntity.GH / 2.0,
                 guardian.getWorldX() / 4000.0, timeSeconds, 0);
+
+            // Tabuleta Sagrada 3D flutuando com rotação e levitação mística ao lado de Enki
+            if (context.getTabletsCollected() < context.getCurrentPhase() && !guardian.isContacted()) {
+                double tabX = screenX + 75;
+                double tabY = guardian.getWorldY() + 45 + Math.sin(timeSeconds * 3.2) * 12;
+                Actor tabletActor = actor("guardian-tablet-" + id, "scenery/tabuleta_sagrada_3d", 80, 80);
+                if (tabletActor != null) {
+                    tabletActor.bodyMotion.setAngle(timeSeconds * 40.0);
+                    place(tabletActor, tabX, tabY, 0.4, timeSeconds, timeSeconds * 25.0);
+                }
+            }
+        }
+
+        // Projéteis de bolha 3D disparados pelo herói Adapa
+        int bubbleIdx = 0;
+        for (br.apsu.model.environment.Projectile p : context.getProjectiles()) {
+            if (p.getType() == br.apsu.model.environment.Projectile.Type.HERO_BUBBLE) {
+                double px = p.getInterpolatedX(alpha);
+                double py = p.getInterpolatedY(alpha);
+                double screenX = (state == GameContext.State.P5 || p.isArena())
+                    ? px : context.getCamera().toScreenX(px, alpha);
+                if (insideViewport(screenX, 48)) {
+                    String bId = "hero-bubble-" + (bubbleIdx++);
+                    Actor bubble = actor(bId, "scenery/bolha_3d", 38, 38);
+                    if (bubble != null) {
+                        bubble.bodyMotion.setAngle(timeSeconds * 50.0);
+                        place(bubble, screenX, py, 0.25, timeSeconds, 0);
+                    }
+                }
+            }
         }
 
         BossEntity boss = context.getBoss();
@@ -265,6 +296,9 @@ public final class Runtime3DLayer {
             } else if (element.getType() == SceneryElement.Type.GEYSER) {
                 propWidth = 72;
                 propHeight = 190;
+            } else if (element.getType() == SceneryElement.Type.CORAL) {
+                propWidth = Math.max(120, element.getWidth());
+                propHeight = Math.max(220, element.getHeight());
             }
             String id = elementIndex < SCENERY_IDS.length ? SCENERY_IDS[elementIndex] : "scenery-" + elementIndex;
             Actor prop = actor(id, "scenery/" + model,
@@ -292,6 +326,15 @@ public final class Runtime3DLayer {
                 Actor chest = actor("chest", "scenery/06_bau_tesouro_elemento-cenario", 84, 66);
                 if (chest != null) place(chest, chestX, context.getChestWY(), .26, timeSeconds, 0);
             }
+            if (!context.isChestOpen() && context.getTabletsCollected() < 2) {
+                double tabX = chestX;
+                double tabY = context.getChestWY() - 45 + Math.sin(timeSeconds * 3.5) * 8;
+                Actor chestTab = actor("chest-tablet", "scenery/tabuleta_sagrada_3d", 65, 65);
+                if (chestTab != null) {
+                    chestTab.bodyMotion.setAngle(timeSeconds * 35.0);
+                    place(chestTab, tabX, tabY, .27, timeSeconds, 0);
+                }
+            }
         }
         // Marco de descida: portal atlante renderizado como objeto 3D circular.
         if (context.getCurrentPhase() >= 1 && context.getCurrentPhase() <= 4) {
@@ -313,6 +356,7 @@ public final class Runtime3DLayer {
             case GEYSER -> "14_geiser_hidrotermal_3d";
             case LAVA_POOL -> "17_piscina_lava_3d";
             case VOLCANIC_ROCK -> "12_obstaculo_vulcanico";
+            case CORAL -> "15_coral_colisao_3d";
             default -> null;
         };
     }

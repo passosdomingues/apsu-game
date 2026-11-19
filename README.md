@@ -10,19 +10,19 @@ Mergulhe nas profundezas do oceano primordial da mitologia suméria. Controle **
 
 <table>
   <tr>
-    <td align="center"><img src="docs/evolucao/gameplay/v20261118/01_menu_principal.png" width="340" alt="Menu Principal"/><br/><sub>Menu Principal</sub></td>
-    <td align="center"><img src="docs/evolucao/gameplay/v20261118/02_fase_1_aguas_claras.png" width="340" alt="Fase 1"/><br/><sub>Fase 1 — Águas Claras</sub></td>
+    <td align="center"><img src="docs/evolucao/gameplay/v20261118/01_menu_principal.png" width="340" alt="Menu Principal"/><br/><sub>Menu Principal — Adapa &amp; Enki</sub></td>
+    <td align="center"><img src="docs/evolucao/gameplay/v20261118/02_fase_1_aguas_claras.png" width="340" alt="Fase 1"/><br/><sub>Fase 1 — Águas Claras: Enki Guardião, Tabuleta 3D &amp; Corais</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/evolucao/gameplay/v20261118/03_fase_2_cavernas_coral_navio.png" width="340" alt="Fase 2 — Navio e Baú"/><br/><sub>Fase 2 — Cavernas de Coral: Navio Naufragado &amp; Baú</sub></td>
-    <td align="center"><img src="docs/evolucao/gameplay/v20261118/03_fase_2_dialogo_enki.png" width="340" alt="Fase 2 — Diálogo Enki"/><br/><sub>Fase 2 — Diálogo com Enki</sub></td>
+    <td align="center"><img src="docs/evolucao/gameplay/v20261118/03_fase_2_cavernas_coral_navio.png" width="340" alt="Fase 2 — Navio e Baú"/><br/><sub>Fase 2 — Cavernas de Coral: Navio Naufragado, Baú &amp; Bolhas 3D</sub></td>
+    <td align="center"><img src="docs/evolucao/gameplay/v20261118/03_fase_2_dialogo_enki.png" width="340" alt="Fase 2 — Diálogo Enki"/><br/><sub>Fase 2 — Diálogo in-game com Enki Celestial &amp; Tabuleta Sagrada</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/evolucao/gameplay/v20261118/04_fase_3_correntes_abissais.png" width="340" alt="Fase 3"/><br/><sub>Fase 3 — Correntes Abissais</sub></td>
-    <td align="center"><img src="docs/evolucao/gameplay/v20261118/05_fase_4_abismo_vulcanico.png" width="340" alt="Fase 4"/><br/><sub>Fase 4 — Abismo Vulcânico</sub></td>
+    <td align="center"><img src="docs/evolucao/gameplay/v20261118/04_fase_3_correntes_abissais.png" width="340" alt="Fase 3"/><br/><sub>Fase 3 — Correntes Abissais: Enki Eremita, Tabuleta 3D &amp; Enguia</sub></td>
+    <td align="center"><img src="docs/evolucao/gameplay/v20261118/05_fase_4_abismo_vulcanico.png" width="340" alt="Fase 4"/><br/><sub>Fase 4 — Abismo Vulcânico: Portal Ativado 3D &amp; Magma</sub></td>
   </tr>
   <tr>
-    <td align="center" colspan="2"><img src="docs/evolucao/gameplay/v20261118/06_fase_5_templo_apsu_boss.png" width="700" alt="Fase 5 — Boss"/><br/><sub>Fase 5 — Templo de Apsu: Boss Kullullu</sub></td>
+    <td align="center" colspan="2"><img src="docs/evolucao/gameplay/v20261118/06_fase_5_templo_apsu_boss.png" width="700" alt="Fase 5 — Boss"/><br/><sub>Fase 5 — Templo de Apsu: Duelo Final contra Boss Kullullû com Disparo de Bolhas 3D</sub></td>
   </tr>
 </table>
 
