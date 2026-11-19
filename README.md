@@ -81,7 +81,7 @@ mvn javafx:run
 
 | # | Região | Desafio |
 |---|---|---|
-| 1 | **Águas Claras** | Introdução ao nado e esquiva; primeiro encontro com o Guardião Atlante |
+| 1 | **Águas Claras** | Introdução ao nado e esquiva; primeiro encontro com **Enki, o Sábio das Águas** |
 | 2 | **Cavernas de Coral** | Galeão naufragado e o baú ancestral — desperta o poder das bolhas |
 | 3 | **Correntes Abissais** | Correntes submarinas e zonas de pressão alteram a flutuabilidade |
 | 4 | **Abismo Vulcânico** | Chaminés hidrotermais e confronto com o Leviatã Menor |
@@ -97,7 +97,8 @@ mvn javafx:run
   <tr>
     <td align="center"><img src="tools/personagens/renders/01_adapa_heroi.png" height="150" alt="Adapa"/><br/><b>Adapa</b><br/><sub>Herói</sub></td>
     <td align="center"><img src="tools/personagens/renders/03_enki_npc.png" height="150" alt="Enki"/><br/><b>Enki</b><br/><sub>Deus Guia</sub></td>
-    <td align="center"><img src="tools/personagens/renders/05_guardiao_atlante_npc.png" height="150" alt="Guardião Atlante"/><br/><b>Guardião Atlante</b><br/><sub>NPC Guardião</sub></td>
+    <td align="center"><img src="tools/personagens/renders/03_enki_var_celestial.png" height="150" alt="Enki Celestial"/><br/><b>Enki Celestial</b><br/><sub>Guardião</sub></td>
+    <td align="center"><img src="tools/personagens/renders/03_enki_var_eremita.png" height="150" alt="Enki Eremita"/><br/><b>Enki Eremita</b><br/><sub>Guardião</sub></td>
   </tr>
 </table>
 
@@ -113,6 +114,17 @@ mvn javafx:run
   </tr>
 </table>
 
+**Elementos de Cenário 3D**
+
+<table>
+  <tr>
+    <td align="center"><img src="tools/personagens/renders/tabuleta.png" height="120" alt="Tabuleta Sagrada"/><br/><b>Tabuleta Sagrada</b><br/><sub>Coleta — flutua com rotação 3D</sub></td>
+    <td align="center"><img src="tools/personagens/renders/corais.png" height="120" alt="Corais"/><br/><b>Corais</b><br/><sub>Obstáculo — Fase 2</sub></td>
+    <td align="center"><img src="tools/personagens/renders/bolhas.png" height="120" alt="Bolhas"/><br/><b>Bolhas</b><br/><sub>Projétil 3D do Adapa</sub></td>
+    <td align="center"><img src="tools/personagens/renders/portal.png" height="120" alt="Portal"/><br/><b>Portal de Fase</b><br/><sub>Saída para próxima fase</sub></td>
+  </tr>
+</table>
+
 ---
 
 ## Stack Técnica
@@ -123,7 +135,7 @@ mvn javafx:run
 | UI / Gráficos | JavaFX 21 — Canvas 2D + SubScene 3D |
 | Modelos 3D | Blender 4.5.5 LTS → OBJ/MTL via pipeline de scripts `bpy` |
 | Build | Apache Maven 3.9 + GNU Make |
-| Testes | JUnit 5 — 197 testes, 100% aprovados |
+| Testes | JUnit 5 — 198 testes, 100% aprovados |
 | CI/CD | GitHub Actions — build, testes com xvfb e release automáticos |
 | Containerização | Docker (ambiente de desenvolvimento) |
 | Áudio | JavaFX MediaPlayer + trilha original FLAC/MP3 |
