@@ -191,7 +191,7 @@ public class GameContext {
                 if (k == KeyCode.ESCAPE) {
                     if (state == State.P1 && tutorialController.isActive()) {
                         tutorialController.skip();
-                        showAlert("Tutorial pulado! Siga para encontrar o guardião.");
+                        showAlert("Tutorial pulado! Encontre Enki nas águas claras.");
                         return;
                     }
                     if (state == State.P5) publishBossMusic(false);

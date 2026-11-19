@@ -15,24 +15,36 @@ public class GuardianEntity {
     };
 
     public static final String[][] DIALOGUES = {
-        // Fase 1 — Águas Claras
+        // Fase 1 — Águas Claras (Enki — Sábio das Águas)
         {
             "Adapa, meu filho. As profundezas de Apsu acordaram em desarmonia.",
-            "Aproxime-se e pressione E para receber a primeira tabuleta sagrada.",
+            "Aproxime-se e pressione E para receber a primeira tabuleta sagrada dos Me.",
             "Recupere as tabuletas e siga pelas ruínas até o portal da próxima câmara."
         },
 
-        // Fase 2 — Cavernas de Coral
-        { "O galeão naufragado repousa adiante. Abra o antigo baú com E para libertar o poder das bolhas." },
+        // Fase 2 — Cavernas de Coral (Enki — Guardião Celestial)
+        {
+            "O antigo galeão guarda o legado de Eridu. Abra o baú com E para despertar as bolhas místicas.",
+            "Use as correntes favoráveis e resgate a segunda tabuleta sagrada."
+        },
 
-        // Fase 3 — Correntes Abissais
-        { "As correntes apontam o fluxo sagrado. Domine a força das águas e alcance a próxima tabuleta." },
+        // Fase 3 — Correntes Abissais (Enki — Eremita Abissal)
+        {
+            "Nas trevas abissais, a pressão testa sua determinação. As águas fluem com fúria ancestral.",
+            "Receba a terceira tabuleta sagrada e atravesse as marés traiçoeiras."
+        },
 
-        // Fase 4 — Abismo Vulcânico
-        { "Cuidado com o magma submarino. A última tabuleta está diante de você. O confronto se aproxima." },
+        // Fase 4 — Abismo Vulcânico (Enki — Guia do Abismo)
+        {
+            "As fendas ardentes anunciam a proximidade do Templo Primordial. Desvie do magma implacável.",
+            "Esta é a quarta tabuleta sagrada. Apenas o confronto decisivo resta adiante."
+        },
 
-        // Fase 5 — Templo Final de Apsu (Enki orienta para a batalha final)
-        { "Kullullû bloqueia o coração de Apsu. Use suas bolhas místicas e desvie de seus ataques colossais!" }
+        // Fase 5 — Templo Final de Apsu (Enki — Senhor das Profundezas)
+        {
+            "Kullullû ergueu-se para impedir a restauração dos Me. Mire suas bolhas e liberte Apsu!",
+            "Mostre a bravura de Eridu e sele o destino das águas primordiais!"
+        }
     };
 
     /** Falas de Enki nas vinhetas entre menu/fases; guardiões falam ao encontrá-los na fase. */
@@ -41,10 +53,10 @@ public class GuardianEntity {
             "Adapa, o abismo despertou. Encontre os guardiões e recupere as cinco tabuletas sagradas.",
             "Pressione E perto de cada guardião para interagir e receber a tabuleta."
         },
-        {"Procure o naufrágio. Abra o baú com E."},
-        {"Siga as correntes até o guardião."},
-        {"Desvie da lava. Busque a última tabuleta."},
-        {"Kullullû está à frente. Mire bolhas e sobreviva."}
+        {"Explore o galeão naufragado nas cavernas de coral e liberte o poder ancestral."},
+        {"Domine as correntes submarinas das profundezas e alcance o eremita abissal."},
+        {"Desvie do magma vulcânico e busque a última tabuleta sagrada antes do templo."},
+        {"Kullullû aguarda no coração do templo. Sobreviva e restaure a harmonia de Apsu."}
     };
 
     public static final String[] SPRITE_PATHS = {
