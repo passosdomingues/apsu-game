@@ -157,4 +157,18 @@ public final class Palette {
         new Stop(0.5, color("#2a0810")),
         new Stop(1, color("#400a16"))
     );
+
+    // Tabela pre-calculada de cores para pulsacao de glow da Tabuleta Sagrada (APSU-V02, zero-alloc)
+    public static final Color[] TABLET_GLOW_AURA = new Color[64];
+    public static final Color[] TABLET_GLOW_CORE = new Color[64];
+    static {
+        for (int i = 0; i < 64; i++) {
+            double angle = (i / 64.0) * Math.PI * 2.0;
+            double factor = 0.5 + 0.5 * Math.sin(angle); // 0.0 a 1.0
+            double auraAlpha = 0.12 + 0.18 * factor;     // 0.12 a 0.30
+            double coreAlpha = 0.25 + 0.35 * factor;     // 0.25 a 0.60
+            TABLET_GLOW_AURA[i] = Color.color(0.2, 0.75, 1.0, auraAlpha);
+            TABLET_GLOW_CORE[i] = Color.color(0.85, 0.95, 1.0, coreAlpha);
+        }
+    }
 }

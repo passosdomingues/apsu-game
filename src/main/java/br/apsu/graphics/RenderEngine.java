@@ -327,7 +327,7 @@ public class RenderEngine implements GameRenderer {
         // Cenário
         for (GuardianEntity g : ctx.getGuardians()) {
             double gx = ctx.getCamera().toScreenX(g.getWorldX());
-            drawGuardian(gc, gx, g.getWorldY(), g.getType(), g.isPromptVisible(), timeSeconds);
+            drawGuardian(gc, ctx, gx, g.getWorldY(), g.getType(), g.isPromptVisible(), timeSeconds);
         }
 
         drawPhaseExit(gc, ctx.getCamera().toScreenX(3900), ctx.getTabletsCollected() >= 1);
@@ -364,18 +364,24 @@ public class RenderEngine implements GameRenderer {
 
             if (open) {
                 lightingEngine.drawBioluminescentHalo(gc, csx + 10, ctx.getChestWY(), 95, Color.GOLD);
-            } else if (ctx.isChestPromptVisible()) {
-                gc.setFill(Palette.CHEST_PROMPT_BG);
-                gc.fillRoundRect(csx - 70, ctx.getChestWY() - 62, 140, 24, 8, 8);
-                gc.setFill(Palette.GOLD); gc.setFont(UiFonts.TEXT_BOLD_12);
-                gc.setTextAlign(TextAlignment.CENTER);
-                gc.fillText("[ E / ESPAÇO: ABRIR BAÚ ]", csx, ctx.getChestWY() - 46);
+            } else {
+                if (ctx.getTabletsCollected() < 2) {
+                    double tabY = ctx.getChestWY() - 45 + Math.sin(timeSeconds * 3.5) * 8;
+                    lightingEngine.drawTabletGlow(gc, csx, tabY, 28.0, timeSeconds);
+                }
+                if (ctx.isChestPromptVisible()) {
+                    gc.setFill(Palette.CHEST_PROMPT_BG);
+                    gc.fillRoundRect(csx - 70, ctx.getChestWY() - 62, 140, 24, 8, 8);
+                    gc.setFill(Palette.GOLD); gc.setFont(UiFonts.TEXT_BOLD_12);
+                    gc.setTextAlign(TextAlignment.CENTER);
+                    gc.fillText("[ E / ESPAÇO: ABRIR BAÚ ]", csx, ctx.getChestWY() - 46);
+                }
             }
         }
 
         for (GuardianEntity g : ctx.getGuardians()) {
             double gx = ctx.getCamera().toScreenX(g.getWorldX());
-            drawGuardian(gc, gx, g.getWorldY(), g.getType(), g.isPromptVisible(), timeSeconds);
+            drawGuardian(gc, ctx, gx, g.getWorldY(), g.getType(), g.isPromptVisible(), timeSeconds);
         }
 
         drawPhaseExit(gc, ctx.getCamera().toScreenX(3900), ctx.getTabletsCollected() >= 2);
@@ -427,7 +433,7 @@ public class RenderEngine implements GameRenderer {
 
         for (GuardianEntity g : ctx.getGuardians()) {
             double gx = ctx.getCamera().toScreenX(g.getWorldX());
-            drawGuardian(gc, gx, g.getWorldY(), g.getType(), g.isPromptVisible(), timeSeconds);
+            drawGuardian(gc, ctx, gx, g.getWorldY(), g.getType(), g.isPromptVisible(), timeSeconds);
         }
 
         drawPhaseExit(gc, ctx.getCamera().toScreenX(3900), ctx.getTabletsCollected() >= 3);
@@ -457,7 +463,7 @@ public class RenderEngine implements GameRenderer {
 
         for (GuardianEntity g : ctx.getGuardians()) {
             double gx = ctx.getCamera().toScreenX(g.getWorldX());
-            drawGuardian(gc, gx, g.getWorldY(), g.getType(), g.isPromptVisible(), timeSeconds);
+            drawGuardian(gc, ctx, gx, g.getWorldY(), g.getType(), g.isPromptVisible(), timeSeconds);
         }
 
         drawPhaseExit(gc, ctx.getCamera().toScreenX(3900), ctx.getTabletsCollected() >= 4);
@@ -486,7 +492,7 @@ public class RenderEngine implements GameRenderer {
         drawPhaseBackground(gc, ctx, width, height, 5, 0.24);
 
         for (GuardianEntity g : ctx.getGuardians()) {
-            drawGuardian(gc, g.getWorldX(), g.getWorldY(), g.getType(), g.isPromptVisible(), timeSeconds);
+            drawGuardian(gc, ctx, g.getWorldX(), g.getWorldY(), g.getType(), g.isPromptVisible(), timeSeconds);
         }
 
         if (ctx.getBoss() != null) {
@@ -599,10 +605,17 @@ public class RenderEngine implements GameRenderer {
         gc.fillText(boss.getCombatPhase().getLabel(), width / 2.0, barY - 5);
     }
 
-    private void drawGuardian(GraphicsContext gc, double x, double y, int type, boolean prompt, double timeSeconds) {
+    private void drawGuardian(GraphicsContext gc, GameContext ctx, double x, double y, int type, boolean prompt, double timeSeconds) {
         lightingEngine.drawBioluminescentHalo(gc, x + GuardianEntity.GW / 2, y + GuardianEntity.GH / 2,
             GuardianEntity.GW * 0.9, Palette.GUARDIAN_HALO);
         drawShadow(gc, x + GuardianEntity.GW / 2, y + GuardianEntity.GH - 4, GuardianEntity.GW * 0.7, 16);
+
+        // Pulsação luminosa (glow) da Tabuleta Sagrada quando ainda não coletada (APSU-V02)
+        if (ctx.getTabletsCollected() < ctx.getCurrentPhase()) {
+            double tabX = x + 75;
+            double tabY = y + 45 + Math.sin(timeSeconds * 3.2) * 12;
+            lightingEngine.drawTabletGlow(gc, tabX, tabY, 32.0, timeSeconds);
+        }
 
         // US-008 / US-009: Fallback 2D para guardiao no Canvas quando Scene3D indisponivel ou 2D completo
         if (!adaptiveController.isGuardianIn3D()) {

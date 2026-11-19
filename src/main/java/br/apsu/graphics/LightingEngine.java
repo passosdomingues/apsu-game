@@ -57,4 +57,24 @@ public class LightingEngine {
         gc.fillOval(cx - inR, cy - inR, inR * 2, inR * 2);
     }
 
+    /**
+     * Efeito de pulsação luminosa (glow) da Tabuleta Sagrada 3D (APSU-V02).
+     * Zero alocação: indexa tabela pré-calculada de cores estáticas de Palette.
+     */
+    public void drawTabletGlow(GraphicsContext gc, double cx, double cy, double baseRadius, double timeSeconds) {
+        if (reducedEffects) return;
+        int step = (int) ((timeSeconds * 18.0) % 64.0);
+        if (step < 0) step += 64;
+        Color aura = Palette.TABLET_GLOW_AURA[step];
+        Color core = Palette.TABLET_GLOW_CORE[step];
+
+        double rAura = baseRadius * 1.35;
+        gc.setFill(aura);
+        gc.fillOval(cx - rAura, cy - rAura, rAura * 2.0, rAura * 2.0);
+
+        double rCore = baseRadius * 0.75;
+        gc.setFill(core);
+        gc.fillOval(cx - rCore, cy - rCore, rCore * 2.0, rCore * 2.0);
+    }
+
 }
