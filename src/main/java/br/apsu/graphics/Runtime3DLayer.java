@@ -297,7 +297,7 @@ public final class Runtime3DLayer {
         if (context.getCurrentPhase() >= 1 && context.getCurrentPhase() <= 4) {
             double exitX = context.getCamera().toScreenX(3900, alpha);
             if (insideViewport(exitX, 260)) {
-                Actor exitMarker = actor("phase-descent", "scenery/15_portal_atlantica_3d", 220, 220);
+                Actor exitMarker = actor("phase-descent", context.getTabletsCollected() >= context.getCurrentPhase() ? "scenery/15_portal_ativado_3d" : "scenery/15_portal_atlantica_3d", 220, 220);
                 if (exitMarker != null) {
                     exitMarker.bodyMotion.setAngle(timeSeconds * 30.0);
                     place(exitMarker, exitX, VIEW_H / 2.0, .8, timeSeconds, 0, 0);
