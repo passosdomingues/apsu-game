@@ -137,16 +137,6 @@ public final class Runtime3DLayer {
             finishVisibleActors();
             return;
         }
-        if (state == GameContext.State.DIALOGUE) {
-            if (!actors.isVisible()) actors.setVisible(true);
-            int phase = Math.max(0, Math.min(4, context.getCurrentPhase() - 1));
-            Actor npc = actor("phase-intro-enki", ENKI_MODELS[phase % ENKI_MODELS.length], 120, 210);
-            if (npc != null) place(npc, 120, VIEW_H / 2.0, 0.2, timeSeconds, 0);
-            Actor hero = actor("dialogue-hero", "characters/01_adapa_heroi", 180, 380);
-            if (hero != null) place(hero, VIEW_W * 0.76, VIEW_H * 0.67, 0.25, timeSeconds, 0);
-            finishVisibleActors();
-            return;
-        }
         if (state.ordinal() < GameContext.State.P1.ordinal() || state.ordinal() > GameContext.State.P5.ordinal()) {
             finishVisibleActors();
             return;
