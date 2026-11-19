@@ -4,8 +4,8 @@ import sys
 
 # Script automatizado executado pelo Blender no modo background
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-blends_dir = os.path.join(project_root, "personagens", "blends")
-output_res_dir = os.path.join(project_root, "personagens", "renders", "previews")
+blends_dir = os.path.join(project_root, "tools", "personagens", "blends")
+output_res_dir = os.path.join(project_root, "tools", "personagens", "renders", "previews")
 
 print("=== Gerador de previews renderizados de cenas 3D Blender ===")
 print(f"Buscando modelos .blend em: {blends_dir}")

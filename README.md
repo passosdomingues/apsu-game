@@ -6,23 +6,20 @@ Mergulhe nas profundezas do oceano primordial da mitologia suméria. Controle **
 
 ---
 
-## Capturas de Tela
+## Capturas de Tela do Jogo
 
 <table>
   <tr>
-    <td align="center"><img src="docs/evolucao/gameplay/revisao-2026-10-31/menu.png" width="320" alt="Menu"/><br/><sub>Menu Principal</sub></td>
-    <td align="center"><img src="docs/evolucao/gameplay/revisao-2026-10-31/dialogue.png" width="320" alt="Diálogo"/><br/><sub>Prólogo — Enki e Adapa</sub></td>
+    <td align="center"><img src="docs/evolucao/gameplay/v20261118/01_menu_principal.png" width="340" alt="Menu Principal"/><br/><sub>Menu Principal — Arcade Neon</sub></td>
+    <td align="center"><img src="docs/evolucao/gameplay/v20261118/02_fase_1_aguas_claras.png" width="340" alt="Fase 1"/><br/><sub>Fase 1 — Águas Claras</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/evolucao/gameplay/revisao-2026-10-31/p1.png" width="320" alt="Fase 1"/><br/><sub>Fase 1 — Águas Claras</sub></td>
-    <td align="center"><img src="docs/evolucao/gameplay/revisao-2026-10-31/p2.png" width="320" alt="Fase 2"/><br/><sub>Fase 2 — Cavernas de Coral</sub></td>
+    <td align="center"><img src="docs/evolucao/gameplay/v20261118/03_fase_2_cavernas_coral.png" width="340" alt="Fase 2"/><br/><sub>Fase 2 — Cavernas de Coral & Naufrágio</sub></td>
+    <td align="center"><img src="docs/evolucao/gameplay/v20261118/04_fase_3_correntes_abissais.png" width="340" alt="Fase 3"/><br/><sub>Fase 3 — Correntes Abissais</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/evolucao/gameplay/revisao-2026-10-31/p3.png" width="320" alt="Fase 3"/><br/><sub>Fase 3 — Correntes Abissais</sub></td>
-    <td align="center"><img src="docs/evolucao/gameplay/revisao-2026-10-31/p4.png" width="320" alt="Fase 4"/><br/><sub>Fase 4 — Abismo Vulcânico</sub></td>
-  </tr>
-  <tr>
-    <td align="center" colspan="2"><img src="docs/evolucao/gameplay/revisao-2026-10-31/p5.png" width="480" alt="Boss"/><br/><sub>Fase 5 — Templo de Apsu · Duelo contra Kullullu</sub></td>
+    <td align="center"><img src="docs/evolucao/gameplay/v20261118/05_fase_4_abismo_vulcanico.png" width="340" alt="Fase 4"/><br/><sub>Fase 4 — Abismo Vulcânico</sub></td>
+    <td align="center"><img src="docs/evolucao/gameplay/v20261118/06_fase_5_templo_apsu_boss.png" width="340" alt="Fase 5"/><br/><sub>Fase 5 — Templo de Apsu (Boss Kullullu)</sub></td>
   </tr>
 </table>
 
@@ -66,7 +63,7 @@ mvn javafx:run
 | Ecolocalização | `Q` ou `Shift` esquerdo |
 | Pausa / Menu | `ESC` |
 
-> O disparo de bolhas é desbloqueado ao interagir com o baú sagrado na **Fase 2**.
+> O disparo de bolhas é desbloqueado ao interagir com o baú ancestral na **Fase 2**.
 
 ---
 
@@ -77,25 +74,24 @@ mvn javafx:run
 | 1 | **Águas Claras** | Introdução ao nado e esquiva; primeiro encontro com o Guardião Atlante |
 | 2 | **Cavernas de Coral** | Galeão naufragado e o baú ancestral — desperta o poder das bolhas |
 | 3 | **Correntes Abissais** | Correntes submarinas e zonas de pressão alteram a flutuabilidade |
-| 4 | **Abismo Vulcânico** | Chaminés hidrotermais e confronto com a Leviatã Menor |
+| 4 | **Abismo Vulcânico** | Chaminés hidrotermais e confronto com o Leviatã Menor |
 | 5 | **Templo de Apsu** | Duelo final contra Kullullu, lorde das profundezas |
 
 ---
 
-## Personagens
+## Personagens (Renders 3D Blender)
 
-**Herói e aliados**
+**Herói e Aliados**
 
 <table>
   <tr>
     <td align="center"><img src="tools/personagens/renders/01_adapa_heroi.png" height="150" alt="Adapa"/><br/><b>Adapa</b><br/><sub>Herói</sub></td>
     <td align="center"><img src="tools/personagens/renders/03_enki_npc.png" height="150" alt="Enki"/><br/><b>Enki</b><br/><sub>Deus Guia</sub></td>
-    <td align="center"><img src="tools/personagens/renders/05_guardiao_atlante_npc.png" height="150" alt="Guardião Atlante"/><br/><b>Guardião Atlante</b><br/><sub>NPC</sub></td>
-    <td align="center"><img src="tools/personagens/renders/05_guardiao_lamassu_aquatico.png" height="150" alt="Lamassu"/><br/><b>Lamassu Aquático</b><br/><sub>NPC</sub></td>
+    <td align="center"><img src="tools/personagens/renders/05_guardiao_atlante_npc.png" height="150" alt="Guardião Atlante"/><br/><b>Guardião Atlante</b><br/><sub>NPC Guardião</sub></td>
   </tr>
 </table>
 
-**Inimigos e chefes**
+**Inimigos e Chefes**
 
 <table>
   <tr>
@@ -103,7 +99,7 @@ mvn javafx:run
     <td align="center"><img src="tools/personagens/renders/12_leviata_menor.png" height="150" alt="Leviatã Menor"/><br/><b>Leviatã Menor</b><br/><sub>Sub-chefe</sub></td>
     <td align="center"><img src="tools/personagens/renders/04_peixe_sombrio_inimigo.png" height="150" alt="Peixe Sombrio"/><br/><b>Peixe Sombrio</b><br/><sub>Inimigo</sub></td>
     <td align="center"><img src="tools/personagens/renders/04_inimigo_medusa_eletrica.png" height="150" alt="Medusa Elétrica"/><br/><b>Medusa Elétrica</b><br/><sub>Inimigo</sub></td>
-    <td align="center"><img src="tools/personagens/renders/11_arraiao_abissal.png" height="150" alt="Arraiâo Abissal"/><br/><b>Arraiâo Abissal</b><br/><sub>Inimigo</sub></td>
+    <td align="center"><img src="tools/personagens/renders/11_arraiao_abissal.png" height="150" alt="Arraião Abissal"/><br/><b>Arraião Abissal</b><br/><sub>Inimigo</sub></td>
   </tr>
 </table>
 
@@ -115,10 +111,10 @@ mvn javafx:run
 |---|---|
 | Linguagem | Java 21 (LTS) |
 | UI / Gráficos | JavaFX 21 — Canvas 2D + SubScene 3D |
-| Modelos 3D | Blender 4.5 → OBJ/MTL via scripts `bpy` |
+| Modelos 3D | Blender 4.5.5 LTS → OBJ/MTL via pipeline de scripts `bpy` |
 | Build | Apache Maven 3.9 + GNU Make |
 | Testes | JUnit 5 — 197 testes, 100% aprovados |
-| CI/CD | GitHub Actions — build, testes e release automáticos |
+| CI/CD | GitHub Actions — build, testes com xvfb e release automáticos |
 | Containerização | Docker (ambiente de desenvolvimento) |
 | Áudio | JavaFX MediaPlayer + trilha original FLAC/MP3 |
 
@@ -142,9 +138,9 @@ Revisão de código por área definida em [CODEOWNERS](CODEOWNERS).
 
 ---
 
-## Documentação Técnica
+## Documentação Técnica & Sprints
 
-Disponível em [`docs/`](docs/):
+Disponível em [`docs/`](docs/) e documentação interna de sprint:
 
 - [Arquitetura e Desenvolvimento](docs/ARQUITETURA_E_DESENVOLVIMENTO.md)
 - [Pipeline 3D](docs/PIPELINE_3D.md)

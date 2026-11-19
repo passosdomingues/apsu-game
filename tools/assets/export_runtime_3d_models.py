@@ -29,7 +29,7 @@ if "--only-path" in args:
             os.path.normcase(os.path.abspath(path if os.path.isabs(path) else os.path.join(project_root, path)))
             for path in raw_paths
         }
-blend_root = os.path.join(project_root, "personagens", "blends")
+blend_root = os.path.join(project_root, "tools", "personagens", "blends")
 output_root = os.path.join(project_root, "src", "main", "resources", "models")
 
 exported = 0

@@ -6,7 +6,7 @@ import sys
 
 args = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 root = args[0] if args else os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-destination = os.path.join(root, "personagens", "blends", "10_perigos_e_obstaculos_cenario")
+destination = os.path.join(root, "tools", "personagens", "blends", "10_perigos_e_obstaculos_cenario")
 os.makedirs(destination, exist_ok=True)
 
 bpy.ops.object.select_all(action="SELECT")

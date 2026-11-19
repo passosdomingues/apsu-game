@@ -23,7 +23,7 @@ if "--phase-only" in SCRIPT_ARGS:
     if phase_arg < len(SCRIPT_ARGS):
         PHASE_ONLY = int(SCRIPT_ARGS[phase_arg])
 ROOT = project_root()
-SOURCE = os.path.join(ROOT, "personagens", "fases", "fase1.blend")
+SOURCE = os.path.join(ROOT, "tools", "personagens", "fases", "fase1.blend")
 OUTPUT = os.path.join(ROOT, "src", "main", "resources", "backgrounds")
 WIDTH, HEIGHT = 3072, 768
 

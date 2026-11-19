@@ -17,7 +17,7 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(_
 ENEMY_SPRITE_OUT = os.path.join(PROJECT_ROOT, "src", "main", "resources", "sprites", "inimigos")
 KULLULLU_SPRITE_OUT = os.path.join(PROJECT_ROOT, "src", "main", "resources", "sprites", "kullullu")
 MODEL_OUT = os.path.join(PROJECT_ROOT, "src", "main", "resources", "models", "characters")
-BLEND_ROOT = os.path.join(PROJECT_ROOT, "personagens", "blends")
+BLEND_ROOT = os.path.join(PROJECT_ROOT, "tools", "personagens", "blends")
 
 # (blend_path, output_name, is_boss)
 JOBS = [

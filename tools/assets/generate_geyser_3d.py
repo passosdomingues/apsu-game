@@ -56,7 +56,7 @@ def main():
     for index, (x, y, z, size) in enumerate(bubbles):
         ico(f"Bubble {index + 1}", (x, y, z), (size, size, size), 1, foam)
 
-    destination = os.path.join(root, "personagens", "blends", "10_perigos_e_obstaculos_cenario")
+    destination = os.path.join(root, "tools", "personagens", "blends", "10_perigos_e_obstaculos_cenario")
     os.makedirs(destination, exist_ok=True)
     bpy.ops.wm.save_as_mainfile(filepath=os.path.join(destination, "14_geiser_hidrotermal_3d.blend"))
     print("[3D] Modelo low-poly do gêiser salvo.")

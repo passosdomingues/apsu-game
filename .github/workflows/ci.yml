@@ -22,13 +22,13 @@ jobs:
           cache: 'maven'
 
       - name: Compile Java Code
-        run: mvn compile --batch-mode -Djavafx.platform=linux
+        run: mvn compile --batch-mode 
 
       - name: Run JUnit 5 Automated Tests
-        run: xvfb-run mvn test --batch-mode -Djavafx.platform=linux
+        run: xvfb-run mvn test --batch-mode 
 
       - name: Build Executable Fat JAR
-        run: mvn package --batch-mode -DskipTests -Djavafx.platform=linux
+        run: mvn package --batch-mode -DskipTests 
 
       - name: Upload Playable Game Artifact (Fat JAR)
         uses: actions/upload-artifact@v4
