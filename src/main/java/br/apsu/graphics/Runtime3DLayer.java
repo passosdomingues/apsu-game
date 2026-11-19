@@ -132,7 +132,7 @@ public final class Runtime3DLayer {
                 && !pendingModels.containsKey("characters/01_adapa_ataque_thrust")) {
                 requestModel("characters/01_adapa_ataque_thrust");
             }
-            Actor hero = actor("menu-hero", "characters/01_adapa_heroi", 112, 210);
+            Actor hero = actor("menu-hero", "characters/01_adapa_heroi", 224, 420);
             if (hero != null) place(hero, VIEW_W * 0.82, 255, 0.0, timeSeconds, 0);
             finishVisibleActors();
             return;
@@ -142,7 +142,7 @@ public final class Runtime3DLayer {
             int phase = Math.max(0, Math.min(4, context.getCurrentPhase() - 1));
             Actor npc = actor("phase-intro-enki", ENKI_MODELS[phase % ENKI_MODELS.length], 120, 210);
             if (npc != null) place(npc, 120, VIEW_H / 2.0, 0.2, timeSeconds, 0);
-            Actor hero = actor("dialogue-hero", "characters/01_adapa_heroi", 90, 190);
+            Actor hero = actor("dialogue-hero", "characters/01_adapa_heroi", 180, 380);
             if (hero != null) place(hero, VIEW_W * 0.76, VIEW_H * 0.67, 0.25, timeSeconds, 0);
             finishVisibleActors();
             return;
@@ -170,7 +170,7 @@ public final class Runtime3DLayer {
                 double screenX = context.getCamera().toScreenX(enemy.getWorldX(), alpha) + type.getWidth() / 2.0;
                 if (!insideViewport(screenX, type.getWidth())) continue;
                 Actor enemyActor = actor(id < ENEMY_IDS.length ? ENEMY_IDS[id] : "enemy-" + id,
-                    modelName(type.getStaticSprite()), type.getWidth(), type.getHeight());
+                    modelName(type.getStaticSprite()), type.getWidth() * 2.0, type.getHeight() * 2.0);
                 if (enemyActor != null) place(enemyActor,
                     screenX,
                     enemy.getCurrentY() + type.getHeight() / 2.0,
@@ -181,11 +181,11 @@ public final class Runtime3DLayer {
         HeroEntity hero = context.getHero();
         boolean attacking = hero.isShooting();
         String heroModel = attacking ? "characters/01_adapa_ataque_thrust" : "characters/01_adapa_heroi";
-        Actor heroActor = actor(attacking ? "hero-attack" : "hero-swim", heroModel, 90, 205);
+        Actor heroActor = actor(attacking ? "hero-attack" : "hero-swim", heroModel, 180, 410);
         // Se o modelo de ataque ainda estiver sendo carregado, mantém o modelo
         // de nado visível até o asset ficar pronto; nunca pisca para vazio.
         if (heroActor == null && attacking) {
-            heroActor = actor("hero-swim", "characters/01_adapa_heroi", 90, 205);
+            heroActor = actor("hero-swim", "characters/01_adapa_heroi", 180, 410);
         }
         if (heroActor != null) {
             double heroX = context.getCamera().toScreenX(hero.getInterpolatedX(alpha), alpha) + HeroEntity.HW / 2.0;

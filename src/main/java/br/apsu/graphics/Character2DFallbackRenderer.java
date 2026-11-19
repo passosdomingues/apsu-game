@@ -31,9 +31,9 @@ public final class Character2DFallbackRenderer {
         Image img = SpriteManager.getInstance().getImage(spritePath);
         if (img == null) return;
 
-        // Dimensões do herói no Canvas 2D
-        double targetW = 92.0;
-        double targetH = 205.0;
+        // Dimensões do herói no Canvas 2D (dobrado para visibilidade arcade)
+        double targetW = 184.0;
+        double targetH = 410.0;
 
         boolean facingRight = hero.isFacingRight();
         double drawX = x + HeroEntity.HW / 2.0 - targetW / 2.0;
@@ -81,10 +81,13 @@ public final class Character2DFallbackRenderer {
         Image img = SpriteManager.getInstance().getImage(spritePath);
         if (img == null) return;
 
-        double targetW = enemy.getType().getWidth();
-        double targetH = enemy.getType().getHeight();
+        double targetW = enemy.getType().getWidth() * 2.0;
+        double targetH = enemy.getType().getHeight() * 2.0;
 
-        gc.drawImage(img, screenX, y, targetW, targetH);
+        double drawX = screenX + enemy.getType().getWidth() / 2.0 - targetW / 2.0;
+        double drawY = y + enemy.getType().getHeight() / 2.0 - targetH / 2.0;
+
+        gc.drawImage(img, drawX, drawY, targetW, targetH);
     }
 
     /**

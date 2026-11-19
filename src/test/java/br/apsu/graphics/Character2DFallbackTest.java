@@ -88,9 +88,9 @@ public class Character2DFallbackTest {
     @Test
     @DisplayName("AC1 e AC2: Escala do fallback 2D difere no máximo 10% da versão 3D")
     void testFallbackScaleWithin10PercentOf3D() {
-        // Herói: target 3D = 90x205; fallback 2D = 92x205 (diferença ~2%)
-        double hero3DW = 90.0, hero3DH = 205.0;
-        double hero2DW = 92.0, hero2DH = 205.0;
+        // Herói: target 3D = 180x410; fallback 2D = 184x410 (diferença ~2%)
+        double hero3DW = 180.0, hero3DH = 410.0;
+        double hero2DW = 184.0, hero2DH = 410.0;
         assertTrue(Math.abs(hero2DW - hero3DW) / hero3DW <= 0.10, "Largura do herói deve diferir <= 10%");
         assertTrue(Math.abs(hero2DH - hero3DH) / hero3DH <= 0.10, "Altura do herói deve diferir <= 10%");
 
