@@ -39,4 +39,4 @@ mpi/*.o
 .claude/
 
 # Zips de modelos recebidos externamente
-personagens/blends/*.zip
+tools/personagens/blends/*.zip

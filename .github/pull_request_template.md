@@ -8,7 +8,7 @@ Explique o motivo ou refira a issue correspondente (ex: Closes #12).
 - [ ] Core Engine (`br.apsu.core.*`)
 - [ ] Gráficos (`br.apsu.graphics.*`)
 - [ ] Gameplay (`br.apsu.model.*`)
-- [ ] Pipeline 3D -> 2.5D (`personagens/`, `tools/assets/`)
+- [ ] Pipeline 3D -> 2.5D (`tools/personagens/`, `tools/assets/`)
 - [ ] Plataforma (`mpi/`, `tools/setup/`, `Makefile`, `pom.xml`, `.github/`)
 
 ## Como foi testado?

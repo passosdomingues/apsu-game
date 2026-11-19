@@ -4,7 +4,7 @@
 
 # DEV 1 — Núcleo do Jogo (Core Engine, Eventos, Estado)
 /src/main/java/br/apsu/core/**       @passosdomingues
-/src/main/java/br/apsu/audio/**      @erik
+/src/main/java/br/apsu/audio/**      erik
 /src/main/java/br/apsu/Launcher.java  @passosdomingues
 /src/main/java/br/apsu/ApsuGameMain.java @passosdomingues
 
@@ -15,7 +15,7 @@
 /src/main/java/br/apsu/model/**      @passosdomingues
 
 # DEV 4 — Pipeline de Assets 3D (Blender, Scripts bpy, Spritesheets)
-/personagens/**                       @passosdomingues
+/tools/personagens/**                 @passosdomingues
 /assets/**                            @passosdomingues
 
 # DEV 5 — Plataforma, Build e Sistemas (Tools, CI/CD, Makefile)

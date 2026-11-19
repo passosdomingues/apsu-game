@@ -105,7 +105,7 @@ else
     APSU_GPU_SELECTED := renderer padrão da sessão
 endif
 
-ADAPA_RUNTIME_MODEL_PATHS := personagens/blends/01_adapa_heroi/01_adapa_heroi.blend,personagens/blends/01_adapa_heroi/01_adapa_ataque_thrust.blend
+ADAPA_RUNTIME_MODEL_PATHS := tools/personagens/blends/01_adapa_heroi/01_adapa_heroi.blend,tools/personagens/blends/01_adapa_heroi/01_adapa_ataque_thrust.blend
 
 # ============================================================
 # PALETA DE CORES ANSI RETRO ARCADE (NEON CYAN, MAGENTA, YELLOW)
@@ -139,7 +139,7 @@ setup-assets:
 
 ## Remove backups .blend1
 clean-blender-backups:
-	@find personagens/blends -type f -name '*.blend1' -delete 2>/dev/null || true
+	@find tools/personagens/blends -type f -name '*.blend1' -delete 2>/dev/null || true
 	@echo "$(CLR_GREEN)[OK] Temporary .blend1 backup files removed.$(CLR_RESET)"
 
 ## Executa a suíte de testes JUnit 5
@@ -190,7 +190,7 @@ system-info:
 ## Regenera os modelos .blend editáveis via Python/bpy
 generate-characters: setup-assets
 	@echo "$(CLR_CYAN)[BAKE ] Re-generating 3D models (.blend) via Blender Python API...$(CLR_RESET)"
-	@BLENDER_BIN="$(BLENDER_BIN)" $(PYTHON_CMD) personagens/scripts/gerador_mestre_apsu.py
+	@BLENDER_BIN="$(BLENDER_BIN)" $(PYTHON_CMD) tools/personagens/scripts/gerador_mestre_apsu.py
 	@echo "$(CLR_GREEN)[OK] Blender source models re-generated.$(CLR_RESET)"
 
 ## Exporta personagens do Blender como malhas OBJ/MTL carregadas no jogo
@@ -199,9 +199,9 @@ export-runtime-models: setup-assets
 	@$(BLENDER_BIN) --background --python tools/assets/export_runtime_3d_models.py -- "$(CURDIR)" $(if $(MODEL),--only-path "$(MODEL)",)
 	@echo "$(CLR_GREEN)[OK] Runtime 3D character models exported.$(CLR_RESET)"
 
-## Exporta apenas um .blend alterado (caminho relativo a personagens/blends ou absoluto)
+## Exporta apenas um .blend alterado (caminho relativo a tools/personagens/blends ou absoluto)
 export-model: setup-assets
-	@test -n "$(MODEL)" || { echo "Use: make export-model MODEL=personagens/blends/.../arquivo.blend"; exit 2; }
+	@test -n "$(MODEL)" || { echo "Use: make export-model MODEL=tools/personagens/blends/.../arquivo.blend"; exit 2; }
 	@$(BLENDER_BIN) --background --python tools/assets/export_runtime_3d_models.py -- "$(CURDIR)" --only-path "$(MODEL)"
 
 ## Compatibilidade: atualiza apenas a malha 3D de runtime de um .blend
@@ -232,7 +232,7 @@ generate-abyssal-enemies: setup-assets
 ## Compatibilidade: exporta as malhas Blender usadas diretamente no runtime 3D
 render-sprites: export-runtime-models
 
-## Gera renders auxiliares em personagens/renders/previews (fora do runtime)
+## Gera renders auxiliares em tools/personagens/renders/previews (fora do runtime)
 render-3d-previews: setup-assets
 	@$(BLENDER_BIN) --background --python tools/assets/render_3d_previews.py
 
