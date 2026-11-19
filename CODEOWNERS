@@ -1,27 +1,33 @@
 # CODEOWNERS — As Águas de Apsu (`apsu-game`)
-# Define os responsáveis por revisão de código de cada módulo do projeto.
-# Substitua os placeholders abaixo pelos usernames reais do GitHub.
+# Define os responsáveis por revisão de cada área do projeto.
+# Veja a seção "Equipe" do README para a correspondência completa.
 
-# DEV 1 — Núcleo do Jogo (Core Engine, Eventos, Estado)
-/src/main/java/br/apsu/core/**       @passosdomingues
-/src/main/java/br/apsu/audio/**      erik
+# Rafael — Mecânica, Física e Engine em Geral
+/src/main/java/br/apsu/core/**        @passosdomingues
+/src/main/java/br/apsu/graphics/**    @passosdomingues
+/src/main/java/br/apsu/model/**       @passosdomingues
+/src/main/java/br/apsu/echo/**        @passosdomingues
+/src/main/java/ApsuFXGLGame.java      @passosdomingues
 /src/main/java/br/apsu/Launcher.java  @passosdomingues
-/src/main/java/br/apsu/ApsuGameMain.java @passosdomingues
-
-# DEV 2 — Gráficos (RenderEngine, Sprites, Câmera, Shaders, HUD)
-/src/main/java/br/apsu/graphics/**   @passosdomingues
-
-# DEV 3 — Gameplay (Heroi, Inimigos, Boss, Guardiões, Projéteis, Físicas)
-/src/main/java/br/apsu/model/**      @passosdomingues
-
-# DEV 4 — Pipeline de Assets 3D (Blender, Scripts bpy, Spritesheets)
-/tools/personagens/**                 @passosdomingues
-/assets/**                            @passosdomingues
-
-# DEV 5 — Plataforma, Build e Sistemas (Tools, CI/CD, Makefile)
-/tools/**                             @passosdomingues
-/.github/**                           @passosdomingues
+/src/test/**                          @passosdomingues
 /Makefile                             @passosdomingues
 /pom.xml                              @passosdomingues
-/docker-compose.yml                   @passosdomingues
+/.github/**                           @passosdomingues
 /docs/**                              @passosdomingues
+
+# Erik Alexandre — Trilha Sonora e Composição Musical
+/src/main/java/br/apsu/audio/**       @passosdomingues
+/src/main/resources/audio/**          @passosdomingues
+
+# Wagner — Modelos 3D dos Personagens (Blender → OBJ/MTL)
+/tools/personagens/**                 @passosdomingues
+/src/main/resources/models/characters/** @passosdomingues
+
+# Marcos — Modelos 3D e Arte dos Cenários
+/src/main/resources/models/scenery/** @passosdomingues
+/src/main/resources/sprites/scenery/** @passosdomingues
+/tools/assets/generate_phase_backgrounds.py @passosdomingues
+
+# Build e infra compartilhados
+/tools/**                             @passosdomingues
+/docker-compose.yml                   @passosdomingues
