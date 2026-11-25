@@ -17,11 +17,15 @@ public class DifficultyTest {
         assertEquals(0.5, Difficulty.FACIL.getCollisionDamage());
 
         assertEquals(4.0, Difficulty.MEDIO.getInitialHP());
-        assertFalse(Difficulty.MEDIO.canEnemiesShoot());
+        assertTrue(Difficulty.MEDIO.canEnemiesShoot(), "Inimigos comuns disparam de forma cadenciada no modo Médio (APSU-B01)");
+        assertTrue(Difficulty.MEDIO.getEnemyShootCooldown() >= 2.5 && Difficulty.MEDIO.getEnemyShootCooldown() <= 3.5,
+            "Cooldown de tiro no Médio deve estar entre 2.5s e 3.5s");
         assertEquals(1.0, Difficulty.MEDIO.getCollisionDamage());
 
         assertEquals(3.0, Difficulty.DIFICIL.getInitialHP());
         assertTrue(Difficulty.DIFICIL.canEnemiesShoot(), "Inimigos comuns atiram no modo Difícil");
+        assertTrue(Difficulty.DIFICIL.getEnemyShootCooldown() < Difficulty.MEDIO.getEnemyShootCooldown(),
+            "Modo Difícil deve atirar com mais frequência que o Médio");
         assertEquals(1.35, Difficulty.DIFICIL.getEnemySpeedMult());
     }
 }

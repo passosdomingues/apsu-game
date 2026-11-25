@@ -48,4 +48,25 @@ public class EnemyEntityTest {
         assertEquals(180, EnemyType.LEVIATA.getWidth());
         assertEquals(160, EnemyType.LEVIATA.getHeight());
     }
+
+    @Test
+    @DisplayName("APSU-B01: Inimigos comuns possuem 1 HP e subchefe Leviatã possui 4 HP")
+    void testEnemyHpAndLeviathanSubboss() {
+        EnemyEntity peixe = new EnemyEntity(EnemyType.PEIXE, 1000, 400, 1.0, 50);
+        assertEquals(1, peixe.getHp());
+        assertEquals(1, peixe.getMaxHp());
+        peixe.takeDamage(1);
+        assertEquals(0, peixe.getHp());
+        assertFalse(peixe.isAlive());
+
+        EnemyEntity leviata = new EnemyEntity(EnemyType.LEVIATA, 2650, 300, 1.3, 130);
+        assertEquals(4, leviata.getHp());
+        assertEquals(4, leviata.getMaxHp());
+        leviata.takeDamage(1);
+        assertEquals(3, leviata.getHp());
+        assertTrue(leviata.isAlive(), "Leviatã deve resistir a múltiplos acertos");
+        leviata.takeDamage(3);
+        assertEquals(0, leviata.getHp());
+        assertFalse(leviata.isAlive());
+    }
 }

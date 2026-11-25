@@ -98,9 +98,9 @@
   - AC3: Dano base das bolhas do herói regulado para valor proporcional ao ritmo arcade sem frustração
   - AC4: Testes em `EnemyEntityTest`, `BossEntityTest` e `DifficultyTest` atualizados e verdes
 - **Tarefas:**
-  - [ ] Calibrar frequência de disparo dos inimigos em `GameContext.updateEnemies` para dificuldade Média (1,5 h)
-  - [ ] Ajustar tabela de vida de boss/subchefes e tabelas de dano de projétil (1,5 h)
-  - [ ] Atualizar assertions em testes de combate (1 h)
+  - [x] Calibrar frequência de disparo dos inimigos em `GameContext.updateEnemies` para dificuldade Média (1,5 h)
+  - [x] Ajustar tabela de vida de boss/subchefes e tabelas de dano de projétil (1,5 h)
+  - [x] Atualizar assertions em testes de combate (1 h)
 
 ### APSU-A01 | Integração 3D da Bolha de Lava e Projéteis Inimigos | 3 pts | Wagner / Marcos
 - **Contexto:** Os projéteis de inimigos e chaminés térmicas ainda utilizam primitivas simples, enquanto já existe o modelo fonte `tools/personagens/blends/12_elementos/bola_de_Lava.blend`.

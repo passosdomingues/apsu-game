@@ -1028,7 +1028,8 @@ public class GameContext {
                 }
                 double ex = camera.toScreenX(e.getWorldX());
                 double heroScreenX = camera.toScreenX(hero.getX());
-                if (ex > 0 && ex < 1366 && (nanoTime - e.getLastShotTime()) > 2_400_000_000L) {
+                long shootCooldown = difficulty.getEnemyShootIntervalNanos();
+                if (ex > 0 && ex < 1366 && (nanoTime - e.getLastShotTime()) > shootCooldown) {
                     e.setLastShotTime(nanoTime);
                     double dx = heroScreenX + HeroEntity.HW/2 - ex;
                     double dy = hero.getY() + HeroEntity.HH/2 - e.getCurrentY();
@@ -1072,12 +1073,14 @@ public class GameContext {
                     // Colisão MUNDO vs MUNDO (caixa generosa de acerto do herói)
                     if (rectsHit(p.getX() - 6, p.getY() - 6, 28, 28,
                                  e.getWorldX(), e.getCurrentY(), e.getType().getWidth(), e.getType().getHeight())) {
-                        e.setAlive(false);
-                        adaptiveDifficulty.recordEnemyDefeated();
+                        e.takeDamage((int) Math.max(1, Math.round(p.getDamage())));
+                        if (!e.isAlive()) {
+                            adaptiveDifficulty.recordEnemyDefeated();
+                            playSound(AudioCue.ENEMY_DEFEATED);
+                        }
                         double screenPx = isArena ? p.getX() : camera.toScreenX(p.getX());
                         particleSystem.addBurst(screenPx, p.getY(), Color.AQUAMARINE);
                         playSound(AudioCue.ENEMY_DAMAGED);
-                        playSound(AudioCue.ENEMY_DEFEATED);
                         it.remove();
                         hitSomething = true;
                         break;
