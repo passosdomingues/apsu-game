@@ -92,12 +92,25 @@ public class RenderEngine implements GameRenderer {
         adaptiveController.recordSample(sample);
     }
 
+    private GraphicsContext currentUiGc;
+
     public javafx.scene.Node get3DView() { return runtime3DLayer.view(); }
     public void setViewportScale(double scale) { runtime3DLayer.setViewportScale(scale); }
     public AdaptiveRenderController getAdaptiveRenderController() { return adaptiveController; }
     public BossTelegraphRenderer getBossTelegraphRenderer() { return bossTelegraphRenderer; }
 
+    @Override
     public void render(GraphicsContext gc, GameContext ctx, double width, double height) {
+        render(gc, null, ctx, width, height);
+    }
+
+    @Override
+    public void render(GraphicsContext backgroundGc, GraphicsContext foregroundGc, GameContext ctx, double width, double height) {
+        GraphicsContext gc = backgroundGc;
+        this.currentUiGc = (foregroundGc != null) ? foregroundGc : backgroundGc;
+        if (foregroundGc != null) {
+            foregroundGc.clearRect(0, 0, width, height);
+        }
         gc.clearRect(0, 0, width, height);
         double t = ctx.getNanoTime() / 1_000_000_000.0;
         adaptiveController.onPhaseChanged(ctx.getCurrentPhase());
@@ -123,12 +136,17 @@ public class RenderEngine implements GameRenderer {
         }
         gc.restore();
 
+        GraphicsContext targetUi = targetUi(gc);
         if (ctx.isOverlayActive()) {
-            uiRenderer.drawDialogueOverlay(gc, width, height, t, ctx.getOverlayName(),
+            uiRenderer.drawDialogueOverlay(targetUi, width, height, t, ctx.getOverlayName(),
                 ctx.getOverlayLines(), ctx.getOverlayIdx(), ctx.getOverlayCharsShown());
         } else {
-            uiRenderer.drawObjectiveArrow(gc, ctx, width, height, t);
+            uiRenderer.drawObjectiveArrow(targetUi, ctx, width, height, t);
         }
+    }
+
+    private GraphicsContext targetUi(GraphicsContext fallback) {
+        return (currentUiGc != null) ? currentUiGc : fallback;
     }
 
     // =========================================================
@@ -341,12 +359,13 @@ public class RenderEngine implements GameRenderer {
         drawInterpolatedHero(gc, ctx, timeSeconds, true);
         ctx.getParticleSystem().render(gc);
 
+        GraphicsContext ui = targetUi(gc);
         ObjectiveTracker.Objective objP1 = ObjectiveTracker.resolveCurrentObjective(ctx);
         String objTextP1 = objP1 != null ? objP1.description() : null;
-        uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 1 — Águas Claras", ctx.getDifficulty(),
+        uiRenderer.drawHUD(ui, ctx.getHero(), ctx.getTabletsCollected(), "Fase 1 — Águas Claras", ctx.getDifficulty(),
             OceanDepthProfile.forPhase(ctx.getCurrentPhase()), 0.0, objTextP1, ctx.getEchoController());
-        uiRenderer.drawMinimap(gc, ctx, width);
-        drawAlert(gc, ctx, width, height);
+        uiRenderer.drawMinimap(ui, ctx, width);
+        drawAlert(ui, ctx, width, height);
     }
 
     // =========================================================
@@ -402,12 +421,13 @@ public class RenderEngine implements GameRenderer {
                 unlockHighlight = 1.0 - (elapsed / 2_000_000_000.0);
             }
         }
+        GraphicsContext ui = targetUi(gc);
         ObjectiveTracker.Objective objP2 = ObjectiveTracker.resolveCurrentObjective(ctx);
         String objTextP2 = objP2 != null ? objP2.description() : null;
-        uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 2 — Cavernas de Coral", ctx.getDifficulty(),
+        uiRenderer.drawHUD(ui, ctx.getHero(), ctx.getTabletsCollected(), "Fase 2 — Cavernas de Coral", ctx.getDifficulty(),
             OceanDepthProfile.forPhase(ctx.getCurrentPhase()), unlockHighlight, objTextP2, ctx.getEchoController());
-        uiRenderer.drawMinimap(gc, ctx, width);
-        drawAlert(gc, ctx, width, height);
+        uiRenderer.drawMinimap(ui, ctx, width);
+        drawAlert(ui, ctx, width, height);
     }
 
     // =========================================================
@@ -447,12 +467,13 @@ public class RenderEngine implements GameRenderer {
         drawInterpolatedHero(gc, ctx, timeSeconds, true);
         ctx.getParticleSystem().render(gc);
 
+        GraphicsContext ui = targetUi(gc);
         ObjectiveTracker.Objective objP3 = ObjectiveTracker.resolveCurrentObjective(ctx);
         String objTextP3 = objP3 != null ? objP3.description() : null;
-        uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 3 — Correntes Abissais", ctx.getDifficulty(),
+        uiRenderer.drawHUD(ui, ctx.getHero(), ctx.getTabletsCollected(), "Fase 3 — Correntes Abissais", ctx.getDifficulty(),
             OceanDepthProfile.forPhase(ctx.getCurrentPhase()), 0.0, objTextP3, ctx.getEchoController());
-        uiRenderer.drawMinimap(gc, ctx, width);
-        drawAlert(gc, ctx, width, height);
+        uiRenderer.drawMinimap(ui, ctx, width);
+        drawAlert(ui, ctx, width, height);
     }
 
     // =========================================================
@@ -477,12 +498,13 @@ public class RenderEngine implements GameRenderer {
         drawInterpolatedHero(gc, ctx, timeSeconds, true);
         ctx.getParticleSystem().render(gc);
 
+        GraphicsContext ui = targetUi(gc);
         ObjectiveTracker.Objective objP4 = ObjectiveTracker.resolveCurrentObjective(ctx);
         String objTextP4 = objP4 != null ? objP4.description() : null;
-        uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 4 — Abismo Vulcânico", ctx.getDifficulty(),
+        uiRenderer.drawHUD(ui, ctx.getHero(), ctx.getTabletsCollected(), "Fase 4 — Abismo Vulcânico", ctx.getDifficulty(),
             OceanDepthProfile.forPhase(ctx.getCurrentPhase()), 0.0, objTextP4, ctx.getEchoController());
-        uiRenderer.drawMinimap(gc, ctx, width);
-        drawAlert(gc, ctx, width, height);
+        uiRenderer.drawMinimap(ui, ctx, width);
+        drawAlert(ui, ctx, width, height);
     }
 
     // =========================================================
@@ -505,12 +527,13 @@ public class RenderEngine implements GameRenderer {
         drawInterpolatedHero(gc, ctx, timeSeconds, false);
         ctx.getParticleSystem().render(gc);
 
+        GraphicsContext ui = targetUi(gc);
         ObjectiveTracker.Objective objP5 = ObjectiveTracker.resolveCurrentObjective(ctx);
         String objTextP5 = objP5 != null ? objP5.description() : null;
-        uiRenderer.drawHUD(gc, ctx.getHero(), ctx.getTabletsCollected(), "Fase 5 — Templo de Apsu", ctx.getDifficulty(),
+        uiRenderer.drawHUD(ui, ctx.getHero(), ctx.getTabletsCollected(), "Fase 5 — Templo de Apsu", ctx.getDifficulty(),
             OceanDepthProfile.forPhase(ctx.getCurrentPhase()), 0.0, objTextP5, ctx.getEchoController());
-        uiRenderer.drawMinimap(gc, ctx, width);
-        drawAlert(gc, ctx, width, height);
+        uiRenderer.drawMinimap(ui, ctx, width);
+        drawAlert(ui, ctx, width, height);
     }
 
     // =========================================================
@@ -677,6 +700,7 @@ public class RenderEngine implements GameRenderer {
     }
 
     private void drawAlert(GraphicsContext gc, GameContext ctx, double width, double height) {
+        if (ctx.isOverlayActive()) return; // AC3: Ocultar alertas enquanto diálogo estiver aberto
         String msg = ctx.getAlertMessage();
         if (msg.isEmpty() && ctx.getState() == GameContext.State.P1
                 && ctx.getTutorialController() != null && ctx.getTutorialController().isActive()) {

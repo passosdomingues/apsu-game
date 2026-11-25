@@ -146,9 +146,10 @@ public class UIRenderer {
             gc.fillText("DANO", 270, barY + 11);
         }
 
-        // US-033: Indicador de recarga do eco e dica de tecla (tema claro) abaixo da barra de vida
+        // US-033: Indicador de recarga da ecolocalização na linha 1 (sem sobrepor TABULETAS)
         if (echo != null) {
-            drawEchoIndicator(gc, echo, barX, barY + barH + 3);
+            double echoX = Math.max(230, barX + barTotalW + 55);
+            drawEchoIndicator(gc, echo, echoX, barY);
         }
 
         // Tabuletas e Poder (primeiro plano compacto)

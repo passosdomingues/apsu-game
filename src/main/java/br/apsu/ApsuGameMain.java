@@ -29,8 +29,13 @@ public class ApsuGameMain extends Application {
         br.apsu.graphics.GraphicsDiagnostics.probeAndLog();
         Canvas canvas = new Canvas(W, H);
         GraphicsContext gc = canvas.getGraphicsContext2D();
+
+        Canvas uiCanvas = new Canvas(W, H);
+        uiCanvas.setMouseTransparent(true);
+        GraphicsContext uiGc = uiCanvas.getGraphicsContext2D();
+
         RenderEngine renderer = new RenderEngine();
-        StackPane root = new StackPane(canvas, renderer.get3DView());
+        StackPane root = new StackPane(canvas, renderer.get3DView(), uiCanvas);
         root.setAlignment(Pos.CENTER);
         root.setStyle("-fx-background-color: black;");
         Scene scene = new Scene(root, W, H, true, SceneAntialiasing.DISABLED);
@@ -39,6 +44,8 @@ public class ApsuGameMain extends Application {
             Viewport viewport = Viewport.fit(root.getWidth(), root.getHeight(), W, H);
             canvas.setScaleX(viewport.scale());
             canvas.setScaleY(viewport.scale());
+            uiCanvas.setScaleX(viewport.scale());
+            uiCanvas.setScaleY(viewport.scale());
             renderer.setViewportScale(viewport.scale());
         };
         root.widthProperty().addListener((obs, oldValue, newValue) -> fitCanvas.run());
@@ -47,7 +54,7 @@ public class ApsuGameMain extends Application {
         EventBus eventBus = new EventBus();
         AudioEventSubscriber.bind(eventBus, AudioManager.getInstance());
         GameContext context = new GameContext(new br.apsu.core.SaveManager(), eventBus);
-        GameLoop loop = new GameLoop(context, renderer, gc, W, H);
+        GameLoop loop = new GameLoop(context, renderer, gc, uiGc, W, H);
 
         scene.setOnKeyPressed(e -> {
             context.getInputManager().registerKeyPress(e.getCode());

@@ -14,6 +14,7 @@ public class GameLoop extends AnimationTimer {
     private final GameContext context;
     private final GameRenderer renderer;
     private final GraphicsContext gc;
+    private final GraphicsContext uiGc;
     private final double width, height;
     private final FrameMetrics frameMetrics = new FrameMetrics();
     private static final long STEP_NANOS = 1_000_000_000L / 60L;
@@ -27,9 +28,14 @@ public class GameLoop extends AnimationTimer {
     private long lastGcCount = -1, lastGcTimeMs = -1;
 
     public GameLoop(GameContext context, GameRenderer renderer, GraphicsContext gc, double width, double height) {
+        this(context, renderer, gc, null, width, height);
+    }
+
+    public GameLoop(GameContext context, GameRenderer renderer, GraphicsContext gc, GraphicsContext uiGc, double width, double height) {
         this.context = context;
         this.renderer = renderer;
         this.gc = gc;
+        this.uiGc = uiGc;
         this.width = width;
         this.height = height;
         boolean reducedEffects = !"high".equalsIgnoreCase(System.getProperty("apsu.quality", "balanced"));
@@ -96,7 +102,11 @@ public class GameLoop extends AnimationTimer {
         context.setRenderAlpha(alpha);
 
         long renderStart = PERF_LOG ? System.nanoTime() : 0;
-        renderer.render(gc, context, width, height);
+        if (uiGc != null) {
+            renderer.render(gc, uiGc, context, width, height);
+        } else {
+            renderer.render(gc, context, width, height);
+        }
         if (PERF_LOG) {
             profileRenderNanos += System.nanoTime() - renderStart;
             profileSteps += steps;

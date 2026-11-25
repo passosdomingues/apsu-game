@@ -8,4 +8,7 @@ public interface GameRenderer {
     void setReducedEffects(boolean reducedEffects);
     default void recordFrameSample(FrameMetrics.Sample sample) {}
     void render(GraphicsContext graphics, GameContext context, double width, double height);
+    default void render(GraphicsContext backgroundGc, GraphicsContext foregroundGc, GameContext context, double width, double height) {
+        render(backgroundGc, context, width, height);
+    }
 }
