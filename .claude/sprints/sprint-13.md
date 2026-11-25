@@ -74,9 +74,9 @@
   - AC4: `wrapText` revisado para evitar criação desnecessária de strings/arrays no loop
   - AC5: `make test` verde
 - **Tarefas:**
-  - [ ] Ajustar geometria e margem vertical em `UIRenderer.java` (1 h)
-  - [ ] Otimizar renderização do texto e botões de avanço sem alocações temporárias (1,5 h)
-  - [ ] Validar leitura visual em todas as fases P1 a P5 (0,5 h)
+  - [x] Ajustar geometria e margem vertical em `UIRenderer.java` (1 h)
+  - [x] Otimizar renderização do texto e botões de avanço sem alocações temporárias (1,5 h)
+  - [x] Validar leitura visual em todas as fases P1 a P5 (0,5 h)
 
 ### APSU-U02 | HUD Superior Esquerda Minimalista e Feedback de Controles | 3 pts | Rafa
 - **Contexto:** A área superior esquerda acumula muitas linhas de texto simultâneas (profundidade, barra de vida, modo de bolha, comandos e objetivo), poluindo a leitura do campo de visão subaquático.

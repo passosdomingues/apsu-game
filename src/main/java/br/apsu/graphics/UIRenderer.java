@@ -22,6 +22,7 @@ import java.util.List;
  */
 public class UIRenderer {
     private final br.apsu.guidance.ObjectiveArrow objectiveArrow = new br.apsu.guidance.ObjectiveArrow();
+    private final StringBuilder wrapLineBuffer = new StringBuilder(128);
 
     public br.apsu.guidance.ObjectiveArrow getObjectiveArrow() {
         return objectiveArrow;
@@ -328,8 +329,9 @@ public class UIRenderer {
 
     public void drawDialogueOverlay(GraphicsContext gc, double canvasW, double canvasH, double timeSeconds,
                                   String name, String[] lines, int lineIdx, int charsShown) {
+        // APSU-U01: Elevação e margem vertical para evitar oclusão por algas e corais do chão
         double boxW = canvasW * 0.84, boxH = 165;
-        double boxX = (canvasW - boxW) / 2, boxY = canvasH - boxH - 25;
+        double boxX = (canvasW - boxW) / 2, boxY = canvasH - boxH - 65;
 
         gc.setFill(Palette.DIALOGUE_OVERLAY_BG);
         gc.fillRoundRect(boxX, boxY, boxW, boxH, 18, 18);
@@ -363,17 +365,32 @@ public class UIRenderer {
 
     public void wrapText(GraphicsContext gc, String txt, double x, double y, double maxWidth, double lineHeight) {
         if (txt == null || txt.isEmpty()) return;
-        String[] words = txt.split(" "); StringBuilder line = new StringBuilder(); double ly = y;
-        for (String w : words) {
-            String test = line.length() > 0 ? line + " " + w : w;
-            if (test.length() * 11.0 > maxWidth) {
-                if (line.length() > 0) gc.fillText(line.toString(), x, ly);
-                line = new StringBuilder(w); ly += lineHeight;
-            } else {
-                if (line.length() > 0) line.append(" ");
-                line.append(w);
+        wrapLineBuffer.setLength(0);
+        double ly = y;
+        int len = txt.length();
+        int i = 0;
+        while (i < len) {
+            while (i < len && txt.charAt(i) == ' ') i++;
+            if (i >= len) break;
+            int start = i;
+            while (i < len && txt.charAt(i) != ' ') i++;
+            int wordLen = i - start;
+
+            int neededLen = (wrapLineBuffer.length() > 0 ? wrapLineBuffer.length() + 1 : 0) + wordLen;
+            if (neededLen * 11.0 > maxWidth) {
+                if (wrapLineBuffer.length() > 0) {
+                    gc.fillText(wrapLineBuffer.toString(), x, ly);
+                    wrapLineBuffer.setLength(0);
+                    ly += lineHeight;
+                }
+            } else if (wrapLineBuffer.length() > 0) {
+                wrapLineBuffer.append(' ');
             }
+            wrapLineBuffer.append(txt, start, i);
         }
-        if (line.length() > 0) gc.fillText(line.toString(), x, ly);
+        if (wrapLineBuffer.length() > 0) {
+            gc.fillText(wrapLineBuffer.toString(), x, ly);
+            wrapLineBuffer.setLength(0);
+        }
     }
 }
