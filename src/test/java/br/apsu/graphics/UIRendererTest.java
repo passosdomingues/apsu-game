@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayName("Testes de Unidade — UIRenderer")
 class UIRendererTest {
@@ -37,6 +38,37 @@ class UIRendererTest {
             null, null, 0, 0));
         assertDoesNotThrow(() -> renderer.drawDialogueOverlay(graphics, 1366, 768, 0,
             "Enki", new String[]{"Uma mensagem longa para validar a quebra de linha."}, 0, 12));
+    }
+
+    @Test
+    @DisplayName("APSU-U02: Dica de teclas realiza fade-out suave apos movimentacao confirmada")
+    void keysHintFadesOutOnMovement() {
+        var graphics = new Canvas(1366, 768).getGraphicsContext2D();
+        var renderer = new UIRenderer();
+        var hero = new HeroEntity(HeroType.GUARDIAO, 5);
+
+        assertEquals(1.0, renderer.getKeysHintAlpha(), 0.001);
+        // Sem movimento
+        hero.setVx(0.0);
+        hero.setVy(0.0);
+        renderer.drawHUD(graphics, hero, 0, "Fase 1", Difficulty.MEDIO);
+        assertEquals(1.0, renderer.getKeysHintAlpha(), 0.001);
+
+        // Heroi se move
+        hero.setVx(150.0);
+        renderer.drawHUD(graphics, hero, 0, "Fase 1", Difficulty.MEDIO);
+        assertTrue(renderer.isKeysMovementConfirmed());
+        assertTrue(renderer.getKeysHintAlpha() < 1.0);
+
+        // Varios frames simulam recolhimento completo
+        for (int i = 0; i < 70; i++) {
+            renderer.drawHUD(graphics, hero, 0, "Fase 1", Difficulty.MEDIO);
+        }
+        assertEquals(0.0, renderer.getKeysHintAlpha(), 0.001);
+
+        // Reset restaura estado
+        renderer.resetKeysHint();
+        assertEquals(1.0, renderer.getKeysHintAlpha(), 0.001);
     }
 
     @Test

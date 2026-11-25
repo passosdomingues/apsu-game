@@ -86,9 +86,9 @@
   - AC3: Alinhamentos utilizam constantes de `Palette` e `UiFonts` sem cálculos dinâmicos repetidos
   - AC4: `make test` verde
 - **Tarefas:**
-  - [ ] Redesenhar distribuição de elementos no método `drawHUD` de `UIRenderer` (2 h)
-  - [ ] Adicionar temporizador de fade-out suave para a dica de teclas após movimentação confirmada (1,5 h)
-  - [ ] Validar proporção em 1366x768 (0,5 h)
+  - [x] Redesenhar distribuição de elementos no método `drawHUD` de `UIRenderer` (2 h)
+  - [x] Adicionar temporizador de fade-out suave para a dica de teclas após movimentação confirmada (1,5 h)
+  - [x] Validar proporção em 1366x768 (0,5 h)
 
 ### APSU-B01 | Balanceamento de Combate e Cadência de Ataque Inimigo | 3 pts | Marcos
 - **Contexto:** Na dificuldade Média os inimigos comuns mantêm postura excessivamente passiva, enquanto na dificuldade Difícil os chefes e criaturas podem ser derrotados rápido demais pelo herói fortalecido.

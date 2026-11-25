@@ -24,6 +24,20 @@ public class UIRenderer {
     private final br.apsu.guidance.ObjectiveArrow objectiveArrow = new br.apsu.guidance.ObjectiveArrow();
     private final StringBuilder wrapLineBuffer = new StringBuilder(128);
 
+    private double keysHintAlpha = 1.0;
+    private boolean keysMovementConfirmed = false;
+    private int keysHintFrames = 0;
+
+    public double getKeysHintAlpha() { return keysHintAlpha; }
+    public void setKeysHintAlpha(double keysHintAlpha) { this.keysHintAlpha = keysHintAlpha; }
+    public boolean isKeysMovementConfirmed() { return keysMovementConfirmed; }
+    public void setKeysMovementConfirmed(boolean keysMovementConfirmed) { this.keysMovementConfirmed = keysMovementConfirmed; }
+    public void resetKeysHint() {
+        this.keysHintAlpha = 1.0;
+        this.keysMovementConfirmed = false;
+        this.keysHintFrames = 0;
+    }
+
     public br.apsu.guidance.ObjectiveArrow getObjectiveArrow() {
         return objectiveArrow;
     }
@@ -68,8 +82,19 @@ public class UIRenderer {
     public void drawHUD(GraphicsContext gc, HeroEntity hero, int tablets, String phaseName, Difficulty diff,
                         OceanDepthProfile depth, double unlockHighlightProgress, String objectiveText,
                         br.apsu.echo.EchoController echo) {
+        // APSU-U02: Transição e recolhimento suave da dica de teclas
+        keysHintFrames++;
+        if (!keysMovementConfirmed && (Math.abs(hero.getVx()) > 0.1 || Math.abs(hero.getVy()) > 0.1 || keysHintFrames > 300)) {
+            keysMovementConfirmed = true;
+        }
+        if (keysMovementConfirmed && keysHintAlpha > 0.0) {
+            keysHintAlpha = Math.max(0.0, keysHintAlpha - 0.015);
+        }
+
         boolean hasObjective = objectiveText != null && !objectiveText.isEmpty();
-        double hudH = hasObjective ? 154 : 136;
+        double hintExtraH = 16.0 * keysHintAlpha;
+        double hudH = 104 + hintExtraH + (hasObjective ? 18 : 0);
+
         gc.setFill(Palette.HUD_BG);
         gc.fillRoundRect(8, 8, 440, hudH, 12, 12);
         gc.setStroke(Palette.HUD_STROKE); gc.setLineWidth(1.5);
@@ -126,7 +151,7 @@ public class UIRenderer {
             drawEchoIndicator(gc, echo, barX, barY + barH + 3);
         }
 
-        // Tabuletas
+        // Tabuletas e Poder (primeiro plano compacto)
         gc.setFont(UiFonts.LABEL_BOLD_14);
         gc.setFill(Palette.HUD_LABEL);
         gc.fillText("TABULETAS", 22, 56);
@@ -145,7 +170,7 @@ public class UIRenderer {
         boolean hasBubble = hero.hasBubblePower();
         gc.setFont(UiFonts.LABEL_BOLD_14);
         gc.setFill(Palette.HUD_LABEL);
-        gc.fillText("PODER", 240, 56);
+        gc.fillText("PODER", 232, 56);
 
         if (unlockHighlightProgress > 0.0) {
             // Destaque animado de 1 a 2s (pulso dourado/verde ciano)
@@ -157,45 +182,58 @@ public class UIRenderer {
                 0.95
             );
             gc.setFill(highlightColor);
-            gc.fillText("[BOLHAS!]", 292, 56);
+            gc.fillText("[BOLHAS!]", 286, 56);
             gc.setStroke(highlightColor);
             gc.setLineWidth(1.5 + pulse * 1.5);
-            gc.strokeRoundRect(288, 42, 80, 18, 4, 4);
+            gc.strokeRoundRect(282, 42, 76, 18, 4, 4);
         } else {
             gc.setFill(hasBubble ? Palette.HUD_POWER_ACTIVE : Palette.HUD_POWER_LOCKED);
-            gc.fillText(hasBubble ? "[BOLHAS]" : "[BLOQUEADO]", 292, 56);
+            gc.fillText(hasBubble ? "[BOLHAS]" : "[BLOQUEADO]", 286, 56);
+        }
+
+        if (hasBubble) {
+            gc.setFill(Palette.HUD_BUBBLE_MODE); gc.setFont(UiFonts.TEXT_11);
+            gc.fillText(hero.isMultipleShotMode() ? "Múltiplas [M]" : "Direta [M]", 370, 56);
         }
 
         // Fase e herói
         gc.setFont(UiFonts.TEXT_13);
         gc.setFill(Palette.HUD_PHASE_INFO);
-        gc.fillText(phaseName + " [" + diff.getLabel() + "]", 22, 80);
+        gc.fillText(phaseName + " [" + diff.getLabel() + "]", 22, 76);
         gc.setTextAlign(TextAlignment.RIGHT);
         gc.setFill(hero.getType().getAura());
-        gc.fillText(hero.getType().getName(), 438, 80);
+        gc.fillText(hero.getType().getName(), 438, 76);
         gc.setTextAlign(TextAlignment.LEFT);
 
+        // Badge discreto de profundidade (AC1)
+        double badgeX = 22, badgeY = 82, badgeW = 205, badgeH = 15;
+        gc.setFill(Palette.HUD_HP_BG);
+        gc.fillRoundRect(badgeX, badgeY, badgeW, badgeH, 4, 4);
+        gc.setStroke(Palette.HUD_STROKE); gc.setLineWidth(0.8);
+        gc.strokeRoundRect(badgeX, badgeY, badgeW, badgeH, 4, 4);
         gc.setFont(UiFonts.TEXT_10);
         gc.setFill(Palette.HUD_DEPTH_INFO);
-        gc.fillText(depth.getLabel() + " · " + depth.getDepthMeters() + " m · " + depth.getPressureBar() + " bar",
-            22, 98);
+        gc.fillText(depth.getDepthMeters() + " m  ·  " + depth.getPressureBar() + " bar  (" + depth.getLabel() + ")",
+            badgeX + 6, badgeY + 11);
 
-        if (hasBubble) {
-            gc.setFill(Palette.HUD_BUBBLE_MODE); gc.setFont(UiFonts.TEXT_11);
-            gc.fillText(hero.isMultipleShotMode() ? "Bolhas: múltiplas [M]" : "Bolha: direta [M]", 22, 112);
+        double cursorY = 98;
+        if (keysHintAlpha > 0.01) {
+            double prevAlpha = gc.getGlobalAlpha();
+            gc.setGlobalAlpha(prevAlpha * keysHintAlpha);
+            gc.setFont(UiFonts.TEXT_11);
+            gc.setFill(Palette.HUD_KEYS_HINT);
+            gc.fillText("WASD / SETAS: NADAR   ·   E: INTERAGIR   ·   ESPAÇO: BOLHAS", 22, cursorY + 13);
+            gc.setGlobalAlpha(prevAlpha);
+            cursorY += hintExtraH;
         }
-
-        gc.setFont(UiFonts.TEXT_11);
-        gc.setFill(Palette.HUD_KEYS_HINT);
-        gc.fillText("WASD / SETAS: NADAR   ·   E: INTERAGIR   ·   ESPAÇO: BOLHAS", 22, 130);
 
         if (hasObjective) {
             gc.setFont(UiFonts.TEXT_BOLD_11);
             gc.setFill(Palette.HUD_OBJECTIVE_LABEL);
-            gc.fillText("OBJETIVO:", 22, 147);
+            gc.fillText("OBJETIVO:", 22, cursorY + 14);
             gc.setFont(UiFonts.TEXT_11);
             gc.setFill(Palette.HUD_OBJECTIVE_TEXT);
-            gc.fillText(objectiveText, 90, 147);
+            gc.fillText(objectiveText, 90, cursorY + 14);
         }
     }
 
