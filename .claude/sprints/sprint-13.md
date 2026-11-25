@@ -121,9 +121,9 @@
   - AC2: Ausência de qualquer bloqueio na rota principal de nado do herói até os Enkis e portais
   - AC3: Verificação de contraste de fundo nas 5 fases com `contrast_check`
 - **Tarefas:**
-  - [ ] Revisar coordenadas de instanciação de `CORAL` e cenários em `GameContext.startP1` a `startP4` (1,5 h)
-  - [ ] Aplicar variação orgânica de altura e distância sem colisão espúria (1,5 h)
-  - [ ] Validar rota livre do herói e visibilidade dos Enkis (1 h)
+  - [x] Revisar coordenadas de instanciação de `CORAL` e cenários em `GameContext.startP1` a `startP4` (1,5 h)
+  - [x] Aplicar variação orgânica de altura e distância sem colisão espúria (1,5 h)
+  - [x] Validar rota livre do herói e visibilidade dos Enkis (1 h)
 
 ### APSU-P01 | Benchmark Rigoroso de Baseline (Sprint Gate) | 2 pts | Marcos
 - **Contexto:** Validação obrigatória pelo harness (`CLAUDE.md`) para consolidar a sprint e garantir conformidade com o orçamento de 60 FPS, p95 <= 18 ms e zero GC excessivo.

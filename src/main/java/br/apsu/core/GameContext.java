@@ -355,9 +355,10 @@ public class GameContext {
 
         // Gêiser na Fase 1 como tutorial de mecânica ambiental
         sceneryElements.add(new SceneryElement(SceneryElement.Type.GEYSER, 2400, 768 - 200, 70, 200));
-        // Recifes de coral decorativos no leito de Águas Claras
-        sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, 1500, 768 - 250, 130, 250));
-        sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, 3000, 768 - 260, 130, 260));
+        // Recifes de coral decorativos no leito de Águas Claras com variação orgânica (APSU-A02)
+        sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, 1420, 768 - 240, 125, 240));
+        sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, 1950, 768 - 210, 110, 210));
+        sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, 2980, 768 - 270, 145, 270));
 
         currentPhase = 1;
         publishAudioDepth();
@@ -396,13 +397,13 @@ public class GameContext {
         // 1 gêiser no final — tutorial de mecânica, não obstáculo punitivo
         sceneryElements.add(new SceneryElement(SceneryElement.Type.GEYSER, 3200, 768 - 200, 70, 200));
 
-        // === 6 colunas de coral 3D em formação orgânica no leito das cavernas ===
-        sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, 600,  768 - 320, 140, 320));
-        sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, 1050, 768 - 290, 140, 290));
-        sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, 1500, 768 - 340, 140, 340));
-        sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, 2100, 768 - 310, 140, 310));
-        sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, 2700, 768 - 320, 140, 320));
-        sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, 3400, 768 - 280, 140, 280));
+        // === 6 colunas de coral 3D em formação orgânica no leito das cavernas (APSU-A02) ===
+        sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, 620,  768 - 310, 130, 310));
+        sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, 1080, 768 - 280, 145, 280));
+        sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, 1530, 768 - 330, 120, 330));
+        sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, 2120, 768 - 295, 135, 295));
+        sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, 2740, 768 - 325, 150, 325));
+        sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, 3420, 768 - 270, 125, 270));
 
         chestWX = 1800; chestWY = 768 - 170; // baú na sala aberta entre corais 2 e 3
         currentPhase = 2;
@@ -446,6 +447,10 @@ public class GameContext {
         // Gêiseres: 1 antes da corrente central, 1 no final como desafio
         sceneryElements.add(new SceneryElement(SceneryElement.Type.GEYSER, 1700, 768 - 200, 80, 200));
         sceneryElements.add(new SceneryElement(SceneryElement.Type.GEYSER, 3600, 768 - 200, 80, 200));
+
+        // Formações de coral no leito profundo com escala e espaçamento orgânico (APSU-A02)
+        sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, 650,  768 - 180, 115, 180));
+        sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, 2350, 768 - 215, 130, 215));
 
         currentPhase = 3;
         publishAudioDepth();
@@ -498,6 +503,10 @@ public class GameContext {
         // Gêiseres de lava — 1 antes do Leviatã, 1 no ato final
         sceneryElements.add(new SceneryElement(SceneryElement.Type.GEYSER, 2000, 768 - 200, 80, 200));
         sceneryElements.add(new SceneryElement(SceneryElement.Type.GEYSER, 3500, 768 - 200, 80, 200));
+
+        // Formações basálticas e corais vulcânicos no leito da Fase 4 (APSU-A02)
+        sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, 720,  768 - 170, 100, 170));
+        sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, 2480, 768 - 200, 120, 200));
 
         currentPhase = 4;
         publishAudioDepth();
