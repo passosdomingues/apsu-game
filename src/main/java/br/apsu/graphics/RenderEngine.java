@@ -142,6 +142,10 @@ public class RenderEngine implements GameRenderer {
                 ctx.getOverlayLines(), ctx.getOverlayIdx(), ctx.getOverlayCharsShown());
         } else {
             uiRenderer.drawObjectiveArrow(targetUi, ctx, width, height, t);
+            GameContext.State s = ctx.getState();
+            if (s == GameContext.State.P1 || s == GameContext.State.P2 || s == GameContext.State.P3 || s == GameContext.State.P4) {
+                uiRenderer.drawEchoPrompt(targetUi, ctx, width, height, t);
+            }
         }
     }
 

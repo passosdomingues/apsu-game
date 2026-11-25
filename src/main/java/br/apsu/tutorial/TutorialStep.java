@@ -6,7 +6,7 @@ package br.apsu.tutorial;
 public enum TutorialStep {
     SWIM_DOWN("Mergulhe contra o empuxo (Seta Baixo ou S)"),
     DODGE_ENEMY("Desvie dos peixes que patrulham a corrente"),
-    READ_GPS("Consulte a bússola dourada no radar do HUD"),
+    READ_GPS("Consulte a bússola dourada na ecolocalização do HUD"),
     TALK_GUARDIAN("Fale com o Guardião Atlante (aproxime-se e tecle E)"),
     COMPLETED("");
 

@@ -248,7 +248,7 @@ public class UIRenderer {
         gc.setStroke(Palette.RADAR_STROKE); gc.setLineWidth(1.3);
         gc.strokeRoundRect(mapX, mapY, mapW, mapH, 10, 10);
         gc.setFill(Palette.RADAR_TITLE); gc.setFont(UiFonts.RADAR_BOLD_10);
-        gc.fillText("RADAR", mapX + 8, mapY + 13);
+        gc.fillText("ECOLOCALIZAÇÃO", mapX + 8, mapY + 13);
 
         List<EnemyEntity> enemies = context.getEnemies();
         for (int i = 0; i < enemies.size(); i++) {
@@ -354,6 +354,48 @@ public class UIRenderer {
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setTextBaseline(VPos.CENTER);
         gc.fillText("Q: eco", x + hintW / 2.0, y + hintH / 2.0);
+    }
+
+    /**
+     * Dica visual elegante e pulsante da tecla Q sugerida quando o jogador estiver próximo
+     * à área indicada pela pista do Enki (APSU-U03 / AC3).
+     */
+    public void drawEchoPrompt(GraphicsContext gc, GameContext context, double canvasWidth, double canvasHeight, double timeSeconds) {
+        if (context == null || context.getHero() == null) return;
+        br.apsu.model.environment.SacredTabletEntity tablet = context.getSacredTablet();
+        if (tablet == null || tablet.isRevealed() || tablet.isCollected()) return;
+
+        double heroX = context.getHero().getX();
+        double heroY = context.getHero().getY();
+        double dist = Math.hypot(heroX - tablet.getWorldX(), heroY - tablet.getWorldY());
+        if (dist > 480.0) return;
+
+        double screenX = context.getCamera().toScreenX(heroX);
+        double screenY = heroY;
+        if (screenX < 60 || screenX > canvasWidth - 60 || screenY < 50 || screenY > canvasHeight - 50) return;
+
+        gc.save();
+        double pulse = 0.75 + 0.25 * Math.sin(timeSeconds * 5.0);
+        gc.setGlobalAlpha(pulse);
+
+        String prompt = "[Q] Ecolocalização";
+        double pillW = 140, pillH = 26;
+        double pillX = screenX - pillW / 2.0;
+        double pillY = screenY - 55.0;
+
+        gc.setFill(Color.rgb(5, 20, 45, 0.85));
+        gc.fillRoundRect(pillX, pillY, pillW, pillH, 13, 13);
+        gc.setStroke(Color.rgb(70, 200, 255, 0.9));
+        gc.setLineWidth(1.5);
+        gc.strokeRoundRect(pillX, pillY, pillW, pillH, 13, 13);
+
+        gc.setFill(Color.rgb(180, 240, 255));
+        gc.setFont(UiFonts.TEXT_BOLD_12);
+        gc.setTextAlign(TextAlignment.CENTER);
+        gc.setTextBaseline(VPos.CENTER);
+        gc.fillText(prompt, screenX, pillY + pillH / 2.0);
+
+        gc.restore();
     }
 
     public void drawObjectiveArrow(GraphicsContext gc, GameContext context, double canvasWidth, double canvasHeight, double timeSeconds) {

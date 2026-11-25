@@ -78,4 +78,27 @@ class UIRendererTest {
         assertEquals(200, UIRenderer.worldToMapX(2000, 4000, 100, 200));
         assertEquals(300, UIRenderer.worldToMapX(9999, 4000, 100, 200));
     }
+
+    @Test
+    @DisplayName("Dica orgânica de ecolocalização Q é desenhada quando próximo da tabuleta oculta (APSU-U03)")
+    void echoPromptRendersWhenNearHiddenTablet() {
+        var graphics = new Canvas(1366, 768).getGraphicsContext2D();
+        var renderer = new UIRenderer();
+        var context = new GameContext();
+        context.startP1();
+        // Na Fase 1, tabuleta em 2350, 580
+        // Posiciona herói longe
+        context.getHero().setX(100);
+        context.getHero().setY(100);
+        assertDoesNotThrow(() -> renderer.drawEchoPrompt(graphics, context, 1366, 768, 1.0));
+
+        // Posiciona herói perto (a 200 unidades)
+        context.getHero().setX(2250);
+        context.getHero().setY(550);
+        assertDoesNotThrow(() -> renderer.drawEchoPrompt(graphics, context, 1366, 768, 1.0));
+
+        // Após revelada, não desenha prompt
+        context.getSacredTablet().reveal();
+        assertDoesNotThrow(() -> renderer.drawEchoPrompt(graphics, context, 1366, 768, 1.0));
+    }
 }

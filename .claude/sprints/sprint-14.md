@@ -61,16 +61,17 @@ A inspeção visual automatizada revelou os pontos exatos que justificam as dema
   - [x] Ajustar escalas, pivôs e MTL para o padrão do jogo (1 h)
   - [x] Conectar o nó 3D na `Runtime3DLayer` vinculado à entidade da tabuleta (1 h)
 
-### APSU-U03 | Renomeação para Ecolocalização e Tutorial Orgânico | 3 pts | Rafa
+### APSU-U03 | Renomeação para Ecolocalização e Tutorial Orgânico | 3 pts | Rafa [x]
 - **Contexto:** O minimapa utiliza o termo anacrônico "RADAR", e o tutorial textual precisa de dicas orgânicas sobre como e quando usar a Ecolocalização.
+- **Entregue em:** commit APSU-U03
 - **Critérios de aceite:**
-  - AC1: Título "RADAR" alterado para "ECOLOCALIZAÇÃO" no minimap do `UIRenderer`.
-  - AC2: `TutorialStep` e dicas contextuais atualizados para referenciar ecolocalização e tecla `[Q]`.
-  - AC3: Dica visual elegante e pulsante da tecla Q sugerida quando o jogador estiver próximo à área indicada pela pista do Enki.
+  - [x] AC1: Título "RADAR" alterado para "ECOLOCALIZAÇÃO" no minimap do `UIRenderer`.
+  - [x] AC2: `TutorialStep` e dicas contextuais atualizados para referenciar ecolocalização e tecla `[Q]`.
+  - [x] AC3: Dica visual elegante e pulsante da tecla Q sugerida quando o jogador estiver próximo à área indicada pela pista do Enki.
 - **Tarefas:**
-  - [ ] Atualizar renderização do minimap em `UIRenderer.java` (0,5 h)
-  - [ ] Revisar referências em `TutorialStep`, `EchoController` e testes (1 h)
-  - [ ] Implementar sinalização sutil de recarga/prontidão do sonar (1 h)
+  - [x] Atualizar renderização do minimap em `UIRenderer.java` (0,5 h)
+  - [x] Revisar referências em `TutorialStep`, `EchoController` e testes (1 h)
+  - [x] Implementar sinalização sutil de recarga/prontidão do sonar (1 h)
 
 ### APSU-B02 | Depuração do Fundo Vulcânico e Calibração de Dano Difícil | 3 pts | Marcos
 - **Contexto:** O relevo de fundo da Fase 4 apresenta colunas/vulcão desconexo, e o combate no modo Difícil precisa de maior tensão tática reduzindo o dano excessivo das bolhas.
