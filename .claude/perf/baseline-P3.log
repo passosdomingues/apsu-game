@@ -1,0 +1,88 @@
+[PERF] OBJ async 04_peixe_sombrio_inimigo: 5.5 ms
+[PERF] P3 P3 | 61.0 fps | pulse p50/p95/max 16.68/17.01/17.02 ms | >16ms 31 >33ms 0 | update 0.01 ms | render 0.29 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] OBJ async characters/01_adapa_ataque_thrust: 27.2 ms
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.68/17.01/17.02 ms | >16ms 32 >33ms 0 | update 0.01 ms | render 0.25 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.68/17.01/17.02 ms | >16ms 31 >33ms 0 | update 0.00 ms | render 0.28 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] OBJ async characters/01_adapa_heroi: 22.4 ms
+[PERF] OBJ async 03_enki_var_eremita: 8.6 ms
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.68/17.01/17.02 ms | >16ms 31 >33ms 0 | update 0.01 ms | render 0.29 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] OBJ async scenery/tabuleta_sagrada_3d: 6.4 ms
+[PERF] OBJ async scenery/bolha_3d: 7.2 ms
+[PERF] P3 P3 | 59.9 fps | pulse p50/p95/max 16.69/17.01/17.02 ms | >16ms 31 >33ms 0 | update 0.01 ms | render 0.29 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 59.9 fps | pulse p50/p95/max 16.69/17.01/17.02 ms | >16ms 31 >33ms 0 | update 0.00 ms | render 0.25 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 59.9 fps | pulse p50/p95/max 16.68/17.01/17.02 ms | >16ms 31 >33ms 0 | update 0.00 ms | render 0.29 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] OBJ async scenery/16_corrente_abissal_3d: 46.4 ms
+[PERF] P3 P3 | 59.9 fps | pulse p50/p95/max 16.68/17.01/17.02 ms | >16ms 32 >33ms 0 | update 0.00 ms | render 0.31 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.68/17.01/17.02 ms | >16ms 31 >33ms 0 | update 0.00 ms | render 0.30 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.68/17.01/17.02 ms | >16ms 31 >33ms 0 | update 0.00 ms | render 0.29 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.69/17.01/17.02 ms | >16ms 31 >33ms 0 | update 0.00 ms | render 0.30 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] OBJ async scenery/13_obstaculo_abissal: 75.6 ms
+[PERF] OBJ async scenery/15_coral_colisao_3d: 8.2 ms
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.66/17.01/17.02 ms | >16ms 30 >33ms 0 | update 0.00 ms | render 0.31 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.65/17.01/17.02 ms | >16ms 29 >33ms 0 | update 0.00 ms | render 0.29 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] OBJ async 04_inimigo_enguia_abissal: 42.9 ms
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.65/17.01/17.02 ms | >16ms 30 >33ms 0 | update 0.00 ms | render 0.31 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.64/17.01/17.02 ms | >16ms 30 >33ms 0 | update 0.00 ms | render 0.29 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.65/17.01/17.02 ms | >16ms 29 >33ms 0 | update 0.00 ms | render 0.28 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.66/17.01/17.02 ms | >16ms 29 >33ms 0 | update 0.00 ms | render 0.25 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.66/17.01/17.02 ms | >16ms 29 >33ms 0 | update 0.00 ms | render 0.29 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.65/17.01/17.02 ms | >16ms 29 >33ms 0 | update 0.00 ms | render 0.30 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.65/17.01/17.02 ms | >16ms 30 >33ms 0 | update 0.00 ms | render 0.29 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.64/17.01/17.02 ms | >16ms 30 >33ms 0 | update 0.00 ms | render 0.29 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.65/17.01/17.02 ms | >16ms 29 >33ms 0 | update 0.00 ms | render 0.26 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.66/17.01/17.02 ms | >16ms 29 >33ms 0 | update 0.00 ms | render 0.24 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.66/17.01/17.02 ms | >16ms 29 >33ms 0 | update 0.00 ms | render 0.52 ms | 1.00 sim/frame | GC 1/7ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.65/17.01/17.02 ms | >16ms 29 >33ms 0 | update 0.00 ms | render 0.40 ms | 1.00 sim/frame | GC 2/3ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.64/17.01/17.02 ms | >16ms 30 >33ms 0 | update 0.00 ms | render 0.25 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.64/17.01/17.02 ms | >16ms 30 >33ms 0 | update 0.00 ms | render 0.29 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.65/17.01/17.02 ms | >16ms 29 >33ms 0 | update 0.00 ms | render 0.29 ms | 0.98 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.66/17.01/17.02 ms | >16ms 30 >33ms 0 | update 0.00 ms | render 0.30 ms | 1.02 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.69/17.01/17.02 ms | >16ms 31 >33ms 0 | update 0.00 ms | render 0.31 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.69/17.01/17.02 ms | >16ms 31 >33ms 0 | update 0.00 ms | render 0.26 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.68/17.01/17.02 ms | >16ms 31 >33ms 0 | update 0.00 ms | render 0.26 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 59.9 fps | pulse p50/p95/max 16.67/17.01/17.02 ms | >16ms 32 >33ms 0 | update 0.00 ms | render 0.26 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 59.9 fps | pulse p50/p95/max 16.68/17.01/17.02 ms | >16ms 31 >33ms 0 | update 0.00 ms | render 0.28 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 59.9 fps | pulse p50/p95/max 16.69/17.01/17.02 ms | >16ms 31 >33ms 0 | update 0.00 ms | render 0.30 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 59.9 fps | pulse p50/p95/max 16.69/17.01/17.02 ms | >16ms 31 >33ms 0 | update 0.00 ms | render 0.29 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.69/17.01/17.02 ms | >16ms 31 >33ms 0 | update 0.00 ms | render 0.25 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.68/17.01/17.02 ms | >16ms 31 >33ms 0 | update 0.00 ms | render 0.26 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.67/17.01/17.02 ms | >16ms 32 >33ms 0 | update 0.00 ms | render 0.25 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] OBJ async scenery/14_geiser_hidrotermal_3d: 471.6 ms
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.68/17.01/17.02 ms | >16ms 31 >33ms 0 | update 0.00 ms | render 0.27 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] OBJ async scenery/bola_de_lava_3d: 7.4 ms
+[PERF] OBJ async 04_inimigo_caranguejo_blindado: 9.1 ms
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.65/17.01/17.02 ms | >16ms 29 >33ms 0 | update 0.00 ms | render 0.30 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.66/17.01/17.02 ms | >16ms 29 >33ms 0 | update 0.00 ms | render 0.27 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.66/17.01/17.02 ms | >16ms 29 >33ms 0 | update 0.00 ms | render 0.26 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.65/17.01/17.02 ms | >16ms 29 >33ms 0 | update 0.00 ms | render 0.27 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] OBJ async scenery/15_portal_atlantica_3d: 74.7 ms
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.64/17.01/17.02 ms | >16ms 30 >33ms 0 | update 0.00 ms | render 0.26 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.65/17.01/17.02 ms | >16ms 30 >33ms 0 | update 0.00 ms | render 0.20 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.65/17.01/17.02 ms | >16ms 29 >33ms 0 | update 0.00 ms | render 0.26 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.66/17.00/17.02 ms | >16ms 29 >33ms 0 | update 0.00 ms | render 0.21 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.66/17.00/17.01 ms | >16ms 29 >33ms 0 | update 0.00 ms | render 0.20 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.65/17.01/17.02 ms | >16ms 29 >33ms 0 | update 0.00 ms | render 0.21 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.64/17.01/17.02 ms | >16ms 30 >33ms 0 | update 0.00 ms | render 0.18 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.65/17.01/17.02 ms | >16ms 30 >33ms 0 | update 0.00 ms | render 0.22 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.65/17.01/17.02 ms | >16ms 29 >33ms 0 | update 0.00 ms | render 0.18 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.66/17.01/17.02 ms | >16ms 29 >33ms 0 | update 0.00 ms | render 0.20 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.66/17.01/17.02 ms | >16ms 29 >33ms 0 | update 0.00 ms | render 0.20 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.65/17.01/17.02 ms | >16ms 29 >33ms 0 | update 0.00 ms | render 0.23 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.64/17.01/17.02 ms | >16ms 30 >33ms 0 | update 0.00 ms | render 0.20 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.68/17.01/17.02 ms | >16ms 32 >33ms 0 | update 0.00 ms | render 0.19 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.68/17.01/17.02 ms | >16ms 31 >33ms 0 | update 0.00 ms | render 0.20 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.69/17.01/17.02 ms | >16ms 31 >33ms 0 | update 0.00 ms | render 0.19 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 59.9 fps | pulse p50/p95/max 16.69/17.01/17.02 ms | >16ms 31 >33ms 0 | update 0.00 ms | render 0.20 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 59.9 fps | pulse p50/p95/max 16.68/17.01/17.02 ms | >16ms 31 >33ms 0 | update 0.00 ms | render 0.17 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 59.9 fps | pulse p50/p95/max 16.68/17.01/17.02 ms | >16ms 31 >33ms 0 | update 0.00 ms | render 0.21 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 59.9 fps | pulse p50/p95/max 16.68/17.01/17.02 ms | >16ms 32 >33ms 0 | update 0.00 ms | render 0.20 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.68/17.01/17.02 ms | >16ms 31 >33ms 0 | update 0.00 ms | render 0.20 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.69/17.01/17.02 ms | >16ms 31 >33ms 0 | update 0.00 ms | render 0.18 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.69/17.01/17.02 ms | >16ms 31 >33ms 0 | update 0.00 ms | render 0.24 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.68/17.01/17.02 ms | >16ms 31 >33ms 0 | update 0.00 ms | render 0.24 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.65/17.01/17.02 ms | >16ms 30 >33ms 0 | update 0.00 ms | render 0.20 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.64/17.01/17.02 ms | >16ms 30 >33ms 0 | update 0.00 ms | render 0.17 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.65/17.01/17.02 ms | >16ms 30 >33ms 0 | update 0.00 ms | render 0.18 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.65/17.01/17.02 ms | >16ms 29 >33ms 0 | update 0.00 ms | render 0.19 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.66/17.01/17.02 ms | >16ms 29 >33ms 0 | update 0.00 ms | render 0.19 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB
+[PERF] P3 P3 | 60.0 fps | pulse p50/p95/max 16.65/17.01/17.02 ms | >16ms 29 >33ms 0 | update 0.00 ms | render 0.18 ms | 1.00 sim/frame | GC 0/0ms | heap 562/3966 MiB

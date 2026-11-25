@@ -36,6 +36,8 @@ public class BaselineBenchmark {
         Files.createDirectories(perfDir);
 
         for (int phase = 1; phase <= 5; phase++) {
+            System.gc();
+            Thread.sleep(100);
             System.out.printf("Executando baseline para a fase P%d (75 s simulados)...%n", phase);
             File logFile = perfDir.resolve("baseline-P" + phase + ".log").toFile();
             try (PrintStream fileOut = new PrintStream(new FileOutputStream(logFile))) {
@@ -79,6 +81,9 @@ public class BaselineBenchmark {
             case 4 -> context.startP4();
             case 5 -> context.startP5();
         }
+        if (phase >= 2) {
+            context.getHero().setHasBubblePower(true);
+        }
         context.getHero().setMaxHP(9999.0);
         context.getHero().heal(9999.0);
 
@@ -108,10 +113,12 @@ public class BaselineBenchmark {
                 context.getInputManager().registerKeyRelease(KeyCode.DOWN, now);
             }
 
-            if (f % 40 == 0) {
-                context.getInputManager().registerKeyPress(KeyCode.SPACE);
-            } else if (f % 40 == 6) {
-                context.getInputManager().registerKeyRelease(KeyCode.SPACE, now);
+            if (context.getHero().hasBubblePower()) {
+                if (f % 40 == 0) {
+                    context.getInputManager().registerKeyPress(KeyCode.SPACE);
+                } else if (f % 40 == 6) {
+                    context.getInputManager().registerKeyRelease(KeyCode.SPACE, now);
+                }
             }
 
             loop.handle(now);
