@@ -17,7 +17,7 @@ class PhaseExitIntroductionControllerTest {
             assertEquals(3900.0, event.worldX(), 0.001);
             assertEquals(384.0, event.worldY(), 0.001);
             assertEquals(3900.0, ((CutsceneRequest) event.payload()).targetWorldX(), 0.001);
-            assertEquals(1.5, ((CutsceneRequest) event.payload()).holdDurationSeconds(), 0.001);
+            assertEquals(PhaseCutsceneConfig.phaseExitDuration(phase), ((CutsceneRequest) event.payload()).holdDurationSeconds(), 0.001);
             assertEquals("Saida da Fase " + phase, ((CutsceneRequest) event.payload()).label());
             assertNull(controller.tabletCollected(phase), "A apresentação não deve repetir na fase " + phase);
         }

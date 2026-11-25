@@ -33,7 +33,7 @@ class GuardianIntroductionControllerTest {
 
         assertNotNull(request);
         assertEquals(centerX, request.targetWorldX(), 0.001);
-        assertEquals(1.5, request.holdDurationSeconds(), 0.001);
+        assertEquals(PhaseCutsceneConfig.guardianIntroDuration(2), request.holdDurationSeconds(), 0.001);
         assertEquals(guardian.getName(), request.label());
     }
 

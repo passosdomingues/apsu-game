@@ -35,19 +35,20 @@
 
 ## 2. Histórias Prioritárias para Execução (Planejadas)
 
-### APSU-N02 | Parametrização e Calibração de Cutscenes por Fase | 3 pts | Rafa
-- **Contexto:** A duração das cutscenes atualmente é uniforme ou rígida, necessitando de parametrização limpa por fase para acomodar a leitura das mensagens mitológicas sem quebrar o ritmo da descida.
+### APSU-N02 | Parametrização e Calibração de Cutscenes por Fase | 3 pts | Rafa [x]
+- **Contexto:** A duração das cutscenes anteriormente era uniforme e continha números mágicos dispersos. Foi criada parametrização limpa por fase (`PhaseCutsceneConfig`) para acomodar a leitura das mensagens mitológicas sem quebrar o ritmo da descida.
+- **Entregue em:** commit em andamento
 - **Critérios de aceite:**
-  - AC1: Criação de enum/tabela `PhaseCutsceneConfig` parametrizando duração: P1 (intro Enki 4.0s), P2-P4 (3.0s), P5 Boss (5.0s com ativação de tema musical)
-  - AC2: `GuardianIntroductionController` e `PhaseExitIntroductionController` utilizam a configuração da fase ativa sem números mágicos
-  - AC3: Pulo suave via tecla (`Espaço`, `Enter`, `ESC`) respeita transição de retorno rápido (<= 0.3s)
-  - AC4: Sem alocação de objetos no loop de atualização
-  - AC5: `make test` verde (198/198 testes)
+  - [x] AC1: Criação de `PhaseCutsceneConfig` parametrizando duração: P1 (intro Enki 4.0s), P2-P4 (3.0s), P5 Boss (5.0s com ativação de tema musical)
+  - [x] AC2: `GuardianIntroductionController` e `PhaseExitIntroductionController` utilizam a configuração da fase ativa sem números mágicos
+  - [x] AC3: Pulo suave via tecla (`Espaço`, `Enter`, `ESC`) respeita transição de retorno rápido (<= 0.3s)
+  - [x] AC4: Sem alocação de objetos no loop de atualização
+  - [x] AC5: `make test` verde (198/198 testes)
 - **Tarefas:**
-  - [ ] Criar enum ou estrutura imutável de tempos por fase em `br.apsu.cutscene` (1 h)
-  - [ ] Integrar configuração nos controllers de cutscene e em `GameContext.advancePhaseFromDialogue` (1,5 h)
-  - [ ] Conectar gatilho musical dedicado na cutscene de P5 (1 h)
-  - [ ] Testes de unidade em `CutsceneControllerTest` e `make test` (1 h)
+  - [x] Criar enum ou estrutura imutável de tempos por fase em `br.apsu.cutscene` (1 h)
+  - [x] Integrar configuração nos controllers de cutscene e em `GameContext.advancePhaseFromDialogue` (1,5 h)
+  - [x] Conectar gatilho musical dedicado na cutscene de P5 (1 h)
+  - [x] Testes de unidade em `CutsceneControllerTest` e `make test` (1 h)
 
 ### APSU-V01 | Aparição Suave dos Enkis (Fade-in e Presença Divina) | 5 pts | Wagner / Rafa
 - **Contexto:** Quando o jogador se aproxima de um Enki no cenário das fases 1 a 5, o surgimento do modelo 3D/sprite deve ser gradual e orgânico, evitando pop-in abrupto.

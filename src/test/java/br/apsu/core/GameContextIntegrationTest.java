@@ -503,7 +503,7 @@ public class GameContextIntegrationTest {
         assertTrue(context.getCutsceneController().isActive(),
             "Cutscene de foco no primeiro guardião deve iniciar na entrada da Fase 1");
         assertEquals("Primeiro Guardiao", context.getCutsceneController().getActiveRequest().label());
-        assertEquals(2.0, context.getCutsceneController().getActiveRequest().holdDurationSeconds(), 0.001);
+        assertEquals(br.apsu.cutscene.PhaseCutsceneConfig.P1_INTRO_DURATION, context.getCutsceneController().getActiveRequest().holdDurationSeconds(), 0.001);
 
         double guardianCenterX = context.getGuardians().get(0).getWorldX() + br.apsu.model.guardian.GuardianEntity.GW / 2.0;
         assertEquals(guardianCenterX, context.getCutsceneController().getActiveRequest().targetWorldX(), 0.001);
@@ -520,7 +520,7 @@ public class GameContextIntegrationTest {
         assertTrue(context.getCutsceneController().isActive());
 
         // Consome toda a cutscene
-        for (int i = 0; i < 300 && context.getCutsceneController().isActive(); i++) {
+        for (int i = 0; i < 400 && context.getCutsceneController().isActive(); i++) {
             context.update((i + 1) * 16_666_666L);
         }
         assertFalse(context.getCutsceneController().isActive());
@@ -597,7 +597,7 @@ public class GameContextIntegrationTest {
 
         assertTrue(context.getCutsceneController().isActive(), "Fase " + phase + " deve iniciar o foco a até 800 unidades");
         assertEquals(guardian.getName(), context.getCutsceneController().getActiveRequest().label());
-        assertEquals(1.5, context.getCutsceneController().getActiveRequest().holdDurationSeconds(), 0.001);
+        assertEquals(br.apsu.cutscene.PhaseCutsceneConfig.guardianIntroDuration(phase), context.getCutsceneController().getActiveRequest().holdDurationSeconds(), 0.001);
         assertEquals(guardianCenterX, context.getCutsceneController().getActiveRequest().targetWorldX(), 0.001);
 
         context.onKey(KeyCode.ESCAPE);

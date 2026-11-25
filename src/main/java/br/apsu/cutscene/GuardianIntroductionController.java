@@ -7,7 +7,6 @@ import java.util.Arrays;
 /** Creates one short camera introduction when the player first approaches a phase guardian. */
 public final class GuardianIntroductionController {
     private static final double INTRO_DISTANCE = 800.0;
-    private static final double HOLD_SECONDS = 1.5;
     private final boolean[] introducedByPhase = new boolean[5];
 
     /** Returns a cutscene request once the player is within 800 world units of a phase 2-4 guardian. */
@@ -21,7 +20,7 @@ public final class GuardianIntroductionController {
         introducedByPhase[phase] = true;
         return new CutsceneRequest(
             guardian.getWorldX() + GuardianEntity.GW / 2.0,
-            HOLD_SECONDS,
+            PhaseCutsceneConfig.guardianIntroDuration(phase),
             guardian.getName()
         );
     }

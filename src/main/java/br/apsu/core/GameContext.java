@@ -230,7 +230,11 @@ public class GameContext {
                     GuardianEntity g = guardians.get(0);
                     eventBus.publish(new GameEvent(
                         GameEvent.Type.CUTSCENE_REQUESTED,
-                        new br.apsu.cutscene.CutsceneRequest(g.getWorldX() + GuardianEntity.GW / 2.0, 2.0, "Primeiro Guardiao"),
+                        new br.apsu.cutscene.CutsceneRequest(
+                            g.getWorldX() + GuardianEntity.GW / 2.0,
+                            br.apsu.cutscene.PhaseCutsceneConfig.P1_INTRO_DURATION,
+                            "Primeiro Guardiao"
+                        ),
                         0, 0
                     ));
                 }
@@ -241,7 +245,11 @@ public class GameContext {
                     p2ChestCutsceneTriggered = true;
                     eventBus.publish(new GameEvent(
                         GameEvent.Type.CUTSCENE_REQUESTED,
-                        new br.apsu.cutscene.CutsceneRequest(chestWX, 2.0, "Bau Naufragio"),
+                        new br.apsu.cutscene.CutsceneRequest(
+                            chestWX,
+                            br.apsu.cutscene.PhaseCutsceneConfig.P2_CHEST_DURATION,
+                            "Bau Naufragio"
+                        ),
                         0, 0
                     ));
                 }

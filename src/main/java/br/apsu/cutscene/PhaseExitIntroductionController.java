@@ -8,14 +8,17 @@ import java.util.Arrays;
 public final class PhaseExitIntroductionController {
     private static final double EXIT_WORLD_X = 3900.0;
     private static final double EXIT_WORLD_Y = 768.0 / 2.0;
-    private static final double HOLD_SECONDS = 1.5;
     private final boolean[] introducedByPhase = new boolean[5];
 
     /** Creates a focus event once for phases 1 through 4. */
     public GameEvent tabletCollected(int phase) {
         if (phase < 1 || phase > 4 || introducedByPhase[phase]) return null;
         introducedByPhase[phase] = true;
-        CutsceneRequest request = new CutsceneRequest(EXIT_WORLD_X, HOLD_SECONDS, "Saida da Fase " + phase);
+        CutsceneRequest request = new CutsceneRequest(
+            EXIT_WORLD_X,
+            PhaseCutsceneConfig.phaseExitDuration(phase),
+            "Saida da Fase " + phase
+        );
         return new GameEvent(GameEvent.Type.CUTSCENE_REQUESTED, request, EXIT_WORLD_X, EXIT_WORLD_Y);
     }
 
