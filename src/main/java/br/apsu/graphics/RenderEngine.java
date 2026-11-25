@@ -327,7 +327,7 @@ public class RenderEngine implements GameRenderer {
         // Cenário
         for (GuardianEntity g : ctx.getGuardians()) {
             double gx = ctx.getCamera().toScreenX(g.getWorldX());
-            drawGuardian(gc, ctx, gx, g.getWorldY(), g.getType(), g.isPromptVisible(), timeSeconds);
+            drawGuardian(gc, ctx, g, gx, g.getWorldY(), g.isPromptVisible(), timeSeconds);
         }
 
         drawPhaseExit(gc, ctx.getCamera().toScreenX(3900), ctx.getTabletsCollected() >= 1);
@@ -381,7 +381,7 @@ public class RenderEngine implements GameRenderer {
 
         for (GuardianEntity g : ctx.getGuardians()) {
             double gx = ctx.getCamera().toScreenX(g.getWorldX());
-            drawGuardian(gc, ctx, gx, g.getWorldY(), g.getType(), g.isPromptVisible(), timeSeconds);
+            drawGuardian(gc, ctx, g, gx, g.getWorldY(), g.isPromptVisible(), timeSeconds);
         }
 
         drawPhaseExit(gc, ctx.getCamera().toScreenX(3900), ctx.getTabletsCollected() >= 2);
@@ -433,7 +433,7 @@ public class RenderEngine implements GameRenderer {
 
         for (GuardianEntity g : ctx.getGuardians()) {
             double gx = ctx.getCamera().toScreenX(g.getWorldX());
-            drawGuardian(gc, ctx, gx, g.getWorldY(), g.getType(), g.isPromptVisible(), timeSeconds);
+            drawGuardian(gc, ctx, g, gx, g.getWorldY(), g.isPromptVisible(), timeSeconds);
         }
 
         drawPhaseExit(gc, ctx.getCamera().toScreenX(3900), ctx.getTabletsCollected() >= 3);
@@ -463,7 +463,7 @@ public class RenderEngine implements GameRenderer {
 
         for (GuardianEntity g : ctx.getGuardians()) {
             double gx = ctx.getCamera().toScreenX(g.getWorldX());
-            drawGuardian(gc, ctx, gx, g.getWorldY(), g.getType(), g.isPromptVisible(), timeSeconds);
+            drawGuardian(gc, ctx, g, gx, g.getWorldY(), g.isPromptVisible(), timeSeconds);
         }
 
         drawPhaseExit(gc, ctx.getCamera().toScreenX(3900), ctx.getTabletsCollected() >= 4);
@@ -492,7 +492,7 @@ public class RenderEngine implements GameRenderer {
         drawPhaseBackground(gc, ctx, width, height, 5, 0.24);
 
         for (GuardianEntity g : ctx.getGuardians()) {
-            drawGuardian(gc, ctx, g.getWorldX(), g.getWorldY(), g.getType(), g.isPromptVisible(), timeSeconds);
+            drawGuardian(gc, ctx, g, g.getWorldX(), g.getWorldY(), g.isPromptVisible(), timeSeconds);
         }
 
         if (ctx.getBoss() != null) {
@@ -605,10 +605,10 @@ public class RenderEngine implements GameRenderer {
         gc.fillText(boss.getCombatPhase().getLabel(), width / 2.0, barY - 5);
     }
 
-    private void drawGuardian(GraphicsContext gc, GameContext ctx, double x, double y, int type, boolean prompt, double timeSeconds) {
+    private void drawGuardian(GraphicsContext gc, GameContext ctx, GuardianEntity guardian, double x, double y, boolean prompt, double timeSeconds) {
         lightingEngine.drawBioluminescentHalo(gc, x + GuardianEntity.GW / 2, y + GuardianEntity.GH / 2,
-            GuardianEntity.GW * 0.9, Palette.GUARDIAN_HALO);
-        drawShadow(gc, x + GuardianEntity.GW / 2, y + GuardianEntity.GH - 4, GuardianEntity.GW * 0.7, 16);
+            GuardianEntity.GW * 0.9 * guardian.getScaleEnki(), Palette.GUARDIAN_HALO);
+        drawShadow(gc, x + GuardianEntity.GW / 2, y + GuardianEntity.GH - 4, GuardianEntity.GW * 0.7 * guardian.getScaleEnki(), 16);
 
         // Pulsação luminosa (glow) da Tabuleta Sagrada quando ainda não coletada (APSU-V02)
         if (ctx.getTabletsCollected() < ctx.getCurrentPhase()) {
@@ -619,8 +619,11 @@ public class RenderEngine implements GameRenderer {
 
         // US-008 / US-009: Fallback 2D para guardiao no Canvas quando Scene3D indisponivel ou 2D completo
         if (!adaptiveController.isGuardianIn3D()) {
-            GuardianEntity dummy = new GuardianEntity(type, x, y);
+            double prevAlpha = gc.getGlobalAlpha();
+            gc.setGlobalAlpha(prevAlpha * Math.max(0.1, guardian.getAlphaEnki()));
+            GuardianEntity dummy = new GuardianEntity(guardian.getType(), x, y);
             Character2DFallbackRenderer.renderGuardian(gc, dummy, x, y);
+            gc.setGlobalAlpha(prevAlpha);
         }
 
         if (prompt) {

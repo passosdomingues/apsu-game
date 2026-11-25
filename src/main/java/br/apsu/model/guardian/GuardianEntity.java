@@ -72,6 +72,10 @@ public class GuardianEntity {
     private boolean contacted = false;
     private boolean promptVisible = false;
 
+    // APSU-V01: Aparição suave dos Enkis (fade-in e presença divina, zero-alloc)
+    private double alphaEnki = 0.0;
+    private double scaleEnki = 0.85;
+
     public GuardianEntity(int type, double worldX, double worldY) {
         this.type = type;
         this.worldX = worldX;
@@ -84,6 +88,8 @@ public class GuardianEntity {
     public String[] getDialogue() { return DIALOGUES[Math.min(type, DIALOGUES.length - 1)]; }
     public double getWorldX() { return worldX; }
     public double getWorldY() { return worldY; }
+    public double getAlphaEnki() { return alphaEnki; }
+    public double getScaleEnki() { return scaleEnki; }
     public boolean isContacted() { return contacted; }
     public void setContacted(boolean c) {
         this.contacted = c;
@@ -101,19 +107,35 @@ public class GuardianEntity {
     }
 
     /**
-     * Atualiza o estado de exibição do aviso contextual com histerese anti-pisca (US-013).
-     * Distância < 150 unidades ativa o aviso; distância > 180 desativa.
+     * Atualiza o estado de exibição do aviso contextual com histerese anti-pisca (US-013)
+     * e interpolação de fade-in/scale suave dos Enkis ao se aproximar (APSU-V01).
+     * Distância < 800 unidades inicia a manifestação divina; < 150 ativa o prompt de diálogo.
      */
     public void updatePromptDistance(double heroCenterX, double heroCenterY) {
-        if (contacted) {
-            promptVisible = false;
-            return;
-        }
+        updatePromptDistance(heroCenterX, heroCenterY, 1.0 / 60.0);
+    }
+
+    public void updatePromptDistance(double heroCenterX, double heroCenterY, double dt) {
         double targetCenterX = worldX + GW / 2.0;
         double targetCenterY = worldY + GH / 2.0;
         double dx = heroCenterX - targetCenterX;
         double dy = heroCenterY - targetCenterY;
         double distSq = dx * dx + dy * dy;
+
+        // APSU-V01: Transição de 400ms (taxa de 2.5 por segundo)
+        boolean nearEnki = distSq <= 800.0 * 800.0;
+        if (nearEnki) {
+            alphaEnki = Math.min(1.0, alphaEnki + 2.5 * dt);
+            scaleEnki = Math.min(1.0, scaleEnki + (0.15 / 0.4) * dt);
+        } else {
+            alphaEnki = Math.max(0.0, alphaEnki - 2.5 * dt);
+            scaleEnki = Math.max(0.85, scaleEnki - (0.15 / 0.4) * dt);
+        }
+
+        if (contacted) {
+            promptVisible = false;
+            return;
+        }
 
         if (promptVisible) {
             if (distSq > 180.0 * 180.0) {

@@ -201,14 +201,17 @@ public final class Runtime3DLayer {
             int id = guardianIndex++;
             int type = guardian.getType();
             // Escala caprichada para os Enkis como guardiões no lugar dos antigos
-            double targetWidth = 160;
-            double targetHeight = 280;
+            double targetWidth = 160 * guardian.getScaleEnki();
+            double targetHeight = 280 * guardian.getScaleEnki();
             Actor npc = actor(id < GUARDIAN_IDS.length ? GUARDIAN_IDS[id] : "guardian-" + id,
                 model, targetWidth, targetHeight);
-            if (npc != null) place(npc,
-                screenX,
-                guardian.getWorldY() + GuardianEntity.GH / 2.0,
-                guardian.getWorldX() / 4000.0, timeSeconds, 0);
+            if (npc != null) {
+                npc.node.setOpacity(Math.max(0.05, guardian.getAlphaEnki()));
+                place(npc,
+                    screenX,
+                    guardian.getWorldY() + GuardianEntity.GH / 2.0,
+                    guardian.getWorldX() / 4000.0, timeSeconds, 0);
+            }
 
             // Tabuleta Sagrada 3D flutuando com rotação e levitação mística ao lado de Enki
             if (context.getTabletsCollected() < context.getCurrentPhase() && !guardian.isContacted()) {

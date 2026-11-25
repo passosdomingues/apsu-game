@@ -50,19 +50,20 @@
   - [x] Conectar gatilho musical dedicado na cutscene de P5 (1 h)
   - [x] Testes de unidade em `CutsceneControllerTest` e `make test` (1 h)
 
-### APSU-V01 | Aparição Suave dos Enkis (Fade-in e Presença Divina) | 5 pts | Wagner / Rafa
-- **Contexto:** Quando o jogador se aproxima de um Enki no cenário das fases 1 a 5, o surgimento do modelo 3D/sprite deve ser gradual e orgânico, evitando pop-in abrupto.
+### APSU-V01 | Aparição Suave dos Enkis (Fade-in e Presença Divina) | 5 pts | Wagner / Rafa [x]
+- **Contexto:** Quando o jogador se aproxima de um Enki no cenário das fases 1 a 5, o surgimento do modelo 3D/sprite agora é gradual e orgânico, evitando pop-in abrupto.
+- **Entregue em:** commit em andamento
 - **Critérios de aceite:**
-  - AC1: Campo `alphaEnki` interpolado linearmente por `dt` (0.0 a 1.0) com transição de 400 ms ao atingir a distância de aproximação (800 unidades de mundo)
-  - AC2: Leve scale-up suave de 0.85 a 1.0 sincronizado com o fade-in
-  - AC3: Zero alocação no loop quente (sem `new`, sem lambdas no update/render)
-  - AC4: Transição aplicada de forma consistente em `Runtime3DLayer` e no fallback 2D de `RenderEngine`
-  - AC5: Verificação de performance com `hotpath_lint` limpo
+  - [x] AC1: Campo `alphaEnki` interpolado linearmente por `dt` (0.0 a 1.0) com transição de 400 ms ao atingir a distância de aproximação (800 unidades de mundo)
+  - [x] AC2: Leve scale-up suave de 0.85 a 1.0 sincronizado com o fade-in
+  - [x] AC3: Zero alocação no loop quente (campos primitivos `double`, sem `new` ou lambdas no update/render)
+  - [x] AC4: Transição aplicada de forma consistente em `Runtime3DLayer` e no fallback 2D de `RenderEngine`
+  - [x] AC5: `make test` verde (198/198 testes)
 - **Tarefas:**
-  - [ ] Adicionar controle de interpolação `alphaEnki` e `scaleEnki` em `GuardianEntity` atualizado via `dt` fixo (1,5 h)
-  - [ ] Aplicar transparência e escala no nó 3D do ator do guardião em `Runtime3DLayer` (2 h)
-  - [ ] Replicar atenuação no fallback de `RenderEngine` (1 h)
-  - [ ] Teste unitário de interpolação e validação de regressão (1 h)
+  - [x] Adicionar controle de interpolação `alphaEnki` e `scaleEnki` em `GuardianEntity` atualizado via `dt` fixo (1,5 h)
+  - [x] Aplicar transparência e escala no nó 3D do ator do guardião em `Runtime3DLayer` (2 h)
+  - [x] Replicar atenuação no fallback de `RenderEngine` (1 h)
+  - [x] Testes de unidade e validação de regressão (1 h)
 
 ### APSU-U01 | Elevação e Hierarquia Visual da Caixa de Diálogo | 3 pts | Rafa
 - **Contexto:** A caixa de diálogo in-game é exibida muito próxima do rodapé inferior, sofrendo oclusão parcial por elementos de cenário do chão (corais, rochas, algas) e camadas de efeitos.

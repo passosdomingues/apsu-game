@@ -978,7 +978,7 @@ public class GameContext {
         double heroCenterX = hero.getX() + HeroEntity.HW / 2.0;
         double heroCenterY = hero.getY() + HeroEntity.HH / 2.0;
         for (GuardianEntity g : guardians) {
-            g.updatePromptDistance(heroCenterX, heroCenterY);
+            g.updatePromptDistance(heroCenterX, heroCenterY, 1.0 / 60.0);
             double gx = arenaMode ? g.getWorldX() : camera.toScreenX(g.getWorldX());
             double heroScreenX = arenaMode ? hero.getX() : camera.toScreenX(hero.getX());
             if (!g.isContacted() && inputManager.isInteractPressed()
