@@ -148,6 +148,9 @@ public final class Runtime3DLayer {
         } else if (context.getCurrentPhase() != 2) {
             p2ModelsRequested = false;
         }
+        if (context.getCurrentPhase() == 4) {
+            requestModel("scenery/bola_de_lava_3d");
+        }
 
         // Personagens, inimigos e props usam malhas Blender na camada 3D.
         double alpha = context.getRenderAlpha();
@@ -225,20 +228,29 @@ public final class Runtime3DLayer {
             }
         }
 
-        // Projéteis de bolha 3D disparados pelo herói Adapa
+        // Projéteis 3D (bolhas do herói e projéteis inimigos/bolas de lava - APSU-A01)
         int bubbleIdx = 0;
+        int malignIdx = 0;
         for (br.apsu.model.environment.Projectile p : context.getProjectiles()) {
-            if (p.getType() == br.apsu.model.environment.Projectile.Type.HERO_BUBBLE) {
-                double px = p.getInterpolatedX(alpha);
-                double py = p.getInterpolatedY(alpha);
-                double screenX = (state == GameContext.State.P5 || p.isArena())
-                    ? px : context.getCamera().toScreenX(px, alpha);
-                if (insideViewport(screenX, 48)) {
+            double px = p.getInterpolatedX(alpha);
+            double py = p.getInterpolatedY(alpha);
+            double screenX = (state == GameContext.State.P5 || p.isArena())
+                ? px : context.getCamera().toScreenX(px, alpha);
+            if (insideViewport(screenX, 48)) {
+                if (p.getType() == br.apsu.model.environment.Projectile.Type.HERO_BUBBLE) {
                     String bId = "hero-bubble-" + (bubbleIdx++);
                     Actor bubble = actor(bId, "scenery/bolha_3d", 38, 38);
                     if (bubble != null) {
                         bubble.bodyMotion.setAngle(timeSeconds * 50.0);
                         place(bubble, screenX, py, 0.25, timeSeconds, 0);
+                    }
+                } else if (p.getType() == br.apsu.model.environment.Projectile.Type.ENEMY_MALIGN) {
+                    // APSU-A01: Malha 3D bola_de_lava_3d com rotação contínua e brilho ígneo
+                    String mId = "enemy-malign-" + (malignIdx++);
+                    Actor lavaBall = actor(mId, "scenery/bola_de_lava_3d", 42, 42);
+                    if (lavaBall != null) {
+                        lavaBall.bodyMotion.setAngle(timeSeconds * 75.0);
+                        place(lavaBall, screenX, py, 0.35, timeSeconds, timeSeconds * 60.0);
                     }
                 }
             }
@@ -426,7 +438,8 @@ public final class Runtime3DLayer {
         PhasePalette palette = PHASE_PALETTES[Math.max(0, Math.min(4, phase - 1))];
         if (actorId.equals("boss")) return palette.boss();
         if (actorId.equals("chest") || actorId.equals("phase-descent")
-            || actorId.startsWith("guardian-") || actorId.equals("phase-intro-enki")) return palette.accent();
+            || actorId.startsWith("guardian-") || actorId.equals("phase-intro-enki")
+            || actorId.startsWith("enemy-malign-")) return palette.accent();
         if (actorId.startsWith("enemy-")) return palette.enemy();
         if (actorId.contains("hero")) return palette.character();
         return palette.prop();

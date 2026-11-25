@@ -110,9 +110,9 @@
   - AC3: Fallback 2D mantido caso o modo 3D seja degradado por performance
   - AC4: Sem impacto perceptível de FPS em hardware de referência
 - **Tarefas:**
-  - [ ] Validar e exportar `bola_de_Lava.blend` para OBJ/MTL em `src/main/resources/models/scenery/` (1,5 h)
-  - [ ] Integrar modelo no switch de projéteis da `Runtime3DLayer.java` (1,5 h)
-  - [ ] Testar colisão e rotação em P4 com `APSU_PERF=1` (1 h)
+  - [x] Validar e exportar `bola_de_Lava.blend` para OBJ/MTL em `src/main/resources/models/scenery/` (1,5 h)
+  - [x] Integrar modelo no switch de projéteis da `Runtime3DLayer.java` (1,5 h)
+  - [x] Testar colisão e rotação em P4 com `APSU_PERF=1` (1 h)
 
 ### APSU-A02 | Composição Orgânica do Cenário e Depuração de Fundo | 3 pts | Wagner / Marcos
 - **Contexto:** A distribuição de corais e obstáculos no leito de certas fases apresenta alinhamento linear/artificial, e elementos de fundo precisam de harmonia de profundidade.

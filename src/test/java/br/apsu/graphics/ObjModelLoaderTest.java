@@ -17,7 +17,8 @@ class ObjModelLoaderTest {
             "02_kullullu_boss",
             "scenery/07_navio_naufragado_elemento-cenario",
             "11_arraiao_abissal",
-            "scenery/17_piscina_lava_3d"
+            "scenery/17_piscina_lava_3d",
+            "scenery/bola_de_lava_3d"
         }) {
             ObjModelLoader.Model model = ObjModelLoader.load(modelName, 200, 300,
                 (material, path) -> {
