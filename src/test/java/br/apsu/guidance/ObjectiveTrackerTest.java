@@ -55,9 +55,10 @@ class ObjectiveTrackerTest {
         context.getHero().setY(g.getWorldY());
         context.getInputManager().registerKeyPress(javafx.scene.input.KeyCode.E);
         context.update(1_000_000_000L);
-        context.onKey(javafx.scene.input.KeyCode.ESCAPE); // fecha overlay e coleta tabuleta
+        context.onKey(javafx.scene.input.KeyCode.ESCAPE); // fecha overlay
+        context.revealAndCollectSacredTablet(); // resgata tabuleta revelada
 
-        assertEquals(1, context.getTabletsCollected(), "Tabuleta deve ter sido coletada na conversa");
+        assertEquals(1, context.getTabletsCollected(), "Tabuleta deve ter sido coletada");
         ObjectiveTracker.Objective obj = ObjectiveTracker.resolveCurrentObjective(context);
         assertNotNull(obj);
         assertEquals("Siga para o portal", obj.description());

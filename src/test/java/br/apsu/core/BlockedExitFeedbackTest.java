@@ -131,6 +131,7 @@ class BlockedExitFeedbackTest {
             context.advanceOverlay();
         }
         assertFalse(context.isOverlayActive());
+        context.revealAndCollectSacredTablet();
         assertEquals(1, context.getTabletsCollected());
 
         // Limpa alerta anterior de coleta de tabuleta

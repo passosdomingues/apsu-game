@@ -355,6 +355,7 @@ public class RenderEngine implements GameRenderer {
         }
 
         drawProjectiles(gc, ctx);
+        drawSacredTablet(gc, ctx, timeSeconds);
         ctx.getEchoWaveRenderer().render(gc, ctx, width, height);
         drawInterpolatedHero(gc, ctx, timeSeconds, true);
         ctx.getParticleSystem().render(gc);
@@ -410,6 +411,7 @@ public class RenderEngine implements GameRenderer {
         }
 
         drawProjectiles(gc, ctx);
+        drawSacredTablet(gc, ctx, timeSeconds);
         ctx.getEchoWaveRenderer().render(gc, ctx, width, height);
         drawInterpolatedHero(gc, ctx, timeSeconds, true);
         ctx.getParticleSystem().render(gc);
@@ -463,6 +465,7 @@ public class RenderEngine implements GameRenderer {
         }
 
         drawProjectiles(gc, ctx);
+        drawSacredTablet(gc, ctx, timeSeconds);
         ctx.getEchoWaveRenderer().render(gc, ctx, width, height);
         drawInterpolatedHero(gc, ctx, timeSeconds, true);
         ctx.getParticleSystem().render(gc);
@@ -494,6 +497,7 @@ public class RenderEngine implements GameRenderer {
         }
 
         drawProjectiles(gc, ctx);
+        drawSacredTablet(gc, ctx, timeSeconds);
         ctx.getEchoWaveRenderer().render(gc, ctx, width, height);
         drawInterpolatedHero(gc, ctx, timeSeconds, true);
         ctx.getParticleSystem().render(gc);
@@ -523,6 +527,7 @@ public class RenderEngine implements GameRenderer {
         }
 
         drawProjectiles(gc, ctx);
+        drawSacredTablet(gc, ctx, timeSeconds);
         ctx.getEchoWaveRenderer().render(gc, ctx, width, height);
         drawInterpolatedHero(gc, ctx, timeSeconds, false);
         ctx.getParticleSystem().render(gc);
@@ -628,17 +633,33 @@ public class RenderEngine implements GameRenderer {
         gc.fillText(boss.getCombatPhase().getLabel(), width / 2.0, barY - 5);
     }
 
+    private void drawSacredTablet(GraphicsContext gc, GameContext ctx, double timeSeconds) {
+        br.apsu.model.environment.SacredTabletEntity tablet = ctx.getSacredTablet();
+        if (tablet != null && tablet.isRevealed()) {
+            double sx = ctx.getCamera().toScreenX(tablet.getWorldX());
+            double sy = tablet.getWorldY() + Math.sin(timeSeconds * 3.5) * 8.0;
+            lightingEngine.drawTabletGlow(gc, sx, sy, 36.0, timeSeconds);
+            gc.save();
+            gc.setGlobalAlpha(tablet.getRevealProgress());
+            gc.setFill(Palette.GOLD);
+            gc.fillRoundRect(sx - 18, sy - 22, 36, 44, 6, 6);
+            gc.setStroke(Palette.GOLD_LIGHT);
+            gc.setLineWidth(2.0);
+            gc.strokeRoundRect(sx - 18, sy - 22, 36, 44, 6, 6);
+            gc.setStroke(Palette.rgb(30, 20, 0, 0.8));
+            gc.setLineWidth(1.5);
+            gc.strokeLine(sx - 10, sy - 12, sx + 10, sy - 12);
+            gc.strokeLine(sx - 8, sy - 4, sx + 8, sy - 4);
+            gc.strokeLine(sx - 10, sy + 4, sx + 10, sy + 4);
+            gc.strokeLine(sx - 6, sy + 12, sx + 6, sy + 12);
+            gc.restore();
+        }
+    }
+
     private void drawGuardian(GraphicsContext gc, GameContext ctx, GuardianEntity guardian, double x, double y, boolean prompt, double timeSeconds) {
         lightingEngine.drawBioluminescentHalo(gc, x + GuardianEntity.GW / 2, y + GuardianEntity.GH / 2,
             GuardianEntity.GW * 0.9 * guardian.getScaleEnki(), Palette.GUARDIAN_HALO);
         drawShadow(gc, x + GuardianEntity.GW / 2, y + GuardianEntity.GH - 4, GuardianEntity.GW * 0.7 * guardian.getScaleEnki(), 16);
-
-        // Pulsação luminosa (glow) da Tabuleta Sagrada quando ainda não coletada (APSU-V02)
-        if (ctx.getTabletsCollected() < ctx.getCurrentPhase()) {
-            double tabX = x + 75;
-            double tabY = y + 45 + Math.sin(timeSeconds * 3.2) * 12;
-            lightingEngine.drawTabletGlow(gc, tabX, tabY, 32.0, timeSeconds);
-        }
 
         // US-008 / US-009: Fallback 2D para guardiao no Canvas quando Scene3D indisponivel ou 2D completo
         if (!adaptiveController.isGuardianIn3D()) {

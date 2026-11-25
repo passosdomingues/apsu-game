@@ -215,16 +215,17 @@ public final class Runtime3DLayer {
                     guardian.getWorldY() + GuardianEntity.GH / 2.0,
                     guardian.getWorldX() / 4000.0, timeSeconds, 0);
             }
+        }
 
-            // Tabuleta Sagrada 3D flutuando com rotação e levitação mística ao lado de Enki
-            if (context.getTabletsCollected() < context.getCurrentPhase() && !guardian.isContacted()) {
-                double tabX = screenX + 75;
-                double tabY = guardian.getWorldY() + 45 + Math.sin(timeSeconds * 3.2) * 12;
-                Actor tabletActor = actor("guardian-tablet-" + id, "scenery/tabuleta_sagrada_3d", 80, 80);
-                if (tabletActor != null) {
-                    tabletActor.bodyMotion.setAngle(timeSeconds * 40.0);
-                    place(tabletActor, tabX, tabY, 0.4, timeSeconds, timeSeconds * 25.0);
-                }
+        // Tabuleta Sagrada 3D flutuando no ponto de revelação da fase (APSU-G01)
+        br.apsu.model.environment.SacredTabletEntity tablet = context.getSacredTablet();
+        if (tablet != null && tablet.isRevealed()) {
+            double screenTabX = context.getCamera().toScreenX(tablet.getWorldX());
+            double screenTabY = tablet.getWorldY() + Math.sin(timeSeconds * 3.5) * 8.0;
+            Actor tabletActor = actor("sacred-tablet-" + tablet.getPhase(), "scenery/tabuleta_sagrada_3d", 80, 80);
+            if (tabletActor != null) {
+                tabletActor.bodyMotion.setAngle(timeSeconds * 40.0);
+                place(tabletActor, screenTabX, screenTabY, 0.4 * tablet.getRevealProgress(), timeSeconds, timeSeconds * 25.0);
             }
         }
 

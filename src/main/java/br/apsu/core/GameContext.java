@@ -20,6 +20,7 @@ import br.apsu.model.hero.HeroType;
 import br.apsu.model.particle.ParticleSystem;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
+import br.apsu.graphics.Palette;
 
 import java.util.ArrayList;
 import java.io.IOException;
@@ -57,6 +58,7 @@ public class GameContext {
     private final List<Projectile> projectiles = new ArrayList<>();
     private final List<GuardianEntity> guardians = new ArrayList<>();
     private final List<SceneryElement> sceneryElements = new ArrayList<>();
+    private br.apsu.model.environment.SacredTabletEntity sacredTablet;
     private final ParticleSystem particleSystem = new ParticleSystem();
 
     private final QuadTree<EnemyEntity> enemyQuadTree = new QuadTree<>(0, new QuadTree.Bounds(0, 0, 4000, 768), new QuadTree.BoundingBoxProvider<>() {
@@ -361,6 +363,7 @@ public class GameContext {
         sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, 2980, 768 - 270, 145, 270));
 
         currentPhase = 1;
+        sacredTablet = new br.apsu.model.environment.SacredTabletEntity(1, 2350.0, 580.0);
         publishAudioDepth();
         state = State.P1; phaseStartTime = nanoTime; phaseHits = 0; adaptiveDifficulty.beginPhase();
         if (!br.apsu.graphics.GraphicsDiagnostics.isScene3dSupported()) {
@@ -407,6 +410,7 @@ public class GameContext {
 
         chestWX = 1800; chestWY = 768 - 170; // baú na sala aberta entre corais 2 e 3
         currentPhase = 2;
+        sacredTablet = new br.apsu.model.environment.SacredTabletEntity(2, 2650.0, 520.0);
         publishAudioDepth();
         state = State.P2; phaseStartTime = nanoTime; phaseHits = 0; adaptiveDifficulty.beginPhase();
         showAlert("Fase 2 — Cavernas de Coral | Desperte o Poder das Bolhas no Galeão Naufragado!");
@@ -453,6 +457,7 @@ public class GameContext {
         sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, 2350, 768 - 215, 130, 215));
 
         currentPhase = 3;
+        sacredTablet = new br.apsu.model.environment.SacredTabletEntity(3, 2400.0, 600.0);
         publishAudioDepth();
         state = State.P3; phaseStartTime = nanoTime; phaseHits = 0; adaptiveDifficulty.beginPhase();
         showAlert("Fase 3 — Correntes Abissais | As águas vivem — lute contra a maré!");
@@ -509,6 +514,7 @@ public class GameContext {
         sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, 2480, 768 - 200, 120, 200));
 
         currentPhase = 4;
+        sacredTablet = new br.apsu.model.environment.SacredTabletEntity(4, 2750.0, 560.0);
         publishAudioDepth();
         state = State.P4; phaseStartTime = nanoTime; phaseHits = 0; adaptiveDifficulty.beginPhase();
         showAlert("Fase 4 — Abismo Vulcânico | A lava devora tudo — mantenha altitude!");
@@ -518,6 +524,8 @@ public class GameContext {
     // FASE 5 — Templo Final de Apsu (boss + guardião Enki)
     // =========================================================
     public void startP5() {
+        boss = null;
+        sacredTablet = null;
         enemies.clear(); projectiles.clear(); guardians.clear(); sceneryElements.clear();
         // Fase 5 é a arena do boss — herói entra pela esquerda, boss à direita
         // BUGFIX 2026-08-15 (causa-raiz, complementar ao fix em updateP5()):
@@ -615,6 +623,7 @@ public class GameContext {
         hero.setX(Math.max(30, Math.min(4000 - HeroEntity.HW - 30, hero.getX())));
 
         checkGuardians(false);
+        checkSacredTablet();
         checkSceneryCollisions();
         updateEnemies();
         updateProjectiles();
@@ -637,7 +646,7 @@ public class GameContext {
                     enemies.add(new EnemyEntity(EnemyType.PEIXE,  1500, 768 * .40, 1.8, 50));
                     enemies.add(new EnemyEntity(EnemyType.MEDUSA, 2200, 768 * .60, 2.0, 70));
                 }
-                notifyExitBlocked(1, "Portal selado! Converse com o Guardiao Atlante para obter a Tabuleta!");
+                notifyExitBlocked(1, "Portal selado! Use a Ecolocalização [Q] para revelar e resgatar a Tabuleta!");
             }
         }
     }
@@ -667,6 +676,7 @@ public class GameContext {
         }
 
         checkGuardians(false);
+        checkSacredTablet();
 
         // Baú (B3-FIX: coordenadas de mundo para colisão com baú)
         if (canOpenChest() && inputManager.isInteractPressed()) {
@@ -694,7 +704,7 @@ public class GameContext {
                     enemies.add(new EnemyEntity(EnemyType.ENGUIA,    1400, 768 * .50, 2.0, 60));
                     enemies.add(new EnemyEntity(EnemyType.CARANGUEJO, 2500, 768 * .35, 2.2, 80));
                 }
-                notifyExitBlocked(2, "Portal selado! Converse com o Guardiao nas cavernas para obter a Tabuleta!");
+                notifyExitBlocked(2, "Portal selado! Use a Ecolocalização [Q] para revelar e resgatar a Tabuleta!");
             }
         }
     }
@@ -713,6 +723,7 @@ public class GameContext {
         hero.setX(Math.max(30, Math.min(4000 - HeroEntity.HW - 30, hero.getX())));
 
         checkGuardians(false);
+        checkSacredTablet();
         checkSceneryCollisions();
         updateEnemies();
         updateProjectiles();
@@ -727,7 +738,7 @@ public class GameContext {
                     backtrackingActive = true;
                     enemies.add(new EnemyEntity(EnemyType.ENGUIA, 2000, 768 * .40, 2.2, 80));
                 }
-                notifyExitBlocked(3, "Barreira de Correntes! Converse com o Lamassu Aquatico para obter a Tabuleta!");
+                notifyExitBlocked(3, "Barreira de Correntes! Use a Ecolocalização [Q] para revelar e resgatar a Tabuleta!");
             }
         }
     }
@@ -746,6 +757,7 @@ public class GameContext {
         hero.setX(Math.max(30, Math.min(4000 - HeroEntity.HW - 30, hero.getX())));
 
         checkGuardians(false);
+        checkSacredTablet();
         checkSceneryCollisions();
         updateEnemies();
         updateProjectiles();
@@ -760,7 +772,7 @@ public class GameContext {
                     backtrackingActive = true;
                     enemies.add(new EnemyEntity(EnemyType.ARRAIAO, 1800, 768 * .45, 2.5, 90));
                 }
-                notifyExitBlocked(4, "Selado pelas chamas! Converse com o Oraculo das Correntes para obter a Tabuleta!");
+                notifyExitBlocked(4, "Selado pelas chamas! Use a Ecolocalização [Q] para revelar e resgatar a Tabuleta!");
             }
         }
     }
@@ -998,22 +1010,67 @@ public class GameContext {
                 hero.setLastShotTime(nanoTime);
                 final double finalGx = gx;
                 openOverlay(g.getType(), g.getName(), g.getDialogue(), () -> {
-                    tabletsCollected++;
-                    hero.heal(2.0);
+                    hero.heal(1.0);
                     if (currentPhase == 1) {
                         tutorialController.onGuardianContacted();
                     }
-                    particleSystem.addBurst(finalGx + GuardianEntity.GW/2, g.getWorldY() + GuardianEntity.GH/2, Color.GOLD);
-                    particleSystem.addBurst(finalGx + GuardianEntity.GW/2, g.getWorldY() + GuardianEntity.GH/2, Color.LIMEGREEN);
-                    GameEvent exitFocus = phaseExitIntroductionController.tabletCollected(currentPhase);
-                    if (exitFocus != null) eventBus.publish(exitFocus);
-                    playSound(AudioCue.PICKUP);
-                    showAlert("Tabuleta " + tabletsCollected + "/" + TOTAL_TABLETS + " recebida! +2 de vida restaurada!");
+                    particleSystem.addBurst(finalGx + GuardianEntity.GW/2, g.getWorldY() + GuardianEntity.GH/2, Palette.GOLD);
+                    particleSystem.addBurst(finalGx + GuardianEntity.GW/2, g.getWorldY() + GuardianEntity.GH/2, Palette.RADAR_STROKE);
+                    playSound(AudioCue.MENU_CONFIRM);
+                    showAlert("Pista obtida! Use a Ecolocalização [Q] na área indicada para revelar a Tabuleta!");
                     persistProgress();
                 });
                 break;
             }
         }
+    }
+
+    /** Verifica detecção e coleta física da Tabuleta Sagrada revelada pela Ecolocalização (APSU-G01). */
+    private void checkSacredTablet() {
+        if (sacredTablet == null) return;
+        sacredTablet.update(1.0 / 60.0);
+        if (sacredTablet.isRevealed()) {
+            double tx = sacredTablet.getWorldX();
+            double ty = sacredTablet.getWorldY();
+            if (rectsHit(hero.getX(), hero.getY(), HeroEntity.HW, HeroEntity.HH,
+                         tx - 26, ty - 26, br.apsu.model.environment.SacredTabletEntity.WIDTH, br.apsu.model.environment.SacredTabletEntity.HEIGHT)) {
+                if (sacredTablet.collect()) {
+                    tabletsCollected++;
+                    hero.heal(2.0);
+                    particleSystem.addBurst(camera.toScreenX(tx), ty, Palette.GOLD);
+                    particleSystem.addBurst(camera.toScreenX(tx), ty, Palette.RADAR_STROKE);
+                    particleSystem.addBurst(camera.toScreenX(tx), ty, Palette.HUD_HP_HIGH);
+                    GameEvent exitFocus = phaseExitIntroductionController.tabletCollected(currentPhase);
+                    if (exitFocus != null) eventBus.publish(exitFocus);
+                    playSound(AudioCue.PICKUP);
+                    showAlert("Tabuleta Sagrada (" + tabletsCollected + "/" + TOTAL_TABLETS + ") resgatada! O portal de descida foi liberado!");
+                    persistProgress();
+                }
+            }
+        }
+    }
+
+    public void onTabletRevealed(br.apsu.model.environment.SacredTabletEntity tablet) {
+        particleSystem.addBurst(camera.toScreenX(tablet.getWorldX()), tablet.getWorldY(), Palette.GOLD);
+        particleSystem.addBurst(camera.toScreenX(tablet.getWorldX()), tablet.getWorldY(), Palette.RADAR_STROKE);
+        playSound(AudioCue.PICKUP);
+        showAlert("Ecolocalização revelou a Tabuleta Sagrada! Nade até a relíquia para resgatá-la!");
+    }
+
+    public void revealAndCollectSacredTablet() {
+        if (sacredTablet != null) {
+            sacredTablet.reveal();
+            sacredTablet.collect();
+        }
+        tabletsCollected++;
+        hero.heal(2.0);
+        GameEvent exitFocus = phaseExitIntroductionController.tabletCollected(currentPhase);
+        if (exitFocus != null) eventBus.publish(exitFocus);
+        persistProgress();
+    }
+
+    public br.apsu.model.environment.SacredTabletEntity getSacredTablet() {
+        return sacredTablet;
     }
 
     // =========================================================

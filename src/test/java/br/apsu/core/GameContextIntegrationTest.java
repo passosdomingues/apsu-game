@@ -255,6 +255,7 @@ public class GameContextIntegrationTest {
         for (int i = 0; i < 64 && context.isOverlayActive(); i++) context.advanceOverlay();
 
         assertFalse(context.isOverlayActive());
+        context.revealAndCollectSacredTablet();
         assertEquals(1, context.getTabletsCollected());
         assertTrue(context.getCutsceneController().isActive());
         assertEquals("Saida da Fase 1", context.getCutsceneController().getActiveRequest().label());
@@ -286,6 +287,7 @@ public class GameContextIntegrationTest {
         // Limpa a apresentação de chegada antes de validar o foco da saída.
         context.getCutsceneController().stop();
         for (int frame = 0; frame < 64 && context.isOverlayActive(); frame++) context.advanceOverlay();
+        context.revealAndCollectSacredTablet();
 
         assertEquals(phase, context.getTabletsCollected());
         assertTrue(context.getCutsceneController().isActive(), "A saída deve ser apresentada após a tabuleta");
@@ -799,8 +801,8 @@ public class GameContextIntegrationTest {
         context.getHero().setY(guardian.getWorldY());
         context.getInputManager().registerKeyPress(KeyCode.E);
         context.update(1_000_000_000L);
-        context.onKey(KeyCode.ESCAPE); // fecha diálogo e coleta tabuleta
-
+        context.onKey(KeyCode.ESCAPE); // fecha diálogo
+        context.revealAndCollectSacredTablet(); // coleta tabuleta
         assertEquals(1, context.getTabletsCollected());
         var objAfterTablet = br.apsu.guidance.ObjectiveTracker.resolveCurrentObjective(context);
         assertNotNull(objAfterTablet);

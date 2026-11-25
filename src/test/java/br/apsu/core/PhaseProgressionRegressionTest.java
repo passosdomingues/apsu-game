@@ -58,6 +58,7 @@ class PhaseProgressionRegressionTest {
             for (int i = 0; i < 64 && context.isOverlayActive(); i++) {
                 context.advanceOverlay();
             }
+            context.revealAndCollectSacredTablet();
         }
         assertEquals(expectedTabletsAfter, context.getTabletsCollected(),
             "Deve ter coletado a quantidade esperada de tabuletas");

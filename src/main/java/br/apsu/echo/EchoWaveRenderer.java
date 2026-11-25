@@ -221,6 +221,19 @@ public final class EchoWaveRenderer {
                 sceneryHighlight[i] = HIGHLIGHT_DURATION;
             }
         }
+
+        // Tabuleta Sagrada Oculta revelada por Ecolocalizacao (APSU-G01)
+        br.apsu.model.environment.SacredTabletEntity tablet = ctx.getSacredTablet();
+        if (tablet != null && tablet.isHidden()) {
+            double tx = tablet.getWorldX();
+            double ty = tablet.getWorldY();
+            double dist = distance(originX, originY, tx, ty);
+            if (dist <= waveRadius && dist <= WAVE_RADIUS_MAX) {
+                if (tablet.reveal()) {
+                    ctx.onTabletRevealed(tablet);
+                }
+            }
+        }
     }
 
     private static double distance(double x1, double y1, double x2, double y2) {

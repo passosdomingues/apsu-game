@@ -40,6 +40,12 @@ public final class ObjectiveTracker {
             }
         }
 
+        // Se a tabuleta sagrada foi revelada pela ecolocalizacao, orienta ate ela
+        var tablet = context.getSacredTablet();
+        if (tablet != null && tablet.isRevealed()) {
+            return new Objective(tablet.getWorldX(), tablet.getWorldY(), "Colete a Tabuleta Sagrada");
+        }
+
         // Fase 2: antes de procurar a saída, orienta para o baú no galeão naufragado se fechado
         if (phase == 2 && !context.isChestOpen() && !context.getHero().hasBubblePower()) {
             return new Objective(context.getChestWX(), context.getChestWY(), "Encontre o naufrágio e abra o baú");

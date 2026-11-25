@@ -18,26 +18,26 @@ public class GuardianEntity {
         // Fase 1 — Águas Claras (Enki — Sábio das Águas)
         {
             "Adapa, meu filho. As profundezas de Apsu acordaram em desarmonia.",
-            "Aproxime-se e pressione E para receber a primeira tabuleta sagrada dos Me.",
-            "Recupere as tabuletas e siga pelas ruínas até o portal da próxima câmara."
+            "Aproxime-se e pressione E para ouvir a sabedoria: a primeira tabuleta repousa velada nos recifes.",
+            "Ela está oculta ao olhar comum: emita sua Ecolocalização [Q] para fazer a relíquia ressoar e se revelar."
         },
 
         // Fase 2 — Cavernas de Coral (Enki — Guardião Celestial)
         {
-            "O antigo galeão guarda o legado de Eridu. Abra o baú com E para despertar as bolhas místicas.",
-            "Use as correntes favoráveis e resgate a segunda tabuleta sagrada."
+            "O antigo galeão guarda o legado de Eridu. Abra o baú com E para despertar o poder das bolhas.",
+            "A segunda tabuleta está oculta nas sombras além dos corais. Use a Ecolocalização [Q] para revelar o artefato sagrado."
         },
 
         // Fase 3 — Correntes Abissais (Enki — Eremita Abissal)
         {
-            "Nas trevas abissais, a pressão testa sua determinação. As águas fluem com fúria ancestral.",
-            "Receba a terceira tabuleta sagrada e atravesse as marés traiçoeiras."
+            "Nas trevas, a pressão testa você. As marés sepultaram a terceira tabuleta em uma fenda intermediária da câmara.",
+            "Avance contra as correntes violentas e ative a Ecolocalização [Q] no leito rochoso para revelar o artefato."
         },
 
         // Fase 4 — Abismo Vulcânico (Enki — Guia do Abismo)
         {
-            "As fendas ardentes anunciam a proximidade do Templo Primordial. Desvie do magma implacável.",
-            "Esta é a quarta tabuleta sagrada. Apenas o confronto decisivo resta adiante."
+            "O magma implacável oculta a quarta tabuleta sagrada próximo às chaminés hidrotermais de basalto.",
+            "Fique em altitude segura, ative a Ecolocalização [Q] nos respiradouros e liberte a relíquia antes do portal."
         },
 
         // Fase 5 — Templo Final de Apsu (Enki — Senhor das Profundezas)
@@ -50,12 +50,12 @@ public class GuardianEntity {
     /** Falas de Enki nas vinhetas entre menu/fases; guardiões falam ao encontrá-los na fase. */
     public static final String[][] ENKI_INTRO_DIALOGUES = {
         {
-            "Adapa, o abismo despertou. Encontre os guardiões e recupere as cinco tabuletas sagradas.",
-            "Pressione E perto de cada guardião para interagir e receber a tabuleta."
+            "Adapa, o abismo despertou. Ouça os guardiões e use a Ecolocalização [Q] para revelar as tabuletas ocultas.",
+            "Recupere os Me sagrados para abrir os portais e restaurar o equilíbrio do oceano primordial."
         },
-        {"Explore o galeão naufragado nas cavernas de coral e liberte o poder ancestral."},
-        {"Domine as correntes submarinas das profundezas e alcance o eremita abissal."},
-        {"Desvie do magma vulcânico e busque a última tabuleta sagrada antes do templo."},
+        {"Explore o galeão naufragado nas cavernas de coral, liberte o poder ancestral e use o eco para achar a tabuleta."},
+        {"Domine as correntes submarinas das profundezas e use a ecolocalização nas fendas para encontrar a terceira tabuleta."},
+        {"Desvie do magma vulcânico e sonde as chaminés hidrotermais com ecolocalização para resgatar a quarta tabuleta sagrada."},
         {"Kullullû aguarda no coração do templo. Sobreviva e restaure a harmonia de Apsu."}
     };
 
