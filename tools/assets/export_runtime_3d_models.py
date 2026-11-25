@@ -279,7 +279,7 @@ for root, _dirs, files in os.walk(blend_root):
             "bau_tesouro", "navio_naufragado", "recifes_e_cardume",
             "ruinas_e_colunas", "obstaculo_abissal", "obstaculo_vulcanico",
             "corrente_abissal", "geiser", "portal",
-            "piscina_lava",
+            "piscina_lava", "tabuleta",
         ))
         if not is_character and not is_scenery:
             continue

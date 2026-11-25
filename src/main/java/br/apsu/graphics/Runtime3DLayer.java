@@ -217,12 +217,15 @@ public final class Runtime3DLayer {
             }
         }
 
-        // Tabuleta Sagrada 3D flutuando no ponto de revelação da fase (APSU-G01)
+        // Tabuleta Sagrada 3D flutuando no ponto de revelação da fase (APSU-G01 & APSU-A03)
         br.apsu.model.environment.SacredTabletEntity tablet = context.getSacredTablet();
         if (tablet != null && tablet.isRevealed()) {
             double screenTabX = context.getCamera().toScreenX(tablet.getWorldX());
             double screenTabY = tablet.getWorldY() + Math.sin(timeSeconds * 3.5) * 8.0;
-            Actor tabletActor = actor("sacred-tablet-" + tablet.getPhase(), "scenery/tabuleta_sagrada_3d", 80, 80);
+            String model = (tablet.getPhase() % 2 == 0)
+                ? "scenery/tabuleta_sagrada_2_3d"
+                : "scenery/tabuleta_sagrada_3d";
+            Actor tabletActor = actor("sacred-tablet-" + tablet.getPhase(), model, 85, 85);
             if (tabletActor != null) {
                 tabletActor.bodyMotion.setAngle(timeSeconds * 40.0);
                 place(tabletActor, screenTabX, screenTabY, 0.4 * tablet.getRevealProgress(), timeSeconds, timeSeconds * 25.0);

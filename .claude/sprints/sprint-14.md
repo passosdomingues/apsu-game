@@ -33,31 +33,33 @@ A inspeção visual automatizada revelou os pontos exatos que justificam as dema
   - [x] Corrigir espaçamento de métricas no `UIRenderer.drawHUD` (0,5 h)
   - [x] Validar captura visual sem oclusão de texto (1 h)
 
-### APSU-G01 | Tabuleta Sagrada Oculta e Revelação por Ecolocalização | 5 pts | Rafa / Marcos
+### APSU-G01 | Tabuleta Sagrada Oculta e Revelação por Ecolocalização | 5 pts | Rafa / Marcos [x]
 - **Contexto:** A tabuleta sagrada não deve ser entregue pelo Enki. O Enki deve passar a pista geográfica/mitológica no diálogo, a tabuleta fica invisível no mapa e só se revela quando a onda da tecla Q (Ecolocalização) a atinge.
+- **Entregue em:** commit `35cb4cf`
 - **Critérios de aceite:**
-  - AC1: Enki não entrega a tabuleta ao pressionar 'E'. Seu diálogo é enriquecido com a pista geográfica de onde o artefato repousa na respectiva fase.
-  - AC2: Criação de entidade `SacredTabletEntity` com estados `HIDDEN` (invisível, sem colisão), `REVEALED` (visível com glow pulsante e aura mística) e `COLLECTED`.
-  - AC3: A frente de onda de `EchoWaveRenderer` (ao acionar Q) detecta a posição da tabuleta oculta; ao atingi-la, dispara som de revelação mística, partículas e transiciona o estado para `REVEALED`.
-  - AC4: A coleta ocorre quando o herói nada até a tabuleta revelada, abrindo o portal de saída da fase.
-  - AC5: Testes de unidade em `SacredTabletTest` cobrindo o fluxo completo.
+  - [x] AC1: Enki não entrega a tabuleta ao pressionar 'E'. Seu diálogo é enriquecido com a pista geográfica de onde o artefato repousa na respectiva fase.
+  - [x] AC2: Criação de entidade `SacredTabletEntity` com estados `HIDDEN` (invisível, sem colisão), `REVEALED` (visível com glow pulsante e aura mística) e `COLLECTED`.
+  - [x] AC3: A frente de onda de `EchoWaveRenderer` (ao acionar Q) detecta a posição da tabuleta oculta; ao atingi-la, dispara som de revelação mística, partículas e transiciona o estado para `REVEALED`.
+  - [x] AC4: A coleta ocorre quando o herói nada até a tabuleta revelada, abrindo o portal de saída da fase.
+  - [x] AC5: Testes de unidade em `SacredTabletTest` cobrindo o fluxo completo.
 - **Tarefas:**
-  - [ ] Criar `SacredTabletEntity` com estados e coordenadas por fase (P1 a P4) (2 h)
-  - [ ] Atualizar falas de Enki com as pistas geográficas autênticas (1 h)
-  - [ ] Integrar colisão da onda do sonar com a tabuleta em `EchoWaveRenderer` (1,5 h)
-  - [ ] Implementar coleta física pelo herói e abertura do portal (1,5 h)
-  - [ ] Escrever testes automatizados de unidade e integração (1 h)
+  - [x] Criar `SacredTabletEntity` com estados e coordenadas por fase (P1 a P4) (2 h)
+  - [x] Atualizar falas de Enki com as pistas geográficas autênticas (1 h)
+  - [x] Integrar colisão da onda do sonar com a tabuleta em `EchoWaveRenderer` (1,5 h)
+  - [x] Implementar coleta física pelo herói e abertura do portal (1,5 h)
+  - [x] Escrever testes automatizados de unidade e integração (1 h)
 
-### APSU-A03 | Pipeline e Integração da Nova Tabuleta 2 (3D) | 3 pts | Wagner / Marcos
+### APSU-A03 | Pipeline e Integração da Nova Tabuleta 2 (3D) | 3 pts | Wagner / Marcos [x]
 - **Contexto:** Novo modelo 3D `tools/personagens/blends/12_elementos/tabuleta_2.blend` disponível para ser a malha oficial da tabuleta oculta revelada.
+- **Entregue em:** commit APSU-A03
 - **Critérios de aceite:**
-  - AC1: Modelo `tabuleta_2.blend` exportado para OBJ/MTL em `src/main/resources/models/scenery/tabuleta_sagrada_2_3d/`.
-  - AC2: Carregamento no `ObjModelLoader` com material e texturas adequados.
-  - AC3: Renderização da malha 3D flutuando no ponto de revelação da fase via `Runtime3DLayer`.
+  - [x] AC1: Modelo `tabuleta_2.blend` exportado para OBJ/MTL em `src/main/resources/models/scenery/tabuleta_sagrada_2_3d/`.
+  - [x] AC2: Carregamento no `ObjModelLoader` com material e texturas adequados.
+  - [x] AC3: Renderização da malha 3D flutuando no ponto de revelação da fase via `Runtime3DLayer`.
 - **Tarefas:**
-  - [ ] Exportar `tabuleta_2.blend` via script Blender headless para OBJ/MTL (1 h)
-  - [ ] Ajustar escalas, pivôs e MTL para o padrão do jogo (1 h)
-  - [ ] Conectar o nó 3D na `Runtime3DLayer` vinculado à entidade da tabuleta (1 h)
+  - [x] Exportar `tabuleta_2.blend` via script Blender headless para OBJ/MTL (1 h)
+  - [x] Ajustar escalas, pivôs e MTL para o padrão do jogo (1 h)
+  - [x] Conectar o nó 3D na `Runtime3DLayer` vinculado à entidade da tabuleta (1 h)
 
 ### APSU-U03 | Renomeação para Ecolocalização e Tutorial Orgânico | 3 pts | Rafa
 - **Contexto:** O minimapa utiliza o termo anacrônico "RADAR", e o tutorial textual precisa de dicas orgânicas sobre como e quando usar a Ecolocalização.

@@ -38,6 +38,15 @@ class ObjModelLoaderTest {
     }
 
     @Test
+    void loadsTabuletaSagrada2Model() throws Exception {
+        ObjModelLoader.Model model = ObjModelLoader.load("scenery/tabuleta_sagrada_2_3d", 85, 85);
+        assertNotNull(model);
+        assertFalse(model.node().getChildren().isEmpty(), "tabuleta_sagrada_2_3d deve conter meshes filhos");
+        assertTrue(model.width() > 0 && model.width() <= 85.001);
+        assertTrue(model.height() > 0 && model.height() <= 85.001);
+    }
+
+    @Test
     void centersBlenderDepthOriginSoPerspectiveDoesNotDisplaceModels() throws Exception {
         ObjModelLoader.Model ship = ObjModelLoader.load("scenery/07_navio_naufragado_elemento-cenario",
             620, 360, (material, path) -> {});
