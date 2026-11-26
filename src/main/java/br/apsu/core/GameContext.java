@@ -491,7 +491,6 @@ public class GameContext {
         sceneryElements.add(new SceneryElement(SceneryElement.Type.LAVA_POOL, 3100, 768 - 100, 420, 100));
 
         // 2 rochas vulcânicas como portais de passagem estreita (desafio PONTUAL)
-        sceneryElements.add(new SceneryElement(SceneryElement.Type.VOLCANIC_ROCK, 900,  0,      85, 260));
         sceneryElements.add(new SceneryElement(SceneryElement.Type.VOLCANIC_ROCK, 2200, 768 - 280, 85, 280));
 
         // 2 obstáculos móveis com amplitude controlada (não 3 sobrepostos)

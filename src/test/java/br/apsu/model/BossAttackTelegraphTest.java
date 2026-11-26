@@ -164,7 +164,7 @@ public class BossAttackTelegraphTest {
         assertTrue(boss.isAttackTelegraphing(1_000_000_000L));
 
         // Boss sofre dano e muda para FUSAO_VULCANICA
-        boss.takeDamage(3);
+        boss.takeDamage(5);
         assertTrue(boss.updateCombatPhase(1_200_000_000L));
         assertEquals(CombatPhase.FUSAO_VULCANICA, boss.getCombatPhase());
 
