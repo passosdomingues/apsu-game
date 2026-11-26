@@ -443,8 +443,9 @@ public class RenderEngine implements GameRenderer {
         drawPhaseBackground(gc, ctx, width, height, 3, 0.35);
 
         // === REDESIGN 2026-08-20: BOLHAS ASCENDENTES DE FUNDO EM CAMADAS ===
-        // 12 bolhas (era 18) sem strokeOval por frame — preenchimento simples.
-        for (int bi = 0; bi < 12; bi++) {
+        // Reduzido para 6 bolhas em modo reducedEffects para preservar performance
+        int bubbleCount = reducedEffects ? 6 : 12;
+        for (int bi = 0; bi < bubbleCount; bi++) {
             double bProgress = ((timeSeconds * (0.06 + (bi % 5) * 0.014) + bi * 0.072) % 1.0);
             double bx = (bi * 83 + Math.sin(timeSeconds * 0.4 + bi) * 28 + width * 0.7) % width;
             double by = height - bProgress * (height + 60);

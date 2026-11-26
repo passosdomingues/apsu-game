@@ -29,6 +29,7 @@ public class LightingEngine {
         for (int i = 0; i < bands; i++) {
             double sx = 60 + i * 220 + Math.sin(timeSeconds * 0.3 + i) * 22;
             double wave = Math.sin(timeSeconds * 0.5 + i * 0.7) * 15;
+            if (sx + 280 < 0 || sx + wave > width) continue;
             causticX[0] = sx + wave;
             causticX[1] = sx + 60 + wave;
             causticX[2] = sx + 280;

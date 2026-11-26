@@ -37,7 +37,17 @@
 
 ---
 
+### APSU-P17C | Correção do Herói do Menu Principal e Zero-Alloc no Minimap
+- **Remoção de `menu-hero` fora do menu:** Adicionado descarte e ocultação explícita do nó 3D do herói do menu (`menu-hero`) assim que o jogo entra em qualquer fase (`state != MENU`), eliminando o artefato de modelo duplicado suspenso na direita da tela.
+- **Isolamento de Herói em `onPhaseTransition`:** Purga preserva estritamente `hero-swim` e `hero-attack`, garantindo que nós do menu sejam limpos.
+- **Zero-Alloc no Minimap (`UIRenderer`):** Substituído `new double[]` por buffers reutilizáveis (`minimapHeroX`, `minimapHeroY`), eliminando a última alocação por frame do HUD.
+- **Desativação de Projéteis 3D no Modo Híbrido:** `Runtime3DLayer` agora respeita `secondaryElementsDisabled` também para projéteis 3D (`bolha_3d` e `bola_de_lava_3d`).
+- **Otimizações de Cáusticas e Bolhas (`LightingEngine`, `RenderEngine`):** Cáusticas fora da viewport são descartadas antes de chamar `fillPolygon`; bolhas da Fase 3 reduzidas pela metade no modo econômico (`reducedEffects`).
+
+---
+
 ## Testes e Validação
 
 - Testes: **212/212 testes verdes** (incluindo `ViewportCullingTest` e `Runtime3DLayerTest`).
 - Build: `BUILD SUCCESS` (0 failures, 0 errors).
+- Screenshots atualizados em `.claude/capturas/inspecao/`.

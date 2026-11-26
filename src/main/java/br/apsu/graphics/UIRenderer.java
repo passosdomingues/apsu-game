@@ -23,6 +23,8 @@ import java.util.List;
 public class UIRenderer {
     private final br.apsu.guidance.ObjectiveArrow objectiveArrow = new br.apsu.guidance.ObjectiveArrow();
     private final StringBuilder wrapLineBuffer = new StringBuilder(128);
+    private final double[] minimapHeroX = new double[3];
+    private final double[] minimapHeroY = new double[3];
 
     private double keysHintAlpha = 1.0;
     private boolean keysMovementConfirmed = false;
@@ -272,8 +274,9 @@ public class UIRenderer {
 
         gc.setFill(context.getHero().getType().getAura());
         double heroX = worldToMapX(context.getHero().getX(), worldWidth, mapX, mapW);
-        gc.fillPolygon(new double[]{heroX - 4, heroX + 4, heroX},
-                       new double[]{mapY + mapH / 2 + 5, mapY + mapH / 2 + 5, mapY + mapH / 2 - 5}, 3);
+        minimapHeroX[0] = heroX - 4; minimapHeroX[1] = heroX + 4; minimapHeroX[2] = heroX;
+        minimapHeroY[0] = mapY + mapH / 2 + 5; minimapHeroY[1] = mapY + mapH / 2 + 5; minimapHeroY[2] = mapY + mapH / 2 - 5;
+        gc.fillPolygon(minimapHeroX, minimapHeroY, 3);
     }
 
     public boolean isEnemyVisibleOnMinimap(int enemyIndex, GameContext context) {

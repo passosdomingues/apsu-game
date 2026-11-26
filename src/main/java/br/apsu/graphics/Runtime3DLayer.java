@@ -140,6 +140,13 @@ public final class Runtime3DLayer {
             if (hero != null) place(hero, VIEW_W * 0.82, 255, 0.0, timeSeconds, 0);
             finishVisibleActors();
             return;
+        } else {
+            // Garante que o herói do menu principal nunca apareça ou permaneça nas fases do jogo
+            Actor menuHero = actorsById.remove("menu-hero");
+            if (menuHero != null && menuHero.node != null) {
+                menuHero.node.setVisible(false);
+                actors.getChildren().remove(menuHero.node);
+            }
         }
         if (state.ordinal() < GameContext.State.P1.ordinal() || state.ordinal() > GameContext.State.P5.ordinal()) {
             finishVisibleActors();
@@ -242,26 +249,28 @@ public final class Runtime3DLayer {
         // Projéteis 3D (bolhas do herói e projéteis inimigos/bolas de lava - APSU-A01)
         int bubbleIdx = 0;
         int malignIdx = 0;
-        for (br.apsu.model.environment.Projectile p : context.getProjectiles()) {
-            double px = p.getInterpolatedX(alpha);
-            double py = p.getInterpolatedY(alpha);
-            double screenX = (state == GameContext.State.P5 || p.isArena())
-                ? px : context.getCamera().toScreenX(px, alpha);
-            if (insideViewport(screenX, 48)) {
-                if (p.getType() == br.apsu.model.environment.Projectile.Type.HERO_BUBBLE) {
-                    String bId = "hero-bubble-" + (bubbleIdx++);
-                    Actor bubble = actor(bId, "scenery/bolha_3d", 38, 38);
-                    if (bubble != null) {
-                        bubble.bodyMotion.setAngle(timeSeconds * 50.0);
-                        place(bubble, screenX, py, 0.25, timeSeconds, 0);
-                    }
-                } else if (p.getType() == br.apsu.model.environment.Projectile.Type.ENEMY_MALIGN) {
-                    // APSU-A01: Malha 3D bola_de_lava_3d com rotação contínua e brilho ígneo
-                    String mId = "enemy-malign-" + (malignIdx++);
-                    Actor lavaBall = actor(mId, "scenery/bola_de_lava_3d", 42, 42);
-                    if (lavaBall != null) {
-                        lavaBall.bodyMotion.setAngle(timeSeconds * 75.0);
-                        place(lavaBall, screenX, py, 0.35, timeSeconds, timeSeconds * 60.0);
+        if (!secondaryElementsDisabled) {
+            for (br.apsu.model.environment.Projectile p : context.getProjectiles()) {
+                double px = p.getInterpolatedX(alpha);
+                double py = p.getInterpolatedY(alpha);
+                double screenX = (state == GameContext.State.P5 || p.isArena())
+                    ? px : context.getCamera().toScreenX(px, alpha);
+                if (insideViewport(screenX, 48)) {
+                    if (p.getType() == br.apsu.model.environment.Projectile.Type.HERO_BUBBLE) {
+                        String bId = "hero-bubble-" + (bubbleIdx++);
+                        Actor bubble = actor(bId, "scenery/bolha_3d", 38, 38);
+                        if (bubble != null) {
+                            bubble.bodyMotion.setAngle(timeSeconds * 50.0);
+                            place(bubble, screenX, py, 0.25, timeSeconds, 0);
+                        }
+                    } else if (p.getType() == br.apsu.model.environment.Projectile.Type.ENEMY_MALIGN) {
+                        // APSU-A01: Malha 3D bola_de_lava_3d com rotação contínua e brilho ígneo
+                        String mId = "enemy-malign-" + (malignIdx++);
+                        Actor lavaBall = actor(mId, "scenery/bola_de_lava_3d", 42, 42);
+                        if (lavaBall != null) {
+                            lavaBall.bodyMotion.setAngle(timeSeconds * 75.0);
+                            place(lavaBall, screenX, py, 0.35, timeSeconds, timeSeconds * 60.0);
+                        }
                     }
                 }
             }
@@ -450,7 +459,8 @@ public final class Runtime3DLayer {
             Map.Entry<String, Actor> entry = it.next();
             String id = entry.getKey();
             Actor actor = entry.getValue();
-            if (!id.contains("hero")) {
+            boolean isGameplayHero = "hero-swim".equals(id) || "hero-attack".equals(id) || "hero".equals(id);
+            if (!isGameplayHero) {
                 if (actor.node != null) {
                     actor.node.setVisible(false);
                     scenery.getChildren().remove(actor.node);
@@ -459,7 +469,15 @@ public final class Runtime3DLayer {
                 it.remove();
             }
         }
-        visibleActors.clear();
+        for (Actor actor : visibleActors) {
+            if (actor != null && actor.node != null) {
+                boolean isGameplayHero = "hero-swim".equals(actor.modelName) || "hero-attack".equals(actor.modelName) || actor.modelName.contains("adapa");
+                if (!isGameplayHero || actor.node.getTranslateX() >= VIEW_W * 0.8) {
+                    actor.node.setVisible(false);
+                }
+            }
+        }
+        visibleActors.removeIf(a -> !actorsById.containsValue(a));
         nextVisibleActors.clear();
     }
 
