@@ -59,8 +59,10 @@ apsu-game
 | `↑ ↓ ← →` ou `W A S D` | Mover Adapa |
 | `Espaço` | Disparar bolha |
 | `Q` | **Ecolocalização** — sonar que revela tabuletas ocultas |
-| `E` | Falar com Enki (guardião) |
-| `ESC` | Pular tutorial |
+| `E` | Falar com Enki (guardião) / Interagir |
+| `M` | Alternar disparo: Bolha Única ↔ Rajada Tripla |
+| `R` | Reiniciar fase / partida |
+| `ESC` | Pular tutorial / Menu |
 | `Enter` | Avançar diálogo |
 
 **Dica:** Fale com Enki em cada fase. Ele revela onde usar `[Q]` para encontrar a Tabuleta Sagrada!
@@ -76,20 +78,6 @@ apsu-game
 | 3 | Correntes Abissais | Correntes fortes · tabuleta em fenda rochosa |
 | 4 | Abismo Vulcânico | Lava · gêiseres · sub-boss Leviatã |
 | 5 | Templo de Apsu | Boss final: Kullullû |
-
----
-
-## 📦 Novidades (Sprint 14–16)
-
-- ✅ Tabuleta revelada **exclusivamente** pela Ecolocalização `[Q]` — sem entrega de bandeja
-- ✅ Enki dá pista específica por fase sobre onde usar o sonar
-- ✅ Diálogos de Enki sempre à frente dos modelos 3D (sem oclusão)
-- ✅ Minimap: RADAR → **ECOLOCALIZAÇÃO**
-- ✅ Fase 5 (boss): fundo azul-abissal profundo
-- ✅ Fase 4: vulcão flutuante removido · 6 corais enfileirados no chão de lava
-- ✅ Boss Kullullû com +70% de vida (combate mais intenso)
-- ✅ Tutorial visual com pílulas de tecla `[Q]` `[E]` `[↓]`
-- ✅ 208 testes automatizados verdes · 60 FPS estável
 
 ---
 

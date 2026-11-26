@@ -206,7 +206,10 @@ jobs:
           path.write_bytes(path.read_text().replace('\r\n', '\n').replace('\n', '\r\n').encode())
           PY
           base_url="https://github.com/${GITHUB_REPOSITORY}/releases/download/${RELEASE_TAG}"
-          cat > dist/release-notes.md <<EOF
+          if [ -f release_notes.md ]; then
+            cp release_notes.md dist/release-notes.md
+          else
+            cat > dist/release-notes.md <<EOF
           # As Águas de Apsu
 
           Atravesse cinco regiões submersas inspiradas na mitologia suméria. Como Adapa, recupere tabuletas antigas, desperte o poder das bolhas e enfrente Kullullû nas profundezas do Templo de Apsu.
@@ -230,6 +233,7 @@ jobs:
 
           Cada instalador e JAR tem um arquivo SHA-256 ao lado. O pacote de código-fonte inclui SHA-512 para preservar uma versão identificável do código.
           EOF
+          fi
 
       - name: Create or update GitHub release
         env:
