@@ -1,62 +1,54 @@
 # As Águas de Apsu — v20261125-213629
 
-> **Jogo de ação subaquático** com mitologia suméria, mecânicas de Ecolocalização e batalha contra Kullullû, o guardião do abismo.
+> Jogo de ação subaquático com mitologia suméria, mecânicas de Ecolocalização e batalha contra Kullullû.
 
 ---
 
-## 🎮 Como Jogar (Instruções por Sistema Operacional)
+## 📥 Downloads — Escolha seu sistema
 
-### ✅ Requisito único: Java 21 instalado
+| Sistema | Arquivo | Tamanho | Java necessário? |
+|---|---|---|---|
+| 🪟 **Windows** (64-bit) | `apsu-game-...-windows-x64.exe` | ~396 MB | ❌ Não — JRE embutido |
+| 🐧 **Linux** (Ubuntu/Debian 64-bit) | `apsu-game-...-linux-x64.deb` | ~400 MB | ❌ Não — JRE embutido |
+| 🍎 **macOS Apple Silicon** (M1/M2/M3) | `apsu-game-...-macos-arm64.dmg` | ~426 MB | ❌ Não — JRE embutido |
+| 🍎 **macOS Intel** (x64) | `apsu-game-...-macos-x64.dmg` | ~429 MB | ❌ Não — JRE embutido |
+| ☕ **Qualquer sistema** (JAR leve) | `apsu-game-...-linux-x64.jar` | ~15 MB | ✅ Sim — Java 21 |
 
-Verifique se já tem:
-```
-java -version
-```
-Deve aparecer `openjdk 21` ou `java version "21"`. Se não tiver, instale primeiro:
-
-| Sistema | Link para instalar Java 21 |
-|---|---|
-| Windows | https://adoptium.net/temurin/releases/?version=21 |
-| macOS | https://adoptium.net/temurin/releases/?version=21 |
-| Linux (Ubuntu/Debian) | `sudo apt install openjdk-21-jdk` |
-| Linux (Fedora/RHEL) | `sudo dnf install java-21-openjdk` |
+> Cada instalador inclui o Java 21 embutido — **baixe e jogue, sem configuração.**
 
 ---
 
-### 🪟 Windows
+## 🪟 Windows — `.exe`
 
-1. Baixe o arquivo `apsu-game-20261125-213629-jar-with-dependencies.jar`
-2. Clique duas vezes no arquivo — se abrir, pronto!
-3. Se não abrir com clique duplo, use o Prompt de Comando:
-```bat
-java -jar apsu-game-20261125-213629-jar-with-dependencies.jar
-```
+1. Baixe `apsu-game-v20261125-213629-windows-x64.exe`
+2. Clique duas vezes para instalar
+3. Abra pelo menu Iniciar: **As Águas de Apsu**
 
-> Dica: Crie um atalho na área de trabalho clicando com botão direito → Novo atalho → `java -jar "C:\caminho\apsu-game-20261125-213629-jar-with-dependencies.jar"`
+> Se o Windows Defender alertar: clique em **"Mais informações" → "Executar mesmo assim"**
 
 ---
 
-### 🍎 macOS
+## 🐧 Linux — `.deb` (Ubuntu, Debian, Mint, Pop!_OS)
 
-1. Baixe o arquivo `apsu-game-20261125-213629-jar-with-dependencies.jar`
-2. Abra o Terminal e execute:
 ```bash
-java -jar ~/Downloads/apsu-game-20261125-213629-jar-with-dependencies.jar
+sudo dpkg -i apsu-game-v20261125-213629-linux-x64.deb
+apsu-game
 ```
 
-> Se aparecer aviso de segurança: Preferências do Sistema → Privacidade e Segurança → clique em "Abrir mesmo assim"
+> Para desinstalar: `sudo apt remove apsu-game`
 
 ---
 
-### 🐧 Linux
+## 🍎 macOS — `.dmg`
 
-1. Baixe o arquivo `apsu-game-20261125-213629-jar-with-dependencies.jar`
-2. No terminal:
-```bash
-java -jar apsu-game-20261125-213629-jar-with-dependencies.jar
-```
+- **Apple Silicon (M1/M2/M3):** baixe o arquivo `macos-arm64.dmg`
+- **Intel:** baixe o arquivo `macos-x64.dmg`
 
-> Se não iniciar graficamente, verifique se tem um display: `echo $DISPLAY` deve mostrar `:0` ou similar.
+1. Clique duas vezes no `.dmg`
+2. Arraste **As Águas de Apsu** para a pasta Aplicativos
+3. Abra pelo Launchpad
+
+> Se aparecer aviso: **Preferências do Sistema → Privacidade e Segurança → Abrir mesmo assim**
 
 ---
 
@@ -66,44 +58,51 @@ java -jar apsu-game-20261125-213629-jar-with-dependencies.jar
 |---|---|
 | `↑ ↓ ← →` ou `W A S D` | Mover Adapa |
 | `Espaço` | Disparar bolha |
-| `Q` | **Ecolocalização** — emite onda sonora para revelar tabuletas ocultas |
-| `E` | Interagir com Enki (guardião) |
-| `ESC` | Pular tutorial / Pausar |
-| `Enter` | Confirmar / Avançar diálogo |
+| `Q` | **Ecolocalização** — sonar que revela tabuletas ocultas |
+| `E` | Falar com Enki (guardião) |
+| `ESC` | Pular tutorial |
+| `Enter` | Avançar diálogo |
+
+**Dica:** Fale com Enki em cada fase. Ele revela onde usar `[Q]` para encontrar a Tabuleta Sagrada!
 
 ---
 
-## 🗺️ O Jogo
+## 🗺️ Fases
 
-**4 fases + 1 arena de boss:**
-
-| Fase | Ambiente | Desafio |
+| # | Ambiente | Desafio |
 |---|---|---|
-| 1 — Águas Claras | Recife costeiro | Tutorial de movimento e Ecolocalização |
-| 2 — Cavernas de Coral | Naufrágio profundo | Desbloqueio das bolhas no baú ancestral |
-| 3 — Correntes Abissais | Planície abissal | Correntes que arrastam + tabuleta em fenda |
-| 4 — Abismo Vulcânico | Chaminés hidrotermais | Lava, gêiseres e sub-boss Leviatã |
-| 5 — Templo de Apsu | Arena do boss | Kullullû — guardião das profundezas |
-
-**Dica:** Fale com Enki em cada fase — ele dá a pista de onde a Tabuleta Sagrada está escondida. Use `Q` no lugar certo para revelá-la!
+| 1 | Águas Claras (recife costeiro) | Tutorial — primeira tabuleta oculta nos recifes |
+| 2 | Cavernas de Coral (naufrágio) | Baú ancestral desbloqueia as bolhas |
+| 3 | Correntes Abissais | Correntes fortes · tabuleta em fenda rochosa |
+| 4 | Abismo Vulcânico | Lava · gêiseres · sub-boss Leviatã |
+| 5 | Templo de Apsu | Boss final: Kullullû |
 
 ---
 
-## 📦 O que mudou nesta versão (Sprint 14-16)
+## 📦 Novidades (Sprint 14–16)
 
-- ✅ Tabuleta Sagrada oculta revelada **exclusivamente** pela Ecolocalização `[Q]`
-- ✅ Enki dá pistas específicas por fase sobre onde usar o sonar
-- ✅ Diálogos de Enki na frente de tudo — sem oclusão por modelos 3D
-- ✅ Minimap renomeado de RADAR → ECOLOCALIZAÇÃO
-- ✅ Novo modelo 3D da segunda Tabuleta Sagrada integrado
-- ✅ Fundo da Fase 5 (boss) → azul-abissal profundo
-- ✅ Vulcão flutuante removido da Fase 4
-- ✅ 6 corais enfileirados no chão de lava da Fase 4
-- ✅ Boss Kullullû com mais vida (+70%) para combate mais intenso
-- ✅ Tutorial visual com pílulas de tecla `[Q]`, `[E]`, `[↓]`
-- ✅ 208 testes automatizados verdes | 60 FPS estável
+- ✅ Tabuleta revelada **exclusivamente** pela Ecolocalização `[Q]` — sem entrega de bandeja
+- ✅ Enki dá pista específica por fase sobre onde usar o sonar
+- ✅ Diálogos de Enki sempre à frente dos modelos 3D (sem oclusão)
+- ✅ Minimap: RADAR → **ECOLOCALIZAÇÃO**
+- ✅ Fase 5 (boss): fundo azul-abissal profundo
+- ✅ Fase 4: vulcão flutuante removido · 6 corais enfileirados no chão de lava
+- ✅ Boss Kullullû com +70% de vida (combate mais intenso)
+- ✅ Tutorial visual com pílulas de tecla `[Q]` `[E]` `[↓]`
+- ✅ 208 testes automatizados verdes · 60 FPS estável
 
 ---
 
-*Engine: Java 21 + JavaFX 21 | Render híbrido 2D/3D*  
+## 🔐 Verificação de integridade
+
+Cada arquivo tem um `.sha256` correspondente para verificar autenticidade:
+
+```bash
+# Linux / macOS
+sha256sum -c apsu-game-v20261125-213629-linux-x64.deb.sha256
+```
+
+---
+
+*Engine: Java 21 + JavaFX 21 · Render híbrido 2D/3D*  
 *Repositório: https://github.com/passosdomingues/apsu-game*
