@@ -508,9 +508,14 @@ public class GameContext {
         sceneryElements.add(new SceneryElement(SceneryElement.Type.GEYSER, 2000, 768 - 200, 80, 200));
         sceneryElements.add(new SceneryElement(SceneryElement.Type.GEYSER, 3500, 768 - 200, 80, 200));
 
-        // Formações basálticas e corais vulcânicos no leito da Fase 4 (APSU-A02)
-        sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, 720,  768 - 170, 100, 170));
+        // Formações basálticas e corais vulcânicos enfileirados no leito da Fase 4 (APSU-A16)
+        // 6 corais distribuídos ao longo do chão de lava para cobertura orgânica contínua
+        sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL,  420, 768 - 150,  90, 150));
+        sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL,  720, 768 - 190, 105, 190));
+        sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, 1150, 768 - 165,  95, 165));
+        sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, 1850, 768 - 180, 100, 180));
         sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, 2480, 768 - 200, 120, 200));
+        sceneryElements.add(new SceneryElement(SceneryElement.Type.CORAL, 3200, 768 - 170, 100, 170));
 
         currentPhase = 4;
         sacredTablet = new br.apsu.model.environment.SacredTabletEntity(4, 2750.0, 560.0);

@@ -727,13 +727,14 @@ public class RenderEngine implements GameRenderer {
     private void drawAlert(GraphicsContext gc, GameContext ctx, double width, double height) {
         if (ctx.isOverlayActive()) return; // AC3: Ocultar alertas enquanto diálogo estiver aberto
         String msg = ctx.getAlertMessage();
-        if (msg.isEmpty() && ctx.getState() == GameContext.State.P1
-                && ctx.getTutorialController() != null && ctx.getTutorialController().isActive()) {
+        boolean isTutorialHint = msg.isEmpty()
+                && ctx.getState() == GameContext.State.P1
+                && ctx.getTutorialController() != null && ctx.getTutorialController().isActive();
+        if (isTutorialHint) {
             msg = ctx.getTutorialController().getCurrentInstruction();
         }
         if (msg == null || msg.isEmpty()) return;
 
-        boolean isTutorialHint = ctx.getAlertMessage().isEmpty();
         double alpha = 1.0;
         if (!isTutorialHint) {
             long el = ctx.getNanoTime() - ctx.getAlertTime();
@@ -741,14 +742,69 @@ public class RenderEngine implements GameRenderer {
             alpha = Math.min(1.0, (3_800_000_000L - el) / 700_000_000.0);
         }
 
-        gc.setFill(Palette.rgb(0, 6, 20, alpha * 0.92));
-        gc.fillRoundRect(width / 2.0 - 410, height - 98, 820, 66, 14, 14);
-        gc.setStroke(Palette.GOLD); gc.setLineWidth(1.5);
-        gc.strokeRoundRect(width / 2.0 - 410, height - 98, 820, 66, 14, 14);
-        gc.setFill(Palette.rgb(255, 215, 0, alpha));
-        gc.setFont(UiFonts.ALERT_18);
-        gc.setTextAlign(TextAlignment.CENTER);
-        gc.fillText(msg, width / 2.0, height - 60);
+        if (isTutorialHint) {
+            // Tutorial: pill estilo imersivo no canto inferior esquerdo com ícone de tecla destacado
+            drawTutorialPill(gc, msg, alpha, width, height);
+        } else {
+            // Alerta de fase: banner central padrão
+            gc.setFill(Palette.rgb(0, 6, 20, alpha * 0.92));
+            gc.fillRoundRect(width / 2.0 - 410, height - 98, 820, 66, 14, 14);
+            gc.setStroke(Palette.GOLD); gc.setLineWidth(1.5);
+            gc.strokeRoundRect(width / 2.0 - 410, height - 98, 820, 66, 14, 14);
+            gc.setFill(Palette.rgb(255, 215, 0, alpha));
+            gc.setFont(UiFonts.ALERT_18);
+            gc.setTextAlign(TextAlignment.CENTER);
+            gc.fillText(msg, width / 2.0, height - 60);
+        }
+    }
+
+    /**
+     * Renderiza dica de tutorial como pílula discreta no canto inferior esquerdo.
+     * Formato esperado do msg: "[KEY] Descrição curta da ação"
+     * A parte [KEY] é renderizada como pílula dourada, o resto em branco.
+     */
+    private void drawTutorialPill(GraphicsContext gc, String msg, double alpha, double width, double height) {
+        // Extrai [KEY] do início da string
+        String keyLabel = "";
+        String description = msg;
+        if (msg.startsWith("[") && msg.contains("]")) {
+            int end = msg.indexOf(']');
+            keyLabel = msg.substring(1, end);
+            description = msg.substring(end + 1).trim();
+        }
+
+        double pillX = 24, pillY = height - 72;
+        double keyW = keyLabel.isEmpty() ? 0 : (keyLabel.length() * 10.0 + 20);
+        double textW = description.length() * 9.0 + 20;
+        double totalW = keyW + (keyW > 0 ? 10 : 0) + textW;
+        double pillH = 42;
+
+        // Fundo da pílula
+        gc.setGlobalAlpha(alpha * 0.90);
+        gc.setFill(Palette.rgb(5, 10, 30, 0.95));
+        gc.fillRoundRect(pillX, pillY, totalW, pillH, 12, 12);
+        gc.setStroke(Palette.rgb(255, 215, 0, 0.60)); gc.setLineWidth(1.5);
+        gc.strokeRoundRect(pillX, pillY, totalW, pillH, 12, 12);
+
+        double textY = pillY + pillH / 2.0 + 6;
+
+        if (!keyLabel.isEmpty()) {
+            // Pílula de tecla: dourada
+            gc.setFill(Palette.rgb(255, 215, 0, 0.95));
+            gc.fillRoundRect(pillX + 8, pillY + 7, keyW - 4, pillH - 14, 6, 6);
+            gc.setFill(Palette.rgb(5, 10, 30, 1.0));
+            gc.setFont(UiFonts.HINT_BOLD_13);
+            gc.setTextAlign(TextAlignment.LEFT);
+            gc.fillText(keyLabel, pillX + 8 + (keyW - 4) / 2.0 - keyLabel.length() * 4.5, textY);
+        }
+
+        // Descrição em branco
+        gc.setFill(Palette.rgb(230, 235, 255, 0.95));
+        gc.setFont(UiFonts.TEXT_19);
+        gc.setTextAlign(TextAlignment.LEFT);
+        gc.fillText(description, pillX + keyW + (keyW > 0 ? 10 : 8), textY);
+
+        gc.setGlobalAlpha(1.0);
     }
 
     private void drawEnd(GraphicsContext gc, GameContext ctx, double width, double height, boolean win) {
