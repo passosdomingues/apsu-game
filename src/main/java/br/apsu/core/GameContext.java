@@ -1236,12 +1236,15 @@ public class GameContext {
             double vx = (right ? 1 : -1) * 16.0 * hero.getType().getPwr();
             // isArena=false para P1-P4 (mundo com scroll), true para P5
             boolean isArena = (state == State.P5);
+            // APSU-B02: No modo Difícil, bolhas do herói causam 0.8 de dano (redução de 20%)
+            // prolongando o combate, especialmente contra Kullullû (boss com 7-9 HP)
+            double bubbleDamage = (difficulty == Difficulty.DIFICIL) ? 0.8 : 1.0;
             if (hero.isMultipleShotMode()) {
-                projectiles.add(new Projectile(Projectile.Type.HERO_BUBBLE, bx, by, vx, -2.2, 1.0, isArena));
-                projectiles.add(new Projectile(Projectile.Type.HERO_BUBBLE, bx, by, vx, 0, 1.0, isArena));
-                projectiles.add(new Projectile(Projectile.Type.HERO_BUBBLE, bx, by, vx, 2.2, 1.0, isArena));
+                projectiles.add(new Projectile(Projectile.Type.HERO_BUBBLE, bx, by, vx, -2.2, bubbleDamage, isArena));
+                projectiles.add(new Projectile(Projectile.Type.HERO_BUBBLE, bx, by, vx, 0, bubbleDamage, isArena));
+                projectiles.add(new Projectile(Projectile.Type.HERO_BUBBLE, bx, by, vx, 2.2, bubbleDamage, isArena));
             } else {
-                projectiles.add(new Projectile(Projectile.Type.HERO_BUBBLE, bx, by, vx, 0, 1.0, isArena));
+                projectiles.add(new Projectile(Projectile.Type.HERO_BUBBLE, bx, by, vx, 0, bubbleDamage, isArena));
             }
             playSound(AudioCue.ATTACK);
         } else {

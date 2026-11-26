@@ -73,16 +73,17 @@ A inspeção visual automatizada revelou os pontos exatos que justificam as dema
   - [x] Revisar referências em `TutorialStep`, `EchoController` e testes (1 h)
   - [x] Implementar sinalização sutil de recarga/prontidão do sonar (1 h)
 
-### APSU-B02 | Depuração do Fundo Vulcânico e Calibração de Dano Difícil | 3 pts | Marcos
+### APSU-B02 | Depuração do Fundo Vulcânico e Calibração de Dano Difícil | 3 pts | Marcos [x]
 - **Contexto:** O relevo de fundo da Fase 4 apresenta colunas/vulcão desconexo, e o combate no modo Difícil precisa de maior tensão tática reduzindo o dano excessivo das bolhas.
+- **Entregue em:** commit APSU-B02
 - **Critérios de aceite:**
-  - AC1: Background da Fase 4 harmonizado, com tons profundos de magma e abismo, removendo a rocha flutuante esquisita.
-  - AC2: Dano das bolhas básicas do herói no modo Difícil calibrado para 0.8 (ou redução balanceada de 20%), prolongando o clímax da luta com Kullullû.
-  - AC3: `DifficultyTest` e `BossEntityTest` atualizados e verdes.
+  - [x] AC1: Background da Fase 4 harmonizado, com tons profundos de magma e abismo, removendo a rocha flutuante esquisita.
+  - [x] AC2: Dano das bolhas básicas do herói no modo Difícil calibrado para 0.8 (redução de 20%), prolongando o clímax da luta com Kullullû.
+  - [x] AC3: `DifficultyTest` e `BossEntityTest` atualizados e verdes.
 - **Tarefas:**
-  - [ ] Revisar assets e gradientes de fundo da Fase 4 em `RenderEngine` (1 h)
-  - [ ] Calibrar dano de bolha em `Difficulty` e `Projectile` (1 h)
-  - [ ] Validar testes de combate (0,5 h)
+  - [x] Revisar assets e gradientes de fundo da Fase 4 em `RenderEngine` (1 h)
+  - [x] Calibrar dano de bolha em `Difficulty` e `Projectile` (1 h)
+  - [x] Validar testes de combate (0,5 h)
 
 ### APSU-P02 | Sprint Gate e Verificação Visual Automatizada | 2 pts | Marcos
 - **Contexto:** Garantir 100% de testes verdes, re-executar a ferramenta de captura visual para certificar a eliminação de todas as oclusões e rodar `perf_gate.py`.
