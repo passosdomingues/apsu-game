@@ -201,6 +201,7 @@ public class GameContext {
                 } else if (k == KeyCode.M && hero.hasBubblePower()) {
                     hero.toggleMultipleShotMode();
                     playSound(AudioCue.MENU_CONFIRM);
+                    showAlert(hero.isMultipleShotMode() ? "Modo de Ataque: Rajada Tripla [M]" : "Modo de Ataque: Bolha Única [M]");
                 } else if (k == KeyCode.Q) {
                     if (echoController.trigger()) {
                         eventBus.publish(new GameEvent(

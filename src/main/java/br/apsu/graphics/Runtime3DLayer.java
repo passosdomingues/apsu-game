@@ -159,7 +159,7 @@ public final class Runtime3DLayer {
         } else if (context.getCurrentPhase() != 2) {
             p2ModelsRequested = false;
         }
-        if (context.getCurrentPhase() == 4) {
+        if (context.getCurrentPhase() == 4 || context.getCurrentPhase() == 5) {
             requestModel("scenery/bola_de_lava_3d");
         }
 
@@ -246,16 +246,17 @@ public final class Runtime3DLayer {
             }
         }
 
-        // Projéteis 3D (bolhas do herói e projéteis inimigos/bolas de lava - APSU-A01)
+        // Projéteis 3D (bolhas do herói e projéteis inimigos/bolas de lava - APSU-A01 & APSU-B18A)
         int bubbleIdx = 0;
         int malignIdx = 0;
+        int bossBulletIdx = 0;
         if (!secondaryElementsDisabled) {
             for (br.apsu.model.environment.Projectile p : context.getProjectiles()) {
                 double px = p.getInterpolatedX(alpha);
                 double py = p.getInterpolatedY(alpha);
                 double screenX = (state == GameContext.State.P5 || p.isArena())
                     ? px : context.getCamera().toScreenX(px, alpha);
-                if (insideViewport(screenX, 48)) {
+                if (insideViewport(screenX, 56)) {
                     if (p.getType() == br.apsu.model.environment.Projectile.Type.HERO_BUBBLE) {
                         String bId = "hero-bubble-" + (bubbleIdx++);
                         Actor bubble = actor(bId, "scenery/bolha_3d", 38, 38);
@@ -270,6 +271,14 @@ public final class Runtime3DLayer {
                         if (lavaBall != null) {
                             lavaBall.bodyMotion.setAngle(timeSeconds * 75.0);
                             place(lavaBall, screenX, py, 0.35, timeSeconds, timeSeconds * 60.0);
+                        }
+                    } else if (p.getType() == br.apsu.model.environment.Projectile.Type.BOSS_BULLET) {
+                        // APSU-B18A: Boss Kullullû (P5) dispara projéteis com a malha 3D bola_de_lava_3d
+                        String bbId = "boss-bullet-" + (bossBulletIdx++);
+                        Actor bossLava = actor(bbId, "scenery/bola_de_lava_3d", 54, 54);
+                        if (bossLava != null) {
+                            bossLava.bodyMotion.setAngle(timeSeconds * 90.0);
+                            place(bossLava, screenX, py, 0.45, timeSeconds, timeSeconds * 80.0);
                         }
                     }
                 }
@@ -492,7 +501,7 @@ public final class Runtime3DLayer {
         if (actorId.equals("boss")) return palette.boss();
         if (actorId.equals("chest") || actorId.equals("phase-descent")
             || actorId.startsWith("guardian-") || actorId.equals("phase-intro-enki")
-            || actorId.startsWith("enemy-malign-")) return palette.accent();
+            || actorId.startsWith("enemy-malign-") || actorId.startsWith("boss-bullet-")) return palette.accent();
         if (actorId.startsWith("enemy-")) return palette.enemy();
         if (actorId.contains("hero")) return palette.character();
         return palette.prop();

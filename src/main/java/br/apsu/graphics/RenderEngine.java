@@ -34,6 +34,7 @@ public class RenderEngine implements GameRenderer {
     private final LightingEngine lightingEngine = new LightingEngine();
     private final UIRenderer uiRenderer = new UIRenderer();
     private final BossTelegraphRenderer bossTelegraphRenderer = new BossTelegraphRenderer();
+    private final VirtualKeyboardOverlay keyboardOverlay = new VirtualKeyboardOverlay();
     private final Image[][] phaseBackgroundLayers = new Image[5][3];
     private final Image[] legacyPhaseBackgrounds = new Image[5];
     private final boolean[] legacyPhaseBackgroundLoaded = new boolean[5];
@@ -60,6 +61,12 @@ public class RenderEngine implements GameRenderer {
     private static final Color HERO_BUBBLE_TRAIL = Color.rgb(150, 225, 245, 0.35);
     private static final Color ENEMY_BULLET_FILL = Color.web("#ff2a4b");
     private static final Color ENEMY_BULLET_HALO = Color.rgb(255, 80, 80, 0.4);
+    // Projéteis de Lava (APSU-B18A: Inimigos e Boss Kullullû)
+    private static final Color LAVA_AURA = Color.rgb(255, 60, 0, 0.35);
+    private static final Color LAVA_OUTER = Color.rgb(230, 45, 10, 0.95);
+    private static final Color LAVA_CORE = Color.rgb(255, 215, 80, 1.0);
+    private static final Color LAVA_HOTSPOT = Color.rgb(255, 255, 230, 0.95);
+    private static final Color LAVA_TRAIL = Color.rgb(255, 120, 20, 0.45);
     private static final LinearGradient SEAFLOOR_GRADIENT = new LinearGradient(0, 730, 0, 768,
         false, CycleMethod.NO_CYCLE,
         new Stop(0, Color.rgb(10, 45, 22, 0)), new Stop(1, Color.rgb(10, 45, 22, 0.95)));
@@ -147,6 +154,14 @@ public class RenderEngine implements GameRenderer {
                 uiRenderer.drawEchoPrompt(targetUi, ctx, width, height, t);
             }
         }
+
+        GameContext.State state = ctx.getState();
+        if (state == GameContext.State.P1 || state == GameContext.State.P2
+            || state == GameContext.State.P3 || state == GameContext.State.P4
+            || state == GameContext.State.P5) {
+            keyboardOverlay.renderGameplayOverlay(targetUi, ctx.getInputManager(),
+                ctx.getTutorialController(), ctx, width, height, t);
+        }
     }
 
     private GraphicsContext targetUi(GraphicsContext fallback) {
@@ -179,6 +194,9 @@ public class RenderEngine implements GameRenderer {
         gc.setFont(UiFonts.SUBTITLE_22);
         gc.setFill(Palette.BLUE_SUBTITLE);
         gc.fillText("A Lenda dos Apkallu", width / 2.0, 150);
+
+        // APSU-U18B / APSU-U18C: Painel interativo de tutorial e demonstração com teclado virtual
+        keyboardOverlay.renderMenuShowcase(gc, 36, 175, 345, 490, timeSeconds);
 
         // A malha 3D de Adapa aparece na camada sincronizada ao Canvas.
         HeroType hero = ctx.getHeroType();
@@ -727,11 +745,33 @@ public class RenderEngine implements GameRenderer {
                 gc.strokeOval(screenX - 8, screenY - 8, 16, 16);
                 gc.setFill(HERO_BUBBLE_HIGHLIGHT);
                 gc.fillOval(screenX - 5, screenY - 5, 5, 5); // highlight
+            } else if (p.getType() == Projectile.Type.BOSS_BULLET) {
+                // APSU-B18A: Projétil vulcânico do Boss Kullullû (esfera colossal de lava incandescente)
+                double direction = Math.signum(p.getVx());
+                gc.setFill(LAVA_TRAIL);
+                gc.fillOval(screenX - direction * 16 - 5, screenY + 2, 10, 10);
+                gc.fillOval(screenX - direction * 30 - 3, screenY - 4, 6, 6);
+                gc.setFill(LAVA_AURA);
+                gc.fillOval(screenX - 18, screenY - 18, 36, 36);
+                gc.setFill(LAVA_OUTER);
+                gc.fillOval(screenX - 12, screenY - 12, 24, 24);
+                gc.setFill(LAVA_CORE);
+                gc.fillOval(screenX - 7, screenY - 7, 14, 14);
+                gc.setFill(LAVA_HOTSPOT);
+                gc.fillOval(screenX - 3, screenY - 3, 6, 6);
             } else {
-                gc.setFill(ENEMY_BULLET_FILL);
-                gc.fillOval(screenX - 6, screenY - 6, 12, 12);
+                // ENEMY_MALIGN: Projétil de lava incandescente dos inimigos
+                double direction = Math.signum(p.getVx());
+                gc.setFill(LAVA_TRAIL);
+                gc.fillOval(screenX - direction * 12 - 2, screenY + 2, 5, 5);
                 gc.setFill(ENEMY_BULLET_HALO);
-                gc.fillOval(screenX - 10, screenY - 10, 20, 20); // halo
+                gc.fillOval(screenX - 11, screenY - 11, 22, 22);
+                gc.setFill(LAVA_OUTER);
+                gc.fillOval(screenX - 8, screenY - 8, 16, 16);
+                gc.setFill(LAVA_CORE);
+                gc.fillOval(screenX - 4, screenY - 4, 8, 8);
+                gc.setFill(LAVA_HOTSPOT);
+                gc.fillOval(screenX - 2, screenY - 2, 4, 4);
             }
         }
     }

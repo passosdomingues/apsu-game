@@ -43,6 +43,7 @@ class Runtime3DLayerTest {
         Color enemyP3 = Runtime3DLayer.paletteTint(3, "enemy-0");
         Color accentP1 = Runtime3DLayer.paletteTint(1, "chest");
         Color malignP4 = Runtime3DLayer.paletteTint(4, "enemy-malign-0");
+        Color bossBulletP5 = Runtime3DLayer.paletteTint(5, "boss-bullet-0");
 
         assertNotNull(heroP1);
         assertNotNull(heroP2);
@@ -50,8 +51,11 @@ class Runtime3DLayerTest {
         assertNotNull(enemyP3);
         assertNotNull(accentP1);
         assertNotNull(malignP4);
+        assertNotNull(bossBulletP5);
         assertEquals(Runtime3DLayer.paletteTint(4, "chest"), malignP4,
             "Projéteis malignos devem utilizar o acento ígneo (accent)");
+        assertEquals(Runtime3DLayer.paletteTint(5, "chest"), bossBulletP5,
+            "Projéteis do boss devem utilizar o acento da paleta (accent)");
 
         // Fases diferentes produzem tons diferentes
         assertNotEquals(heroP1, heroP2, "Heroi deve ter tint diferente entre fases 1 e 2");

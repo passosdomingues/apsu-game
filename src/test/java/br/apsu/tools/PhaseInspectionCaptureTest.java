@@ -165,12 +165,13 @@ public class PhaseInspectionCaptureTest {
                 advance(context, renderer, gc, uiGc, 20);
                 saveNode(root, canvas, "10_fase_4_projeteis_lava_3d.png");
 
-                // 11. Fase 5: Templo de Apsu e Boss Kullullû com Telegraph
+                // 11. Fase 5: Templo de Apsu e Boss Kullullû com Telegraph e Bolas de Lava 3D
                 context.startP5();
                 advance(context, renderer, gc, uiGc, 60);
                 if (context.getBoss() != null) {
                     context.getBoss().takeDamage(3); // Ativa Fusão Vulcânica / Fase 2
                 }
+                context.getProjectiles().add(new Projectile(Projectile.Type.BOSS_BULLET, 1100, 380, -4.5, 0, 1.5, true));
                 advance(context, renderer, gc, uiGc, 40);
                 saveNode(root, canvas, "11_fase_5_boss_kullullu.png");
 

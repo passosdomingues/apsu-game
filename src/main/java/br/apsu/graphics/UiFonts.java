@@ -34,4 +34,7 @@ public final class UiFonts {
     public static final Font RADAR_BOLD_10 = Font.font("Serif", FontWeight.BOLD, 10);
     public static final Font TEXT_10 = Font.font("Serif", 10);
     public static final Font DAMAGE_BOLD_9 = Font.font("Serif", FontWeight.BOLD, 9);
+    public static final Font KEY_LABEL_11 = Font.font("SansSerif", FontWeight.BOLD, 11);
+    public static final Font KEY_SUB_8 = Font.font("SansSerif", FontWeight.BOLD, 8);
+    public static final Font KEY_SPACE_10 = Font.font("SansSerif", FontWeight.BOLD, 10);
 }
