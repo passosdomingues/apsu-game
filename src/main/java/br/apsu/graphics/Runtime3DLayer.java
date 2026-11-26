@@ -124,7 +124,11 @@ public final class Runtime3DLayer {
         if (!view.isVisible()) view.setVisible(true);
         for (Actor cached : visibleActors) cached.usedThisFrame = false;
         nextVisibleActors.clear();
-        activePhase = context.getCurrentPhase();
+        int newPhase = context.getCurrentPhase();
+        if (newPhase != activePhase) {
+            onPhaseTransition(newPhase);
+            activePhase = newPhase;
+        }
         GameContext.State state = context.getState();
         if (state == GameContext.State.MENU) {
             if (!actors.isVisible()) actors.setVisible(true);
@@ -221,14 +225,17 @@ public final class Runtime3DLayer {
         br.apsu.model.environment.SacredTabletEntity tablet = context.getSacredTablet();
         if (tablet != null && tablet.isRevealed()) {
             double screenTabX = context.getCamera().toScreenX(tablet.getWorldX());
-            double screenTabY = tablet.getWorldY() + Math.sin(timeSeconds * 3.5) * 8.0;
-            String model = (tablet.getPhase() % 2 == 0)
-                ? "scenery/tabuleta_sagrada_2_3d"
-                : "scenery/tabuleta_sagrada_3d";
-            Actor tabletActor = actor("sacred-tablet-" + tablet.getPhase(), model, 85, 85);
-            if (tabletActor != null) {
-                tabletActor.bodyMotion.setAngle(timeSeconds * 40.0);
-                place(tabletActor, screenTabX, screenTabY, 0.4 * tablet.getRevealProgress(), timeSeconds, timeSeconds * 25.0);
+            // APSU-P17: culling — só renderiza tabuleta 3D se visível na viewport
+            if (insideViewport(screenTabX, 85)) {
+                double screenTabY = tablet.getWorldY() + Math.sin(timeSeconds * 3.5) * 8.0;
+                String model = (tablet.getPhase() % 2 == 0)
+                    ? "scenery/tabuleta_sagrada_2_3d"
+                    : "scenery/tabuleta_sagrada_3d";
+                Actor tabletActor = actor("sacred-tablet-" + tablet.getPhase(), model, 85, 85);
+                if (tabletActor != null) {
+                    tabletActor.bodyMotion.setAngle(timeSeconds * 40.0);
+                    place(tabletActor, screenTabX, screenTabY, 0.4 * tablet.getRevealProgress(), timeSeconds, timeSeconds * 25.0);
+                }
             }
         }
 
@@ -431,6 +438,30 @@ public final class Runtime3DLayer {
     Group getActorNode(String id) { Actor a = actorsById.get(id); return a != null ? a.node : null; }
     Color getActorTint(String id) { Actor a = actorsById.get(id); return a != null ? a.tint : null; }
     void setActivePhase(int phase) { this.activePhase = phase; }
+
+    /**
+     * APSU-P17: Purga nós 3D transitórios ao trocar de fase (cenários, inimigos, projéteis).
+     * Evita acúmulo de MeshViews invisíveis no Scene Graph do JavaFX, garantindo
+     * que cada fase renderize em tempo real apenas o que o jogador vê.
+     */
+    void onPhaseTransition(int newPhase) {
+        java.util.Iterator<Map.Entry<String, Actor>> it = actorsById.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<String, Actor> entry = it.next();
+            String id = entry.getKey();
+            Actor actor = entry.getValue();
+            if (!id.contains("hero")) {
+                if (actor.node != null) {
+                    actor.node.setVisible(false);
+                    scenery.getChildren().remove(actor.node);
+                    actors.getChildren().remove(actor.node);
+                }
+                it.remove();
+            }
+        }
+        visibleActors.clear();
+        nextVisibleActors.clear();
+    }
 
     private int contextPhase() {
         return Math.max(1, Math.min(5, activePhase));

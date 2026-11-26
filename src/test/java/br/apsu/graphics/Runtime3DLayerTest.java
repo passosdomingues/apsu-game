@@ -100,4 +100,23 @@ class Runtime3DLayerTest {
         Color tint2 = layer.getActorTint("hero");
         assertNotEquals(tint1, tint2, "O tint do Actor deve ter sido atualizado");
     }
+
+    @Test
+    @DisplayName("onPhaseTransition purga atores transientes de cenario e inimigos mas preserva heroi")
+    void phaseTransitionPurgesTransientActors() {
+        Runtime3DLayer layer = new Runtime3DLayer();
+        layer.setActivePhase(1);
+
+        Runtime3DLayer.Actor hero = layer.actor("hero", "characters/01_adapa_heroi", 112, 210);
+        Runtime3DLayer.Actor enemy = layer.actor("enemy-0", "characters/peixe", 60, 40);
+
+        layer.onPhaseTransition(2);
+
+        // Herói preservado
+        if (hero != null) {
+            assertNotNull(layer.getActor("hero"), "Herói deve ser mantido entre fases");
+        }
+        // Inimigo transitório purgado
+        assertNull(layer.getActor("enemy-0"), "Inimigo transiente deve ser purgado na troca de fase");
+    }
 }

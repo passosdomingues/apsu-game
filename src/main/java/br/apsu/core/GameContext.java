@@ -344,6 +344,7 @@ public class GameContext {
     public void startP1() {
         boss = null;
         enemies.clear(); projectiles.clear(); guardians.clear(); sceneryElements.clear();
+        particleSystem.clear(); echoWaveRenderer.reset();
         camera.setX(0); hero.beginPhaseAt(100, 768 / 2.0);
         double spd = 1.0;
         double gX = (difficulty == Difficulty.DIFICIL) ? 400 : 900;
@@ -381,6 +382,7 @@ public class GameContext {
     public void startP2() {
         boss = null;
         enemies.clear(); projectiles.clear(); guardians.clear(); sceneryElements.clear();
+        particleSystem.clear(); echoWaveRenderer.reset();
         camera.setX(0); hero.beginPhaseAt(100, 768 / 2.0);
         double spd = 1.0;
 
@@ -422,6 +424,7 @@ public class GameContext {
     public void startP3() {
         boss = null;
         enemies.clear(); projectiles.clear(); guardians.clear(); sceneryElements.clear();
+        particleSystem.clear(); echoWaveRenderer.reset();
         camera.setX(0); hero.beginPhaseAt(100, 768 / 2.0);
         double spd = 1.0;
 
@@ -469,6 +472,7 @@ public class GameContext {
     public void startP4() {
         boss = null;
         enemies.clear(); projectiles.clear(); guardians.clear(); sceneryElements.clear();
+        particleSystem.clear(); echoWaveRenderer.reset();
         camera.setX(0); hero.beginPhaseAt(100, 768 / 2.0);
         double spd = 1.0;
 
@@ -531,6 +535,7 @@ public class GameContext {
         boss = null;
         sacredTablet = null;
         enemies.clear(); projectiles.clear(); guardians.clear(); sceneryElements.clear();
+        particleSystem.clear(); echoWaveRenderer.reset();
         // Fase 5 é a arena do boss — herói entra pela esquerda, boss à direita
         // BUGFIX 2026-08-15 (causa-raiz, complementar ao fix em updateP5()):
         // P5 nunca chama camera.update() — é arena fixa, hero/boss.getX() são
@@ -926,7 +931,12 @@ public class GameContext {
 
     /** Colisões com obstáculos do cenário (mundo com câmera). */
     private void checkSceneryCollisions() {
+        double heroX = hero.getX();
         for (SceneryElement elem : sceneryElements) {
+            // APSU-P17: culling espacial — ignora obstáculos fora da vizinhança imediata do herói
+            if (elem.getWorldX() + elem.getWidth() < heroX - 200 || elem.getWorldX() > heroX + HeroEntity.HW + 200) {
+                continue;
+            }
             switch (elem.getType()) {
                 case GEYSER -> {
                     if (!hero.isInvulnerable() && heroHitsHazard(elem, 16, 24)) {
@@ -1086,22 +1096,33 @@ public class GameContext {
         // hero bubble is active. Leaving it empty between shots disabled hits.
         enemyQuadTree.clear();
 
+        // APSU-P17: culling de viewport — inimigos muito distantes só fazem
+        // sinusóide Y (posição) mas não disparam. Mantém quadtree completa para colisão.
+        final double CULL_MARGIN = 900.0; // px além da borda da tela
+        final double camX = camera.getX();
+        final double viewRight = camX + 1366.0;
+
         for (EnemyEntity e : enemies) {
             if (!e.isAlive()) continue;
             e.update(t, getThreatMultiplier());
             enemyQuadTree.insert(e);
+
+            // Disparo: apenas inimigos visíveis (já existia ex > 0 && ex < 1366).
+            // Física cara (IA de disparo) ignorada se muito longe — sem mudança de comportamento visível.
+            double ex = e.getWorldX();
+            if (ex < camX - CULL_MARGIN || ex > viewRight + CULL_MARGIN) continue;
 
             if (difficulty.canEnemiesShoot()) {
                 if (e.getLastShotTime() == 0) {
                     e.setLastShotTime(nanoTime);
                     continue;
                 }
-                double ex = camera.toScreenX(e.getWorldX());
+                double screenEx = camera.toScreenX(ex);
                 double heroScreenX = camera.toScreenX(hero.getX());
                 long shootCooldown = difficulty.getEnemyShootIntervalNanos();
-                if (ex > 0 && ex < 1366 && (nanoTime - e.getLastShotTime()) > shootCooldown) {
+                if (screenEx > 0 && screenEx < 1366 && (nanoTime - e.getLastShotTime()) > shootCooldown) {
                     e.setLastShotTime(nanoTime);
-                    double dx = heroScreenX + HeroEntity.HW/2 - ex;
+                    double dx = heroScreenX + HeroEntity.HW/2 - screenEx;
                     double dy = hero.getY() + HeroEntity.HH/2 - e.getCurrentY();
                     double len = Math.sqrt(dx*dx + dy*dy);
                     if (len > 0) {

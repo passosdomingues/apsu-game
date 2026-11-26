@@ -125,6 +125,8 @@ public class ParticleSystem {
     public void render(GraphicsContext gc) {
         for (int i = 0; i < aliveCount; i++) {
             Particle p = pool[i];
+            // APSU-P17: culling de viewport — partícula fora da tela não é desenhada
+            if (p.x < -16 || p.x > 1382 || p.y < -16 || p.y > 784) continue;
             int alpha = (int) Math.round(p.alpha * (ALPHA_STEPS - 1));
             if (alpha <= 0) continue;
             if (alpha >= ALPHA_STEPS) alpha = ALPHA_STEPS - 1;

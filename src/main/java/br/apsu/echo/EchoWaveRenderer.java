@@ -268,6 +268,8 @@ public final class EchoWaveRenderer {
             if (guardianHighlight[i] <= 0.0) continue;
             GuardianEntity g = guardians.get(i);
             double sx = ctx.getCamera().toScreenX(g.getWorldX());
+            // APSU-P17: culling — ignora elemento fora da tela
+            if (sx + GuardianEntity.GW < -20 || sx > width + 20) continue;
             double sy = g.getWorldY();
             double alpha = Math.min(1.0, guardianHighlight[i] / HIGHLIGHT_DURATION);
 
@@ -285,8 +287,10 @@ public final class EchoWaveRenderer {
             EnemyEntity e = enemies.get(i);
             if (!e.isAlive()) continue;
             double sx = ctx.getCamera().toScreenX(e.getWorldX());
-            double sy = e.getCurrentY();
             double ew = e.getType() != null ? e.getType().getWidth() : 60.0;
+            // APSU-P17: culling — ignora inimigo fora da tela
+            if (sx + ew < -20 || sx > width + 20) continue;
+            double sy = e.getCurrentY();
             double eh = e.getType() != null ? e.getType().getHeight() : 40.0;
             double alpha = Math.min(1.0, enemyHighlight[i] / HIGHLIGHT_DURATION);
 
@@ -300,13 +304,15 @@ public final class EchoWaveRenderer {
         BossEntity boss = ctx.getBoss();
         if (boss != null && !boss.isDead() && bossHighlight > 0.0) {
             double sx = ctx.getCamera().toScreenX(boss.getX());
-            double sy = boss.getY();
-            double alpha = Math.min(1.0, bossHighlight / HIGHLIGHT_DURATION);
+            if (sx + BossEntity.BW >= -20 && sx <= width + 20) {
+                double sy = boss.getY();
+                double alpha = Math.min(1.0, bossHighlight / HIGHLIGHT_DURATION);
 
-            gc.setGlobalAlpha(alpha * 0.85);
-            gc.setStroke(COLOR_ENEMY);
-            gc.setLineWidth(4.0);
-            gc.strokeOval(sx - 6, sy - 6, BossEntity.BW + 12, BossEntity.BH + 12);
+                gc.setGlobalAlpha(alpha * 0.85);
+                gc.setStroke(COLOR_ENEMY);
+                gc.setLineWidth(4.0);
+                gc.strokeOval(sx - 6, sy - 6, BossEntity.BW + 12, BossEntity.BH + 12);
+            }
         }
 
         // Obstaculos fixos (branco)
@@ -316,6 +322,8 @@ public final class EchoWaveRenderer {
             if (sceneryHighlight[i] <= 0.0) continue;
             SceneryElement s = scenery.get(i);
             double sx = ctx.getCamera().toScreenX(s.getWorldX());
+            // APSU-P17: culling — ignora elemento de cenário fora da tela
+            if (sx + s.getWidth() < -20 || sx > width + 20) continue;
             double sy = s.getWorldY();
             double alpha = Math.min(1.0, sceneryHighlight[i] / HIGHLIGHT_DURATION);
 
@@ -332,6 +340,9 @@ public final class EchoWaveRenderer {
         double screenX = ctx.getCamera().toScreenX(originX);
         double screenY = originY;
         double r = waveRadius;
+
+        // APSU-P17: culling — se o anel está completamente fora da tela, pula o traçado
+        if (screenX + r < -20 || screenX - r > width + 20 || screenY + r < -20 || screenY - r > height + 20) return;
 
         double progress = Math.min(1.0, waveTimer / WAVE_DURATION);
         double alpha = (1.0 - progress * 0.5) * 0.7;

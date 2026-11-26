@@ -641,6 +641,8 @@ public class RenderEngine implements GameRenderer {
         br.apsu.model.environment.SacredTabletEntity tablet = ctx.getSacredTablet();
         if (tablet != null && tablet.isRevealed()) {
             double sx = ctx.getCamera().toScreenX(tablet.getWorldX());
+            // APSU-P17: culling — ignora tabuleta fora da tela
+            if (sx < -80 || sx > 1446) return;
             double sy = tablet.getWorldY() + Math.sin(timeSeconds * 3.5) * 8.0;
             lightingEngine.drawTabletGlow(gc, sx, sy, 36.0, timeSeconds);
             gc.save();
@@ -661,6 +663,9 @@ public class RenderEngine implements GameRenderer {
     }
 
     private void drawGuardian(GraphicsContext gc, GameContext ctx, GuardianEntity guardian, double x, double y, boolean prompt, double timeSeconds) {
+        // APSU-P17: culling — guardião completamente fora da tela não é desenhado
+        if (x + GuardianEntity.GW < -80 || x > 1446) return;
+
         lightingEngine.drawBioluminescentHalo(gc, x + GuardianEntity.GW / 2, y + GuardianEntity.GH / 2,
             GuardianEntity.GW * 0.9 * guardian.getScaleEnki(), Palette.GUARDIAN_HALO);
         drawShadow(gc, x + GuardianEntity.GW / 2, y + GuardianEntity.GH - 4, GuardianEntity.GW * 0.7 * guardian.getScaleEnki(), 16);
@@ -686,6 +691,8 @@ public class RenderEngine implements GameRenderer {
 
     /** O texto instrui a descida; a ruína que marca a rota é uma malha 3D. */
     private void drawPhaseExit(GraphicsContext gc, double worldX, boolean unlocked) {
+        // APSU-P17: culling — ignora portal de descida fora da tela
+        if (worldX < -200 || worldX > 1566) return;
         Color signal = unlocked ? Palette.EXIT_UNLOCKED : Palette.EXIT_LOCKED;
         gc.setFont(UiFonts.TEXT_BOLD_11);
         gc.setTextAlign(TextAlignment.CENTER);
@@ -693,7 +700,8 @@ public class RenderEngine implements GameRenderer {
         gc.fillText(unlocked ? "DESCIDA LIBERADA" : "RUÍNAS ANTIGAS", worldX, 520);
     }
 
-    /** B3-FIX: projéteis renderizados convertendo coordenadas de mundo para tela com interpolação. */
+    /** B3-FIX: projéteis renderizados convertendo coordenadas de mundo para tela com interpolação.
+     *  APSU-P17: culling de viewport — só desenha projéteis dentro dos limites da tela. */
     private void drawProjectiles(GraphicsContext gc, GameContext ctx) {
         boolean isP5 = (ctx.getState() == GameContext.State.P5);
         double alpha = ctx.getRenderAlpha();
@@ -703,6 +711,9 @@ public class RenderEngine implements GameRenderer {
             double py = p.getInterpolatedY(alpha);
             double screenX = (isP5 || p.isArena()) ? px : ctx.getCamera().toScreenX(px, alpha);
             double screenY = py;
+
+            // APSU-P17: culling — projétil completamente fora da tela não é desenhado
+            if (screenX < -32 || screenX > 1398 || screenY < -32 || screenY > 800) continue;
 
             if (p.getType() == Projectile.Type.HERO_BUBBLE) {
                 double direction = Math.signum(p.getVx());
