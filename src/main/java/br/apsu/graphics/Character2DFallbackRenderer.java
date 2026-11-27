@@ -76,7 +76,7 @@ public final class Character2DFallbackRenderer {
      */
     public static void renderEnemy(GraphicsContext gc, EnemyEntity enemy,
                                   double screenX, double y) {
-        if (enemy == null || !enemy.isAlive()) return;
+        if (enemy == null || (!enemy.isAlive() && !enemy.isDying())) return;
         String spritePath = enemy.getType().getStaticSprite();
         Image img = SpriteManager.getInstance().getImage(spritePath);
         if (img == null) return;

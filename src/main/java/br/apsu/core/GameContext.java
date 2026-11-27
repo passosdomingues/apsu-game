@@ -338,6 +338,7 @@ public class GameContext {
     public void reset() {
         hero.setMaxHP(difficulty.getInitialHP());
         hero.heal(difficulty.getInitialHP());
+        hero.resetDying();
         hero.setHasBubblePower(false);
         hero.resetPosition(100, 768 / 2.0 - HeroEntity.HH / 2.0);
         tabletsCollected = 0;
@@ -428,6 +429,7 @@ public class GameContext {
         if (state == State.P5) publishBossMusic(false);
         int target = (currentPhase >= 1 && currentPhase <= 5) ? currentPhase : (phaseDone > 0 ? Math.min(5, phaseDone + 1) : 1);
         hero.heal(difficulty.getInitialHP());
+        hero.resetDying();
         camera.clearShake();
         if (target >= 2) {
             hero.setHasBubblePower(true);
@@ -698,6 +700,19 @@ public class GameContext {
 
         hero.checkInvulnerability(nanoTime);
         particleSystem.update();
+
+        if (hero.isDying()) {
+            hero.updateDeath(1.0 / 60.0);
+            if (Math.random() < 0.25) {
+                double screenX = (state == State.P5) ? hero.getX() : camera.toScreenX(hero.getX());
+                particleSystem.addBurst(screenX + HeroEntity.HW / 2, hero.getY() + HeroEntity.HH / 2, Color.CYAN);
+            }
+            if (hero.getDeathProgress() >= 1.0) {
+                hero.resetDying();
+                state = State.OVER;
+            }
+            return;
+        }
 
         // Atualiza obstáculos móveis
         for (SceneryElement elem : sceneryElements) {
@@ -1237,6 +1252,15 @@ public class GameContext {
         final double viewRight = camX + 1366.0;
 
         for (EnemyEntity e : enemies) {
+            if (e.isDying()) {
+                e.update(1.0 / 60.0, t, getThreatMultiplier());
+                if (Math.random() < 0.25) {
+                    double screenEx = (state == State.P5) ? e.getWorldX() : camera.toScreenX(e.getWorldX());
+                    particleSystem.addBurst(screenEx + e.getType().getWidth() / 2.0,
+                        e.getCurrentY() + e.getType().getHeight() / 2.0, Color.LIGHTCYAN);
+                }
+                continue;
+            }
             if (!e.isAlive()) continue;
             e.update(t, getThreatMultiplier());
             enemyQuadTree.insert(e);
@@ -1549,7 +1573,8 @@ public class GameContext {
         eventBus.publish(new GameEvent(GameEvent.Type.HERO_DAMAGED, effectiveDamage, screenX, hero.getY()));
         if (hero.getHp() <= 0) {
             if (state == State.P5) publishBossMusic(false);
-            state = State.OVER;
+            hero.startDying();
+            showAlert("Adapa sucumbiu às profundezas...");
         }
         return true;
     }

@@ -18,19 +18,19 @@ public class BossEntityTest {
         BossEntity bossToxico = new BossEntity(2, 1000, 300);
 
         assertEquals("Kullullû", bossBase.getName());
-        assertEquals(24, bossBase.getHp());
+        assertEquals(60, bossBase.getHp());
 
         assertEquals("Kullullû Glacial", bossGlacial.getName());
-        assertEquals(30, bossGlacial.getHp());
+        assertEquals(75, bossGlacial.getHp());
 
         assertEquals("Kullullû Tóxico", bossToxico.getName());
-        assertEquals(26, bossToxico.getHp());
+        assertEquals(70, bossToxico.getHp());
 
-        bossBase.takeDamage(14);
-        assertEquals(10, bossBase.getHp());
+        bossBase.takeDamage(35);
+        assertEquals(25, bossBase.getHp());
         assertFalse(bossBase.isDead());
 
-        bossBase.takeDamage(10);
+        bossBase.takeDamage(25);
         assertEquals(0, bossBase.getHp());
         assertTrue(bossBase.isDead(), "Boss deve ser considerado morto com 0 HP");
     }
@@ -38,16 +38,16 @@ public class BossEntityTest {
     @Test
     @DisplayName("Estágios da luta mudam em dois terços e um terço da vida com telegrafo")
     void changesCombatPhaseWithTelegraph() {
-        BossEntity boss = new BossEntity(0, 1000, 300); // 24 HP
+        BossEntity boss = new BossEntity(0, 1000, 300); // 60 HP
         assertEquals(BossEntity.CombatPhase.OBSIDIANA_FRIA, boss.getCombatPhase());
 
-        boss.takeDamage(9); // 15/24: abaixo de 2/3
+        boss.takeDamage(22); // 38/60: abaixo de 2/3
         assertTrue(boss.updateCombatPhase(1_000L));
         assertEquals(BossEntity.CombatPhase.FUSAO_VULCANICA, boss.getCombatPhase());
         assertTrue(boss.isTelegraphing(1_000L));
         assertFalse(boss.updateCombatPhase(2_000L), "A mesma transição não pode ser emitida duas vezes");
 
-        boss.takeDamage(8); // 7/24: abaixo de 1/3
+        boss.takeDamage(20); // 18/60: abaixo de 1/3
         assertTrue(boss.updateCombatPhase(2_000L));
         assertEquals(BossEntity.CombatPhase.FURIA_DE_APSU, boss.getCombatPhase());
         assertFalse(boss.isTelegraphing(2_000L + BossEntity.TELEGRAPH_NANOS));

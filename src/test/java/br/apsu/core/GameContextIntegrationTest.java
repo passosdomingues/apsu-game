@@ -80,6 +80,7 @@ public class GameContextIntegrationTest {
         context.getHero().setHasBubblePower(true);
 
         EnemyEntity targetEnemy = new EnemyEntity(EnemyType.PEIXE, 400, 300, 0, 0);
+        targetEnemy.takeDamage(targetEnemy.getHp() - 1); // deixa com 1 HP para testar impacto e destruição
         context.getEnemies().clear();
         context.getEnemies().add(targetEnemy);
 

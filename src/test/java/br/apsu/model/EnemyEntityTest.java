@@ -50,23 +50,30 @@ public class EnemyEntityTest {
     }
 
     @Test
-    @DisplayName("APSU-B01: Inimigos comuns possuem 1 HP e subchefe Leviatã possui 4 HP")
+    @DisplayName("Inimigos comuns possuem múltiplos HP, não morrem com 1 tiro e ativam animação de morte")
     void testEnemyHpAndLeviathanSubboss() {
         EnemyEntity peixe = new EnemyEntity(EnemyType.PEIXE, 1000, 400, 1.0, 50);
-        assertEquals(1, peixe.getHp());
-        assertEquals(1, peixe.getMaxHp());
+        assertEquals(3, peixe.getHp());
+        assertEquals(3, peixe.getMaxHp());
         peixe.takeDamage(1);
+        assertEquals(2, peixe.getHp());
+        assertTrue(peixe.isAlive(), "Inimigo comum não deve morrer com 1 tiro só");
+        assertFalse(peixe.isDying());
+
+        peixe.takeDamage(2);
         assertEquals(0, peixe.getHp());
         assertFalse(peixe.isAlive());
+        assertTrue(peixe.isDying(), "Deve iniciar animação de derrota ao zerar o HP");
 
         EnemyEntity leviata = new EnemyEntity(EnemyType.LEVIATA, 2650, 300, 1.3, 130);
-        assertEquals(4, leviata.getHp());
-        assertEquals(4, leviata.getMaxHp());
+        assertEquals(12, leviata.getHp());
+        assertEquals(12, leviata.getMaxHp());
         leviata.takeDamage(1);
-        assertEquals(3, leviata.getHp());
+        assertEquals(11, leviata.getHp());
         assertTrue(leviata.isAlive(), "Leviatã deve resistir a múltiplos acertos");
-        leviata.takeDamage(3);
+        leviata.takeDamage(11);
         assertEquals(0, leviata.getHp());
         assertFalse(leviata.isAlive());
+        assertTrue(leviata.isDying());
     }
 }

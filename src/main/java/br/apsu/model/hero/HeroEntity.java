@@ -23,6 +23,9 @@ public class HeroEntity {
     private long shootingTime = 0;
     private double tailPhase = 0;
     private double currentSpeedRatio = 0;
+    private boolean dying = false;
+    private double deathTimer = 0.0;
+    public static final double DEATH_DURATION = 1.4;
 
     public HeroEntity(HeroType type, double initialHP) {
         this.type = type;
@@ -46,7 +49,15 @@ public class HeroEntity {
         this.lastShotTime = 0;
         this.tailPhase = 0;
         this.currentSpeedRatio = 0;
+        this.dying = false;
+        this.deathTimer = 0.0;
     }
+
+    public boolean isDying() { return dying; }
+    public void startDying() { this.dying = true; this.deathTimer = 0.0; this.invulnerable = true; }
+    public void resetDying() { this.dying = false; this.deathTimer = 0.0; }
+    public double getDeathProgress() { return dying ? Math.min(1.0, deathTimer / DEATH_DURATION) : 0.0; }
+    public void updateDeath(double dt) { if (dying) { deathTimer += dt; y += 1.2; vy = 0.6; } }
 
     /** Repositions at a phase transition while preserving HP and unlocked powers. */
     public void beginPhaseAt(double startX, double startY) {

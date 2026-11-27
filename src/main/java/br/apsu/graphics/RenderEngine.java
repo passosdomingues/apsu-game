@@ -596,6 +596,20 @@ public class RenderEngine implements GameRenderer {
 
         double centerX = x + HeroEntity.HW / 2.0;
         double centerY = y + HeroEntity.HH / 2.0;
+
+        if (hero.isDying()) {
+            double prog = hero.getDeathProgress();
+            gc.save();
+            gc.setGlobalAlpha(Math.max(0.15, 1.0 - prog * 0.75));
+            drawShadow(gc, centerX, centerY + targetH * 0.44, targetW * 0.48 * (1.0 - prog * 0.5), 10);
+            lightingEngine.drawBioluminescentHalo(gc, centerX, centerY, targetW * 0.32 * (1.0 - prog * 0.8), hero.getType().getAura());
+            if (!adaptiveController.isHeroIn3D()) {
+                Character2DFallbackRenderer.renderHero(gc, null, hero, x, y, timeSeconds);
+            }
+            gc.restore();
+            return;
+        }
+
         drawShadow(gc, centerX, centerY + targetH * 0.44, targetW * 0.48, 10);
         lightingEngine.drawBioluminescentHalo(gc, centerX, centerY,
             targetW * 0.32, hero.getType().getAura());
@@ -611,7 +625,7 @@ public class RenderEngine implements GameRenderer {
     // =========================================================
     private void drawVisibleEnemy(GraphicsContext gc, GameContext ctx, EnemyEntity enemy,
                                   double width, double timeSeconds) {
-        if (!enemy.isAlive()) return;
+        if (!enemy.isAlive() && !enemy.isDying()) return;
         double x = ctx.getCamera().toScreenX(enemy.getWorldX());
         var eType = enemy.getType();
         if (x + eType.getWidth() < -120 || x > width + 120) return;
@@ -619,12 +633,22 @@ public class RenderEngine implements GameRenderer {
         double ew = eType.getWidth();
         double eh = eType.getHeight();
 
+        gc.save();
+        if (enemy.isDying()) {
+            double prog = enemy.getDeathProgress();
+            gc.setGlobalAlpha(Math.max(0.0, 1.0 - prog));
+            gc.translate(x + ew / 2.0, y + eh / 2.0);
+            gc.rotate(prog * 180.0);
+            gc.translate(-(x + ew / 2.0), -(y + eh / 2.0));
+        }
+
         drawShadow(gc, x + ew / 2, y + eh - 2, ew * 0.65, 9);
 
         // US-008 / US-009: Fallback 2D para inimigos no Canvas quando 2D completo ou modo hibrido
         if (adaptiveController.isSecondaryIn2D()) {
             Character2DFallbackRenderer.renderEnemy(gc, enemy, x, y);
         }
+        gc.restore();
     }
 
     // =========================================================

@@ -13,7 +13,7 @@
 
 <div align="center">
 
-# 🪟 [⬇️ CLIQUE AQUI PARA BAIXAR O INSTALADOR WINDOWS (.EXE)](https://github.com/passosdomingues/apsu-game/releases/latest)
+# 🪟 [⬇️ CLIQUE AQUI PARA BAIXAR O INSTALADOR WINDOWS (.EXE)](https://github.com/passosdomingues/apsu-game/releases/download/v20261125-213629/apsu-game-v20261125-213629-windows-x64.exe)
 
 ### **Instalador Oficial para Windows 10 e Windows 11 (64-bit)**
 > **Pronto para jogar:** não requer instalação de Java nem configuração de variáveis de ambiente.  
@@ -21,9 +21,9 @@
 
 | Plataforma | Pacote / Formato | Ação de Instalação |
 |---|---|---|
-| **Windows 10 / 11 (64-bit)** | **`.exe` (Instalador Nativo)** | **[👉 Baixar Executável (.exe)](https://github.com/passosdomingues/apsu-game/releases/latest)** |
-| **Linux (Ubuntu / Debian x64)** | `.deb` (Pacote Debian) | [👉 Baixar Pacote (.deb)](https://github.com/passosdomingues/apsu-game/releases/latest) |
-| **macOS (Apple Silicon & Intel)** | `.dmg` (Imagem de Disco) | [👉 Baixar Imagem (.dmg)](https://github.com/passosdomingues/apsu-game/releases/latest) |
+| **Windows 10 / 11 (64-bit)** | **`.exe` (Instalador Nativo)** | **[👉 Baixar Executável Windows (.exe)](https://github.com/passosdomingues/apsu-game/releases/download/v20261125-213629/apsu-game-v20261125-213629-windows-x64.exe)** |
+| **Linux (Ubuntu / Debian x64)** | `.deb` (Pacote Debian) | [👉 Baixar Pacote Linux (.deb)](https://github.com/passosdomingues/apsu-game/releases/download/v20261125-213629/apsu-game-v20261125-213629-linux-x64.deb) |
+| **macOS (Apple Silicon & Intel)** | `.dmg` (Imagem de Disco) | [👉 Baixar Imagem macOS (.dmg)](https://github.com/passosdomingues/apsu-game/releases/tag/v20261125-213629) |
 
 </div>
 

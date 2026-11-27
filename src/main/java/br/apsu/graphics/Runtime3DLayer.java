@@ -169,16 +169,24 @@ public final class Runtime3DLayer {
         if (!secondaryElementsDisabled) {
             for (EnemyEntity enemy : context.getEnemies()) {
                 int id = enemyIndex++;
-                if (!enemy.isAlive()) continue;
+                if (!enemy.isAlive() && !enemy.isDying()) continue;
                 EnemyType type = enemy.getType();
                 double screenX = context.getCamera().toScreenX(enemy.getWorldX(), alpha) + type.getWidth() / 2.0;
                 if (!insideViewport(screenX, type.getWidth())) continue;
                 Actor enemyActor = actor(id < ENEMY_IDS.length ? ENEMY_IDS[id] : "enemy-" + id,
                     modelName(type.getStaticSprite()), type.getWidth() * 2.0, type.getHeight() * 2.0);
-                if (enemyActor != null) place(enemyActor,
-                    screenX,
-                    enemy.getCurrentY() + type.getHeight() / 2.0,
-                    enemy.getWorldX() / 4000.0, timeSeconds, 54);
+                if (enemyActor != null) {
+                    if (enemy.isDying()) {
+                        double deathProg = enemy.getDeathProgress();
+                        enemyActor.node.setOpacity(Math.max(0.0, 1.0 - deathProg));
+                        place(enemyActor, screenX, enemy.getCurrentY() + type.getHeight() / 2.0,
+                            enemy.getWorldX() / 4000.0, timeSeconds, 54 + deathProg * 180.0, deathProg * 45.0);
+                    } else {
+                        enemyActor.node.setOpacity(1.0);
+                        place(enemyActor, screenX, enemy.getCurrentY() + type.getHeight() / 2.0,
+                            enemy.getWorldX() / 4000.0, timeSeconds, 54);
+                    }
+                }
             }
         }
 
@@ -196,15 +204,22 @@ public final class Runtime3DLayer {
             double heroY = hero.getInterpolatedY(alpha) + HeroEntity.HH / 2.0;
             double facingSign = hero.isFacingRight() ? 1 : -1;
             double facingYaw = hero.isFacingRight() ? 0 : 180;
-            double attackProgress = hero.getAttackProgress(context.getNanoTime());
-            double attackLunge = Math.sin(Math.PI * attackProgress) * 8 * facingSign;
-            heroActor.bodyMotion.setAngle(attacking
-                ? -Math.sin(Math.PI * attackProgress) * 3.5 * facingSign
-                : Math.sin(timeSeconds * (3.0 + hero.getCurrentSpeedRatio() * 3.5)) * 0.7);
-            // US-042: variacao de opacidade da malha 3D durante invulnerabilidade (sem retangulo)
-            heroActor.node.setOpacity(hero.getRenderOpacity(context.getNanoTime()));
-            place(heroActor, heroX + attackLunge, heroY,
-                hero.getInterpolatedX(alpha) / 4000.0, timeSeconds, facingYaw);
+            if (hero.isDying()) {
+                double deathProg = hero.getDeathProgress();
+                heroActor.node.setOpacity(Math.max(0.15, 1.0 - deathProg * 0.75));
+                place(heroActor, heroX, heroY,
+                    hero.getInterpolatedX(alpha) / 4000.0, timeSeconds, facingYaw, deathProg * 80.0 * facingSign);
+            } else {
+                double attackProgress = hero.getAttackProgress(context.getNanoTime());
+                double attackLunge = Math.sin(Math.PI * attackProgress) * 8 * facingSign;
+                heroActor.bodyMotion.setAngle(attacking
+                    ? -Math.sin(Math.PI * attackProgress) * 3.5 * facingSign
+                    : Math.sin(timeSeconds * (3.0 + hero.getCurrentSpeedRatio() * 3.5)) * 0.7);
+                // US-042: variacao de opacidade da malha 3D durante invulnerabilidade (sem retangulo)
+                heroActor.node.setOpacity(hero.getRenderOpacity(context.getNanoTime()));
+                place(heroActor, heroX + attackLunge, heroY,
+                    hero.getInterpolatedX(alpha) / 4000.0, timeSeconds, facingYaw);
+            }
         }
 
         int guardianIndex = 0;

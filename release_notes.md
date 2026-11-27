@@ -4,15 +4,24 @@
 
 ---
 
+## 🪟 DOWNLOAD OFICIAL: INSTALADOR WINDOWS (.EXE)
+
+# 🎮 [⬇️ CLIQUE AQUI PARA BAIXAR O JOGO (.EXE)](https://github.com/passosdomingues/apsu-game/releases/download/v20261125-213629/apsu-game-v20261125-213629-windows-x64.exe)
+
+> **Instalador executável auto-contido para Windows 10 e Windows 11 (64-bit)**  
+> **Java 21 LTS 100% embutido:** não requer instalação prévia de Java. Baixe, instale e jogue imediatamente!
+
+---
+
 ## 📥 Downloads — Escolha seu sistema
 
 | Sistema | Arquivo | Tamanho | Java necessário? |
 |---|---|---|---|
-| 🪟 **Windows** (64-bit) | `apsu-game-...-windows-x64.exe` | ~396 MB | ❌ Não — JRE embutido |
-| 🐧 **Linux** (Ubuntu/Debian 64-bit) | `apsu-game-...-linux-x64.deb` | ~400 MB | ❌ Não — JRE embutido |
-| 🍎 **macOS Apple Silicon** (M1/M2/M3) | `apsu-game-...-macos-arm64.dmg` | ~426 MB | ❌ Não — JRE embutido |
-| 🍎 **macOS Intel** (x64) | `apsu-game-...-macos-x64.dmg` | ~429 MB | ❌ Não — JRE embutido |
-| ☕ **Qualquer sistema** (JAR leve) | `apsu-game-...-linux-x64.jar` | ~15 MB | ✅ Sim — Java 21 |
+| 🪟 **Windows** (64-bit) | [⬇️ `apsu-game-v20261125-213629-windows-x64.exe`](https://github.com/passosdomingues/apsu-game/releases/download/v20261125-213629/apsu-game-v20261125-213629-windows-x64.exe) | ~396 MB | ❌ Não — JRE embutido |
+| 🐧 **Linux** (Ubuntu/Debian 64-bit) | [⬇️ `apsu-game-v20261125-213629-linux-x64.deb`](https://github.com/passosdomingues/apsu-game/releases/download/v20261125-213629/apsu-game-v20261125-213629-linux-x64.deb) | ~400 MB | ❌ Não — JRE embutido |
+| 🍎 **macOS Apple Silicon** (M1/M2/M3) | [⬇️ `apsu-game-v20261125-213629-macos-arm64.dmg`](https://github.com/passosdomingues/apsu-game/releases/download/v20261125-213629/apsu-game-v20261125-213629-macos-arm64.dmg) | ~426 MB | ❌ Não — JRE embutido |
+| 🍎 **macOS Intel** (x64) | [⬇️ `apsu-game-v20261125-213629-macos-x64.dmg`](https://github.com/passosdomingues/apsu-game/releases/download/v20261125-213629/apsu-game-v20261125-213629-macos-x64.dmg) | ~429 MB | ❌ Não — JRE embutido |
+| ☕ **Qualquer sistema** (JAR leve) | [⬇️ `apsu-game-v20261125-213629-linux-x64.jar`](https://github.com/passosdomingues/apsu-game/releases/download/v20261125-213629/apsu-game-v20261125-213629-linux-x64.jar) | ~15 MB | ✅ Sim — Java 21 |
 
 > Cada instalador inclui o Java 21 embutido — **baixe e jogue, sem configuração.**
 
