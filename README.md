@@ -35,32 +35,47 @@ Mergulhe nas profundezas do oceano primordial da mitologia suméria. Controle **
 
 ---
 
-## Como Jogar
+## ⚡ Início Rápido (Como Rodar Rapidamente)
 
-### Instaladores Prontos
+### 📥 Download Imediato (Instaladores Prontos)
 
-Baixe e instale diretamente — Java já vem incluído, sem dependências extras:
+Baixe e jogue diretamente — o Java 21 já vem embutido em todos os pacotes:
 
-| Plataforma | Formato |
-|---|---|
-| Linux (Ubuntu/Debian x64) | `.deb` |
-| macOS Apple Silicon (M1–M4) | `.dmg` |
-| macOS Intel | `.dmg` |
-| Windows 10/11 x64 | `.exe` |
+| Sistema Operacional | Formato do Instalador | Link de Download Direto |
+|---|---|---|
+| **Windows 10 / 11 (64-bit)** | `.exe` (Instalador Nativo) | [⬇️ Baixar Instalador Windows (.exe)](https://github.com/passosdomingues/apsu-game/releases/latest) |
+| **Linux (Ubuntu / Debian x64)** | `.deb` (Pacote Debian) | [⬇️ Baixar Pacote Linux (.deb)](https://github.com/passosdomingues/apsu-game/releases/latest) |
+| **macOS Apple Silicon (M1–M4)** | `.dmg` | [⬇️ Baixar para macOS Apple Silicon](https://github.com/passosdomingues/apsu-game/releases/latest) |
+| **macOS Intel** | `.dmg` | [⬇️ Baixar para macOS Intel](https://github.com/passosdomingues/apsu-game/releases/latest) |
 
-👉 **[Releases no GitHub](https://github.com/passosdomingues/apsu-game/releases)**
+👉 **[Todas as Versões e Releases no GitHub](https://github.com/passosdomingues/apsu-game/releases)**
 
-### Compilar do Código-Fonte
+---
 
-Requer **Java 21+** e **Maven 3.9+**:
+### 💻 Executar a partir do Código-Fonte
+
+Clone e execute em um único comando no terminal:
 
 ```bash
-# Via Make (recomendado — verifica ambiente automaticamente)
+git clone https://github.com/passosdomingues/apsu-game.git
+cd apsu-game
 make run
-
-# Via Maven
-mvn javafx:run
 ```
+
+*(Requer Java 21+ e Maven 3.9+. Caso prefira rodar diretamente via Maven: `mvn javafx:run`)*
+
+---
+
+## 🖥️ Requisitos de Sistema
+
+| Componente | Requisitos Mínimos (Modo 2D Fallback) | Requisitos Recomendados (Modo Híbrido 2.5D / 3D 60 FPS) |
+|---|---|---|
+| **Sistema Operacional** | Windows 10 (64-bit), Ubuntu 20.04+, macOS 12+ | Windows 10/11 (64-bit), Ubuntu 22.04+, macOS 13+ |
+| **Processador (CPU)** | Intel Core i3 (4ª geração) / AMD FX-6300 (2 núcleos, 2.0 GHz) | Intel Core i5 (8ª geração) / AMD Ryzen 5 ou Apple M1+ (4+ núcleos) |
+| **Memória RAM** | 4 GB | 8 GB ou mais |
+| **Placa de Vídeo (GPU)** | Intel HD Graphics 4000 / Mesa OpenGL 2.1 | Placa com aceleração OpenGL 3.0+ / Direct3D 9+ (Intel Iris Xe, NVIDIA GTX 750+, AMD Radeon RX 550+) |
+| **Resolução de Tela** | 1280 × 720 (janela) | 1366 × 768 ou 1920 × 1080 (janela ou tela cheia) |
+| **Espaço em Disco** | 250 MB livres | 500 MB livres |
 
 ---
 
@@ -68,10 +83,13 @@ mvn javafx:run
 
 | Ação | Teclas |
 |---|---|
-| Nadar | `W A S D` ou setas |
-| Disparar bolhas / Interagir | `Espaço` ou `E` |
-| Ecolocalização | `Q` ou `Shift` esquerdo |
-| Pausa / Menu | `ESC` |
+| **Nadar / Mover-se** | `W A S D` ou Teclas de Direção `↑ ← ↓ →` |
+| **Atacar (Purificar com Bolhas)** | `Espaço` (desbloqueado na Fase 2 no navio naufragado) |
+| **Interagir (Diálogos e Baús)** | `E` ou `Espaço` |
+| **Alternar Ataque (Único / Rajada Tripla)** | `M` |
+| **Ecolocalização (Sonar Acústico)** | `Q` ou `Shift` esquerdo |
+| **Pausar o Jogo / Menu de Pausa** | `ESC` ou `P` |
+| **Reiniciar Fase Instantaneamente** | `R` (reinício rápido sem congelamentos) |
 
 > O disparo de bolhas é desbloqueado ao interagir com o baú ancestral na **Fase 2**.
 
@@ -135,7 +153,7 @@ mvn javafx:run
 | UI / Gráficos | JavaFX 21 — Canvas 2D + SubScene 3D |
 | Modelos 3D | Blender 4.5.5 LTS → OBJ/MTL via pipeline de scripts `bpy` |
 | Build | Apache Maven 3.9 + GNU Make |
-| Testes | JUnit 5 — 198 testes, 100% aprovados |
+| Testes | JUnit 5 — 221 testes automatizados, 100% aprovados |
 | CI/CD | GitHub Actions — build, testes com xvfb e release automáticos |
 | Containerização | Docker (ambiente de desenvolvimento) |
 | Áudio | JavaFX MediaPlayer + trilha original FLAC/MP3 |

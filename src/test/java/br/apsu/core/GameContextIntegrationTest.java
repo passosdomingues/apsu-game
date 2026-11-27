@@ -129,10 +129,17 @@ public class GameContextIntegrationTest {
         context.update(0);
 
         assertTrue(boss.isDead(), "O projétil deve zerar a vida do boss por colisão");
-        assertEquals(GameContext.State.WIN, context.getState());
         assertTrue(cues.contains(AudioCue.BOSS_DAMAGED));
+        assertEquals(List.of(false), bossMusic, "A trilha de boss deve encerrar na derrota");
+        assertNotNull(context.getSacredTablet(), "A 5ª Tabuleta Sagrada emerge no altar ao derrotar Kullullû");
+
+        // Herói aproxima-se e resgata a 5ª Tabuleta Sagrada no altar
+        context.getHero().resetPosition(context.getSacredTablet().getWorldX(), context.getSacredTablet().getWorldY());
+        context.update(1_000_000L);
+
+        assertEquals(GameContext.State.WIN, context.getState());
         assertTrue(cues.contains(AudioCue.VICTORY));
-        assertEquals(List.of(false), bossMusic, "A trilha de boss deve encerrar na vitória");
+        assertEquals(5, context.getTabletsCollected(), "Adapa reúne todas as 5 tabuletas sagradas");
     }
 
     @Test
@@ -153,6 +160,24 @@ public class GameContextIntegrationTest {
             "O HUD precisa refletir dano fracionário do projétil do boss");
         assertTrue(context.getHero().isInvulnerable(), "Um acerto deve iniciar a janela de recuperação");
         assertFalse(context.getProjectiles().contains(bullet), "O projétil que acertou deve ser consumido");
+    }
+
+    @Test
+    @DisplayName("APSU-B19A: Boss Kullullû causa dano de contato real no modo Fácil sem bloqueio de tutorial")
+    void bossContactDamagesHeroInFacilModeInFinalArena() {
+        context.setDifficulty(Difficulty.FACIL);
+        context.getHero().heal(Difficulty.FACIL.getInitialHP());
+        context.startP5();
+        // Posiciona herói colidindo com o boss
+        context.getHero().resetPosition(context.getBoss().getX() + 20, context.getBoss().getY() + 20);
+        double hpBefore = context.getHero().getHp();
+        assertEquals(5.0, hpBefore, 0.001, "No modo fácil o herói inicia com 5.0 HP");
+
+        context.update(1_000_000_000L);
+
+        assertTrue(context.getHero().getHp() < hpBefore,
+            "O boss deve causar dano real no modo fácil (sem ser bloqueado por filtro de 50% HP do tutorial)");
+        assertTrue(context.getHero().isInvulnerable(), "Herói entra em invulnerabilidade temporária após dano");
     }
 
     @Test
@@ -883,6 +908,81 @@ public class GameContextIntegrationTest {
         context.update(2_300_000_000L); // 1.3s após o primeiro dano
         assertTrue(context.getHero().getHp() < hpDuringInvuln, "Novo dano deve ser aplicado após o fim da invulnerabilidade");
         assertEquals(2, damagedEvents.get(), "Novo evento HERO_DAMAGED emitido após expiração da invulnerabilidade");
+    }
+
+    @Test
+    @DisplayName("APSU-M19D: Menu de pausa congela simulação e retoma com ESC/P")
+    void testPauseMenuToggleAndResume() {
+        context.startP2();
+        assertEquals(GameContext.State.P2, context.getState());
+
+        // Pressiona ESC para pausar
+        context.onKey(KeyCode.ESCAPE);
+        assertEquals(GameContext.State.PAUSE, context.getState());
+        assertEquals(GameContext.State.P2, context.getStateBeforePause());
+
+        // Simulação travada durante pausa
+        double heroXBefore = context.getHero().getX();
+        context.getHero().setVx(10.0);
+        context.update(2_000_000_000L);
+        assertEquals(heroXBefore, context.getHero().getX(), 0.001, "Herói não se move enquanto o jogo estiver pausado");
+
+        // Pressiona P para despausar
+        context.onKey(KeyCode.P);
+        assertEquals(GameContext.State.P2, context.getState());
+    }
+
+    @Test
+    @DisplayName("APSU-M19D: Tecla R reinicia a fase instantaneamente com vida e poderes")
+    void testInstantRestartWithKeyR() {
+        context.startP3();
+        context.getHero().applyDamage(2.0, 1000L);
+        assertTrue(context.getHero().getHp() < 4.0);
+
+        context.onKey(KeyCode.R);
+        assertEquals(GameContext.State.P3, context.getState());
+        assertEquals(Difficulty.MEDIO.getInitialHP(), context.getHero().getHp(), 0.001, "Vida restaurada no reinício");
+        assertTrue(context.getHero().hasBubblePower(), "Poder de bolha mantido em fases avançadas");
+        assertEquals(2, context.getTabletsCollected(), "Tabuletas das fases anteriores mantidas");
+    }
+
+    @Test
+    @DisplayName("APSU-M19E: Menu principal oferece opção Continuar quando phaseDone > 0")
+    void testContinueSystemFromMainMenu() {
+        context.setPhaseDone(3); // Desbloqueou até fase 4
+        assertTrue(context.canContinue());
+
+        context.onKey(KeyCode.ENTER); // Primeira opção do menu é Continuar Fase 4
+        // Transiciona e inicia diálogo / fase 4
+        assertEquals(4, context.getCurrentPhase());
+        assertTrue(context.getHero().hasBubblePower());
+        assertEquals(3, context.getTabletsCollected());
+    }
+
+    @Test
+    @DisplayName("APSU-G19F: Vitória na Fase 5 requer resgate da 5ª Tabuleta Sagrada após derrotar Kullullû")
+    void testFifthSacredTabletEmergedOnBossDefeat() {
+        context.startP5();
+        assertNull(context.getSacredTablet(), "Antes de derrotar o boss não há tabuleta na arena");
+
+        // Derrota o boss com bolha
+        BossEntity boss = context.getBoss();
+        boss.takeDamage(boss.getHp() - 1);
+        context.getProjectiles().add(new Projectile(Projectile.Type.HERO_BUBBLE,
+            boss.getX() + 10, boss.getY() + 10, 0, 0, 1, true));
+        context.update(0);
+
+        assertTrue(boss.isDead());
+        assertNotNull(context.getSacredTablet(), "5ª Tabuleta Sagrada deve emergir no altar sagrado");
+        assertTrue(context.getSacredTablet().isRevealed());
+        assertNotEquals(GameContext.State.WIN, context.getState(), "Jogo ainda não venceu até coletar a 5ª relíquia");
+
+        // Coleta a 5ª tabuleta
+        context.getHero().resetPosition(context.getSacredTablet().getWorldX(), context.getSacredTablet().getWorldY());
+        context.update(1_000_000L);
+
+        assertEquals(GameContext.State.WIN, context.getState());
+        assertEquals(5, context.getTabletsCollected(), "5/5 tabuletas coletadas");
     }
 }
 

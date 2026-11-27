@@ -138,6 +138,7 @@ public class RenderEngine implements GameRenderer {
             case P3       -> drawP3(gc, ctx, width, height, t);
             case P4       -> drawP4(gc, ctx, width, height, t);
             case P5       -> drawP5(gc, ctx, width, height, t);
+            case PAUSE    -> drawPause(gc, ctx, width, height, t);
             case WIN      -> drawEnd(gc, ctx, width, height, true);
             case OVER     -> drawEnd(gc, ctx, width, height, false);
         }
@@ -224,17 +225,34 @@ public class RenderEngine implements GameRenderer {
         drawStatBar(gc, "Resistência", (hero.getDrag() - 0.85) / 0.12, px - 25, py + ph + 96, pw + 50, Palette.STAT_RESIST, Palette.STAT_RESIST_STROKE);
         drawStatBar(gc, "Poder Bolha", hero.getPwr()      / 1.6,  px - 25, py + ph + 120, pw + 50, Palette.STAT_BUBBLE, Palette.STAT_BUBBLE_STROKE);
 
-        // Menu principal: poucas ações visíveis e navegação por teclado explícita.
+        // Menu principal dinâmico (APSU-M19E)
         gc.setTextAlign(TextAlignment.CENTER);
-        String[] opts = {"DIFICULDADE     ▾     " + ctx.getDifficulty().getLabel(), "▶  INICIAR JOGO"};
-        double[] ys = {400, 500};
+        boolean canCont = ctx.canContinue();
+        String[] opts;
+        double[] ys;
+        if (canCont) {
+            int contPhase = Math.min(5, ctx.getPhaseDone() + 1);
+            opts = new String[]{
+                "▶  CONTINUAR  [FASE " + contPhase + "]",
+                "✦  NOVO JOGO",
+                "DIFICULDADE     ▾     " + ctx.getDifficulty().getLabel()
+            };
+            ys = new double[]{380, 460, 540};
+        } else {
+            opts = new String[]{
+                "DIFICULDADE     ▾     " + ctx.getDifficulty().getLabel(),
+                "▶  INICIAR JOGO"
+            };
+            ys = new double[]{400, 500};
+        }
+
         for (int i = 0; i < opts.length; i++) {
             boolean sel = (i == ctx.getMenuSel());
             if (sel) {
                 gc.setFill(Palette.MENU_SELECTED_BG);
-                gc.fillRoundRect(width / 2.0 - 280, ys[i] - 31, 560, 62, 16, 16);
+                gc.fillRoundRect(width / 2.0 - 280, ys[i] - 28, 560, 56, 16, 16);
                 gc.setStroke(Palette.GOLD); gc.setLineWidth(2);
-                gc.strokeRoundRect(width / 2.0 - 280, ys[i] - 31, 560, 62, 16, 16);
+                gc.strokeRoundRect(width / 2.0 - 280, ys[i] - 28, 560, 56, 16, 16);
             }
             gc.setFont(sel ? UiFonts.OPT_SEL_28 : UiFonts.OPT_UNSEL_22);
             gc.setFill(sel ? Palette.GOLD : Palette.MENU_UNSELECTED);
@@ -875,7 +893,77 @@ public class RenderEngine implements GameRenderer {
         gc.setFill(Palette.END_HERO); gc.setFont(UiFonts.TEXT_16);
         gc.fillText("Herói: " + ctx.getHeroType().getName() + "  |  Dificuldade: " + ctx.getDifficulty().getLabel(), width / 2.0, 430);
         gc.setFill(Palette.GOLD); gc.setFont(UiFonts.SUBTITLE_22);
-        gc.fillText("[ ESPAÇO / R / ENTER — Menu Principal ]", width / 2.0, height - 80);
+        gc.fillText("[ R — Reiniciar Fase  |  ESPAÇO / ENTER — Menu Principal ]", width / 2.0, height - 80);
+    }
+
+    private void drawPause(GraphicsContext gc, GameContext ctx, double width, double height, double timeSeconds) {
+        // Desenha a fase correspondente no fundo
+        switch (ctx.getStateBeforePause()) {
+            case P1 -> drawP1(gc, ctx, width, height, timeSeconds);
+            case P2 -> drawP2(gc, ctx, width, height, timeSeconds);
+            case P3 -> drawP3(gc, ctx, width, height, timeSeconds);
+            case P4 -> drawP4(gc, ctx, width, height, timeSeconds);
+            case P5 -> drawP5(gc, ctx, width, height, timeSeconds);
+            default -> drawP1(gc, ctx, width, height, timeSeconds);
+        }
+
+        GraphicsContext ui = targetUi(gc);
+        // Overlay de escurecimento suave
+        ui.setFill(Palette.rgb(2, 10, 26, 0.78));
+        ui.fillRect(0, 0, width, height);
+
+        // Painel central de pausa glassmorphic
+        double pw = 520, ph = 340;
+        double px = (width - pw) / 2.0;
+        double py = (height - ph) / 2.0;
+
+        ui.setFill(Palette.rgb(6, 18, 40, 0.94));
+        ui.fillRoundRect(px, py, pw, ph, 18, 18);
+        ui.setStroke(Palette.GOLD);
+        ui.setLineWidth(2.2);
+        ui.strokeRoundRect(px, py, pw, ph, 18, 18);
+
+        ui.setTextAlign(TextAlignment.CENTER);
+        ui.setTextBaseline(VPos.CENTER);
+        ui.setFont(UiFonts.TITLE_64);
+        ui.setFill(Palette.GOLD);
+        ui.fillText("PAUSA", width / 2.0, py + 55);
+
+        ui.setFont(UiFonts.TEXT_BOLD_12);
+        ui.setFill(Palette.rgb(140, 210, 255, 0.95));
+        ui.fillText("Fase " + ctx.getCurrentPhase() + " — " + getPhaseTitle(ctx.getCurrentPhase()), width / 2.0, py + 95);
+
+        String[] pauseOpts = {
+            "▶  CONTINUAR  [ESC / P]",
+            "↺  REINICIAR FASE  [R]",
+            "⌂  MENU PRINCIPAL  [M]"
+        };
+        double startY = py + 155;
+        for (int i = 0; i < pauseOpts.length; i++) {
+            boolean sel = (i == ctx.getPauseMenuSel());
+            double optY = startY + i * 54;
+            if (sel) {
+                ui.setFill(Palette.MENU_SELECTED_BG);
+                ui.fillRoundRect(px + 36, optY - 22, pw - 72, 44, 12, 12);
+                ui.setStroke(Palette.GOLD);
+                ui.setLineWidth(1.8);
+                ui.strokeRoundRect(px + 36, optY - 22, pw - 72, 44, 12, 12);
+            }
+            ui.setFont(sel ? UiFonts.SUBTITLE_22 : UiFonts.TEXT_16);
+            ui.setFill(sel ? Palette.GOLD : Palette.MENU_UNSELECTED);
+            ui.fillText(pauseOpts[i], width / 2.0, optY);
+        }
+    }
+
+    private String getPhaseTitle(int phase) {
+        return switch (phase) {
+            case 1 -> "Águas Claras";
+            case 2 -> "Cavernas de Coral";
+            case 3 -> "Correntes Abissais";
+            case 4 -> "Abismo Vulcânico";
+            case 5 -> "Templo de Apsu";
+            default -> "Águas de Apsu";
+        };
     }
 
     private void drawGradientBackground(GraphicsContext gc, double width, double height, LinearGradient gradient) {

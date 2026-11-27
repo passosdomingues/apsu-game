@@ -148,4 +148,35 @@ class EchoIndicatorHudTest {
         assertDoesNotThrow(() -> uiRenderer.drawEchoIndicator(gc, context.getEchoController(), 65, 37));
         assertDoesNotThrow(() -> uiRenderer.drawEchoHint(gc, 88, 37));
     }
+
+    @Test
+    @DisplayName("APSU-U19C: Barra de recarga do eco renderiza estados de cooldown e pronto sem alocacoes")
+    void testEchoProgressBarCooldownAndReady() {
+        var echo = context.getEchoController();
+        echo.reset();
+        assertFalse(echo.isOnCooldown());
+        assertEquals(1.0, echo.getCooldownProgress(), 0.001);
+
+        // Estado Pronto
+        assertDoesNotThrow(() -> uiRenderer.drawEchoIndicator(gc, echo, 65, 37));
+
+        // Aciona o eco e avanca para entrar em cooldown
+        assertTrue(echo.trigger());
+        echo.update(EchoController.ECHO_DURATION_SECONDS); // conclui fase ativa e entra em cooldown
+        assertTrue(echo.isOnCooldown());
+        assertEquals(0.0, echo.getCooldownProgress(), 0.001);
+
+        // Estado Cooldown 0%
+        assertDoesNotThrow(() -> uiRenderer.drawEchoIndicator(gc, echo, 65, 37));
+
+        // Cooldown parcial 50%
+        echo.update(EchoController.COOLDOWN_DURATION_SECONDS * 0.5);
+        assertEquals(0.5, echo.getCooldownProgress(), 0.05);
+        assertDoesNotThrow(() -> uiRenderer.drawEchoIndicator(gc, echo, 65, 37));
+
+        // Cooldown completo 100%
+        echo.update(EchoController.COOLDOWN_DURATION_SECONDS * 0.6);
+        assertFalse(echo.isOnCooldown());
+        assertDoesNotThrow(() -> uiRenderer.drawEchoIndicator(gc, echo, 65, 37));
+    }
 }

@@ -38,10 +38,12 @@ public class GameContext {
      * Herói, inimigos e projéteis operam em COORDENADAS DE MUNDO (worldX).
      * A câmera converte para tela APENAS na hora de renderizar.
      * Toda colisão lógica usa coordenadas de MUNDO. */
-    public enum State { MENU, DIALOGUE, P1, P2, P3, P4, P5, WIN, OVER }
+    public enum State { MENU, DIALOGUE, P1, P2, P3, P4, P5, PAUSE, WIN, OVER }
     private static final long MIN_BOSS_ATTACK_INTERVAL_NANOS = 650_000_000L;
 
     private State state = State.MENU;
+    private State stateBeforePause = State.P1;
+    private int pauseMenuSel = 0; // 0=Continuar, 1=Reiniciar Fase, 2=Menu Principal
     private Difficulty difficulty = Difficulty.MEDIO;
     private HeroType heroType = HeroType.GUARDIAO;
     private HeroEntity hero;
@@ -190,14 +192,15 @@ public class GameContext {
                 }
             }
             case P1, P2, P3, P4, P5 -> {
-                if (k == KeyCode.ESCAPE) {
-                    if (state == State.P1 && tutorialController.isActive()) {
+                if (k == KeyCode.ESCAPE || k == KeyCode.P) {
+                    if (state == State.P1 && tutorialController.isActive() && k == KeyCode.ESCAPE) {
                         tutorialController.skip();
                         showAlert("Tutorial pulado! Encontre Enki nas águas claras.");
                         return;
                     }
-                    if (state == State.P5) publishBossMusic(false);
-                    state = State.MENU;
+                    pauseGame();
+                } else if (k == KeyCode.R) {
+                    restartCurrentPhase();
                 } else if (k == KeyCode.M && hero.hasBubblePower()) {
                     hero.toggleMultipleShotMode();
                     playSound(AudioCue.MENU_CONFIRM);
@@ -215,8 +218,31 @@ public class GameContext {
                     }
                 }
             }
+            case PAUSE -> {
+                if (k == KeyCode.ESCAPE || k == KeyCode.P) {
+                    resumeGame();
+                } else if (k == KeyCode.R) {
+                    restartCurrentPhase();
+                } else if (k == KeyCode.M) {
+                    returnToMenu();
+                } else if (k == KeyCode.UP || k == KeyCode.W) {
+                    pauseMenuSel = (pauseMenuSel - 1 + 3) % 3;
+                    playSound(AudioCue.MENU_NAVIGATE);
+                } else if (k == KeyCode.DOWN || k == KeyCode.S) {
+                    pauseMenuSel = (pauseMenuSel + 1) % 3;
+                    playSound(AudioCue.MENU_NAVIGATE);
+                } else if (k == KeyCode.ENTER || k == KeyCode.SPACE || k == KeyCode.E) {
+                    switch (pauseMenuSel) {
+                        case 0 -> resumeGame();
+                        case 1 -> restartCurrentPhase();
+                        case 2 -> returnToMenu();
+                    }
+                }
+            }
             case WIN, OVER -> {
-                if (k == KeyCode.SPACE || k == KeyCode.ENTER || k == KeyCode.R) {
+                if (k == KeyCode.R) {
+                    restartCurrentPhase();
+                } else if (k == KeyCode.SPACE || k == KeyCode.ENTER || k == KeyCode.ESCAPE) {
                     state = State.MENU;
                 }
             }
@@ -286,13 +312,24 @@ public class GameContext {
             if (navigated) playSound(AudioCue.MENU_NAVIGATE);
             return;
         }
-        if (k == KeyCode.UP || k == KeyCode.W) { menuSel = (menuSel - 1 + 2) % 2; navigated = true; }
-        if (k == KeyCode.DOWN || k == KeyCode.S) { menuSel = (menuSel + 1) % 2; navigated = true; }
+        int totalOpts = canContinue() ? 3 : 2;
+        if (k == KeyCode.UP || k == KeyCode.W) { menuSel = (menuSel - 1 + totalOpts) % totalOpts; navigated = true; }
+        if (k == KeyCode.DOWN || k == KeyCode.S) { menuSel = (menuSel + 1) % totalOpts; navigated = true; }
         if (navigated) playSound(AudioCue.MENU_NAVIGATE);
         if (k == KeyCode.ENTER || k == KeyCode.SPACE || k == KeyCode.E) {
-            switch (menuSel) {
-                case 0 -> { difficultyMenuOpen = true; difficultyMenuSel = difficulty.ordinal(); }
-                case 1 -> { reset(); transitionToPhase(1); }
+            if (canContinue()) {
+                switch (menuSel) {
+                    case 0 -> continueGame();
+                    case 1 -> { reset(); transitionToPhase(1); }
+                    case 2 -> { difficultyMenuOpen = true; difficultyMenuSel = difficulty.ordinal(); }
+                    default -> playSound(AudioCue.MENU_CONFIRM);
+                }
+            } else {
+                switch (menuSel) {
+                    case 0 -> { difficultyMenuOpen = true; difficultyMenuSel = difficulty.ordinal(); }
+                    case 1 -> { reset(); transitionToPhase(1); }
+                    default -> playSound(AudioCue.MENU_CONFIRM);
+                }
             }
             playSound(AudioCue.MENU_CONFIRM);
         }
@@ -339,6 +376,73 @@ public class GameContext {
         advancePhaseFromDialogue();
     }
 
+    public boolean canContinue() {
+        return phaseDone > 0;
+    }
+
+    public void continueGame() {
+        int target = Math.min(5, Math.max(1, phaseDone + 1));
+        hero.heal(difficulty.getInitialHP());
+        camera.clearShake();
+        if (target >= 2) {
+            hero.setHasBubblePower(true);
+        } else {
+            hero.setHasBubblePower(false);
+        }
+        tabletsCollected = Math.max(0, target - 1);
+        transitionToPhase(target);
+        playSound(AudioCue.MENU_CONFIRM);
+    }
+
+    public void pauseGame() {
+        if (state == State.P1 || state == State.P2 || state == State.P3 || state == State.P4 || state == State.P5) {
+            stateBeforePause = state;
+            state = State.PAUSE;
+            pauseMenuSel = 0;
+            playSound(AudioCue.MENU_CONFIRM);
+        }
+    }
+
+    public void resumeGame() {
+        if (state == State.PAUSE) {
+            state = stateBeforePause;
+            playSound(AudioCue.MENU_CONFIRM);
+        }
+    }
+
+    public void returnToMenu() {
+        if (state == State.P5) publishBossMusic(false);
+        reset();
+        state = State.MENU;
+        playSound(AudioCue.MENU_CONFIRM);
+    }
+
+    public void restartCurrentPhase() {
+        if (state == State.P5) publishBossMusic(false);
+        int target = (currentPhase >= 1 && currentPhase <= 5) ? currentPhase : (phaseDone > 0 ? Math.min(5, phaseDone + 1) : 1);
+        hero.heal(difficulty.getInitialHP());
+        camera.clearShake();
+        if (target >= 2) {
+            hero.setHasBubblePower(true);
+        } else {
+            hero.setHasBubblePower(false);
+        }
+        tabletsCollected = Math.max(0, target - 1);
+        switch (target) {
+            case 1 -> startP1();
+            case 2 -> startP2();
+            case 3 -> startP3();
+            case 4 -> startP4();
+            case 5 -> startP5();
+            default -> startP1();
+        }
+        playSound(AudioCue.MENU_CONFIRM);
+    }
+
+    public int getPauseMenuSel() { return pauseMenuSel; }
+    public void setPauseMenuSel(int pauseMenuSel) { this.pauseMenuSel = pauseMenuSel; }
+    public State getStateBeforePause() { return stateBeforePause; }
+
     // =========================================================
     // FASE 1 — Águas Claras (introdução, enguia corrigida)
     // =========================================================
@@ -381,6 +485,7 @@ public class GameContext {
     // FASE 2 — Cavernas de Coral (bolhas desbloqueadas aqui)
     // =========================================================
     public void startP2() {
+        tutorialController.skip();
         boss = null;
         enemies.clear(); projectiles.clear(); guardians.clear(); sceneryElements.clear();
         particleSystem.clear(); echoWaveRenderer.reset();
@@ -423,6 +528,7 @@ public class GameContext {
     // FASE 3 — Correntes Abissais (nova mecânica principal)
     // =========================================================
     public void startP3() {
+        tutorialController.skip();
         boss = null;
         enemies.clear(); projectiles.clear(); guardians.clear(); sceneryElements.clear();
         particleSystem.clear(); echoWaveRenderer.reset();
@@ -471,6 +577,7 @@ public class GameContext {
     // FASE 4 — Abismo Vulcânico (novos inimigos + lava)
     // =========================================================
     public void startP4() {
+        tutorialController.skip();
         boss = null;
         enemies.clear(); projectiles.clear(); guardians.clear(); sceneryElements.clear();
         particleSystem.clear(); echoWaveRenderer.reset();
@@ -533,8 +640,10 @@ public class GameContext {
     // FASE 5 — Templo Final de Apsu (boss + guardião Enki)
     // =========================================================
     public void startP5() {
+        tutorialController.skip();
         boss = null;
         sacredTablet = null;
+        tabletsCollected = Math.max(tabletsCollected, 4);
         enemies.clear(); projectiles.clear(); guardians.clear(); sceneryElements.clear();
         particleSystem.clear(); echoWaveRenderer.reset();
         // Fase 5 é a arena do boss — herói entra pela esquerda, boss à direita
@@ -565,6 +674,7 @@ public class GameContext {
     // =========================================================
     public void update(long currentNanoTime) {
         this.nanoTime = currentNanoTime;
+        if (state == State.PAUSE) return;
         camera.updateShake(nanoTime);
         double timeSeconds = nanoTime / 1_000_000_000.0;
 
@@ -639,7 +749,7 @@ public class GameContext {
         updateProjectiles();
         checkEnemyCollisions();
 
-        if (tutorialController.isActive()) {
+        if (state == State.P1 && tutorialController.isActive()) {
             boolean downInput = inputManager.isPressed(KeyCode.DOWN) || inputManager.isPressed(KeyCode.S);
             boolean nearEnemy = !enemies.isEmpty() && Math.abs(enemies.get(0).getWorldX() - hero.getX()) < 300;
             boolean guardianContacted = !guardians.isEmpty() && guardians.get(0).isContacted();
@@ -796,7 +906,7 @@ public class GameContext {
 
         checkGuardians(true); // arena sem câmera
 
-        if (!overlayActive && inputManager.isPressed(KeyCode.SPACE) && nanoTime - hero.getLastShotTime() > 260_000_000L) {
+        if (!overlayActive && inputManager.isPressed(KeyCode.SPACE)) {
             tryShoot();
         }
 
@@ -846,6 +956,7 @@ public class GameContext {
         }
 
         // Correntes e zonas de pressão na arena do boss — coordenadas de tela (sem scroll)
+        checkSacredTablet();
         updateEnemies();
         checkEnemyCollisions();
         checkSceneryCollisionsArena();
@@ -861,16 +972,18 @@ public class GameContext {
         double spread = BossEntity.SPREAD[boss.getVariant()];
         double spd = (difficulty == Difficulty.FACIL ? 4.5 : 7.0) * getThreatMultiplier() * BossEntity.SPD_MULT[boss.getVariant()];
 
+        double bulletDmg = (difficulty == Difficulty.FACIL) ? 1.0 : ((difficulty == Difficulty.MEDIO) ? 1.2 : 1.5);
+
         switch (boss.getCombatPhase()) {
             case OBSIDIANA_FRIA -> fireBossFan(bfx, bfy, baseAngle, spread,
-                difficulty == Difficulty.FACIL ? 3 : (difficulty == Difficulty.MEDIO ? 4 : 5), spd);
+                difficulty == Difficulty.FACIL ? 3 : (difficulty == Difficulty.MEDIO ? 4 : 5), spd, bulletDmg);
             case FUSAO_VULCANICA -> {
                 // Onda circular: forca leitura espacial, nao so reflexo.
                 int count = difficulty == Difficulty.FACIL ? 6 : 8;
                 for (int i = 0; i < count; i++) {
                     double angle = (Math.PI * 2 * i) / count;
                     projectiles.add(new Projectile(Projectile.Type.BOSS_BULLET, bfx, bfy,
-                        Math.cos(angle) * spd * 0.78, Math.sin(angle) * spd * 0.78, 0.6, true));
+                        Math.cos(angle) * spd * 0.78, Math.sin(angle) * spd * 0.78, bulletDmg, true));
                 }
             }
             case FURIA_DE_APSU -> {
@@ -879,17 +992,17 @@ public class GameContext {
                 for (int i = 0; i < count; i++) {
                     double meteorX = 260 + Math.floorMod(boss.getAttackSeed() / 100_000_000L + i * 193L, 820L);
                     projectiles.add(new Projectile(Projectile.Type.BOSS_BULLET, meteorX, -12,
-                        Math.sin(i * 2.1) * 1.4, spd * 1.22, 0.7, true));
+                        Math.sin(i * 2.1) * 1.4, spd * 1.22, bulletDmg, true));
                 }
             }
         }
     }
 
-    private void fireBossFan(double x, double y, double baseAngle, double spread, int count, double speed) {
+    private void fireBossFan(double x, double y, double baseAngle, double spread, int count, double speed, double bulletDmg) {
         for (int i = 0; i < count; i++) {
             double angle = baseAngle + (i - (count - 1) / 2.0) * (spread / Math.max(count - 1, 1));
             projectiles.add(new Projectile(Projectile.Type.BOSS_BULLET, x, y,
-                Math.cos(angle) * speed, Math.sin(angle) * speed, 0.5, true));
+                Math.cos(angle) * speed, Math.sin(angle) * speed, bulletDmg, true));
         }
     }
 
@@ -1052,14 +1165,23 @@ public class GameContext {
                 if (sacredTablet.collect()) {
                     tabletsCollected++;
                     hero.heal(2.0);
-                    particleSystem.addBurst(camera.toScreenX(tx), ty, Palette.GOLD);
-                    particleSystem.addBurst(camera.toScreenX(tx), ty, Palette.RADAR_STROKE);
-                    particleSystem.addBurst(camera.toScreenX(tx), ty, Palette.HUD_HP_HIGH);
-                    GameEvent exitFocus = phaseExitIntroductionController.tabletCollected(currentPhase);
-                    if (exitFocus != null) eventBus.publish(exitFocus);
-                    playSound(AudioCue.PICKUP);
-                    showAlert("Tabuleta Sagrada (" + tabletsCollected + "/" + TOTAL_TABLETS + ") resgatada! O portal de descida foi liberado!");
-                    persistProgress();
+                    double screenTx = (state == State.P5) ? tx : camera.toScreenX(tx);
+                    particleSystem.addBurst(screenTx, ty, Palette.GOLD);
+                    particleSystem.addBurst(screenTx, ty, Palette.RADAR_STROKE);
+                    particleSystem.addBurst(screenTx, ty, Palette.HUD_HP_HIGH);
+                    if (state == State.P5) {
+                        playSound(AudioCue.VICTORY);
+                        showAlert("Todas as 5 Tabuletas Sagradas reunidas! Apsu foi purificado!");
+                        state = State.WIN;
+                        phaseDone = 5;
+                        persistProgress();
+                    } else {
+                        GameEvent exitFocus = phaseExitIntroductionController.tabletCollected(currentPhase);
+                        if (exitFocus != null) eventBus.publish(exitFocus);
+                        playSound(AudioCue.PICKUP);
+                        showAlert("Tabuleta Sagrada (" + tabletsCollected + "/" + TOTAL_TABLETS + ") resgatada! O portal de descida foi liberado!");
+                        persistProgress();
+                    }
                 }
             }
         }
@@ -1186,13 +1308,16 @@ public class GameContext {
                         playSound(AudioCue.BOSS_DAMAGED);
                         it.remove();
                         if (boss.isDead()) {
-                            camera.applyShake(16, 420_000_000L, nanoTime);
+                            camera.applyShake(18, 500_000_000L, nanoTime);
                             particleSystem.addBurst(boss.getX() + BossEntity.BW/2, boss.getY() + BossEntity.BH/2, Color.GOLD);
-                            playSound(AudioCue.VICTORY);
+                            particleSystem.addBurst(boss.getX() + BossEntity.BW/2, boss.getY() + BossEntity.BH/2, Color.ORANGERED);
+                            playSound(AudioCue.ENEMY_DEFEATED);
                             publishBossMusic(false);
-                            state = State.WIN;
-                            phaseDone = 5;
-                            persistProgress();
+                            projectiles.clear();
+                            // APSU-G19F: A 5ª Tabuleta Sagrada emerge flutuando no centro do Templo de Apsu
+                            sacredTablet = new br.apsu.model.environment.SacredTabletEntity(5, 683.0 - 24.0, 384.0 - 32.0);
+                            sacredTablet.reveal();
+                            showAlert("A 5ª Tabuleta Sagrada emergiu do altar! Aproxime-se para purificar Apsu!");
                         }
                     }
                 }
@@ -1203,8 +1328,8 @@ public class GameContext {
                     it.remove();
                 }
             } else if (p.getType() == Projectile.Type.BOSS_BULLET) {
-                // Boss bullet em tela (P5)
-                if (!hero.isInvulnerable() && heroHits(p.getX() - 6, p.getY() - 6, 12, 12)) {
+                // Boss bullet em tela (P5) - caixa compatível com modelo 3D (escala 54) e esfera 2D
+                if (!hero.isInvulnerable() && heroHits(p.getX() - 14, p.getY() - 14, 28, 28)) {
                     hurtHero(p.getDamage(), p.getVx() * 0.40, p.getVy() * 0.40, Color.PURPLE, 7);
                     it.remove();
                 }
@@ -1251,7 +1376,8 @@ public class GameContext {
     // DISPARO — B3-FIX: posição de mundo
     // =========================================================
     private void tryShoot() {
-        if (nanoTime - hero.getLastShotTime() < 260_000_000L) return;
+        long cooldown = hero.isMultipleShotMode() ? 480_000_000L : 320_000_000L;
+        if (nanoTime - hero.getLastShotTime() < cooldown) return;
         hero.setLastShotTime(nanoTime);
         if (hero.hasBubblePower()) {
             hero.triggerShooting(nanoTime);
@@ -1397,7 +1523,7 @@ public class GameContext {
     private boolean hurtHero(double damage, double knockbackX, double knockbackY, Color color, int shake) {
         if (hero.isInvulnerable() || cutsceneController.isActive()) return false;
         double effectiveDamage = damage;
-        if (tutorialController.isActive()) {
+        if (state == State.P1 && tutorialController.isActive()) {
             double cappedHp = tutorialController.filterHeroDamage(hero.getHp(), hero.getMaxHP(), damage);
             effectiveDamage = hero.getHp() - cappedHp;
         }
@@ -1469,6 +1595,8 @@ public class GameContext {
     }
 
     // Getters
+    public int getPhaseDone() { return phaseDone; }
+    public void setPhaseDone(int phaseDone) { this.phaseDone = phaseDone; }
     public State getState() { return state; }
     public void setState(State state) { this.state = state; }
     public Difficulty getDifficulty() { return difficulty; }

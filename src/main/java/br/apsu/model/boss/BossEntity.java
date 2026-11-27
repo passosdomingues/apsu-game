@@ -24,7 +24,7 @@ public class BossEntity {
     /** Hitbox gameplay do boss; o render 3D mantém proporção maior que o herói. */
     public static final double BW = 260, BH = 400;
     public static final double RENDER_W = 3800, RENDER_H = 4600;
-    public static final int[] HP_BY_VAR = { 12, 15, 13 };
+    public static final int[] HP_BY_VAR = { 24, 30, 26 };
     public static final double[] SPD_MULT = { 1.0, 0.7, 1.4 };
     public static final double[] SPREAD = { Math.PI/5, Math.PI/6, Math.PI/3.5 };
 

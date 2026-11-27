@@ -315,22 +315,38 @@ public final class EchoWaveRenderer {
             }
         }
 
-        // Obstaculos fixos (branco)
+        // Obstaculos fixos (branco - ondas acusticas esfericas organicas APSU-G19B)
         List<SceneryElement> scenery = ctx.getSceneryElements();
         int sCount = Math.min(scenery.size(), MAX_SCENERY);
         for (int i = 0; i < sCount; i++) {
             if (sceneryHighlight[i] <= 0.0) continue;
             SceneryElement s = scenery.get(i);
             double sx = ctx.getCamera().toScreenX(s.getWorldX());
-            // APSU-P17: culling — ignora elemento de cenário fora da tela
-            if (sx + s.getWidth() < -20 || sx > width + 20) continue;
+            // APSU-P17: culling — ignora elemento de cenário fora da tela com margem segura
+            if (sx + s.getWidth() < -40 || sx > width + 40) continue;
             double sy = s.getWorldY();
             double alpha = Math.min(1.0, sceneryHighlight[i] / HIGHLIGHT_DURATION);
 
-            gc.setGlobalAlpha(alpha * 0.75);
+            double cx = sx + s.getWidth() / 2.0;
+            double cy = sy + s.getHeight() / 2.0;
+            double baseRadius = Math.max(s.getWidth(), s.getHeight()) * 0.55;
+            double pulse = (1.0 - alpha) * 26.0;
+
             gc.setStroke(COLOR_SCENERY);
+
+            // Anel acustico principal circundando o obstaculo organicamente
+            gc.setGlobalAlpha(alpha * 0.75);
             gc.setLineWidth(2.5);
-            gc.strokeRoundRect(sx - 2, sy - 2, s.getWidth() + 4, s.getHeight() + 4, 8, 8);
+            double r1 = baseRadius + pulse;
+            gc.strokeOval(cx - r1, cy - r1, r1 * 2.0, r1 * 2.0);
+
+            // Segundo anel acustico concentrico harmonico
+            if (r1 > 16.0) {
+                gc.setGlobalAlpha(alpha * 0.35);
+                gc.setLineWidth(1.5);
+                double r2 = Math.max(6.0, r1 * 0.62);
+                gc.strokeOval(cx - r2, cy - r2, r2 * 2.0, r2 * 2.0);
+            }
         }
 
         gc.setGlobalAlpha(1.0);

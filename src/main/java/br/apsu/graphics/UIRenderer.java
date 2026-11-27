@@ -61,6 +61,10 @@ public class UIRenderer {
     public static final Color ECHO_HINT_BG = Color.rgb(248, 250, 255, 0.95);
     public static final Color ECHO_HINT_STROKE = Color.rgb(140, 195, 255, 0.90);
     public static final Color ECHO_HINT_TEXT = Color.rgb(15, 45, 80);
+    public static final Color ECHO_BAR_TRACK = Color.rgb(10, 25, 48, 0.88);
+    public static final Color ECHO_BAR_STROKE = Color.rgb(80, 160, 225, 0.75);
+    public static final Color ECHO_BAR_FILL_COOLDOWN = Color.rgb(40, 180, 250, 0.92);
+    public static final Color ECHO_BAR_FILL_READY = Color.rgb(60, 240, 195, 0.95);
 
     public void drawHUD(GraphicsContext gc, HeroEntity hero, int tablets, String phaseName, Difficulty diff) {
         drawHUD(gc, hero, tablets, phaseName, diff, OceanDepthProfile.COASTAL, 0.0, null, null);
@@ -302,17 +306,16 @@ public class UIRenderer {
         if (echo == null) return;
 
         boolean onCooldown = echo.isOnCooldown();
-        double progress = echo.getCooldownProgress();
-        double alpha = onCooldown ? 0.45 : 1.0;
+        double progress = Math.max(0.0, Math.min(1.0, echo.getCooldownProgress()));
 
         gc.save();
-        gc.setGlobalAlpha(alpha);
 
-        // Icone 'Q' no tema claro
+        // Icone 'Q' no tema claro / dourado quando pronto
         double iconW = 18, iconH = 14;
-        gc.setFill(ECHO_LIGHT_BG);
+        gc.setGlobalAlpha(onCooldown ? 0.65 : 1.0);
+        gc.setFill(onCooldown ? ECHO_LIGHT_BG : ECHO_BAR_FILL_READY);
         gc.fillRoundRect(x, y, iconW, iconH, 3, 3);
-        gc.setStroke(ECHO_LIGHT_STROKE);
+        gc.setStroke(onCooldown ? ECHO_LIGHT_STROKE : Palette.GOLD);
         gc.setLineWidth(1.0);
         gc.strokeRoundRect(x, y, iconW, iconH, 3, 3);
 
@@ -322,18 +325,42 @@ public class UIRenderer {
         gc.setTextBaseline(VPos.CENTER);
         gc.fillText("Q", x + iconW / 2.0, y + iconH / 2.0);
 
-        // Se em recarga: exibe progresso de 0 a 100%
+        // Barra visual de recarga do Sonar (APSU-U19C)
+        double barX = x + iconW + 4;
+        double barW = 56;
+        double barH = 14;
+
+        gc.setGlobalAlpha(1.0);
+        // Pista da barra com fundo escuro e borda estilizada
+        gc.setFill(ECHO_BAR_TRACK);
+        gc.fillRoundRect(barX, y, barW, barH, 3, 3);
+        gc.setStroke(onCooldown ? ECHO_BAR_STROKE : Palette.GOLD);
+        gc.setLineWidth(1.0);
+        gc.strokeRoundRect(barX, y, barW, barH, 3, 3);
+
+        // Preenchimento gradual da barra
+        double fillW = Math.max(0, (barW - 4) * progress);
+        if (fillW > 0) {
+            gc.setFill(onCooldown ? ECHO_BAR_FILL_COOLDOWN : ECHO_BAR_FILL_READY);
+            gc.fillRoundRect(barX + 2, y + 2, fillW, barH - 4, 2, 2);
+        }
+
+        // Texto informativo legível no centro da barra
+        gc.setFont(UiFonts.RADAR_BOLD_10);
+        gc.setTextAlign(TextAlignment.CENTER);
+        gc.setTextBaseline(VPos.CENTER);
         if (onCooldown) {
             int pct = (int) Math.round(progress * 100.0);
-            gc.setFont(UiFonts.TEXT_10);
-            gc.setTextAlign(TextAlignment.LEFT);
-            gc.setTextBaseline(VPos.CENTER);
-            gc.fillText(pct + "%", x + iconW + 4, y + iconH / 2.0);
+            gc.setFill(Color.WHITE);
+            gc.fillText(pct + "%", barX + barW / 2.0, y + barH / 2.0);
+        } else {
+            gc.setFill(ECHO_LIGHT_TEXT);
+            gc.fillText("PRONTO", barX + barW / 2.0, y + barH / 2.0);
         }
 
         // Se dica ativa: "Q: eco"
         if (echo.isHintVisible()) {
-            double hintX = x + (onCooldown ? iconW + 38 : iconW + 6);
+            double hintX = barX + barW + 6;
             drawEchoHint(gc, hintX, y);
         }
 

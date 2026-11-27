@@ -164,7 +164,7 @@ public class BossAttackTelegraphTest {
         assertTrue(boss.isAttackTelegraphing(1_000_000_000L));
 
         // Boss sofre dano e muda para FUSAO_VULCANICA
-        boss.takeDamage(5);
+        boss.takeDamage(9);
         assertTrue(boss.updateCombatPhase(1_200_000_000L));
         assertEquals(CombatPhase.FUSAO_VULCANICA, boss.getCombatPhase());
 
@@ -191,8 +191,8 @@ public class BossAttackTelegraphTest {
         long[] frameDurations = new long[60];
 
         for (CombatPhase phase : phases) {
-            if (phase == CombatPhase.FUSAO_VULCANICA) boss.takeDamage(2);
-            if (phase == CombatPhase.FURIA_DE_APSU) boss.takeDamage(2);
+            if (phase == CombatPhase.FUSAO_VULCANICA) boss.takeDamage(9);
+            if (phase == CombatPhase.FURIA_DE_APSU) boss.takeDamage(8);
             boss.updateCombatPhase(10_000_000_000L);
 
             long t0 = 12_000_000_000L;

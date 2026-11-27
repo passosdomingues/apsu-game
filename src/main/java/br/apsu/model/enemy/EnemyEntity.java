@@ -19,7 +19,11 @@ public class EnemyEntity {
         this.currentY = baseY;
         this.speed = speed;
         this.amplitude = amplitude;
-        this.maxHp = (type == EnemyType.LEVIATA) ? 4 : 1;
+        this.maxHp = switch (type) {
+            case LEVIATA -> 4;
+            case CARANGUEJO, POLVO_ABISSAL, ARRAIAO -> 2;
+            default -> 1;
+        };
         this.hp = this.maxHp;
     }
 
