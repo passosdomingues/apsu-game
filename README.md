@@ -9,21 +9,23 @@
 
 ---
 
-## 🎮 DOWNLOAD EM DESTAQUE (INSTALADOR EXECUTÁVEL)
+## 🎮 DOWNLOAD EM DESTAQUE (INSTALADOR EXECUTÁVEL MULTIPLATAFORMA)
 
 <div align="center">
 
 # 🪟 [⬇️ CLIQUE AQUI PARA BAIXAR O INSTALADOR WINDOWS (.EXE)](https://github.com/passosdomingues/apsu-game/releases/download/v20261125-213629/apsu-game-v20261125-213629-windows-x64.exe)
 
 ### **Instalador Oficial para Windows 10 e Windows 11 (64-bit)**
-> **Pronto para jogar:** não requer instalação de Java nem configuração de variáveis de ambiente.  
-> O **Java 21 LTS** e todos os módulos gráficos e sonoros já vêm **100% embutidos** no executável `.exe`.
+> ⚡ **Pronto para jogar (À prova de erros):** não requer instalação de Java nem configuração de variáveis de ambiente.  
+> O **Java 21 LTS** e todos os módulos gráficos e sonoros já vêm **100% embutidos** no executável `.exe`. Basta baixar, clicar duas vezes e jogar!
 
-| Plataforma | Pacote / Formato | Ação de Instalação |
-|---|---|---|
-| **Windows 10 / 11 (64-bit)** | **`.exe` (Instalador Nativo)** | **[👉 Baixar Executável Windows (.exe)](https://github.com/passosdomingues/apsu-game/releases/download/v20261125-213629/apsu-game-v20261125-213629-windows-x64.exe)** |
-| **Linux (Ubuntu / Debian x64)** | `.deb` (Pacote Debian) | [👉 Baixar Pacote Linux (.deb)](https://github.com/passosdomingues/apsu-game/releases/download/v20261125-213629/apsu-game-v20261125-213629-linux-x64.deb) |
-| **macOS (Apple Silicon & Intel)** | `.dmg` (Imagem de Disco) | [👉 Baixar Imagem macOS (.dmg)](https://github.com/passosdomingues/apsu-game/releases/tag/v20261125-213629) |
+| Plataforma | Pacote / Formato | Tamanho | Requer Java? | Link de Download Direto |
+|---|---|---|---|---|
+| 🪟 **Windows 10 / 11 (64-bit)** | **`.exe` (Instalador Nativo)** | ~396 MB | ❌ Não (JRE 21 embutido) | **[👉 Baixar .EXE Windows (Recomendado)](https://github.com/passosdomingues/apsu-game/releases/download/v20261125-213629/apsu-game-v20261125-213629-windows-x64.exe)** |
+| 🐧 **Linux (Ubuntu / Debian x64)** | **`.deb` (Pacote Debian)** | ~400 MB | ❌ Não (JRE 21 embutido) | **[👉 Baixar .DEB Linux](https://github.com/passosdomingues/apsu-game/releases/download/v20261125-213629/apsu-game-v20261125-213629-linux-x64.deb)** |
+| 🍎 **macOS Apple Silicon (M1–M4)** | **`.dmg` (Imagem de Disco)** | ~426 MB | ❌ Não (JRE 21 embutido) | **[👉 Baixar .DMG Apple Silicon](https://github.com/passosdomingues/apsu-game/releases/download/v20261125-213629/apsu-game-v20261125-213629-macos-arm64.dmg)** |
+| 🍎 **macOS Intel (x64)** | **`.dmg` (Imagem de Disco)** | ~429 MB | ❌ Não (JRE 21 embutido) | **[👉 Baixar .DMG macOS Intel](https://github.com/passosdomingues/apsu-game/releases/download/v20261125-213629/apsu-game-v20261125-213629-macos-x64.dmg)** |
+| ☕ **Multiplataforma (Qualquer OS)** | **`.jar` (Executável Java)** | ~16 MB | ✅ Sim (Java 21 LTS) | **[👉 Baixar .JAR Multiplataforma](https://github.com/passosdomingues/apsu-game/releases/download/v20261125-213629/apsu-game-v20261125-213629-windows-x64.jar)** |
 
 </div>
 
@@ -114,10 +116,12 @@ make
 | **Nadar / Mover-se** | `W A S D` ou Teclas de Direção `↑ ← ↓ →` |
 | **Atacar (Purificar com Bolhas)** | `Espaço` (desbloqueado na Fase 2 no navio naufragado) |
 | **Interagir (Diálogos e Baús)** | `E` ou `Espaço` |
+| **Pular Diálogos / Cutscenes / Tutorial** | `X` (skip instantâneo de diálogos e animações de câmera) |
+| **Pausar o Jogo / Menu de Pausa** | `ESC` ou `P` (pausa a simulação em tempo real) |
 | **Alternar Ataque (Único / Rajada Tripla)** | `M` |
 | **Ecolocalização (Sonar Acústico)** | `Q` ou `Shift` esquerdo |
-| **Pausar o Jogo / Menu de Pausa** | `ESC` ou `P` |
 | **Reiniciar Fase Instantaneamente** | `R` (reinício rápido sem congelamentos) |
+| **Avançar Diálogo / Confirmar Menu** | `Enter` ou `Espaço` |
 
 > O disparo de bolhas é desbloqueado ao interagir com o baú ancestral na **Fase 2**.
 

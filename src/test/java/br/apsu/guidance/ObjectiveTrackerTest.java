@@ -55,7 +55,7 @@ class ObjectiveTrackerTest {
         context.getHero().setY(g.getWorldY());
         context.getInputManager().registerKeyPress(javafx.scene.input.KeyCode.E);
         context.update(1_000_000_000L);
-        context.onKey(javafx.scene.input.KeyCode.ESCAPE); // fecha overlay
+        context.onKey(javafx.scene.input.KeyCode.X); // fecha overlay com tecla X
         context.revealAndCollectSacredTablet(); // resgata tabuleta revelada
 
         assertEquals(1, context.getTabletsCollected(), "Tabuleta deve ter sido coletada");

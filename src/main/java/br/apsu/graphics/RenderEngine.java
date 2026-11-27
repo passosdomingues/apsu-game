@@ -323,7 +323,7 @@ public class RenderEngine implements GameRenderer {
         if (ctx.getDlgIdx() < currentDlg.length) uiRenderer.wrapText(gc, currentDlg[ctx.getDlgIdx()], 265, height / 2.0 - 76, width - 440, 34);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setFill(Palette.GOLD); gc.setFont(UiFonts.HINT_15);
-        gc.fillText("[ ESPAÇO / E: Avançar  •  ESC: Pular Diálogo ]", width / 2.0 + 80, height / 2.0 + 136);
+        gc.fillText("[ ESPAÇO / E: Avançar  •  X: Pular Diálogo ]", width / 2.0 + 80, height / 2.0 + 136);
     }
 
     private void drawParallaxBackground(GraphicsContext gc, Image bg, double cameraX, double width, double height, double parallaxFactor) {

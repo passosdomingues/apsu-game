@@ -158,13 +158,13 @@ public class GameContext {
 
     public void onKey(KeyCode k) {
         if (cutsceneController.isActive()) {
-            if (k == KeyCode.SPACE || k == KeyCode.ENTER || k == KeyCode.ESCAPE) {
+            if (k == KeyCode.SPACE || k == KeyCode.ENTER || k == KeyCode.X) {
                 cutsceneController.skip(hero.getX());
                 return;
             }
         }
         if (overlayActive) {
-            if (k == KeyCode.ESCAPE) {
+            if (k == KeyCode.X) {
                 overlayActive = false;
                 if (overlayOnComplete != null) overlayOnComplete.run();
                 return;
@@ -178,7 +178,7 @@ public class GameContext {
         switch (state) {
             case MENU -> menuKey(k);
             case DIALOGUE -> {
-                if (k == KeyCode.ESCAPE) {
+                if (k == KeyCode.X) {
                     advancePhaseFromDialogue();
                     return;
                 }
@@ -193,12 +193,11 @@ public class GameContext {
             }
             case P1, P2, P3, P4, P5 -> {
                 if (k == KeyCode.ESCAPE || k == KeyCode.P) {
-                    if (state == State.P1 && tutorialController.isActive() && k == KeyCode.ESCAPE) {
-                        tutorialController.skip();
-                        showAlert("Tutorial pulado! Encontre Enki nas águas claras.");
-                        return;
-                    }
                     pauseGame();
+                } else if (k == KeyCode.X && state == State.P1 && tutorialController.isActive()) {
+                    tutorialController.skip();
+                    showAlert("Tutorial pulado! Encontre Enki nas águas claras.");
+                    return;
                 } else if (k == KeyCode.R) {
                     restartCurrentPhase();
                 } else if (k == KeyCode.M && hero.hasBubblePower()) {

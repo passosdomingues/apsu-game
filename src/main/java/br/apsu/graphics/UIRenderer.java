@@ -466,7 +466,7 @@ public class UIRenderer {
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setFont(UiFonts.HINT_BOLD_13);
         gc.setFill(Palette.DIALOGUE_OVERLAY_HINT);
-        gc.fillText("[ E / ESPACO / ENTER: Avancar  |  ESC: Pular ]", canvasW / 2.0, boxY + boxH - 14);
+        gc.fillText("[ E / ESPACO / ENTER: Avancar  |  X: Pular ]", canvasW / 2.0, boxY + boxH - 14);
 
         if (lines != null) {
             gc.setFill(Palette.GOLD);

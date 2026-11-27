@@ -6,6 +6,7 @@ import br.apsu.tutorial.TutorialController;
 import br.apsu.tutorial.TutorialStep;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
@@ -15,7 +16,8 @@ import javafx.scene.text.TextAlignment;
  *
  * Características:
  * 1. Renderização de layout com WASD, Setas de Direção (↑ ← ↓ →), Q (Sonar), E (Ação/Interagir),
- *    ESPAÇO (Disparar Bolhas), M (Alternar Tiro Único / Múltiplo), R (Reiniciar) e ESC (Pausa/Menu).
+ *    ESPAÇO (Disparar Bolhas), M (Alternar Tiro Único / Múltiplo), R (Reiniciar), P (Pausa),
+ *    X (Pular Diálogos/Cutscenes/Tutorial), ENTER (Confirmar/Avançar) e ESC (Pausa/Voltar).
  * 2. Detecção em tempo real via InputManager: afundamento físico do keycap (2px), iluminação ciano/ouro
  *    e halo radiante quando a tecla é pressionada pelo jogador.
  * 3. Destaque pulsante (breathing highlight) em sintonia com o Tutorial da Fase 1 e 2:
@@ -23,11 +25,12 @@ import javafx.scene.text.TextAlignment;
  *    - P1 Passo 2 (Desviar): destaca [A], [D], [←], [→]
  *    - P1 Passo 3 (Ecolocalização): destaca [Q]
  *    - P1 Passo 4 (Guardião): destaca [E] / [ESPAÇO]
+ *    - P1 Tutorial / Diálogo ativo: destaca [X] para pular
  *    - P2 Baú e Poderes: destaca [ESPAÇO] (atacar) e [M] (alternar bolha tripla)
  * 4. Modo Showcase / Tutorial Animado no Menu Principal:
- *    Demonstração cíclica das ações do herói Adapa (nadando, emitindo sonar, interagindo com relíquia,
- *    disparando bolhas purificadoras e alternando modo tático de disparo triplo via [M])
- *    com teclas acendendo sincronizadas.
+ *    Demonstração cíclica das ações do herói Adapa renderizado com sprite 3D autêntico
+ *    (nadando, emitindo sonar, interagindo com relíquia, disparando bolhas purificadoras e
+ *    alternando modo tático de disparo triplo via [M]) com teclas acendendo sincronizadas.
  * 5. Arquitetura Zero-Alloc: todas as teclas, geometrias e vetores são pré-alocados no construtor.
  */
 public class VirtualKeyboardOverlay {
@@ -90,20 +93,23 @@ public class VirtualKeyboardOverlay {
 
     public VirtualKeyboardOverlay() {
         // Layout do HUD de gameplay compacto (264 x 86)
-        // Linha 0 (y=18): [ESC] [Q] [W] [E] [R]   |  [↑]
-        // Linha 1 (y=40): [ A ] [S] [D] [M]       | [←][↓][→]
-        // Linha 2 (y=62): [    ESPAÇO: ATACAR    ]
+        // Linha 0 (y=18): [ESC] [Q] [W] [E] [R] [P]   |  [↑]
+        // Linha 1 (y=40): [ENT] [A] [S] [D] [X] [M]   | [←][↓][→]
+        // Linha 2 (y=62): [    ESPAÇO: ATACAR    ]    | [M: TIRO 1/3]
         hudKeys = new KeyDef[] {
             new KeyDef("ESC", null, new KeyCode[]{KeyCode.ESCAPE}, 6, 18, 26, 19),
             new KeyDef("Q", null, new KeyCode[]{KeyCode.Q}, 35, 18, 22, 19),
             new KeyDef("W", null, new KeyCode[]{KeyCode.W}, 60, 18, 22, 19),
             new KeyDef("E", null, new KeyCode[]{KeyCode.E}, 85, 18, 22, 19),
             new KeyDef("R", null, new KeyCode[]{KeyCode.R}, 110, 18, 22, 19),
+            new KeyDef("P", null, new KeyCode[]{KeyCode.P}, 135, 18, 22, 19),
 
+            new KeyDef("ENT", null, new KeyCode[]{KeyCode.ENTER}, 6, 40, 26, 19),
             new KeyDef("A", null, new KeyCode[]{KeyCode.A}, 35, 40, 22, 19),
             new KeyDef("S", null, new KeyCode[]{KeyCode.S}, 60, 40, 22, 19),
             new KeyDef("D", null, new KeyCode[]{KeyCode.D}, 85, 40, 22, 19),
-            new KeyDef("M", null, new KeyCode[]{KeyCode.M}, 110, 40, 22, 19),
+            new KeyDef("X", null, new KeyCode[]{KeyCode.X}, 110, 40, 22, 19),
+            new KeyDef("M", null, new KeyCode[]{KeyCode.M}, 135, 40, 22, 19),
 
             new KeyDef("↑", null, new KeyCode[]{KeyCode.UP}, 184, 18, 22, 19),
             new KeyDef("←", null, new KeyCode[]{KeyCode.LEFT}, 159, 40, 22, 19),
@@ -117,26 +123,29 @@ public class VirtualKeyboardOverlay {
         // Layout do showcase do Menu Principal (340 x 140)
         // Teclado mais espaçado e com sub-rótulos legíveis
         menuKeys = new KeyDef[] {
-            new KeyDef("ESC", "MENU", new KeyCode[]{KeyCode.ESCAPE}, 10, 12, 34, 28),
-            new KeyDef("Q", "SONAR", new KeyCode[]{KeyCode.Q}, 48, 12, 32, 28),
-            new KeyDef("W", "CIMA", new KeyCode[]{KeyCode.W}, 84, 12, 32, 28),
-            new KeyDef("E", "AÇÃO", new KeyCode[]{KeyCode.E}, 120, 12, 32, 28),
-            new KeyDef("R", "RESET", new KeyCode[]{KeyCode.R}, 156, 12, 32, 28),
+            new KeyDef("ESC", "PAUSA", new KeyCode[]{KeyCode.ESCAPE}, 8, 12, 34, 28),
+            new KeyDef("Q", "SONAR", new KeyCode[]{KeyCode.Q}, 46, 12, 32, 28),
+            new KeyDef("W", "CIMA", new KeyCode[]{KeyCode.W}, 82, 12, 32, 28),
+            new KeyDef("E", "AÇÃO", new KeyCode[]{KeyCode.E}, 118, 12, 32, 28),
+            new KeyDef("R", "RESET", new KeyCode[]{KeyCode.R}, 154, 12, 32, 28),
+            new KeyDef("P", "PAUSA", new KeyCode[]{KeyCode.P}, 190, 12, 32, 28),
 
-            new KeyDef("A", "ESQ", new KeyCode[]{KeyCode.A}, 48, 44, 32, 28),
-            new KeyDef("S", "BAIXO", new KeyCode[]{KeyCode.S}, 84, 44, 32, 28),
-            new KeyDef("D", "DIR", new KeyCode[]{KeyCode.D}, 120, 44, 32, 28),
-            new KeyDef("M", "MODO", new KeyCode[]{KeyCode.M}, 156, 44, 32, 28),
+            new KeyDef("X", "PULAR", new KeyCode[]{KeyCode.X}, 8, 44, 34, 28),
+            new KeyDef("A", "ESQ", new KeyCode[]{KeyCode.A}, 46, 44, 32, 28),
+            new KeyDef("S", "BAIXO", new KeyCode[]{KeyCode.S}, 82, 44, 32, 28),
+            new KeyDef("D", "DIR", new KeyCode[]{KeyCode.D}, 118, 44, 32, 28),
+            new KeyDef("M", "MODO", new KeyCode[]{KeyCode.M}, 154, 44, 32, 28),
+            new KeyDef("ENT", "OK", new KeyCode[]{KeyCode.ENTER}, 190, 44, 32, 28),
 
             // Cluster de Setas
-            new KeyDef("↑", null, new KeyCode[]{KeyCode.UP}, 252, 12, 32, 28),
-            new KeyDef("←", null, new KeyCode[]{KeyCode.LEFT}, 216, 44, 32, 28),
-            new KeyDef("↓", null, new KeyCode[]{KeyCode.DOWN}, 252, 44, 32, 28),
-            new KeyDef("→", null, new KeyCode[]{KeyCode.RIGHT}, 288, 44, 28, 28),
+            new KeyDef("↑", null, new KeyCode[]{KeyCode.UP}, 262, 12, 32, 28),
+            new KeyDef("←", null, new KeyCode[]{KeyCode.LEFT}, 226, 44, 32, 28),
+            new KeyDef("↓", null, new KeyCode[]{KeyCode.DOWN}, 262, 44, 32, 28),
+            new KeyDef("→", null, new KeyCode[]{KeyCode.RIGHT}, 298, 44, 32, 28),
 
             // Barra de espaço e botões de atalho tático
-            new KeyDef("ESPAÇO", "DISPARAR BOLHA DE PURIFICAÇÃO", new KeyCode[]{KeyCode.SPACE}, 10, 76, 210, 28),
-            new KeyDef("M", "BOLHAS 1/3", new KeyCode[]{KeyCode.M}, 226, 76, 102, 28)
+            new KeyDef("ESPAÇO", "DISPARAR BOLHA DE PURIFICAÇÃO", new KeyCode[]{KeyCode.SPACE}, 8, 76, 214, 28),
+            new KeyDef("M", "BOLHAS 1/3", new KeyCode[]{KeyCode.M}, 226, 76, 104, 28)
         };
     }
 
@@ -195,6 +204,7 @@ public class VirtualKeyboardOverlay {
             if (highlightE && key.label.equals("E")) key.highlighted = true;
             if (highlightSpace && key.label.startsWith("ESPAÇO")) key.highlighted = true;
             if (highlightM && key.label.contains("M")) key.highlighted = true;
+            if (((tutorial != null && tutorial.isActive()) || (context != null && context.isOverlayActive())) && key.label.equals("X")) key.highlighted = true;
 
             drawKeycap(gc, panelX + key.relX, panelY + key.relY, key.width, key.height,
                 key.label, key.sublabel, key.pressed, key.highlighted, pulse);
@@ -413,36 +423,45 @@ public class VirtualKeyboardOverlay {
     }
 
     /**
-     * Renderiza o herói Adapa em miniatura estilizada e fluida.
+     * Renderiza o herói Adapa em miniatura com sprite real e animação fluida.
      */
     private void drawMiniAdapa(GraphicsContext gc, double cx, double cy, boolean right, boolean attack, double t) {
-        // Halo bioluminescente
+        // Halo bioluminescente sagrado dos Apkallu
         gc.setFill(Palette.rgb(0, 210, 255, 0.22));
-        gc.fillOval(cx - 20, cy - 20, 40, 40);
+        gc.fillOval(cx - 24, cy - 24, 48, 48);
 
-        // Corpo do herói
-        gc.setFill(Palette.rgb(0, 160, 230, 0.95));
-        gc.fillOval(cx - 14, cy - 10, 28, 20);
+        Image fallback = SpriteManager.getInstance().getImage("sprites/adapa/01_adapa_heroi.png");
+        String seqDir = attack ? "sprites/adapa/01_adapa_nadando_disparo_bolhas" : "sprites/adapa/01_adapa_heroi";
+        SpriteManager.FrameSeq seq = SpriteManager.getInstance().loadSequence(seqDir, 8.0, fallback);
+        Image sprite = seq.get(t);
+        if (sprite == null) sprite = fallback;
 
-        // Cauda ondulante
-        double tailAngle = Math.sin(t * 10.0) * 8.0;
-        gc.setFill(Palette.rgb(0, 220, 255, 0.85));
-        gc.fillOval(cx - 22, cy - 6 + tailAngle * 0.5, 14, 12);
+        double bob = Math.sin(t * 3.5) * 2.0;
 
-        // Braço / Tridente estendido no ataque
-        if (attack) {
-            gc.setStroke(Palette.GOLD);
-            gc.setLineWidth(2.2);
-            gc.strokeLine(cx + 8, cy, cx + 24, cy);
-            gc.strokeLine(cx + 20, cy - 4, cx + 24, cy);
-            gc.strokeLine(cx + 20, cy + 4, cx + 24, cy);
+        if (sprite != null) {
+            double drawW = 54.0;
+            double drawH = 54.0;
+            gc.save();
+            if (!right) {
+                gc.translate(cx, cy + bob);
+                gc.scale(-1, 1);
+                gc.drawImage(sprite, -drawW / 2.0, -drawH / 2.0, drawW, drawH);
+            } else {
+                gc.drawImage(sprite, cx - drawW / 2.0, cy - drawH / 2.0 + bob, drawW, drawH);
+            }
+            gc.restore();
+        } else {
+            // Fallback estilizado do herói caso recursos gráficos não estejam disponíveis no ambiente
+            gc.setFill(Palette.rgb(0, 160, 230, 0.95));
+            gc.fillOval(cx - 8, cy - 18 + bob, 16, 16);
+            gc.fillRoundRect(cx - 12, cy - 2 + bob, 24, 26, 6, 6);
         }
 
-        // Olho sagrado dos Apkallu
-        gc.setFill(Palette.rgb(255, 255, 255, 0.95));
-        gc.fillOval(cx + 4, cy - 5, 4, 4);
-        gc.setFill(Palette.rgb(0, 30, 80, 1.0));
-        gc.fillOval(cx + 6, cy - 4, 2, 2);
+        // Se atacando, brilho adicional nos punhos/tridente
+        if (attack) {
+            gc.setFill(Palette.GOLD);
+            gc.fillOval(cx + (right ? 22 : -26), cy + bob - 3, 6, 6);
+        }
     }
 
     /**

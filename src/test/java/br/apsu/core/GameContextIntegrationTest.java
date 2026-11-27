@@ -324,7 +324,7 @@ public class GameContextIntegrationTest {
         assertEquals(3900.0, objective.worldX(), 0.001);
         assertEquals("Siga para o portal", objective.description());
 
-        context.onKey(KeyCode.ESCAPE);
+        context.onKey(KeyCode.X);
         for (int frame = 1; frame <= 18; frame++) context.update(timestamp + frame * 16_666_666L);
         assertFalse(context.getCutsceneController().isActive(), "Pular deve devolver o foco em até 0,3 s");
     }
@@ -586,8 +586,8 @@ public class GameContextIntegrationTest {
         context.update(16_666_666L);
         assertEquals(hpBefore, context.getHero().getHp(), 0.001, "Herói imune a dano durante cutscene do guardião");
 
-        // Pula com ESCAPE
-        context.onKey(KeyCode.ESCAPE);
+        // Pula com X
+        context.onKey(KeyCode.X);
 
         // Aguarda retorno rápido (<= 0.3 s = ~20 frames)
         for (int i = 0; i < 25; i++) {
@@ -628,7 +628,7 @@ public class GameContextIntegrationTest {
         assertEquals(br.apsu.cutscene.PhaseCutsceneConfig.guardianIntroDuration(phase), context.getCutsceneController().getActiveRequest().holdDurationSeconds(), 0.001);
         assertEquals(guardianCenterX, context.getCutsceneController().getActiveRequest().targetWorldX(), 0.001);
 
-        context.onKey(KeyCode.ESCAPE);
+        context.onKey(KeyCode.X);
         for (int tick = 1; tick <= 18; tick++) {
             context.update(firstTimestamp + (tick + 1) * 16_666_666L);
         }
@@ -827,7 +827,7 @@ public class GameContextIntegrationTest {
         context.getHero().setY(guardian.getWorldY());
         context.getInputManager().registerKeyPress(KeyCode.E);
         context.update(1_000_000_000L);
-        context.onKey(KeyCode.ESCAPE); // fecha diálogo
+        context.onKey(KeyCode.X); // fecha diálogo
         context.revealAndCollectSacredTablet(); // coleta tabuleta
         assertEquals(1, context.getTabletsCollected());
         var objAfterTablet = br.apsu.guidance.ObjectiveTracker.resolveCurrentObjective(context);
@@ -868,9 +868,9 @@ public class GameContextIntegrationTest {
         double capped = context.getTutorialController().filterHeroDamage(context.getHero().getHp(), maxHp, 10.0);
         assertTrue(capped >= maxHp * 0.50, "Vida nao deve cair abaixo de 50%");
 
-        // Esc pula o tutorial
-        context.onKey(KeyCode.ESCAPE);
-        assertFalse(context.getTutorialController().isActive(), "Esc deve concluir/pular o tutorial");
+        // X pula o tutorial
+        context.onKey(KeyCode.X);
+        assertFalse(context.getTutorialController().isActive(), "X deve concluir/pular o tutorial");
         assertTrue(context.getTutorialController().isSkipped());
 
         // Reiniciar jogo restaura o tutorial

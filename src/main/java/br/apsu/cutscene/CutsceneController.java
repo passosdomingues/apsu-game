@@ -12,7 +12,7 @@ import java.util.Queue;
  * - PAN_BACK: retorno suave da camera ao heroi (ate 0.8 s)
  *
  * Regras:
- * - Pular (Espaco, Enter, Esc): transiciona para retorno rapido (conclui em <= 0.3 s).
+ * - Pular (Espaco, Enter, X): transiciona para retorno rapido (conclui em <= 0.3 s).
  * - Fila: pedidos simultaneos sao enfileirados em ordem sem sobreposicao.
  * - Zero alocacao no hot path (update).
  */

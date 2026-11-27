@@ -8,7 +8,7 @@ package br.apsu.tutorial;
  * - Cada passo so avanca quando a acao e executada.
  * - Apos 15 s sem executar o passo, a dica e reforcada (isHintUrgent() = true).
  * - No passo de desvio, dano nunca reduz a vida abaixo de 50% e reinicia o passo.
- * - Tecla Esc durante o tutorial pula os passos restantes e conclui o tutorial.
+ * - Tecla X durante o tutorial pula os passos restantes e conclui o tutorial.
  * - Ao conversar com o guardiao, o tutorial termina e nao reaparece na mesma partida.
  * - Reiniciar a partida (reset) reinicia o tutorial do primeiro passo.
  */
@@ -57,7 +57,7 @@ public class TutorialController {
         return skipped;
     }
 
-    /** Jogador experiente pula o tutorial com ESC. */
+    /** Jogador pula o tutorial com X. */
     public void skip() {
         this.skipped = true;
         this.active = false;
