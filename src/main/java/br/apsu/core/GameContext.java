@@ -243,7 +243,7 @@ public class GameContext {
                 if (k == KeyCode.R) {
                     restartCurrentPhase();
                 } else if (k == KeyCode.SPACE || k == KeyCode.ENTER || k == KeyCode.ESCAPE) {
-                    state = State.MENU;
+                    returnToMenu();
                 }
             }
         }
@@ -320,14 +320,14 @@ public class GameContext {
             if (canContinue()) {
                 switch (menuSel) {
                     case 0 -> continueGame();
-                    case 1 -> { reset(); transitionToPhase(1); }
+                    case 1 -> { phaseDone = 0; reset(); transitionToPhase(1); }
                     case 2 -> { difficultyMenuOpen = true; difficultyMenuSel = difficulty.ordinal(); }
                     default -> playSound(AudioCue.MENU_CONFIRM);
                 }
             } else {
                 switch (menuSel) {
                     case 0 -> { difficultyMenuOpen = true; difficultyMenuSel = difficulty.ordinal(); }
-                    case 1 -> { reset(); transitionToPhase(1); }
+                    case 1 -> { phaseDone = 0; reset(); transitionToPhase(1); }
                     default -> playSound(AudioCue.MENU_CONFIRM);
                 }
             }
@@ -355,8 +355,11 @@ public class GameContext {
         alertMessage = "";
         phaseHits = 0;
         overlayActive = false;
+        overlayLines = null;
+        overlayOnComplete = null;
         currentPhase = 0;
         boss = null;
+        sacredTablet = null;
         inCurrent = false;
         inPressureZone = false;
         p1GuardianCutsceneTriggered = false;
@@ -377,7 +380,7 @@ public class GameContext {
     }
 
     public boolean canContinue() {
-        return phaseDone > 0;
+        return phaseDone > 0 && phaseDone < 5;
     }
 
     public void continueGame() {
@@ -413,7 +416,11 @@ public class GameContext {
     public void returnToMenu() {
         if (state == State.P5) publishBossMusic(false);
         reset();
+        if (phaseDone >= 5) {
+            phaseDone = 0;
+        }
         state = State.MENU;
+        menuSel = canContinue() ? 0 : 1;
         playSound(AudioCue.MENU_CONFIRM);
     }
 
@@ -641,6 +648,9 @@ public class GameContext {
     // =========================================================
     public void startP5() {
         tutorialController.skip();
+        cutsceneController.stop();
+        overlayActive = false;
+        overlayLines = null;
         boss = null;
         sacredTablet = null;
         tabletsCollected = Math.max(tabletsCollected, 4);
@@ -903,6 +913,7 @@ public class GameContext {
     private void updateP5() {
         stepHero(1.0 / 60.0);
         hero.setX(Math.max(20, Math.min(1366 - HeroEntity.HW - 20, hero.getX())));
+        cutsceneController.update(hero.getX(), 1.0 / 60.0);
 
         checkGuardians(true); // arena sem câmera
 
@@ -1328,8 +1339,9 @@ public class GameContext {
                     it.remove();
                 }
             } else if (p.getType() == Projectile.Type.BOSS_BULLET) {
-                // Boss bullet em tela (P5) - caixa compatível com modelo 3D (escala 54) e esfera 2D
-                if (!hero.isInvulnerable() && heroHits(p.getX() - 14, p.getY() - 14, 28, 28)) {
+                // Boss bullet em tela (P5) - caixa generosa e justa compatível com a malha 3D (escala 54) e esfera 2D
+                if (!hero.isInvulnerable() && rectsHit(hero.getX() + 8, hero.getY() + 16, HeroEntity.HW - 16, HeroEntity.HH - 32,
+                                                       p.getX() - 25, p.getY() - 25, 50, 50)) {
                     hurtHero(p.getDamage(), p.getVx() * 0.40, p.getVy() * 0.40, Color.PURPLE, 7);
                     it.remove();
                 }
@@ -1521,7 +1533,8 @@ public class GameContext {
 
     /** Aplica dano uma única vez e cria separação suficiente para o jogador reagir. */
     private boolean hurtHero(double damage, double knockbackX, double knockbackY, Color color, int shake) {
-        if (hero.isInvulnerable() || cutsceneController.isActive()) return false;
+        if (hero.isInvulnerable()) return false;
+        if (state != State.P5 && cutsceneController.isActive()) return false;
         double effectiveDamage = damage;
         if (state == State.P1 && tutorialController.isActive()) {
             double cappedHp = tutorialController.filterHeroDamage(hero.getHp(), hero.getMaxHP(), damage);

@@ -984,5 +984,50 @@ public class GameContextIntegrationTest {
         assertEquals(GameContext.State.WIN, context.getState());
         assertEquals(5, context.getTabletsCollected(), "5/5 tabuletas coletadas");
     }
+
+    @Test
+    @DisplayName("APSU-B19A: Projétil de lava do Boss Kullullû (BOSS_BULLET) causa dano real ao herói em P5")
+    void testBossBulletDamageInPhase5() {
+        context.startP5();
+        assertEquals(GameContext.State.P5, context.getState());
+        double initialHp = context.getHero().getHp();
+        assertTrue(initialHp > 0);
+
+        // Posiciona projétil de lava sobre o centro de colisão do herói
+        double hx = context.getHero().getX() + HeroEntity.HW / 2.0;
+        double hy = context.getHero().getY() + HeroEntity.HH / 2.0;
+        context.getProjectiles().add(new Projectile(Projectile.Type.BOSS_BULLET, hx, hy, -4.5, 0, 1.2, true));
+        context.update(2_000_000_000L); // atualiza com tempo futuro para garantir sem invulnerabilidade prévia
+
+        assertTrue(context.getHero().getHp() < initialHp, "Vida do herói deve diminuir ao ser atingido por bola de lava");
+        assertTrue(context.getProjectiles().isEmpty(), "Projétil de lava consumido após o impacto");
+    }
+
+    @Test
+    @DisplayName("Retornar ao menu principal após vitória e iniciar um novo jogo do zero")
+    void testReturnToMenuAfterWinningAndStartNewGame() {
+        context.startP5();
+        BossEntity boss = context.getBoss();
+        boss.takeDamage(boss.getHp() - 1);
+        context.getProjectiles().add(new Projectile(Projectile.Type.HERO_BUBBLE,
+            boss.getX() + 10, boss.getY() + 10, 0, 0, 1, true));
+        context.update(0);
+        context.getHero().resetPosition(context.getSacredTablet().getWorldX(), context.getSacredTablet().getWorldY());
+        context.update(1_000_000L);
+        assertEquals(GameContext.State.WIN, context.getState());
+
+        // Pressiona ESPAÇO para voltar ao menu principal
+        context.onKey(KeyCode.SPACE);
+        assertEquals(GameContext.State.MENU, context.getState());
+        assertFalse(context.canContinue(), "Após zerar o jogo, a opção não deve ser continuar a última fase vencida");
+
+        // No menu principal sem continue: opção 1 é Iniciar Jogo (já selecionada automaticamente no returnToMenu)
+        context.onKey(KeyCode.ENTER);
+
+        // Deve iniciar um novo jogo na Fase 1
+        assertEquals(1, context.getCurrentPhase());
+        assertEquals(GameContext.State.P1, context.getState());
+        assertEquals(0, context.getTabletsCollected());
+    }
 }
 

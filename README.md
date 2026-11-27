@@ -2,6 +2,33 @@
 
 > Jogo de ação e aventura subaquática 2.5D retro arcade — Java 21 + JavaFX
 
+[![Windows .exe](https://img.shields.io/badge/Windows-Download_.EXE_(Instalador_Completo)-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/passosdomingues/apsu-game/releases/latest)
+[![Linux .deb](https://img.shields.io/badge/Linux-Download_.DEB-E95420?style=for-the-badge&logo=ubuntu&logoColor=white)](https://github.com/passosdomingues/apsu-game/releases/latest)
+[![macOS .dmg](https://img.shields.io/badge/macOS-Download_.DMG-000000?style=for-the-badge&logo=apple&logoColor=white)](https://github.com/passosdomingues/apsu-game/releases/latest)
+[![Release v20261125](https://img.shields.io/badge/Versão-v20261125--213629-brightgreen?style=for-the-badge)](https://github.com/passosdomingues/apsu-game/releases/tag/v20261125-213629)
+
+---
+
+## 🎮 DOWNLOAD EM DESTAQUE (INSTALADOR EXECUTÁVEL)
+
+<div align="center">
+
+# 🪟 [⬇️ CLIQUE AQUI PARA BAIXAR O INSTALADOR WINDOWS (.EXE)](https://github.com/passosdomingues/apsu-game/releases/latest)
+
+### **Instalador Oficial para Windows 10 e Windows 11 (64-bit)**
+> **Pronto para jogar:** não requer instalação de Java nem configuração de variáveis de ambiente.  
+> O **Java 21 LTS** e todos os módulos gráficos e sonoros já vêm **100% embutidos** no executável `.exe`.
+
+| Plataforma | Pacote / Formato | Ação de Instalação |
+|---|---|---|
+| **Windows 10 / 11 (64-bit)** | **`.exe` (Instalador Nativo)** | **[👉 Baixar Executável (.exe)](https://github.com/passosdomingues/apsu-game/releases/latest)** |
+| **Linux (Ubuntu / Debian x64)** | `.deb` (Pacote Debian) | [👉 Baixar Pacote (.deb)](https://github.com/passosdomingues/apsu-game/releases/latest) |
+| **macOS (Apple Silicon & Intel)** | `.dmg` (Imagem de Disco) | [👉 Baixar Imagem (.dmg)](https://github.com/passosdomingues/apsu-game/releases/latest) |
+
+</div>
+
+---
+
 Mergulhe nas profundezas do oceano primordial da mitologia suméria. Controle **Adapa**, o sábio pescador amaldiçoado, pelas águas de Apsu enquanto enfrenta monstros abissais, recupera tabuletas sagradas e desperta poderes ancestrais — até o duelo final contra o temível **Kullullu** no Templo das Profundezas.
 
 ---
@@ -59,7 +86,7 @@ Clone e execute em um único comando no terminal:
 ```bash
 git clone https://github.com/passosdomingues/apsu-game.git
 cd apsu-game
-make run
+make
 ```
 
 *(Requer Java 21+ e Maven 3.9+. Caso prefira rodar diretamente via Maven: `mvn javafx:run`)*
@@ -68,14 +95,15 @@ make run
 
 ## 🖥️ Requisitos de Sistema
 
-| Componente | Requisitos Mínimos (Modo 2D Fallback) | Requisitos Recomendados (Modo Híbrido 2.5D / 3D 60 FPS) |
-|---|---|---|
-| **Sistema Operacional** | Windows 10 (64-bit), Ubuntu 20.04+, macOS 12+ | Windows 10/11 (64-bit), Ubuntu 22.04+, macOS 13+ |
-| **Processador (CPU)** | Intel Core i3 (4ª geração) / AMD FX-6300 (2 núcleos, 2.0 GHz) | Intel Core i5 (8ª geração) / AMD Ryzen 5 ou Apple M1+ (4+ núcleos) |
-| **Memória RAM** | 4 GB | 8 GB ou mais |
-| **Placa de Vídeo (GPU)** | Intel HD Graphics 4000 / Mesa OpenGL 2.1 | Placa com aceleração OpenGL 3.0+ / Direct3D 9+ (Intel Iris Xe, NVIDIA GTX 750+, AMD Radeon RX 550+) |
-| **Resolução de Tela** | 1280 × 720 (janela) | 1366 × 768 ou 1920 × 1080 (janela ou tela cheia) |
-| **Espaço em Disco** | 250 MB livres | 500 MB livres |
+| Componente | Requisitos Mínimos (Modo 2D Fallback) | Requisitos Recomendados (Modo Híbrido 2.5D / 3D 60 FPS) | Requisitos Desejáveis (Hardware de Referência Testado — Lab B207) |
+|---|---|---|---|
+| **Sistema Operacional** | Windows 10 (64-bit), Ubuntu 20.04+, macOS 12+ | Windows 10/11 (64-bit), Ubuntu 22.04+, macOS 13+ | **Ubuntu 26.04.1 LTS (Kernel 7.0 / Wayland 64-bit) ou Windows 11 (64-bit)** |
+| **Modelo de Referência** | Desktop padrão / Notebook comum | Desktop intermediário | **Daten Tecnologia Ltda DC5A-S (BIOS/Firmware A15)** |
+| **Processador (CPU)** | Intel Core i3 (4ª geração) / AMD FX-6300 (2 núcleos, 2.0 GHz) | Intel Core i5 (8ª geração) / AMD Ryzen 5 (4+ núcleos) | **AMD Ryzen™ 7 5700 × 16 threads (3.7 GHz base, 4.6 GHz turbo)** |
+| **Memória RAM** | 4 GB | 8 GB a 16 GB | **32,0 GiB RAM (Dual Channel DDR4)** |
+| **Placa de Vídeo (GPU)** | Intel HD Graphics 4000 / Mesa OpenGL 2.1 | Intel Iris Xe / AMD Radeon RX 550+ | **NVIDIA GeForce GTX 750 Ti (Aceleração OpenGL 4.6 / D3D / Vulkan)** |
+| **Armazenamento** | 250 MB livres | 500 MB livres (SSD recomendado) | **SSD 512,1 GB NVMe (leitura ultra-rápida de modelos 3D)** |
+| **Resolução & FPS** | 1280 × 720 (janela @ 30-50 FPS) | 1366 × 768 (tela cheia @ 60 FPS) | **1920 × 1080 / 1366 × 768 (Tela Cheia @ 60 FPS cravados VSync)** |
 
 ---
 
